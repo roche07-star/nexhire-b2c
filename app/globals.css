@@ -1001,6 +1001,160 @@ footer {
   gap: 16px;
 }
 
+/* ─── CAREER DIRECTION DEMO ─── */
+.career-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.career-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.career-card.active {
+  border-color: #e8a020;
+  background: rgba(232,160,32,0.08);
+}
+.career-card-type {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.career-card.active .career-card-type { color: #e8a020; }
+.career-card-salary {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.career-card-title {
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.career-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.career-tab {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: background 0.2s;
+}
+.career-tab:last-child { border-right: none; }
+.career-tab.active { background: rgba(232,160,32,0.12); }
+.career-tab-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.career-tab.active .career-tab-label { color: #e8a020; }
+.career-tab-sub { font-size: 10px; color: var(--muted); }
+
+.salary-band-wrap {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.salary-band-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted2);
+  margin-bottom: 4px;
+}
+.salary-band-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+}
+.salary-band-year { font-size: 12px; color: var(--muted2); }
+.salary-band-bar-wrap {
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.salary-band-bar {
+  height: 100%;
+  background: #e8a020;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+.salary-band-range { font-size: 12px; color: var(--muted2); text-align: right; }
+
+.career-detail {
+  background: rgba(232,160,32,0.06);
+  border: 1px solid rgba(232,160,32,0.25);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.career-detail-badge {
+  display: inline-block;
+  background: #e8a020;
+  color: #000;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.career-detail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.career-detail-title { font-size: 16px; font-weight: 700; }
+.career-detail-salary { font-size: 15px; font-weight: 700; }
+.career-detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.career-detail-list li {
+  font-size: 13px;
+  color: var(--muted2);
+  padding-left: 14px;
+  position: relative;
+}
+.career-detail-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #e8a020;
+}
+
 /* ─── ANALYZE PAGE ─── */
 .analyze-page {
   min-height: 100vh;
