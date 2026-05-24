@@ -748,6 +748,102 @@ footer {
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+/* ─── LOGIN PAGE ─── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.login-logo { margin-bottom: 4px; }
+.login-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+.login-sub { font-size: 14px; color: var(--muted); margin: 0; }
+.login-buttons { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.login-buttons form { width: 100%; }
+.btn-social {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+.btn-social:hover { opacity: 0.88; }
+.btn-google { background: #fff; color: #3c4043; }
+.btn-kakao { background: #FEE500; color: #3C1E1E; }
+.login-terms {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.7;
+  margin-top: 4px;
+}
+.login-terms a { color: var(--muted2); text-decoration: underline; }
+
+/* NAV USER */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.nav-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.nav-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-role-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.role-manager { background: rgba(232,255,71,0.15); color: var(--accent); border: 1px solid rgba(232,255,71,0.3); }
+.role-user { background: rgba(123,97,255,0.15); color: var(--accent2); border: 1px solid rgba(123,97,255,0.3); }
+
 /* ─── PRIVACY PAGE ─── */
 .privacy-page {
   min-height: 100vh;
