@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { extractText } from '@/lib/extractText'
+import { maskPII } from '@/lib/maskPII'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -75,6 +76,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '이력서에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
     }
 
+    // 성명·연락처·이메일 등 식별 정보는 외부 AI 전송 전 마스킹
+    const maskedText = maskPII(resumeText)
+
     const message = await client.messages.create({
       model: 'claude-opus-4-7',
       max_tokens: 2048,
@@ -83,7 +87,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `다음 이력서를 분석해 주세요. 헤드헌터의 관점에서 강점, 약점, 적합한 커리어 방향을 객관적으로 평가해 주세요.\n\n---\n${resumeText}\n---`,
+          content: `다음 이력서를 분석해 주세요. 헤드헌터의 관점에서 강점, 약점, 적합한 커리어 방향을 객관적으로 평가해 주세요.\n\n---\n${maskedText}\n---`,
         },
       ],
     })
