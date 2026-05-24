@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, DragEvent, ChangeEvent } from 'react'
+import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
@@ -23,6 +24,7 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   function handleFile(f: File) {
@@ -106,12 +108,26 @@ export default function AnalyzePage() {
             )}
           </div>
 
+          <label className="consent-wrap">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="consent-checkbox"
+            />
+            <span className="consent-text">
+              이력서 내 직무 정보가 AI 분석에 활용됨에 동의합니다.
+              성명·연락처·이메일은 분석 전 자동 마스킹 처리됩니다.{' '}
+              <Link href="/privacy" target="_blank" className="consent-link">개인정보처리방침</Link>
+            </span>
+          </label>
+
           {error && <div className="analyze-error">{error}</div>}
 
           <button
             className="btn-hero analyze-btn"
             onClick={onAnalyze}
-            disabled={!file || loading}
+            disabled={!file || loading || !agreed}
           >
             {loading ? 'AI 분석 중...' : '분석 시작하기 →'}
           </button>

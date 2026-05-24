@@ -19,8 +19,8 @@ export default function Footer() {
       <div className="footer-copy">© 2026 Nexhire. All rights reserved.</div>
       <div className="footer-links">
         <a href="#">이용약관</a>
-        <a href="#">개인정보처리방침</a>
-        <a href="#">문의하기</a>
+        <a href="/privacy">개인정보처리방침</a>
+        <a href="mailto:privacy@nexhire.co">문의하기</a>
       </div>
     </footer>
   )
