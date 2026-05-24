@@ -13,7 +13,7 @@ const plans = [
     name: 'Pro',
     price: '₩19,900',
     desc: '진지하게 이직을 준비하는 분',
-    features: ['이력서 분석 무제한', '심층 점수 리포트', '커리어 방향 5가지 제안', '이력서 자동 리라이팅', 'PDF/DOCX 다운로드'],
+    features: ['이력서 분석 무제한', '심층 점수 리포트', '커리어 방향 3가지 제안', '이력서 자동 리라이팅', 'PDF/DOCX 다운로드'],
     disabled: ['1:1 헤드헌터 피드백'],
     btnClass: 'btn-plan-fill',
     btnText: 'Pro 시작하기',
