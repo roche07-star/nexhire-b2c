@@ -12,11 +12,11 @@ const careerPaths = [
     salaryColor: 'var(--muted2)',
     desc: 'GTM·마케팅 전문성 심화',
     bands: [
-      { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 4200, max: 4800, pct: 45 },
-      { label: '3년차', min: 4800, max: 5200, pct: 58 },
-      { label: '5년차', min: 5200, max: 5800, pct: 68 },
-      { label: '7년차+', min: 5500, max: 6500, pct: 78 },
+      { label: '현재(3년차)', min: 0, max: 0, pct: 0 },
+      { label: '1년 뒤', min: 4200, max: 4800, pct: 45 },
+      { label: '3년 뒤', min: 4800, max: 5200, pct: 58 },
+      { label: '5년 뒤', min: 5200, max: 5800, pct: 68 },
+      { label: '7년 뒤+', min: 5500, max: 6500, pct: 78 },
     ],
     points: [
       'GTM 전략 전문가로 SaaS 기업 마케팅 리더 성장',
@@ -32,11 +32,11 @@ const careerPaths = [
     salaryColor: '#e8a020',
     desc: 'GTM 경험 + PM 전환, 시장 수요 최고',
     bands: [
-      { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 4800, max: 5500, pct: 55 },
-      { label: '3년차', min: 5500, max: 6500, pct: 70 },
-      { label: '5년차', min: 6500, max: 7500, pct: 85 },
-      { label: '7년차+', min: 7000, max: 9000, pct: 95 },
+      { label: '현재(3년차)', min: 0, max: 0, pct: 0 },
+      { label: '1년 뒤', min: 4800, max: 5500, pct: 55 },
+      { label: '3년 뒤', min: 5500, max: 6500, pct: 70 },
+      { label: '5년 뒤', min: 6500, max: 7500, pct: 85 },
+      { label: '7년 뒤+', min: 7000, max: 9000, pct: 95 },
     ],
     points: [
       'B2B GTM 경험은 SaaS PM 전환 시 핵심 강점으로 작용',
@@ -53,11 +53,11 @@ const careerPaths = [
     salaryColor: 'var(--accent)',
     desc: '높은 리스크, 높은 보상',
     bands: [
-      { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 5500, max: 7000, pct: 68 },
-      { label: '3년차', min: 6500, max: 9000, pct: 82 },
-      { label: '5년차', min: 8000, max: 12000, pct: 92 },
-      { label: '7년차+', min: 10000, max: 0, pct: 100 },
+      { label: '현재(3년차)', min: 0, max: 0, pct: 0 },
+      { label: '1년 뒤', min: 5500, max: 7000, pct: 68 },
+      { label: '3년 뒤', min: 6500, max: 9000, pct: 82 },
+      { label: '5년 뒤', min: 8000, max: 12000, pct: 92 },
+      { label: '7년 뒤+', min: 10000, max: 0, pct: 100 },
     ],
     points: [
       'B2B SaaS 도메인 지식 + GTM 경험으로 창업 적합도 높음',
@@ -77,7 +77,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         <button className="demo-modal-close" onClick={onClose}>✕</button>
         <div className="demo-modal-header">
           <div className="section-label">SAMPLE ANALYSIS — PRO</div>
-          <h2 className="demo-modal-title">커리어 방향 분석</h2>
+          <h2 className="demo-modal-title">3년차 B2B SaaS 마케터 <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>· 연봉 3,800만원</span></h2>
           <p className="demo-modal-sub">실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.</p>
         </div>
 
@@ -167,7 +167,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
 
           {/* Salary band chart */}
           <div className="salary-band-wrap">
-            <div className="salary-band-title">연봉 밴드 — {active.label} (단위: 만원)</div>
+            <div className="salary-band-title">연봉 밴드 — {active.label} · 현재 기준: 3년차 (단위: 만원)</div>
             {active.bands.map((b) => (
               <div key={b.label} className="salary-band-row">
                 <span className="salary-band-year">{b.label}</span>
