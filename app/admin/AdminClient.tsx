@@ -6,7 +6,7 @@ interface User {
   email: string
   name: string | null
   image: string | null
-  plan: 'FREE' | 'PRO'
+  plan: 'FREE' | 'PRO' | 'EXPERT'
   analyze_count: number
   analyze_reset_at: string
   created_at: string
@@ -17,7 +17,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const [loading, setLoading] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
 
-  async function changePlan(email: string, plan: 'FREE' | 'PRO') {
+  async function changePlan(email: string, plan: 'FREE' | 'PRO' | 'EXPERT') {
     setLoading(email + plan)
     const res = await fetch('/api/admin/plan', {
       method: 'POST',
@@ -48,7 +48,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   }
 
   const total = users.length
-  const proCount = users.filter((u) => u.plan === 'PRO').length
+  const proCount = users.filter((u) => u.plan === 'PRO' || u.plan === 'EXPERT').length
   const totalAnalyzes = users.reduce((sum, u) => sum + u.analyze_count, 0)
 
   return (
@@ -111,7 +111,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                     </div>
                   </td>
                   <td>
-                    <span className={`admin-plan-badge ${u.plan === 'PRO' ? 'pro' : 'free'}`}>
+                    <span className={`admin-plan-badge ${u.plan === 'EXPERT' ? 'expert' : u.plan === 'PRO' ? 'pro' : 'free'}`}>
                       {u.plan}
                     </span>
                   </td>
@@ -119,6 +119,11 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                   <td className="admin-date">{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
                   <td>
                     <div className="admin-actions">
+                      <button
+                        className="admin-btn expert"
+                        disabled={u.plan === 'EXPERT' || loading === u.email + 'EXPERT'}
+                        onClick={() => changePlan(u.email, 'EXPERT')}
+                      >EXPERT</button>
                       <button
                         className="admin-btn pro"
                         disabled={u.plan === 'PRO' || loading === u.email + 'PRO'}

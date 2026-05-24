@@ -17,22 +17,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user }) {
       if (!user.email) return true
+      const managers = (process.env.MANAGER_EMAILS ?? '')
+        .split(',').map((e) => e.trim()).filter(Boolean)
+      const isManager = managers.includes(user.email)
+
       await supabase.from('users').upsert(
         {
           email: user.email,
           name: user.name,
           image: user.image,
+          ...(isManager ? { plan: 'EXPERT' } : {}),
         },
-        { onConflict: 'email', ignoreDuplicates: true }
+        { onConflict: 'email', ignoreDuplicates: !isManager }
       )
       return true
     },
     async jwt({ token, user }) {
       if (user?.email) {
         const managers = (process.env.MANAGER_EMAILS ?? '')
-          .split(',')
-          .map((e) => e.trim())
-          .filter(Boolean)
+          .split(',').map((e) => e.trim()).filter(Boolean)
         token.role = managers.includes(user.email) ? 'MANAGER' : 'USER'
 
         const { data } = await supabase
@@ -47,7 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as 'MANAGER' | 'USER'
-        session.user.plan = token.plan as 'FREE' | 'PRO'
+        session.user.plan = token.plan as 'FREE' | 'PRO' | 'EXPERT'
       }
       return session
     },

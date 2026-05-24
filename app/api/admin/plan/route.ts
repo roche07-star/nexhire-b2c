@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, plan } = await req.json()
-  if (!email || !['FREE', 'PRO'].includes(plan)) {
+  if (!email || !['FREE', 'PRO', 'EXPERT'].includes(plan)) {
     return NextResponse.json({ error: '잘못된 요청' }, { status: 400 })
   }
 

@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
           userData.analyze_count = 0
         }
 
-        const limit = userData.plan === 'PRO' ? Infinity : 1
+        const limit = (userData.plan === 'PRO' || userData.plan === 'EXPERT') ? Infinity : 1
         if (userData.analyze_count >= limit) {
           return NextResponse.json(
             { error: '이번 달 무료 분석 횟수(1회)를 모두 사용했습니다. PRO로 업그레이드하면 무제한 이용 가능합니다.' },
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
       .eq('email', session.user.email)
       .single()
 
-    const plan = session.user.role === 'MANAGER' ? 'PRO' : (planData?.plan ?? 'FREE')
+    const plan = session.user.role === 'MANAGER' ? 'EXPERT' : (planData?.plan ?? 'FREE')
     const careerCount = plan === 'FREE' ? 1 : 3
 
     const message = await client.messages.create({

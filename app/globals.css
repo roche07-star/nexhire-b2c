@@ -1248,6 +1248,7 @@ footer {
   font-weight: 700;
   letter-spacing: 0.06em;
 }
+.admin-plan-badge.expert { background: rgba(123,97,255,0.2); color: #b8a0ff; }
 .admin-plan-badge.pro { background: rgba(232,255,71,0.15); color: var(--accent); }
 .admin-plan-badge.free { background: var(--surface2); color: var(--muted); }
 
@@ -1268,6 +1269,7 @@ footer {
   transition: all 0.15s;
 }
 .admin-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.admin-btn.expert:not(:disabled):hover { background: rgba(123,97,255,0.2); color: #b8a0ff; border-color: #b8a0ff; }
 .admin-btn.pro:not(:disabled):hover { background: rgba(232,255,71,0.15); color: var(--accent); border-color: var(--accent); }
 .admin-btn.free:not(:disabled):hover { background: var(--surface2); color: var(--text); }
 .admin-btn.reset:not(:disabled):hover { background: rgba(255,128,128,0.15); color: #ff8080; border-color: #ff8080; }
