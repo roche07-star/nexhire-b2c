@@ -7,62 +7,62 @@ const careerPaths = [
   {
     type: 'BASELINE',
     label: '현재 경로 유지',
-    title: 'IT 기획/운영',
-    salary: '3,800만원~4,500만원',
+    title: 'B2B 마케팅 팀장',
+    salary: '4,200만원~5,500만원',
     salaryColor: 'var(--muted2)',
-    desc: '현재 역량 기반, 안정적 성장',
+    desc: 'GTM·마케팅 전문성 심화',
     bands: [
       { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 3800, max: 4200, pct: 40 },
-      { label: '3년차', min: 4200, max: 4800, pct: 55 },
-      { label: '5년차', min: 4800, max: 5500, pct: 70 },
-      { label: '7년차+', min: 5500, max: 6000, pct: 80 },
+      { label: '1년차', min: 4200, max: 4800, pct: 45 },
+      { label: '3년차', min: 4800, max: 5200, pct: 58 },
+      { label: '5년차', min: 5200, max: 5800, pct: 68 },
+      { label: '7년차+', min: 5500, max: 6500, pct: 78 },
     ],
     points: [
-      '현재 기획 역량을 바탕으로 안정적 성장 가능',
-      'IT 서비스 기획 → 프로덕트 오너 전환 경로',
-      '대기업 IT 계열사 이직으로 처우 개선 가능',
+      'GTM 전략 전문가로 SaaS 기업 마케팅 리더 성장',
+      'B2B 세일즈·마케팅 경력 심화로 안정적 처우 향상',
+      '대형 SaaS 기업 마케팅 팀장 이직으로 연봉 점프 가능',
     ],
   },
   {
     type: 'RECOMMENDED',
     label: '추천 경로',
     title: 'Product Manager (AI/SaaS)',
-    salary: '4,500만원~7,000만원',
+    salary: '4,800만원~7,500만원',
     salaryColor: '#e8a020',
-    desc: '성장성 + 시장 수요 최적 조합',
+    desc: 'GTM 경험 + PM 전환, 시장 수요 최고',
     bands: [
       { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 4500, max: 5000, pct: 50 },
-      { label: '3년차', min: 5200, max: 6000, pct: 65 },
-      { label: '5년차', min: 6000, max: 6800, pct: 80 },
-      { label: '7년차+', min: 6500, max: 7000, pct: 90 },
+      { label: '1년차', min: 4800, max: 5500, pct: 55 },
+      { label: '3년차', min: 5500, max: 6500, pct: 70 },
+      { label: '5년차', min: 6500, max: 7500, pct: 85 },
+      { label: '7년차+', min: 7000, max: 9000, pct: 95 },
     ],
     points: [
-      'AI/SaaS PM 수요 급증 — 이직 성공률 높음',
-      '데이터 기반 의사결정 경험을 강점으로 어필',
-      '스타트업 → 성장기 테크 기업 순서로 이동 권장',
-      '3~4년차에 시리즈B+ 기업 Senior PM 도약 가능',
+      'B2B GTM 경험은 SaaS PM 전환 시 핵심 강점으로 작용',
+      'SQL·데이터 분석 역량이 데이터 기반 PM으로 차별화',
+      'AI 스타트업 시리즈A·B 기업에서 즉시 전력 가능',
+      '3년 내 Senior PM → 4~5년차에 Head of Product 도약 경로',
     ],
   },
   {
     type: 'STRETCH',
     label: '고성장 경로',
-    title: '전략 컨설턴트 / 스타트업 COO',
+    title: 'SaaS 창업 / VC 투자심사역',
     salary: '6,000만원~1억+',
     salaryColor: 'var(--accent)',
-    desc: '높은 도전, 높은 보상',
+    desc: '높은 리스크, 높은 보상',
     bands: [
       { label: '현재', min: 0, max: 0, pct: 0 },
-      { label: '1년차', min: 5500, max: 6500, pct: 65 },
-      { label: '3년차', min: 6500, max: 8000, pct: 78 },
-      { label: '5년차', min: 8000, max: 10000, pct: 90 },
+      { label: '1년차', min: 5500, max: 7000, pct: 68 },
+      { label: '3년차', min: 6500, max: 9000, pct: 82 },
+      { label: '5년차', min: 8000, max: 12000, pct: 92 },
       { label: '7년차+', min: 10000, max: 0, pct: 100 },
     ],
     points: [
-      'MBA 또는 탑티어 컨설팅펌 경력 병행 시 유리',
-      '스타트업 초기 멤버로 합류 후 지분 확보 전략',
-      '높은 리스크 — 실행력과 네트워크가 핵심',
+      'B2B SaaS 도메인 지식 + GTM 경험으로 창업 적합도 높음',
+      'VC 투자심사역 전환 시 SaaS 포트폴리오 검토 역량 인정',
+      '리스크 높음 — 네트워크와 자본 확보 전략이 선행되어야 함',
     ],
   },
 ]
@@ -103,14 +103,14 @@ function DemoModal({ onClose }: { onClose: () => void }) {
 
           <div className="demo-summary-block">
             <div className="results-label">종합 요약</div>
-            <p className="result-summary">마케팅과 데이터 분석 역량을 겸비한 지원자로, B2B SaaS 환경에서 전략 기획 및 GTM 실행 경험이 돋보입니다. 빠르게 성장하는 AI 스타트업 또는 테크 기업의 PM/전략 포지션에 높은 적합도를 보입니다.</p>
+            <p className="result-summary">B2B SaaS 기업에서 GTM 전략 수립과 실행을 주도한 3년차 마케터로, 데이터 기반 의사결정과 SQL 분석 역량이 강점입니다. PM 전환 시 즉시 전력이 가능하며, AI·SaaS 분야 Product Manager로의 커리어 전환을 강력히 추천합니다.</p>
           </div>
 
           <div className="demo-grid">
             <div className="results-section">
               <div className="results-label">핵심 키워드</div>
               <div className="keyword-chips">
-                {['GTM 전략', 'SaaS', '데이터 분석', 'B2B', 'SQL', 'Figma', '애자일', 'OKR'].map((k) => (
+                {['GTM 전략', 'B2B SaaS', 'SQL', '데이터 분석', 'OKR', 'Figma', '애자일', 'CRM'].map((k) => (
                   <span key={k} className="keyword-chip">{k}</span>
                 ))}
               </div>
@@ -118,18 +118,18 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             <div className="results-section">
               <div className="results-label">✦ 강점</div>
               <ul className="result-list">
-                <li>다양한 산업군에서의 전략 기획 경험</li>
-                <li>정량적 성과 중심의 이력서 서술</li>
-                <li>글로벌 팀 협업 및 영어 커뮤니케이션</li>
-                <li>빠른 실행력과 스타트업 적응력</li>
+                <li>B2B GTM 전 과정 실행 경험 (리드 발굴~클로징)</li>
+                <li>SQL로 퍼널 분석·성과 측정 직접 수행</li>
+                <li>스타트업 초기 멤버로 0→1 성장 경험 보유</li>
+                <li>영어 비즈니스 커뮤니케이션 능숙</li>
               </ul>
             </div>
             <div className="results-section">
               <div className="results-label">개선 포인트</div>
               <ul className="result-list improvement-list">
-                <li>기술 스택 명시가 부족함 (개발 협업 역량 강조 필요)</li>
-                <li>리더십 경험 구체화 필요</li>
-                <li>포트폴리오 또는 사이드 프로젝트 추가 권장</li>
+                <li>PM 전환을 위한 프로덕트 스펙 작성 경험 부족</li>
+                <li>리더십·팀 관리 경험 이력서에 명시 필요</li>
+                <li>사이드 프로젝트 또는 PM 부트캠프 이수 권장</li>
               </ul>
             </div>
           </div>
