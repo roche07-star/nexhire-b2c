@@ -1115,6 +1115,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  text-align: left;
 }
 .career-detail-badge {
   display: inline-block;
