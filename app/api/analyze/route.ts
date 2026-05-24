@@ -25,7 +25,7 @@ const analyzeResumeTool: Anthropic.Tool = {
       careers: {
         type: 'array',
         items: { type: 'string' },
-        description: '추천 커리어 방향 (최대 3개)',
+        description: '추천 커리어 방향',
       },
       strengths: {
         type: 'array',
@@ -121,6 +121,15 @@ export async function POST(req: NextRequest) {
 
     const maskedText = maskPII(resumeText)
 
+    const { data: planData } = await supabase
+      .from('users')
+      .select('plan')
+      .eq('email', session.user.email)
+      .single()
+
+    const plan = session.user.role === 'MANAGER' ? 'PRO' : (planData?.plan ?? 'FREE')
+    const careerCount = plan === 'FREE' ? 1 : 5
+
     const message = await client.messages.create({
       model: 'claude-opus-4-7',
       max_tokens: 2048,
@@ -129,7 +138,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'user',
-          content: `다음 이력서를 분석해 주세요. 헤드헌터의 관점에서 강점, 약점, 적합한 커리어 방향을 객관적으로 평가해 주세요.\n\n---\n${maskedText}\n---`,
+          content: `다음 이력서를 분석해 주세요. 헤드헌터의 관점에서 강점, 약점, 적합한 커리어 방향을 객관적으로 평가해 주세요. 커리어 방향은 정확히 ${careerCount}가지만 제안해 주세요.\n\n---\n${maskedText}\n---`,
         },
       ],
     })
