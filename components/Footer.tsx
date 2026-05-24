@@ -16,7 +16,7 @@ export default function Footer() {
           NEXHIRE
         </span>
       </div>
-      <div className="footer-copy">© 2026 Nexhire by HEDING. All rights reserved.</div>
+      <div className="footer-copy">© 2026 Nexhire. All rights reserved.</div>
       <div className="footer-links">
         <a href="#">이용약관</a>
         <a href="#">개인정보처리방침</a>
