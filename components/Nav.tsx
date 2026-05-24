@@ -38,6 +38,9 @@ export default async function Nav() {
                 {user.role === 'MANAGER' ? 'Manager' : 'User'}
               </span>
             </div>
+            {user.role === 'MANAGER' && (
+              <Link href="/admin"><button className="btn-ghost">관리자</button></Link>
+            )}
             <form action={async () => {
               'use server'
               await signOut({ redirectTo: '/' })
