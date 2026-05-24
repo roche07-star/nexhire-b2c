@@ -748,6 +748,146 @@ footer {
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+/* ─── ANALYZE PAGE ─── */
+.analyze-page {
+  min-height: 100vh;
+  padding: 120px 24px 80px;
+  display: flex;
+  justify-content: center;
+}
+.analyze-container {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.analyze-header { text-align: center; }
+.analyze-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  color: #fff;
+  margin: 8px 0 12px;
+}
+.analyze-sub { color: var(--muted2); font-size: 16px; line-height: 1.7; }
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover, .upload-zone.dragging {
+  border-color: var(--accent);
+  background: rgba(232,255,71,0.04);
+}
+.upload-zone.has-file { border-color: var(--accent2); }
+.upload-icon-main { font-size: 40px; }
+.upload-icon-success {
+  width: 48px; height: 48px;
+  background: var(--accent2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: #fff;
+}
+.upload-main-text { font-size: 16px; font-weight: 600; color: var(--text); }
+.upload-filename { font-size: 15px; font-weight: 600; color: var(--accent2); }
+.upload-hint { font-size: 13px; color: var(--muted); }
+
+.analyze-btn { align-self: center; min-width: 200px; }
+.analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.analyze-error {
+  background: rgba(255,80,80,0.12);
+  border: 1px solid rgba(255,80,80,0.3);
+  color: #ff8080;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 14px;
+}
+
+.analyze-loading { text-align: center; }
+.loading-bar {
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.loading-fill {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 4px;
+  animation: loadSlide 1.8s ease-in-out infinite;
+}
+@keyframes loadSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+.loading-text { font-size: 14px; color: var(--muted2); }
+
+/* Results */
+.results-wrap { display: flex; flex-direction: column; gap: 24px; }
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.results-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.results-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.result-score-row { display: flex; flex-direction: column; gap: 6px; }
+.score-meta { display: flex; justify-content: space-between; align-items: center; }
+.score-name { font-size: 14px; color: var(--muted2); }
+.score-val { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; color: var(--accent); }
+
+.result-summary { font-size: 15px; color: var(--muted2); line-height: 1.75; }
+
+.result-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.result-list li {
+  font-size: 14px;
+  color: var(--muted2);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.result-list li::before { content: '·'; position: absolute; left: 0; color: var(--accent2); font-weight: 700; }
+.career-list li::before { color: var(--accent); }
+.improvement-list li::before { color: #ff8080; }
+
+.keyword-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.keyword-chip {
+  background: rgba(123,97,255,0.15);
+  border: 1px solid rgba(123,97,255,0.3);
+  color: var(--accent2);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .nav-links { display: none; }
@@ -763,4 +903,6 @@ footer {
   .stat-item { border-right: none; padding: 0 24px; }
   footer { flex-direction: column; gap: 16px; text-align: center; }
   .nav-logo-text { font-size: 15px; letter-spacing: 1.5px; }
+  .results-grid { grid-template-columns: 1fr; }
+  .analyze-page { padding: 100px 16px 60px; }
 }

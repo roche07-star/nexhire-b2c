@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Hero() {
   return (
     <section className="hero">
@@ -20,7 +22,7 @@ export default function Hero() {
       </p>
 
       <div className="hero-actions">
-        <button className="btn-hero">이력서 분석 시작하기 →</button>
+        <Link href="/analyze"><button className="btn-hero">이력서 분석 시작하기 →</button></Link>
         <button className="btn-hero-ghost">데모 보기</button>
       </div>
 
