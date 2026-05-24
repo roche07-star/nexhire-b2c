@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Kakao from 'next-auth/providers/kakao'
+import { supabase } from '@/lib/supabase'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,19 +15,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async signIn({ user }) {
+      if (!user.email) return true
+      await supabase.from('users').upsert(
+        {
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        },
+        { onConflict: 'email', ignoreDuplicates: true }
+      )
+      return true
+    },
+    async jwt({ token, user }) {
       if (user?.email) {
         const managers = (process.env.MANAGER_EMAILS ?? '')
           .split(',')
           .map((e) => e.trim())
           .filter(Boolean)
         token.role = managers.includes(user.email) ? 'MANAGER' : 'USER'
+
+        const { data } = await supabase
+          .from('users')
+          .select('plan')
+          .eq('email', user.email)
+          .single()
+        token.plan = data?.plan ?? 'FREE'
       }
       return token
     },
     session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as 'MANAGER' | 'USER'
+        session.user.plan = token.plan as 'FREE' | 'PRO'
       }
       return session
     },

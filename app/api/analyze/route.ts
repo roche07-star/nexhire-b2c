@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { extractText } from '@/lib/extractText'
 import { maskPII } from '@/lib/maskPII'
+import { auth } from '@/auth'
+import { supabase } from '@/lib/supabase'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -51,6 +53,47 @@ const analyzeResumeTool: Anthropic.Tool = {
 
 export async function POST(req: NextRequest) {
   try {
+    // 로그인 확인
+    const session = await auth()
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
+    const { email, role } = session.user
+
+    // FREE 플랜 횟수 제한 확인
+    if (role !== 'MANAGER') {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('plan, analyze_count, analyze_reset_at')
+        .eq('email', email)
+        .single()
+
+      if (userData) {
+        // 리셋 날짜가 지났으면 횟수 초기화
+        const resetAt = new Date(userData.analyze_reset_at)
+        if (new Date() >= resetAt) {
+          const nextReset = new Date()
+          nextReset.setMonth(nextReset.getMonth() + 1)
+          nextReset.setDate(1)
+          nextReset.setHours(0, 0, 0, 0)
+          await supabase
+            .from('users')
+            .update({ analyze_count: 0, analyze_reset_at: nextReset.toISOString() })
+            .eq('email', email)
+          userData.analyze_count = 0
+        }
+
+        const limit = userData.plan === 'PRO' ? Infinity : 1
+        if (userData.analyze_count >= limit) {
+          return NextResponse.json(
+            { error: '이번 달 무료 분석 횟수(1회)를 모두 사용했습니다. PRO로 업그레이드하면 무제한 이용 가능합니다.' },
+            { status: 403 }
+          )
+        }
+      }
+    }
+
     const formData = await req.formData()
     const file = formData.get('resume') as File | null
 
@@ -76,7 +119,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '이력서에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
     }
 
-    // 성명·연락처·이메일 등 식별 정보는 외부 AI 전송 전 마스킹
     const maskedText = maskPII(resumeText)
 
     const message = await client.messages.create({
@@ -95,6 +137,11 @@ export async function POST(req: NextRequest) {
     const toolUse = message.content.find((c) => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
       return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+    }
+
+    // 분석 성공 시 횟수 증가 (MANAGER 제외)
+    if (role !== 'MANAGER') {
+      await supabase.rpc('increment_analyze_count', { user_email: email })
     }
 
     return NextResponse.json(toolUse.input)
