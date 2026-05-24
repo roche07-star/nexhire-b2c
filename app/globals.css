@@ -758,9 +758,6 @@ footer {
 .privacy-container {
   width: 100%;
   max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 .privacy-title {
   font-family: 'Outfit', sans-serif;
@@ -768,18 +765,20 @@ footer {
   font-weight: 800;
   color: #fff;
   margin-bottom: 4px;
+  text-align: left;
 }
-.privacy-date { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
-.privacy-section { padding: 28px 0; border-top: 1px solid var(--border); }
+.privacy-date { font-size: 13px; color: var(--muted); margin-bottom: 32px; text-align: left; }
+.privacy-section { padding: 28px 0; border-top: 1px solid var(--border); text-align: left; }
 .privacy-section h2 {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent);
   margin-bottom: 12px;
+  text-align: left;
 }
-.privacy-section p { font-size: 14px; color: var(--muted2); line-height: 1.8; margin-bottom: 8px; }
-.privacy-section ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.privacy-section p { font-size: 14px; color: var(--muted2); line-height: 1.8; margin-bottom: 8px; text-align: left; }
+.privacy-section ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
 .privacy-section li { font-size: 14px; color: var(--muted2); line-height: 1.7; }
 .privacy-table {
   width: 100%;
@@ -787,6 +786,7 @@ footer {
   font-size: 13px;
   color: var(--muted2);
   margin-top: 8px;
+  text-align: left;
 }
 .privacy-table th, .privacy-table td {
   border: 1px solid var(--border);
