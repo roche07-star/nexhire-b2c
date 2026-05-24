@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     const plan = session.user.role === 'MANAGER' ? 'PRO' : (planData?.plan ?? 'FREE')
-    const careerCount = plan === 'FREE' ? 1 : 5
+    const careerCount = plan === 'FREE' ? 1 : 3
 
     const message = await client.messages.create({
       model: 'claude-opus-4-7',
