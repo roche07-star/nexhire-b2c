@@ -351,6 +351,9 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                   {savedAnalysis && <span className="tab-badge">{new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>}
                 </button>
                 <button className="analyze-tab-btn disabled" disabled>
+                  <span>📋</span> JD기반분석 <span className="tab-soon">준비중</span>
+                </button>
+                <button className="analyze-tab-btn disabled" disabled>
                   <span>✏️</span> Re-Writing <span className="tab-soon">준비중</span>
                 </button>
               </div>
