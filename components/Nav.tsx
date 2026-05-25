@@ -26,6 +26,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
           <li><a href="/#features">기능</a></li>
           <li><a href="/#pricing">가격</a></li>
           <li><a href="/#faq">FAQ</a></li>
+          <li><Link href="/store">Store</Link></li>
         </ul>
       )}
       <div className="nav-cta">
