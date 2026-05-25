@@ -1068,6 +1068,10 @@ function JDResults({
         </div>
       </div>
 
+      <div className="jd-disclaimer">
+        ※ 본 분석 결과는 입력된 채용공고(JD) 기준으로 AI가 평가한 것이며, 실제 채용 회사의 내부 기준 및 평가에 따라 결과가 다를 수 있습니다.
+      </div>
+
       {expiresAt && (
         <div className="analyze-storage-notice">
           <span className="storage-icon">🔒</span>

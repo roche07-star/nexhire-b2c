@@ -2240,6 +2240,14 @@ footer {
   gap: 10px;
   margin-top: 4px;
 }
+.jd-disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  padding: 10px 14px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+}
+
 .jd-saved-divider::before, .jd-saved-divider::after {
   content: '';
   flex: 1;
