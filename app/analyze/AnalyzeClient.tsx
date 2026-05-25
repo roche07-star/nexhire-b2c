@@ -511,8 +511,10 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                 </div>
               ) : (
                 <>
-                  <h1 className="analyze-title">이력서 분석</h1>
-                  {activeMenu !== 'saved' && (
+                  <h1 className="analyze-title">
+                    {activeMenu === 'jd' ? 'JD 적합도 분석' : '이력서 분석'}
+                  </h1>
+                  {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 AI가 3분 안에 커리어 방향을 제시합니다.</p>
                   )}
                 </>
