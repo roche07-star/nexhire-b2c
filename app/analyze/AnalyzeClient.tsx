@@ -426,10 +426,6 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
     } else if (id === 'jd') {
       setResult(null)
       setActiveMenu('jd')
-      setJdSelectedAnalysis(null)
-      setJdResult(null)
-      setJdCompany('')
-      setJdContent('')
       if (!analysisList) {
         setAnalysisListLoading(true)
         fetch('/api/analyze/list')
