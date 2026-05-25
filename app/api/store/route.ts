@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         content: content.trim(),
         author_email: session.user.email,
-        author_name: session.user.name ?? session.user.email,
+        author_name: 'Manager',
       })
       .select('id, title, content, author_name, created_at')
       .single()
