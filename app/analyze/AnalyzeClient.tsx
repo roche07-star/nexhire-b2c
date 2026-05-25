@@ -369,6 +369,8 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [analysisList, setAnalysisList] = useState<AnalysisListItem[] | null>(null)
   const [analysisListLoading, setAnalysisListLoading] = useState(false)
   const [jdSelectedAnalysis, setJdSelectedAnalysis] = useState<AnalysisListItem | null>(null)
+  const [savedSelectedItem, setSavedSelectedItem] = useState<AnalysisListItem | null>(null)
+  const [savedListLoading, setSavedListLoading] = useState(false)
   const [jdSavedList, setJdSavedList] = useState<SavedJDAnalysis[] | null>(null)
   const [jdSavedListLoading, setJdSavedListLoading] = useState(false)
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
@@ -453,6 +455,8 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
         setAgreed(false)
         // 쿠폰 사용 후 목록 갱신
         fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
+        // 분석 목록 갱신 (saved 탭)
+        fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
           const newSaved: SavedAnalysis = {
             result: data,
@@ -470,9 +474,17 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   }
 
   function onMenuClick(id: SidebarMenu) {
-    if (id === 'saved' && savedAnalysis) {
-      setResult(savedAnalysis.result)
+    if (id === 'saved') {
+      setResult(null)
       setActiveMenu('saved')
+      if (!analysisList) {
+        setSavedListLoading(true)
+        fetch('/api/analyze/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setAnalysisList(analyses ?? []))
+          .catch(() => setAnalysisList([]))
+          .finally(() => setSavedListLoading(false))
+      }
     } else if (id === 'upload') {
       setResult(null)
       setActiveMenu('upload')
@@ -550,12 +562,11 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                   <span>📄</span> 새 분석
                 </button>
                 <button
-                  className={`analyze-tab-btn${activeMenu === 'saved' ? ' active' : ''}${!savedAnalysis ? ' disabled' : ''}`}
+                  className={`analyze-tab-btn${activeMenu === 'saved' ? ' active' : ''}`}
                   onClick={() => onMenuClick('saved')}
-                  disabled={!savedAnalysis}
                 >
                   <span>📂</span> 분석 다시 보기
-                  {savedAnalysis && <span className="tab-badge">{new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>}
+                  {analysisList && analysisList.length > 0 && <span className="tab-badge">{analysisList.length}개</span>}
                 </button>
                 <button
                   className={`analyze-tab-btn${activeMenu === 'jd' ? ' active' : ''}`}
@@ -585,6 +596,57 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                 </>
               )}
             </div>
+
+            {/* 분석 다시보기 모드 */}
+            {activeMenu === 'saved' && (
+              <div className="jd-section">
+                {savedSelectedItem ? (
+                  <>
+                    <button className="jd-back-btn" onClick={() => setSavedSelectedItem(null)}>
+                      ← 목록으로
+                    </button>
+                    <div className="analyze-saved-notice">
+                      <span>📂 저장된 분석 결과</span>
+                      <span className="analyze-saved-date">
+                        분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')} &nbsp;·&nbsp;
+                        {new Date(savedSelectedItem.expires_at).toLocaleDateString('ko-KR')} 까지 저장
+                      </span>
+                    </div>
+                    <AnalysisResults result={savedSelectedItem.result} />
+                  </>
+                ) : (
+                  <>
+                    <div className="jd-list-title">분석 결과를 선택하세요</div>
+                    {savedListLoading ? (
+                      <div className="jd-list-loading">불러오는 중...</div>
+                    ) : !analysisList || analysisList.length === 0 ? (
+                      <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
+                    ) : (
+                      <div className="jd-saved-list">
+                        {analysisList.map((item) => (
+                          <button
+                            key={item.id}
+                            className="jd-saved-card"
+                            onClick={() => setSavedSelectedItem(item)}
+                          >
+                            <div className="jd-saved-card-left">
+                              <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                              <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
+                            </div>
+                            <div className="jd-saved-card-right">
+                              <span className="jd-saved-score" style={{ color: 'var(--accent)' }}>
+                                {item.result.scores?.job_fit ?? '—'}%
+                              </span>
+                              <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
@@ -825,28 +887,15 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
               </>
             )}
 
-            {/* 결과 모드 (새 분석 or 저장된 분석) */}
-            {result && activeMenu !== 'jd' && (
+            {/* 결과 모드 (새 분석 — upload 탭) */}
+            {result && activeMenu === 'upload' && (
               <>
-                {activeMenu === 'saved' && savedAnalysis && (
-                  <div className="analyze-saved-notice">
-                    <span>📂 저장된 분석 결과</span>
-                    <span className="analyze-saved-date">
-                      분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}
-                    </span>
-                  </div>
-                )}
-
                 <AnalysisResults result={result} />
 
-                {(result.plan === 'PRO' || result.plan === 'EXPERT') && savedAnalysis && (
+                {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">🔒</span>
-                    <span>
-                      이 분석 결과는{' '}
-                      <strong>{new Date(savedAnalysis.expires_at).toLocaleDateString('ko-KR')}</strong>
-                      까지 저장됩니다.
-                    </span>
+                    <span>분석 결과가 저장되었습니다. <strong>분석 다시 보기</strong> 탭에서 10일간 확인할 수 있습니다.</span>
                   </div>
                 )}
 
