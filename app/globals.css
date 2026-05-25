@@ -1550,6 +1550,91 @@ footer {
 }
 .analyze-saved-date { color: var(--muted); font-size: 12px; }
 
+/* ─── JD 기반 분석 ─── */
+.jd-section { display: flex; flex-direction: column; gap: 20px; }
+.jd-no-analysis {
+  background: rgba(232,160,32,0.1);
+  border: 1px solid rgba(232,160,32,0.3);
+  color: #e8a020;
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+.jd-form { display: flex; flex-direction: column; gap: 16px; }
+.jd-field { display: flex; flex-direction: column; gap: 8px; }
+.jd-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+.jd-input {
+  background: #111108;
+  border: 1px solid #2a2a22;
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: 15px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.jd-input:focus { border-color: var(--accent); }
+.jd-textarea {
+  background: #111108;
+  border: 1px solid #2a2a22;
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 14px 16px;
+  outline: none;
+  resize: vertical;
+  min-height: 220px;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.jd-textarea:focus { border-color: var(--accent); }
+.jd-textarea::placeholder { color: #444440; }
+
+/* JD 결과 */
+.jd-results { display: flex; flex-direction: column; gap: 24px; }
+.jd-results-header {
+  background: #111108;
+  border: 1px solid #2a2a22;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.jd-company-name { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.jd-score-row { display: flex; align-items: center; gap: 14px; }
+.jd-score { font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+.jd-rec-badge {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: 1px solid;
+  padding: 4px 12px;
+  border-radius: 20px;
+  align-self: center;
+}
+.jd-verdict { font-size: 15px; color: var(--muted2); line-height: 1.65; margin-top: 2px; }
+.jd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 600px) { .jd-grid { grid-template-columns: 1fr; } }
+.jd-reset-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid #2a2a22;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.jd-reset-btn:hover { border-color: var(--fg); color: var(--fg); }
+
 .analyze-download-wrap {
   display: flex;
   justify-content: flex-end;

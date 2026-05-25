@@ -35,6 +35,17 @@ interface SavedAnalysis {
   expires_at: string
 }
 
+interface JDResult {
+  company: string
+  fit_score: number
+  recommendation: 'APPLY' | 'CONSIDER' | 'SKIP'
+  verdict: string
+  matching_points: string[]
+  gaps: string[]
+  pitch_points: string[]
+  interview_tips: string[]
+}
+
 const CAREER_COLORS: Record<string, string> = {
   BASELINE: 'var(--muted2)',
   RECOMMENDED: '#e8a020',
@@ -213,7 +224,7 @@ function downloadReport(result: AnalysisResult, date?: string) {
   URL.revokeObjectURL(url)
 }
 
-type SidebarMenu = 'upload' | 'saved' | 'rewrite'
+type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite'
 
 export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean }) {
   const [file, setFile] = useState<File | null>(null)
@@ -226,6 +237,11 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [jdCompany, setJdCompany] = useState('')
+  const [jdContent, setJdContent] = useState('')
+  const [jdResult, setJdResult] = useState<JDResult | null>(null)
+  const [jdLoading, setJdLoading] = useState(false)
+  const [jdError, setJdError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!initialIsPro) return
@@ -320,8 +336,35 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
       setFile(null)
       setError(null)
       setAgreed(false)
+    } else if (id === 'jd') {
+      setResult(null)
+      setActiveMenu('jd')
     } else if (id === 'rewrite') {
       // 준비중
+    }
+  }
+
+  async function onJDAnalyze() {
+    if (!jdCompany.trim() || !jdContent.trim()) return
+    setJdLoading(true)
+    setJdError(null)
+    setJdResult(null)
+    try {
+      const res = await fetch('/api/analyze/jd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company: jdCompany, jd: jdContent }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setJdError(data.error || '알 수 없는 오류가 발생했습니다.')
+      } else {
+        setJdResult(data)
+      }
+    } catch {
+      setJdError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
+    } finally {
+      setJdLoading(false)
     }
   }
 
@@ -350,8 +393,11 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                   <span>📂</span> 분석 다시 보기
                   {savedAnalysis && <span className="tab-badge">{new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>}
                 </button>
-                <button className="analyze-tab-btn disabled" disabled>
-                  <span>📋</span> JD기반분석 <span className="tab-soon">준비중</span>
+                <button
+                  className={`analyze-tab-btn${activeMenu === 'jd' ? ' active' : ''}`}
+                  onClick={() => onMenuClick('jd')}
+                >
+                  <span>📋</span> JD기반분석
                 </button>
                 <button className="analyze-tab-btn disabled" disabled>
                   <span>✏️</span> Re-Writing <span className="tab-soon">준비중</span>
@@ -374,8 +420,61 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
               )}
             </div>
 
+            {/* JD 기반 분석 모드 */}
+            {activeMenu === 'jd' && (
+              <div className="jd-section">
+                {!jdResult ? (
+                  <>
+                    {!savedAnalysis && (
+                      <div className="jd-no-analysis">
+                        먼저 이력서를 분석하면 JD 기반 분석을 사용할 수 있습니다.
+                      </div>
+                    )}
+                    <div className="jd-form">
+                      <div className="jd-field">
+                        <label className="jd-label">회사명</label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) 카카오, 현대자동차, 쿠팡..."
+                          value={jdCompany}
+                          onChange={(e) => setJdCompany(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">채용공고</label>
+                        <textarea
+                          className="jd-textarea"
+                          placeholder={`[담당업무]\n예) 백엔드 서버 개발 및 운영, 대용량 데이터 처리 시스템 설계\n\n[자격요건]\n예) Java/Spring 3년 이상 경력, MSA 환경 경험자\n\n[우대사항]\n예) Kafka, Redis 운영 경험자 우대`}
+                          value={jdContent}
+                          onChange={(e) => setJdContent(e.target.value)}
+                          rows={12}
+                        />
+                      </div>
+                      {jdError && <div className="analyze-error">{jdError}</div>}
+                      <button
+                        className="btn-hero analyze-btn"
+                        onClick={onJDAnalyze}
+                        disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading || !savedAnalysis}
+                      >
+                        {jdLoading ? 'AI 분석 중...' : '적합도 분석하기 →'}
+                      </button>
+                      {jdLoading && (
+                        <div className="analyze-loading">
+                          <div className="loading-bar"><div className="loading-fill" /></div>
+                          <div className="loading-text">헤드헌터 AI가 JD 적합도를 분석하고 있습니다...</div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <JDResults result={jdResult} onReset={() => setJdResult(null)} />
+                )}
+              </div>
+            )}
+
             {/* 업로드 모드 */}
-            {activeMenu !== 'saved' && !result && (
+            {activeMenu === 'upload' && !result && (
               <>
                 <div
                   className={`upload-zone${dragging ? ' dragging' : ''}${file ? ' has-file' : ''}`}
@@ -440,7 +539,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
             )}
 
             {/* 결과 모드 (새 분석 or 저장된 분석) */}
-            {result && (
+            {result && activeMenu !== 'jd' && (
               <>
                 {activeMenu === 'saved' && savedAnalysis && (
                   <div className="analyze-saved-notice">
@@ -620,6 +719,64 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
           ↓ HTML 리포트 다운로드
         </button>
       </div>
+    </div>
+  )
+}
+
+const REC_LABEL: Record<string, string> = {
+  APPLY: '지원 강력 추천',
+  CONSIDER: '조건부 추천',
+  SKIP: '부적합',
+}
+const REC_COLOR: Record<string, string> = {
+  APPLY: '#4caf86',
+  CONSIDER: '#e8a020',
+  SKIP: '#ff6b6b',
+}
+
+function JDResults({ result, onReset }: { result: JDResult; onReset: () => void }) {
+  const color = REC_COLOR[result.recommendation] ?? '#888'
+  const label = REC_LABEL[result.recommendation] ?? result.recommendation
+
+  return (
+    <div className="jd-results">
+      <div className="jd-results-header">
+        <div className="jd-company-name">{result.company}</div>
+        <div className="jd-score-row">
+          <span className="jd-score" style={{ color }}>{result.fit_score}%</span>
+          <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
+        </div>
+        <p className="jd-verdict">{result.verdict}</p>
+      </div>
+
+      <div className="jd-grid">
+        <div className="results-section">
+          <div className="results-label">✅ 매칭 강점</div>
+          <ul className="result-list">
+            {result.matching_points.map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        </div>
+        <div className="results-section">
+          <div className="results-label">⚠️ 부족한 점</div>
+          <ul className="result-list improvement-list">
+            {result.gaps.map((g, i) => <li key={i}>{g}</li>)}
+          </ul>
+        </div>
+        <div className="results-section">
+          <div className="results-label">💬 어필 전략</div>
+          <ul className="result-list">
+            {result.pitch_points.map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        </div>
+        <div className="results-section">
+          <div className="results-label">🎯 면접 준비</div>
+          <ul className="result-list">
+            {result.interview_tips.map((t, i) => <li key={i}>{t}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <button className="jd-reset-btn" onClick={onReset}>← 다른 JD 분석하기</button>
     </div>
   )
 }
