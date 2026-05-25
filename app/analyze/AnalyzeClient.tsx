@@ -44,11 +44,21 @@ interface JDResult {
   gaps: string[]
   pitch_points: string[]
   interview_tips: string[]
+  resume_job_title?: string
+  resume_analyzed_at?: string
+  expires_at?: string
 }
 
 interface AnalysisListItem {
   id: string
   result: AnalysisResult
+  created_at: string
+  expires_at: string
+}
+
+interface SavedJDAnalysis {
+  id: string
+  result: JDResult
   created_at: string
   expires_at: string
 }
@@ -359,6 +369,9 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [analysisList, setAnalysisList] = useState<AnalysisListItem[] | null>(null)
   const [analysisListLoading, setAnalysisListLoading] = useState(false)
   const [jdSelectedAnalysis, setJdSelectedAnalysis] = useState<AnalysisListItem | null>(null)
+  const [jdSavedList, setJdSavedList] = useState<SavedJDAnalysis[] | null>(null)
+  const [jdSavedListLoading, setJdSavedListLoading] = useState(false)
+  const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
   const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string }[]>([])
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
@@ -477,6 +490,14 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
           .catch(() => setAnalysisList([]))
           .finally(() => setAnalysisListLoading(false))
       }
+      if (!jdSavedList) {
+        setJdSavedListLoading(true)
+        fetch('/api/analyze/jd/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setJdSavedList(analyses ?? []))
+          .catch(() => setJdSavedList([]))
+          .finally(() => setJdSavedListLoading(false))
+      }
     } else if (id === 'rewrite') {
       // 준비중
     }
@@ -498,6 +519,11 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
         setJdError(data.error || '알 수 없는 오류가 발생했습니다.')
       } else {
         setJdResult(data)
+        // 저장 목록 갱신
+        fetch('/api/analyze/jd/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setJdSavedList(analyses ?? []))
+          .catch(() => {})
       }
     } catch {
       setJdError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
@@ -563,10 +589,17 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
               <div className="jd-section">
-                {jdResult && jdSelectedAnalysis ? (
+                {jdViewingSaved ? (
+                  <JDResults
+                    result={jdViewingSaved.result}
+                    expiresAt={jdViewingSaved.expires_at}
+                    onReset={() => setJdViewingSaved(null)}
+                  />
+                ) : jdResult && jdSelectedAnalysis ? (
                   <JDResults
                     result={jdResult}
                     analysisItem={jdSelectedAnalysis}
+                    expiresAt={jdResult.expires_at}
                     onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
                   />
                 ) : jdSelectedAnalysis ? (
@@ -621,6 +654,37 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                   </>
                 ) : (
                   <>
+                    {/* 저장된 JD 분석 목록 */}
+                    {(jdSavedList && jdSavedList.length > 0) && (
+                      <div className="jd-saved-section">
+                        <div className="jd-list-title">이전 JD 분석 결과</div>
+                        <div className="jd-saved-list">
+                          {jdSavedList.map((item) => {
+                            const rec = item.result.recommendation
+                            const color = REC_COLOR_HEX[rec] ?? '#888'
+                            return (
+                              <button
+                                key={item.id}
+                                className="jd-saved-card"
+                                onClick={() => setJdViewingSaved(item)}
+                              >
+                                <div className="jd-saved-card-left">
+                                  <span className="jd-saved-company">{item.result.company}</span>
+                                  <span className="jd-saved-resume">{item.result.resume_job_title ?? '이력서 분석'}</span>
+                                </div>
+                                <div className="jd-saved-card-right">
+                                  <span className="jd-saved-score" style={{ color }}>{item.result.fit_score}%</span>
+                                  <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <div className="jd-saved-divider">새 JD 분석</div>
+                      </div>
+                    )}
+                    {jdSavedListLoading && <div className="jd-list-loading">불러오는 중...</div>}
+
                     <div className="jd-list-title">분석할 이력서를 선택하세요</div>
                     {analysisListLoading ? (
                       <div className="jd-list-loading">이력서 분석 목록을 불러오는 중...</div>
@@ -946,9 +1010,26 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
   )
 }
 
-function JDResults({ result, analysisItem, onReset }: { result: JDResult; analysisItem: AnalysisListItem; onReset: () => void }) {
+function JDResults({
+  result,
+  analysisItem,
+  expiresAt,
+  onReset,
+}: {
+  result: JDResult
+  analysisItem?: AnalysisListItem
+  expiresAt?: string
+  onReset: () => void
+}) {
   const color = REC_COLOR_HEX[result.recommendation] ?? '#888'
   const label = REC_LABEL_CONST[result.recommendation] ?? result.recommendation
+
+  const resumeTitle = analysisItem?.result.job_title ?? result.resume_job_title ?? '이력서 분석'
+  const resumeDate = analysisItem
+    ? new Date(analysisItem.created_at).toLocaleDateString('ko-KR')
+    : result.resume_analyzed_at
+    ? new Date(result.resume_analyzed_at).toLocaleDateString('ko-KR')
+    : ''
 
   return (
     <div className="jd-results">
@@ -962,8 +1043,8 @@ function JDResults({ result, analysisItem, onReset }: { result: JDResult; analys
       </div>
 
       <div className="jd-ref-bar">
-        기반 이력서: <strong>{analysisItem.result.job_title ?? '이력서 분석'}</strong>
-        <span className="jd-ref-date">{new Date(analysisItem.created_at).toLocaleDateString('ko-KR')}</span>
+        기반 이력서: <strong>{resumeTitle}</strong>
+        {resumeDate && <span className="jd-ref-date">{resumeDate}</span>}
       </div>
 
       <div className="jd-grid">
@@ -993,11 +1074,26 @@ function JDResults({ result, analysisItem, onReset }: { result: JDResult; analys
         </div>
       </div>
 
+      {expiresAt && (
+        <div className="analyze-storage-notice">
+          <span className="storage-icon">🔒</span>
+          <span>
+            이 분석 결과는{' '}
+            <strong>{new Date(expiresAt).toLocaleDateString('ko-KR')}</strong>
+            까지 저장됩니다. (10일 후 자동 삭제)
+          </span>
+        </div>
+      )}
+
       <div className="jd-result-actions">
-        <button className="jd-reset-btn" onClick={onReset}>← 다른 JD 분석하기</button>
-        <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
-          ↓ HTML 리포트 다운로드
+        <button className="jd-reset-btn" onClick={onReset}>
+          {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
         </button>
+        {analysisItem && (
+          <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
+            ↓ HTML 리포트 다운로드
+          </button>
+        )}
       </div>
     </div>
   )

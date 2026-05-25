@@ -119,7 +119,21 @@ ${jd}
       return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
     }
 
-    return NextResponse.json({ ...(toolUse.input as object), company })
+    const resultPayload = {
+      ...(toolUse.input as object),
+      company,
+      resume_job_title: (a.job_title as string) ?? null,
+      resume_analyzed_at: new Date().toISOString(),
+    }
+
+    const expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
+    await supabase.from('jd_analyses').insert({
+      user_email: session.user.email,
+      result: resultPayload,
+      expires_at: expiresAt,
+    })
+
+    return NextResponse.json({ ...resultPayload, expires_at: expiresAt })
   } catch (e) {
     console.error('[analyze/jd]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })

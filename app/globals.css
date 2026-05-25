@@ -2204,3 +2204,45 @@ footer {
 .coupon-status-badge.claimed { background: rgba(123,97,255,0.12); color: #b8a0ff; border: 1px solid rgba(123,97,255,0.3); }
 .coupon-status-badge.used { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); }
 .coupon-status-badge.expired { background: rgba(255,80,80,0.1); color: #ff8080; border: 1px solid rgba(255,80,80,0.25); }
+
+/* ─── JD 저장 목록 ─── */
+.jd-saved-section { display: flex; flex-direction: column; gap: 12px; }
+.jd-saved-list { display: flex; flex-direction: column; gap: 8px; }
+.jd-saved-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.jd-saved-card:hover { border-color: var(--accent2); background: rgba(123,97,255,0.04); }
+.jd-saved-card-left { display: flex; flex-direction: column; gap: 4px; }
+.jd-saved-company { font-size: 14px; font-weight: 700; color: #fff; }
+.jd-saved-resume { font-size: 12px; color: var(--muted); }
+.jd-saved-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.jd-saved-score { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
+.jd-saved-date { font-size: 11px; color: var(--muted); }
+.jd-saved-divider {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.jd-saved-divider::before, .jd-saved-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
