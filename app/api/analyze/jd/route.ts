@@ -33,15 +33,10 @@ const jdTool: Anthropic.Tool = {
       pitch_points: {
         type: 'array',
         items: { type: 'string' },
-        description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (3-4개)',
-      },
-      interview_tips: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '이 회사 면접에서 나올 핵심 질문과 답변 방향 (3-4개)',
+        description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (4-6개, 구체적으로)',
       },
     },
-    required: ['fit_score', 'recommendation', 'verdict', 'matching_points', 'gaps', 'pitch_points', 'interview_tips'],
+    required: ['fit_score', 'recommendation', 'verdict', 'matching_points', 'gaps', 'pitch_points'],
   },
 }
 

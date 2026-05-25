@@ -1060,16 +1060,10 @@ function JDResults({
             {(result.gaps ?? []).map((g, i) => <li key={i}>{g}</li>)}
           </ul>
         </div>
-        <div className="results-section">
+        <div className="results-section" style={{ gridColumn: '1 / -1' }}>
           <div className="results-label">💬 어필 전략</div>
           <ul className="result-list">
             {(result.pitch_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
-          </ul>
-        </div>
-        <div className="results-section">
-          <div className="results-label">🎯 면접 준비</div>
-          <ul className="result-list">
-            {(result.interview_tips ?? []).map((t, i) => <li key={i}>{t}</li>)}
           </ul>
         </div>
       </div>
