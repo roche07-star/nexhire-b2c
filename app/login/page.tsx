@@ -20,7 +20,7 @@ export default function LoginPage() {
         <div className="login-buttons">
           <form action={async () => {
             'use server'
-            await signIn('google', { redirectTo: '/' })
+            await signIn('google', { redirectTo: '/api/after-login' })
           }}>
             <button className="btn-social btn-google" type="submit">
               <svg width="20" height="20" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ export default function LoginPage() {
 
           <form action={async () => {
             'use server'
-            await signIn('kakao', { redirectTo: '/' })
+            await signIn('kakao', { redirectTo: '/api/after-login' })
           }}>
             <button className="btn-social btn-kakao" type="submit">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#3C1E1E">

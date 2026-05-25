@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Outfit, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
+import CustomCursor from '@/components/CustomCursor'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -23,7 +24,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={`${outfit.variable} ${notoSansKR.variable}`}>
-      <body>{children}</body>
+      <body>
+        <CustomCursor />
+        {children}
+      </body>
     </html>
   )
 }

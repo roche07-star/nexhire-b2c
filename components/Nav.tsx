@@ -10,7 +10,7 @@ const NexhireLogo = () => (
   </svg>
 )
 
-export default async function Nav() {
+export default async function Nav({ minimal = false }: { minimal?: boolean }) {
   const session = await auth()
   const user = session?.user
 
@@ -20,12 +20,14 @@ export default async function Nav() {
         <NexhireLogo />
         <span className="nav-logo-text">NEXHIRE</span>
       </Link>
-      <ul className="nav-links">
-        <li><a href="/#how">사용법</a></li>
-        <li><a href="/#features">기능</a></li>
-        <li><a href="/#pricing">가격</a></li>
-        <li><a href="/#faq">FAQ</a></li>
-      </ul>
+      {!minimal && (
+        <ul className="nav-links">
+          <li><a href="/#how">사용법</a></li>
+          <li><a href="/#features">기능</a></li>
+          <li><a href="/#pricing">가격</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      )}
       <div className="nav-cta">
         {user ? (
           <div className="nav-user">
@@ -48,7 +50,7 @@ export default async function Nav() {
             )}
             <form action={async () => {
               'use server'
-              await signOut({ redirectTo: '/' })
+              await signOut({ redirectTo: '/login' })
             }}>
               <button className="btn-ghost" type="submit">로그아웃</button>
             </form>
