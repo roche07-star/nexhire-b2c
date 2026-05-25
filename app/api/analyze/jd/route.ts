@@ -52,27 +52,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { company, jd } = await req.json()
+    const { company, jd, analysisResult } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })
     }
-
-    const { data: analysisData } = await supabase
-      .from('analyses')
-      .select('result')
-      .eq('user_email', session.user.email)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (!analysisData?.result) {
-      return NextResponse.json(
-        { error: '저장된 이력서 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.' },
-        { status: 400 }
-      )
+    if (!analysisResult) {
+      return NextResponse.json({ error: '분석할 이력서를 선택해 주세요.' }, { status: 400 })
     }
 
-    const a = analysisData.result as Record<string, unknown>
+    const a = analysisResult as Record<string, unknown>
     const careerSummary = Array.isArray(a.career_paths)
       ? (a.career_paths as Array<{ type: string; title: string; salary_range: string }>)
           .map((p) => `${p.type}: ${p.title} (${p.salary_range})`)

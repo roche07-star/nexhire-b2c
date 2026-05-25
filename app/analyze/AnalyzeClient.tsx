@@ -46,6 +46,13 @@ interface JDResult {
   interview_tips: string[]
 }
 
+interface AnalysisListItem {
+  id: string
+  result: AnalysisResult
+  created_at: string
+  expires_at: string
+}
+
 const CAREER_COLORS: Record<string, string> = {
   BASELINE: 'var(--muted2)',
   RECOMMENDED: '#e8a020',
@@ -242,6 +249,9 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
   const [jdError, setJdError] = useState<string | null>(null)
+  const [analysisList, setAnalysisList] = useState<AnalysisListItem[] | null>(null)
+  const [analysisListLoading, setAnalysisListLoading] = useState(false)
+  const [jdSelectedAnalysis, setJdSelectedAnalysis] = useState<AnalysisListItem | null>(null)
 
   useEffect(() => {
     if (!initialIsPro) return
@@ -316,6 +326,18 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
     } else if (id === 'jd') {
       setResult(null)
       setActiveMenu('jd')
+      setJdSelectedAnalysis(null)
+      setJdResult(null)
+      setJdCompany('')
+      setJdContent('')
+      if (!analysisList) {
+        setAnalysisListLoading(true)
+        fetch('/api/analyze/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setAnalysisList(analyses ?? []))
+          .catch(() => setAnalysisList([]))
+          .finally(() => setAnalysisListLoading(false))
+      }
     } else if (id === 'rewrite') {
       // 준비중
     }
@@ -330,7 +352,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
       const res = await fetch('/api/analyze/jd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company: jdCompany, jd: jdContent }),
+        body: JSON.stringify({ company: jdCompany, jd: jdContent, analysisResult: jdSelectedAnalysis?.result }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -400,13 +422,24 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
               <div className="jd-section">
-                {!jdResult ? (
+                {jdResult ? (
+                  <JDResults
+                    result={jdResult}
+                    onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
+                  />
+                ) : jdSelectedAnalysis ? (
                   <>
-                    {!savedAnalysis && (
-                      <div className="jd-no-analysis">
-                        먼저 이력서를 분석하면 JD 기반 분석을 사용할 수 있습니다.
+                    <button className="jd-back-btn" onClick={() => setJdSelectedAnalysis(null)}>
+                      ← 이력서 다시 선택
+                    </button>
+                    <div className="jd-selected-summary">
+                      <div className="jd-selected-label">선택된 이력서</div>
+                      <div className="jd-selected-title">
+                        {jdSelectedAnalysis.result.job_title ?? '이력서 분석'}
+                        <span className="jd-selected-date">{new Date(jdSelectedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                       </div>
-                    )}
+                      <p className="jd-selected-summary-text">{jdSelectedAnalysis.result.summary?.slice(0, 100)}…</p>
+                    </div>
                     <div className="jd-form">
                       <div className="jd-field">
                         <label className="jd-label">회사명</label>
@@ -432,7 +465,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                       <button
                         className="btn-hero analyze-btn"
                         onClick={onJDAnalyze}
-                        disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading || !savedAnalysis}
+                        disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading}
                       >
                         {jdLoading ? 'AI 분석 중...' : '적합도 분석하기 →'}
                       </button>
@@ -445,7 +478,53 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                     </div>
                   </>
                 ) : (
-                  <JDResults result={jdResult} onReset={() => setJdResult(null)} />
+                  <>
+                    <div className="jd-list-title">분석할 이력서를 선택하세요</div>
+                    {analysisListLoading ? (
+                      <div className="jd-list-loading">이력서 분석 목록을 불러오는 중...</div>
+                    ) : !analysisList || analysisList.length === 0 ? (
+                      <div className="jd-no-analysis">
+                        저장된 이력서 분석이 없습니다. 먼저 이력서를 분석해 주세요.
+                      </div>
+                    ) : (
+                      <div className="jd-analysis-list">
+                        {analysisList.map((item) => (
+                          <button
+                            key={item.id}
+                            className="jd-analysis-card"
+                            onClick={() => setJdSelectedAnalysis(item)}
+                          >
+                            <div className="jd-card-top">
+                              <span className="jd-card-title">
+                                {item.result.job_title ?? '이력서 분석'}
+                              </span>
+                              <span className="jd-card-date">
+                                {new Date(item.created_at).toLocaleDateString('ko-KR')}
+                              </span>
+                            </div>
+                            <div className="jd-card-scores">
+                              {[
+                                { label: '직무적합', value: item.result.scores?.job_fit },
+                                { label: '경쟁력', value: item.result.scores?.market_competitiveness },
+                                { label: '성장성', value: item.result.scores?.growth_potential },
+                              ].map((s) => (
+                                <div key={s.label} className="jd-card-score-item">
+                                  <span className="jd-card-score-label">{s.label}</span>
+                                  <div className="jd-card-score-bar-wrap">
+                                    <div className="jd-card-score-bar" style={{ width: `${s.value ?? 0}%` }} />
+                                  </div>
+                                  <span className="jd-card-score-val">{s.value ?? '—'}%</span>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="jd-card-summary">
+                              {item.result.summary?.slice(0, 120)}…
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
