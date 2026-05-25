@@ -52,6 +52,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    // JD 쿠폰 체크
+    if ((session.user as { role?: string }).role !== 'MANAGER') {
+      const { data: jdCoupon } = await supabase
+        .from('coupons')
+        .select('id')
+        .eq('claimed_by', session.user.email)
+        .eq('feature', 'jd')
+        .is('used_at', null)
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+        .limit(1)
+        .maybeSingle()
+
+      if (jdCoupon) {
+        await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCoupon.id)
+      }
+    }
+
     const { company, jd, analysisResult } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })

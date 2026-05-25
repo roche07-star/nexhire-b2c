@@ -139,7 +139,22 @@ export async function POST(req: NextRequest) {
 
     const { email, role } = session.user
 
+    // 쿠폰 체크 (MANAGER 제외)
+    let resumeCouponId: string | null = null
     if (role !== 'MANAGER') {
+      const { data: coupon } = await supabase
+        .from('coupons')
+        .select('id')
+        .eq('claimed_by', email)
+        .eq('feature', 'resume')
+        .is('used_at', null)
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+        .limit(1)
+        .maybeSingle()
+      if (coupon) resumeCouponId = coupon.id
+    }
+
+    if (role !== 'MANAGER' && !resumeCouponId) {
       const { data: userData } = await supabase
         .from('users')
         .select('plan, analyze_count, analyze_reset_at')
@@ -163,7 +178,7 @@ export async function POST(req: NextRequest) {
         const limit = (userData.plan === 'PRO' || userData.plan === 'EXPERT') ? Infinity : 1
         if (userData.analyze_count >= limit) {
           return NextResponse.json(
-            { error: '이번 달 무료 분석 횟수(1회)를 모두 사용했습니다. PRO로 업그레이드하면 무제한 이용 가능합니다.' },
+            { error: '이번 달 무료 분석 횟수(1회)를 모두 사용했습니다. PRO로 업그레이드하거나 쿠폰을 등록하세요.' },
             { status: 403 }
           )
         }
@@ -219,7 +234,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
     }
 
-    if (role !== 'MANAGER') {
+    if (resumeCouponId) {
+      await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', resumeCouponId)
+    } else if (role !== 'MANAGER') {
       await supabase.rpc('increment_analyze_count', { user_email: email })
     }
 

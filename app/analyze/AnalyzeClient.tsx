@@ -53,6 +53,13 @@ interface AnalysisListItem {
   expires_at: string
 }
 
+const FEATURE_LABEL: Record<string, string> = {
+  resume: '이력서 분석',
+  direction: '방향성 분석',
+  jd: 'JD 매칭 분석',
+  rewrite: 'Re-Writing',
+}
+
 const CAREER_COLORS: Record<string, string> = {
   BASELINE: 'var(--muted2)',
   RECOMMENDED: '#e8a020',
@@ -352,6 +359,10 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [analysisList, setAnalysisList] = useState<AnalysisListItem[] | null>(null)
   const [analysisListLoading, setAnalysisListLoading] = useState(false)
   const [jdSelectedAnalysis, setJdSelectedAnalysis] = useState<AnalysisListItem | null>(null)
+  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string }[]>([])
+  const [couponInput, setCouponInput] = useState('')
+  const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
+  const [couponClaiming, setCouponClaiming] = useState(false)
 
   useEffect(() => {
     if (!initialIsPro) return
@@ -362,6 +373,36 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
       })
       .catch(() => {})
   }, [initialIsPro])
+
+  useEffect(() => {
+    fetch('/api/coupons/mine')
+      .then((r) => r.json())
+      .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
+      .catch(() => {})
+  }, [])
+
+  async function claimCoupon() {
+    if (!couponInput.trim()) return
+    setCouponClaiming(true)
+    setCouponMsg(null)
+    try {
+      const res = await fetch('/api/coupons/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponInput.trim() }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setMyCoupons((prev) => [...prev, { id: data.id ?? '', code: data.code, feature: data.feature }])
+        setCouponMsg({ text: `쿠폰 등록 완료! (${FEATURE_LABEL[data.feature] ?? data.feature})`, ok: true })
+        setCouponInput('')
+      } else {
+        setCouponMsg({ text: data.error ?? '오류가 발생했습니다.', ok: false })
+      }
+    } finally {
+      setCouponClaiming(false)
+    }
+  }
 
   function handleFile(f: File) {
     setFile(f)
@@ -397,6 +438,8 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
         setResult(data)
         setFile(null)
         setAgreed(false)
+        // 쿠폰 사용 후 목록 갱신
+        fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
           const newSaved: SavedAnalysis = {
             result: data,
@@ -631,6 +674,31 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
             {/* 업로드 모드 */}
             {activeMenu === 'upload' && !result && (
               <>
+                {/* 쿠폰 영역 */}
+                <div className="coupon-section">
+                  {myCoupons.filter(c => c.feature === 'resume').length > 0 ? (
+                    <div className="coupon-active-badge">
+                      🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume').length}개 보유 — 이번 분석이 무료로 진행됩니다
+                    </div>
+                  ) : (
+                    <div className="coupon-input-row">
+                      <input
+                        className="coupon-input"
+                        placeholder="쿠폰 코드 입력 (예: NH-RS-XXXXXX)"
+                        value={couponInput}
+                        onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponMsg(null) }}
+                        onKeyDown={e => e.key === 'Enter' && claimCoupon()}
+                      />
+                      <button className="coupon-claim-btn" onClick={claimCoupon} disabled={!couponInput.trim() || couponClaiming}>
+                        {couponClaiming ? '등록 중...' : '등록'}
+                      </button>
+                    </div>
+                  )}
+                  {couponMsg && (
+                    <div className={`coupon-msg${couponMsg.ok ? ' ok' : ' err'}`}>{couponMsg.text}</div>
+                  )}
+                </div>
+
                 <div
                   className={`upload-zone${dragging ? ' dragging' : ''}${file ? ' has-file' : ''}`}
                   onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
