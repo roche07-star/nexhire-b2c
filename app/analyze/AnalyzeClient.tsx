@@ -303,29 +303,6 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
     }
   }
 
-  const sidebarMenuItems = [
-    {
-      id: 'rewrite' as SidebarMenu,
-      icon: '✏️',
-      label: 'Re-Writing',
-      enabled: false,
-      soon: true,
-    },
-    {
-      id: 'upload' as SidebarMenu,
-      icon: '📄',
-      label: '새 분석',
-      enabled: true,
-    },
-    {
-      id: 'saved' as SidebarMenu,
-      icon: '📂',
-      label: '분석 다시 보기',
-      enabled: !!savedAnalysis,
-      badge: savedAnalysis ? new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR') : undefined,
-    },
-  ]
-
   function onMenuClick(id: SidebarMenu) {
     if (id === 'saved' && savedAnalysis) {
       setResult(savedAnalysis.result)
@@ -593,7 +570,7 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
   const active = paths?.[activeCareerTab]
 
   const globalMax = paths
-    ? Math.max(...paths.flatMap((p) => p.salary_bands.map((b) => b.max || b.min)))
+    ? Math.max(...paths.flatMap((p) => (p.salary_bands ?? []).map((b) => b.max || b.min)))
     : 0
 
   function bandPct(b: { min: number; max: number }) {
@@ -628,19 +605,19 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
         <div className="results-section">
           <div className="results-label">핵심 키워드</div>
           <div className="keyword-chips">
-            {result.keywords.map((k, i) => <span key={i} className="keyword-chip">{k}</span>)}
+            {(result.keywords ?? []).map((k, i) => <span key={i} className="keyword-chip">{k}</span>)}
           </div>
         </div>
         <div className="results-section">
           <div className="results-label">✦ 강점</div>
           <ul className="result-list">
-            {result.strengths.map((s, i) => <li key={i}>{s}</li>)}
+            {(result.strengths ?? []).map((s, i) => <li key={i}>{s}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">개선 포인트</div>
           <ul className="result-list improvement-list">
-            {result.improvements.map((s, i) => <li key={i}>{s}</li>)}
+            {(result.improvements ?? []).map((s, i) => <li key={i}>{s}</li>)}
           </ul>
         </div>
       </div>
@@ -677,7 +654,7 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
           </div>
           <div className="salary-band-wrap">
             <div className="salary-band-title">연봉 밴드 — {active.label} (단위: 만원)</div>
-            {active.salary_bands.map((b) => (
+            {(active.salary_bands ?? []).map((b) => (
               <div key={b.period} className="salary-band-row">
                 <span className="salary-band-year">{b.period}</span>
                 <div className="salary-band-bar-wrap">
@@ -753,25 +730,25 @@ function JDResults({ result, onReset }: { result: JDResult; onReset: () => void 
         <div className="results-section">
           <div className="results-label">✅ 매칭 강점</div>
           <ul className="result-list">
-            {result.matching_points.map((p, i) => <li key={i}>{p}</li>)}
+            {(result.matching_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">⚠️ 부족한 점</div>
           <ul className="result-list improvement-list">
-            {result.gaps.map((g, i) => <li key={i}>{g}</li>)}
+            {(result.gaps ?? []).map((g, i) => <li key={i}>{g}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">💬 어필 전략</div>
           <ul className="result-list">
-            {result.pitch_points.map((p, i) => <li key={i}>{p}</li>)}
+            {(result.pitch_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">🎯 면접 준비</div>
           <ul className="result-list">
-            {result.interview_tips.map((t, i) => <li key={i}>{t}</li>)}
+            {(result.interview_tips ?? []).map((t, i) => <li key={i}>{t}</li>)}
           </ul>
         </div>
       </div>
