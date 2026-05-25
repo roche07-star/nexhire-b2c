@@ -4,58 +4,31 @@ const plans = [
   {
     name: 'Free',
     price: '₩0',
-    desc: '부담 없이 시작하는 첫 분석',
-    features: [
-      '이력서 분석 1회/월',
-      '기본 점수 리포트 (3가지 지표)',
-      '커리어 방향 1가지 제안',
-    ],
-    disabled: [
-      'JD 적합도 분석',
-      '커리어 경로 3가지 + 연봉 밴드',
-      '분석 결과 10일 저장',
-      'HTML 리포트 다운로드',
-      '이력서 리라이팅 (출시 예정)',
-    ],
+    desc: '시작하는 구직자를 위해',
+    features: ['이력서 분석 1회/월', '기본 점수 리포트', '커리어 방향 1가지 제안'],
+    disabled: ['JD 적합도 분석', '무제한 분석', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
-    href: '/analyze',
     featured: false,
   },
   {
     name: 'Pro',
     price: '₩19,900',
     desc: '진지하게 이직을 준비하는 분',
-    features: [
-      '이력서 분석 무제한',
-      '심층 리포트 + 커리어 경로 3가지',
-      '연봉 밴드 (BASELINE · RECOMMENDED · STRETCH)',
-      'JD 적합도 분석',
-      '분석 결과 10일 저장',
-      'HTML 리포트 다운로드',
-    ],
-    disabled: [
-      '이력서 리라이팅 (출시 예정)',
-    ],
+    features: ['이력서 분석 10회/월', 'JD 적합도 분석 15회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 10일 저장', 'HTML 리포트 다운로드'],
+    disabled: ['이력서 리라이팅 (준비중)'],
     btnClass: 'btn-plan-fill',
     btnText: 'Pro 시작하기',
-    href: '/analyze',
     featured: true,
   },
   {
     name: 'Expert',
     price: '₩49,900',
-    desc: '커리어 전환을 확실히 하고 싶은 분',
-    features: [
-      'Pro의 모든 기능',
-      '이력서 리라이팅 출시 시 우선 제공',
-      '신규 기능 우선 접근',
-      '전담 지원 채널',
-    ],
+    desc: '최상위 커리어를 원하는 분',
+    features: ['Pro의 모든 기능', '이력서 분석 무제한', 'JD 적합도 분석 무제한', '이력서 리라이팅 (출시 시 우선 제공)', '전담 커리어 매니저'],
     disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: 'Expert 신청',
-    href: '/analyze',
     featured: false,
   },
 ]
@@ -79,7 +52,7 @@ export default function Pricing() {
               {plan.features.map((f) => <li key={f}>{f}</li>)}
               {plan.disabled.map((f) => <li key={f} className="disabled">{f}</li>)}
             </ul>
-            <Link href={plan.href}>
+            <Link href="/analyze">
               <button className={`btn-plan ${plan.btnClass}`}>{plan.btnText}</button>
             </Link>
           </div>
