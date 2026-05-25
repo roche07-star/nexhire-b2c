@@ -1645,6 +1645,26 @@ footer {
 
 /* JD 결과 */
 .jd-results { display: flex; flex-direction: column; gap: 24px; }
+.jd-ref-bar {
+  font-size: 13px;
+  color: var(--muted);
+  background: #111108;
+  border: 1px solid #2a2a22;
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.jd-ref-bar strong { color: var(--fg); font-weight: 600; }
+.jd-ref-date { margin-left: auto; font-size: 12px; color: var(--muted); }
+.jd-result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 .jd-results-header {
   background: #111108;
   border: 1px solid #2a2a22;
