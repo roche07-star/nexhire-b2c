@@ -224,7 +224,7 @@ export default function Hero() {
 
       <p className="hero-sub">
         이력서를 업로드하면 AI가 강점을 분석하고,<br />
-        당신에게 맞는 커리어 방향을 구체적으로 제시합니다.
+        JD 적합도까지 — 지원 전략을 한 번에 완성합니다.
       </p>
 
       <div className="hero-actions">
@@ -247,7 +247,7 @@ export default function Hero() {
               <div className="upload-icon">📄</div>
               <div className="upload-label">
                 <strong>이력서를 드래그하거나 클릭</strong><br />
-                PDF, DOCX, HWP 지원
+                PDF, DOCX · 최대 10MB
               </div>
               <div className="typewriter">AI 분석 중...</div>
             </div>
@@ -263,11 +263,11 @@ export default function Hero() {
                 <div className="score-bar-wrap"><div className="score-bar" style={{ width: '92%' }} /></div>
               </div>
               <div className="result-direction">
-                <div className="dir-label">💡 추천 커리어 방향</div>
+                <div className="dir-label">💡 커리어 경로 추천</div>
                 <div className="dir-items">
-                  <div className="dir-item">Product Manager (AI/SaaS)</div>
-                  <div className="dir-item">Business Development</div>
-                  <div className="dir-item">Strategy Consultant</div>
+                  <div className="dir-item">BASELINE — B2B 마케팅 팀장</div>
+                  <div className="dir-item">RECOMMENDED — PM (AI/SaaS)</div>
+                  <div className="dir-item">STRETCH — SaaS 창업 / VC</div>
                 </div>
               </div>
             </div>
