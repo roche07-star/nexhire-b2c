@@ -988,7 +988,7 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
             {paths.map((p, i) => (
               <button
                 key={p.type}
-                className={`career-card${i === activeCareerTab ? ' active' : ''}`}
+                className={`career-card${i === activeCareerTab ? ' active' : ''} career-card--${p.type.toLowerCase()}`}
                 onClick={() => setActiveCareerTab(i)}
               >
                 <div className="career-card-type">{p.type}</div>
@@ -1098,20 +1098,20 @@ function JDResults({
 
       <div className="jd-grid">
         <div className="results-section">
-          <div className="results-label">✅ 매칭 강점</div>
-          <ul className="result-list">
+          <div className="results-label">매칭 강점</div>
+          <ul className="jd-match-list">
             {(result.matching_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
         <div className="results-section">
-          <div className="results-label">⚠️ 부족한 점</div>
-          <ul className="result-list improvement-list">
+          <div className="results-label">부족한 점 · 리스크</div>
+          <ul className="jd-gap-list">
             {(result.gaps ?? []).map((g, i) => <li key={i}>{g}</li>)}
           </ul>
         </div>
         <div className="results-section" style={{ gridColumn: '1 / -1' }}>
-          <div className="results-label">💬 어필 전략</div>
-          <ul className="result-list">
+          <div className="results-label">어필 전략 · 제안 포인트</div>
+          <ul className="jd-pitch-list">
             {(result.pitch_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
