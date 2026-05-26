@@ -122,9 +122,8 @@ nav {
 
 /* HERO */
 .hero {
-  min-height: 100vh;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  align-items: center; justify-content: flex-start;
   text-align: center;
   padding: 140px 24px 80px;
   position: relative;
