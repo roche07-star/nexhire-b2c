@@ -17,7 +17,7 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: 'Nexhire — 당신의 다음 커리어를 설계합니다',
+  title: 'Jobizic — 당신의 다음 커리어를 설계합니다',
   description: '이력서를 업로드하면 AI가 강점을 분석하고, 당신에게 맞는 커리어 방향을 구체적으로 제시합니다.',
 }
 

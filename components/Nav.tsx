@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { auth, signOut } from '@/auth'
 
-const NexhireLogo = () => (
+const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect width="100" height="100" rx="22" fill="#2a2a22"/>
     <rect x="3" y="3" width="94" height="94" rx="19" stroke="#e8ff47" strokeWidth="5"/>
@@ -17,8 +17,8 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
   return (
     <nav>
       <Link className="nav-logo" href="/">
-        <NexhireLogo />
-        <span className="nav-logo-text">NEXHIRE</span>
+        <JobizicLogo />
+        <span className="nav-logo-text">JOBIZIC</span>
       </Link>
       {!minimal && (
         <ul className="nav-links">

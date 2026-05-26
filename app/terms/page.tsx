@@ -2,7 +2,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-  title: '이용약관 — Nexhire',
+  title: '이용약관 — Jobizic',
 }
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
 
           <div className="privacy-section">
             <h2>제1조 (목적)</h2>
-            <p>이 약관은 Nexhire(이하 "회사")가 제공하는 AI 이력서 분석 및 커리어 방향 제시 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 이용자 간의 권리·의무를 규정함을 목적으로 합니다.</p>
+            <p>이 약관은 Jobizic(이하 "회사")가 제공하는 AI 이력서 분석 및 커리어 방향 제시 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 이용자 간의 권리·의무를 규정함을 목적으로 합니다.</p>
           </div>
 
           <div className="privacy-section">
@@ -85,7 +85,7 @@ export default function TermsPage() {
           <div className="privacy-section">
             <h2>문의</h2>
             <p>약관 관련 문의는 아래 이메일로 연락해 주세요.</p>
-            <p><strong>privacy@nexhire.co</strong></p>
+            <p><strong>privacy@jobizic.io</strong></p>
           </div>
         </div>
       </main>

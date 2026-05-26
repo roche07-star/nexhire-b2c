@@ -1,6 +1,6 @@
 import { signIn } from '@/auth'
 
-export const metadata = { title: '로그인 — Nexhire' }
+export const metadata = { title: '로그인 — Jobizic' }
 
 export default function LoginPage() {
   return (
@@ -14,7 +14,7 @@ export default function LoginPage() {
             <path d="M24 75 L24 25 L35 25 L62 62 L62 25 L73 25 L73 75 L62 75 L35 38 L35 75 Z" fill="#e8e8de"/>
             <circle cx="73" cy="22" r="10" fill="#e8ff47"/>
           </svg>
-          <span className="login-brand-name">Nexhire</span>
+          <span className="login-brand-name">Jobizic</span>
         </div>
 
         <div className="login-headline">

@@ -71,7 +71,7 @@ export default function StoreClient({ initialPosts, isManager }: Props) {
         <div className="store-header">
           <div>
             <h1 className="store-title">Store</h1>
-            <p className="store-sub">Nexhire 공지 및 자료 게시판</p>
+            <p className="store-sub">Jobizic 공지 및 자료 게시판</p>
           </div>
           {isManager && !showForm && (
             <button className="btn-primary store-write-btn" onClick={() => setShowForm(true)}>

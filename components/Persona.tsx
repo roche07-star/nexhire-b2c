@@ -12,7 +12,7 @@ const personas = [
   },
   {
     cls: 'during',
-    stage: 'Nexhire 사용',
+    stage: 'Jobizic 사용',
     title: 'AI가 분석 중',
     items: [
       '이력서 업로드 → 3분 내 분석 완료',
@@ -39,7 +39,7 @@ export default function Persona() {
     <div className="persona-section">
       <div style={{ maxWidth: 1100, margin: '0 auto' }} className="reveal">
         <div className="section-label">Before → After</div>
-        <div className="section-title">Nexhire를 쓰기 전과 후</div>
+        <div className="section-title">Jobizic을 쓰기 전과 후</div>
       </div>
       <div className="persona-wrap reveal">
         {personas.map((p) => (

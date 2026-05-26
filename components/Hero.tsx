@@ -240,7 +240,7 @@ export default function Hero() {
               <div className="demo-dot" />
               <div className="demo-dot" />
             </div>
-            <div className="demo-title-bar">nexhire.co/analyze</div>
+            <div className="demo-title-bar">jobizic.io/analyze</div>
           </div>
           <div className="demo-body">
             <div className="demo-upload">

@@ -2,7 +2,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-  title: '개인정보처리방침 — Nexhire',
+  title: '개인정보처리방침 — Jobizic',
 }
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
 
           <div className="privacy-section">
             <h2>1. 수집하는 개인정보 항목</h2>
-            <p>Nexhire(이하 "회사")는 AI 커리어 분석 서비스 제공을 위해 아래 정보를 수집합니다.</p>
+            <p>Jobizic(이하 "회사")는 AI 커리어 분석 서비스 제공을 위해 아래 정보를 수집합니다.</p>
             <ul>
               <li>이력서 파일 내 경력, 학력, 보유 기술, 자기소개 등 직무 관련 정보</li>
               <li>성명, 연락처, 이메일 등 식별 정보 (분석 전 자동 마스킹 처리)</li>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
               <li>개인정보 처리 정지 요청</li>
             </ul>
             <p>권리 행사는 아래 이메일로 요청하시면 10일 이내에 처리합니다.</p>
-            <p><strong>privacy@nexhire.co</strong></p>
+            <p><strong>privacy@jobizic.io</strong></p>
           </div>
 
           <div className="privacy-section">
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
             <h2>8. 개인정보 보호책임자</h2>
             <p>개인정보 관련 문의, 불만 처리, 피해 구제 등은 아래로 연락하시기 바랍니다.</p>
             <ul>
-              <li>이메일: <strong>privacy@nexhire.co</strong></li>
+              <li>이메일: <strong>privacy@jobizic.io</strong></li>
             </ul>
           </div>
 
