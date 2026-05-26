@@ -8,11 +8,12 @@ export default function LoginPage() {
       <div className="login-bg" />
       <div className="login-card">
         <div className="login-brand">
-          <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
-            <rect width="100" height="100" rx="22" fill="#2a2a22"/>
+          <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" rx="22" fill="#1a1a14"/>
             <rect x="3" y="3" width="94" height="94" rx="19" stroke="#e8ff47" strokeWidth="5"/>
-            <path d="M24 75 L24 25 L35 25 L62 62 L62 25 L73 25 L73 75 L62 75 L35 38 L35 75 Z" fill="#e8e8de"/>
-            <circle cx="73" cy="22" r="10" fill="#e8ff47"/>
+            <text x="50" y="70" textAnchor="middle" fontFamily="'Arial Black', 'Outfit', sans-serif" fontWeight="900" fontSize="50" letterSpacing="-1">
+              <tspan fill="#e8e8de">J</tspan><tspan fill="#e8ff47">z</tspan>
+            </text>
           </svg>
           <span className="login-brand-name">Jobizic</span>
         </div>
