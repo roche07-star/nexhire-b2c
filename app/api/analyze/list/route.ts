@@ -13,6 +13,7 @@ export async function GET() {
       .from('analyses')
       .select('id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(20)
 
