@@ -174,10 +174,11 @@ export async function POST(req: NextRequest) {
           userData.analyze_count = 0
         }
 
-        const limit = (userData.plan === 'PRO' || userData.plan === 'EXPERT') ? Infinity : 1
+        const planLimits: Record<string, number> = { FREE: 1, PRO: 10, EXPERT: 30 }
+        const limit = planLimits[userData.plan] ?? 1
         if (userData.analyze_count >= limit) {
           return NextResponse.json(
-            { error: '이번 달 무료 분석 횟수(1회)를 모두 사용했습니다. PRO로 업그레이드하거나 쿠폰을 등록하세요.' },
+            { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
             { status: 403 }
           )
         }

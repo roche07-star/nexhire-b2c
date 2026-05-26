@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { auth, signOut } from '@/auth'
+import { supabase } from '@/lib/supabase'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -11,9 +12,31 @@ const JobizicLogo = () => (
   </svg>
 )
 
+const PLAN_LIMITS = {
+  FREE:   { resume: 1,  jd: 0  },
+  PRO:    { resume: 10, jd: 15 },
+  EXPERT: { resume: 30, jd: 30 },
+} as const
+
 export default async function Nav({ minimal = false }: { minimal?: boolean }) {
   const session = await auth()
   const user = session?.user
+
+  let usage: { resumeUsed: number; resumeLimit: number; jdUsed: number; jdLimit: number } | null = null
+  if (user?.email && user.role !== 'MANAGER') {
+    const { data } = await supabase
+      .from('users')
+      .select('plan, analyze_count, analyze_reset_at, jd_count, jd_reset_at')
+      .eq('email', user.email)
+      .single()
+    if (data) {
+      const now = new Date()
+      const resumeUsed = data.analyze_reset_at && new Date(data.analyze_reset_at) <= now ? 0 : (data.analyze_count ?? 0)
+      const jdUsed = data.jd_reset_at && new Date(data.jd_reset_at) <= now ? 0 : (data.jd_count ?? 0)
+      const limits = PLAN_LIMITS[(data.plan as keyof typeof PLAN_LIMITS) ?? 'FREE'] ?? PLAN_LIMITS.FREE
+      usage = { resumeUsed, resumeLimit: limits.resume, jdUsed, jdLimit: limits.jd }
+    }
+  }
 
   return (
     <nav>
@@ -46,6 +69,21 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
                   {user.plan ?? 'FREE'}
                 </span>
               </div>
+              {usage && (
+                <div className="nav-usage">
+                  <span className={usage.resumeUsed >= usage.resumeLimit ? 'nav-usage-exhausted' : ''}>
+                    이력서 {usage.resumeUsed}/{usage.resumeLimit}
+                  </span>
+                  {usage.jdLimit > 0 && (
+                    <>
+                      <span className="nav-usage-sep">·</span>
+                      <span className={usage.jdUsed >= usage.jdLimit ? 'nav-usage-exhausted' : ''}>
+                        JD {usage.jdUsed}/{usage.jdLimit}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             {user.role === 'MANAGER' && (
               <Link href="/admin"><button className="btn-ghost">관리자</button></Link>

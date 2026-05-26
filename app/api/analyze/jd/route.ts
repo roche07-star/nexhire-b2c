@@ -47,9 +47,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    const userRole = (session.user as { role?: string }).role
+
     // JD 쿠폰 체크
     let jdCouponId: string | null = null
-    if ((session.user as { role?: string }).role !== 'MANAGER') {
+    if (userRole !== 'MANAGER') {
       const { data: jdCoupons } = await supabase
         .from('coupons')
         .select('id, expires_at')
@@ -59,6 +61,39 @@ export async function POST(req: NextRequest) {
       const now = new Date()
       const valid = (jdCoupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
       if (valid) jdCouponId = valid.id
+    }
+
+    // 플랜 횟수 제한 체크
+    if (userRole !== 'MANAGER' && !jdCouponId) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('plan, jd_count, jd_reset_at')
+        .eq('email', session.user.email)
+        .single()
+
+      if (userData) {
+        const resetAt = new Date(userData.jd_reset_at)
+        if (new Date() >= resetAt) {
+          const nextReset = new Date()
+          nextReset.setMonth(nextReset.getMonth() + 1)
+          nextReset.setDate(1)
+          nextReset.setHours(0, 0, 0, 0)
+          await supabase
+            .from('users')
+            .update({ jd_count: 0, jd_reset_at: nextReset.toISOString() })
+            .eq('email', session.user.email)
+          userData.jd_count = 0
+        }
+
+        const jdLimits: Record<string, number> = { FREE: 0, PRO: 15, EXPERT: 30 }
+        const limit = jdLimits[userData.plan] ?? 0
+        if (userData.jd_count >= limit) {
+          const msg = limit === 0
+            ? 'JD 적합도 분석은 PRO 이상 플랜에서 이용 가능합니다.'
+            : `이번 달 JD 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.`
+          return NextResponse.json({ error: msg }, { status: 403 })
+        }
+      }
     }
 
     const { company, jd, analysisResult } = await req.json()
@@ -120,6 +155,8 @@ ${jd}
 
     if (jdCouponId) {
       await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCouponId)
+    } else if (userRole !== 'MANAGER') {
+      await supabase.rpc('increment_jd_count', { user_email: session.user.email })
     }
 
     const expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
