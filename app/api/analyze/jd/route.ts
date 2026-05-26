@@ -99,7 +99,7 @@ ${jd}
 위 정보를 바탕으로 후보자가 이 JD에 실질적으로 적합한지 냉정하게 분석하세요. 면접관 시각에서 매칭 강점, 리스크, 지원 전략, 면접 대비 방향을 실전적으로 제시하세요.`
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       tool_choice: { type: 'tool', name: 'analyze_jd_fit' },
       tools: [jdTool],

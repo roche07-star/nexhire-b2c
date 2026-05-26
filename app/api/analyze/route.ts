@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
       : `다음 이력서를 분석해 주세요. 헤드헌터의 관점에서 강점, 약점, 적합한 커리어 방향 1가지를 객관적으로 평가해 주세요.\n\n---\n${maskedText}\n---`
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: 'claude-sonnet-4-6',
       max_tokens: isPro ? 4096 : 2048,
       tool_choice: { type: 'tool', name: 'analyze_resume' },
       tools: [tool],
