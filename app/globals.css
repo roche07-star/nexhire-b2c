@@ -755,29 +755,64 @@ footer {
   justify-content: center;
   padding: 24px;
   background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.login-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(123,97,255,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(232,255,71,0.05) 0%, transparent 55%);
+  pointer-events: none;
 }
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 40px 36px;
+  border-radius: 28px;
+  padding: 44px 40px 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  position: relative;
+  box-shadow: 0 0 80px rgba(123,97,255,0.1), 0 24px 60px rgba(0,0,0,0.3);
 }
-.login-logo { margin-bottom: 4px; }
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent2), var(--accent), transparent);
+  border-radius: 28px 28px 0 0;
+}
+.login-brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.login-brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.login-headline { text-align: center; display: flex; flex-direction: column; gap: 8px; }
 .login-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: #fff;
   margin: 0;
+  letter-spacing: -0.5px;
 }
-.login-sub { font-size: 14px; color: var(--muted); margin: 0; }
-.login-buttons { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.login-sub { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.6; }
+.login-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+.login-buttons { width: 100%; display: flex; flex-direction: column; gap: 10px; }
 .login-buttons form { width: 100%; }
 .btn-social {
   width: 100%;
@@ -785,23 +820,27 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 13px 20px;
-  border-radius: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  border: none;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
 }
-.btn-social:hover { opacity: 0.88; }
-.btn-google { background: #fff; color: #3c4043; }
-.btn-kakao { background: #FEE500; color: #3C1E1E; }
+.btn-google {
+  background: #fff;
+  color: #3c4043;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.btn-google:hover { background: #f5f5f5; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
 .login-terms {
   font-size: 12px;
   color: var(--muted);
   text-align: center;
   line-height: 1.7;
-  margin-top: 4px;
+  margin-top: -4px;
 }
 .login-terms a { color: var(--muted2); text-decoration: underline; }
 
