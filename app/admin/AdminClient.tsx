@@ -9,6 +9,8 @@ interface User {
   plan: 'FREE' | 'PRO' | 'EXPERT'
   analyze_count: number
   analyze_reset_at: string
+  jd_count: number
+  jd_reset_at: string
   created_at: string
 }
 
@@ -78,7 +80,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
       body: JSON.stringify({ email }),
     })
     if (res.ok) {
-      setUsers((prev) => prev.map((u) => u.email === email ? { ...u, analyze_count: 0 } : u))
+      setUsers((prev) => prev.map((u) => u.email === email ? { ...u, analyze_count: 0, jd_count: 0 } : u))
       showMsg(`${email} 횟수 초기화 완료`)
     }
     setLoading(null)
@@ -140,7 +142,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
 
   const total = users.length
   const proCount = users.filter((u) => u.plan === 'PRO' || u.plan === 'EXPERT').length
-  const totalAnalyzes = users.reduce((sum, u) => sum + u.analyze_count, 0)
+  const totalResume = users.reduce((sum, u) => sum + (u.analyze_count ?? 0), 0)
+  const totalJd = users.reduce((sum, u) => sum + (u.jd_count ?? 0), 0)
 
   return (
     <main className="admin-page">
@@ -175,8 +178,12 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                 <div className="admin-stat-value">{total - proCount}<span>명</span></div>
               </div>
               <div className="admin-stat-card">
-                <div className="admin-stat-label">전체 분석 건수</div>
-                <div className="admin-stat-value">{totalAnalyzes}<span>건</span></div>
+                <div className="admin-stat-label">이력서 분석 건수</div>
+                <div className="admin-stat-value">{totalResume}<span>건</span></div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">JD 분석 건수</div>
+                <div className="admin-stat-value">{totalJd}<span>건</span></div>
               </div>
               <div className="admin-stat-card">
                 <div className="admin-stat-label">전환율</div>
@@ -191,7 +198,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                   <tr>
                     <th>유저</th>
                     <th>플랜</th>
-                    <th>이번 달 분석</th>
+                    <th>이번 달 이력서</th>
+                    <th>이번 달 JD</th>
                     <th>가입일</th>
                     <th>플랜 변경</th>
                     <th>횟수 초기화</th>
@@ -214,7 +222,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                           {u.plan}
                         </span>
                       </td>
-                      <td className="admin-count">{u.analyze_count}회</td>
+                      <td className="admin-count">{u.analyze_count ?? 0}회</td>
+                      <td className="admin-count">{u.jd_count ?? 0}회</td>
                       <td className="admin-date">{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
                       <td>
                         <div className="admin-actions">
@@ -238,14 +247,14 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       <td>
                         <button
                           className="admin-btn reset"
-                          disabled={u.analyze_count === 0 || loading === u.email + 'reset'}
+                          disabled={(u.analyze_count === 0 && u.jd_count === 0) || loading === u.email + 'reset'}
                           onClick={() => resetCount(u.email)}
                         >초기화</button>
                       </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={6} className="admin-empty">가입한 유저가 없습니다.</td></tr>
+                    <tr><td colSpan={7} className="admin-empty">가입한 유저가 없습니다.</td></tr>
                   )}
                 </tbody>
               </table>

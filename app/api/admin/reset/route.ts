@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabase
     .from('users')
-    .update({ analyze_count: 0 })
+    .update({ analyze_count: 0, jd_count: 0 })
     .eq('email', email)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
