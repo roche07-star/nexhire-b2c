@@ -48,20 +48,17 @@ export async function POST(req: NextRequest) {
     }
 
     // JD 쿠폰 체크
+    let jdCouponId: string | null = null
     if ((session.user as { role?: string }).role !== 'MANAGER') {
-      const { data: jdCoupon } = await supabase
+      const { data: jdCoupons } = await supabase
         .from('coupons')
-        .select('id')
+        .select('id, expires_at')
         .eq('claimed_by', session.user.email)
         .eq('feature', 'jd')
         .is('used_at', null)
-        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-        .limit(1)
-        .maybeSingle()
-
-      if (jdCoupon) {
-        await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCoupon.id)
-      }
+      const now = new Date()
+      const valid = (jdCoupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
+      if (valid) jdCouponId = valid.id
     }
 
     const { company, jd, analysisResult } = await req.json()
@@ -119,6 +116,10 @@ ${jd}
       company,
       resume_job_title: (a.job_title as string) ?? null,
       resume_analyzed_at: new Date().toISOString(),
+    }
+
+    if (jdCouponId) {
+      await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCouponId)
     }
 
     const expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()

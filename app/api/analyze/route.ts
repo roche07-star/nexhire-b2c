@@ -142,16 +142,15 @@ export async function POST(req: NextRequest) {
     // 쿠폰 체크 (MANAGER 제외)
     let resumeCouponId: string | null = null
     if (role !== 'MANAGER') {
-      const { data: coupon } = await supabase
+      const { data: coupons } = await supabase
         .from('coupons')
-        .select('id')
+        .select('id, expires_at')
         .eq('claimed_by', email)
         .eq('feature', 'resume')
         .is('used_at', null)
-        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-        .limit(1)
-        .maybeSingle()
-      if (coupon) resumeCouponId = coupon.id
+      const now = new Date()
+      const valid = (coupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
+      if (valid) resumeCouponId = valid.id
     }
 
     if (role !== 'MANAGER' && !resumeCouponId) {
