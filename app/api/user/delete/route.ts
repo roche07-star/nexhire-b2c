@@ -19,7 +19,8 @@ export async function DELETE(req: NextRequest) {
     await supabase.from('jd_analyses').delete().eq('user_email', userEmail)
     await supabase.from('analyses').delete().eq('user_email', userEmail)
     await supabase.from('coupons').delete().eq('user_email', userEmail)
-    // users 행은 유지 — 재가입 시 analyze_count가 초기화되는 어뷰징 방지
+    // users 행 유지(어뷰징 방지), 플랜만 FREE로 리셋
+    await supabase.from('users').update({ plan: 'FREE' }).eq('email', userEmail)
 
     return NextResponse.json({ ok: true })
   } catch (e) {
