@@ -5,6 +5,8 @@ import { maskPII } from '@/lib/maskPII'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const baseTool: Anthropic.Tool = {
@@ -277,8 +279,8 @@ ${maskedText}
 ----`
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: isPro ? 4096 : 2048,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: isPro ? 3000 : 2000,
       tool_choice: { type: 'tool', name: 'analyze_resume' },
       tools: [tool],
       messages: [{ role: 'user', content: prompt }],
