@@ -30,6 +30,7 @@ interface AnalysisResult {
   plan?: 'FREE' | 'PRO' | 'EXPERT'
   _id?: string | null
   _rewrite_saved?: boolean
+  _file_path?: string
   refined?: boolean
   refinement_text?: string
 }
@@ -783,8 +784,32 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             )}
 
             {/* Re-Writing 모드 */}
-            {activeMenu === 'rewrite' && (
+            {activeMenu === 'rewrite' && (() => {
+              const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
+              const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
+              return (
               <div className="jd-section">
+                <div className="rewrite-status-bar">
+                  <div className="rewrite-status-item">
+                    <span className="rewrite-status-label">보존된 이력서</span>
+                    <span className="rewrite-status-value">{analysisList ? `${preservedCount}개` : '—'}</span>
+                  </div>
+                  <div className="rewrite-status-divider" />
+                  <div className="rewrite-status-item">
+                    <span className="rewrite-status-label">무료 보존</span>
+                    <span className={`rewrite-status-value${preservedCount === 0 ? ' available' : ' used'}`}>
+                      {preservedCount === 0 ? '1회 사용 가능' : '사용 완료'}
+                    </span>
+                  </div>
+                  <div className="rewrite-status-divider" />
+                  <div className="rewrite-status-item">
+                    <span className="rewrite-status-label">보존 쿠폰</span>
+                    <span className={`rewrite-status-value${rewriteCouponCount > 0 ? ' available' : ''}`}>
+                      {rewriteCouponCount > 0 ? `${rewriteCouponCount}장` : '없음'}
+                    </span>
+                  </div>
+                </div>
+
                 <div className="jd-list-title">Re-Writing할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
                   원본 이력서 양식을 그대로 유지하면서 채용 담당자에게 더 잘 읽히도록 문장과 포지셔닝을 재작성합니다.
@@ -800,7 +825,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {analysisList.map((item) => (
                       <div key={item.id} className="jd-saved-card rewrite-card">
                         <div className="jd-saved-card-left">
-                          <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                          <span className="jd-saved-company">
+                            {item.result.job_title ?? '이력서 분析'}
+                            {item.result._file_path
+                              ? <span className="preserve-badge saved">보존됨</span>
+                              : <span className="preserve-badge unsaved">미보존</span>
+                            }
+                          </span>
                           <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
                         </div>
                         <div className="jd-saved-card-right">
@@ -809,7 +840,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <button
                           className="rewrite-dl-btn"
                           onClick={() => handleRewrite(item.id)}
-                          disabled={rewritingId === item.id}
+                          disabled={rewritingId === item.id || !item.result._file_path}
+                          title={!item.result._file_path ? '원본 파일이 보존되지 않은 이력서입니다' : undefined}
                         >
                           {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
                         </button>
@@ -818,9 +850,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 )}
               </div>
-            )}
+              )
+            })()}
 
-            {/* JD 기반 분석 모드 */}
+            {/* JD 기반 분析 모드 */}
             {activeMenu === 'jd' && (
               <div className="jd-section">
                 {jdViewingSaved ? (
@@ -1034,6 +1067,19 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     </>
                   )}
                 </div>
+
+                {isExpert && (
+                  <div className="preserve-info-box">
+                    <div className="preserve-info-title">✏️ 이력서 보존 (Re-Writing)</div>
+                    <div className="preserve-info-body">
+                      업로드한 이력서는 자동으로 보존되어 <strong>Re-Writing</strong> 탭에서 AI가 재작성한 이력서를 DOCX로 다운로드할 수 있습니다.
+                    </div>
+                    <div className="preserve-info-rule">
+                      <span className="preserve-info-free">✓ 첫 번째 이력서 무료 보존</span>
+                      <span className="preserve-info-paid">추가 보존은 이력서 보존 쿠폰 1장 필요</span>
+                    </div>
+                  </div>
+                )}
 
                 <label className="consent-wrap">
                   <input
