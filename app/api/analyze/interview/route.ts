@@ -202,12 +202,16 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
 
     if (insertError) {
       console.error('[analyze/interview] DB insert error:', insertError)
+      return NextResponse.json(
+        { error: `면접 가이드 저장 실패: ${insertError.message}` },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({
       ...resultPayload,
-      id: inserted?.id ?? null,
-      expires_at: inserted?.expires_at ?? expiresAt.toISOString(),
+      id: inserted!.id,
+      expires_at: inserted!.expires_at,
     })
   } catch (e) {
     console.error('[analyze/interview]', e)
