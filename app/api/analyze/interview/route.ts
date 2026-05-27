@@ -173,7 +173,7 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 8192,
       tool_choice: { type: 'tool', name: 'generate_interview_guide' },
       tools: [interviewTool],
       messages: [{ role: 'user', content: prompt }],
