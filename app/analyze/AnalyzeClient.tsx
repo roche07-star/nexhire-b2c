@@ -385,6 +385,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
   const [withdrawEmail, setWithdrawEmail] = useState('')
   const [withdrawLoading, setWithdrawLoading] = useState(false)
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
 
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
@@ -431,31 +432,40 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
-    if (!confirm('이 분석 결과를 삭제하시겠습니까?')) return
-    setDeletingAnalysisId(id)
-    try {
-      const res = await fetch(`/api/analyze/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        setAnalysisList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
-        if (savedSelectedItem?.id === id) setSavedSelectedItem(null)
-      }
-    } finally {
-      setDeletingAnalysisId(null)
-    }
+    setDeleteConfirm({ type: 'analysis', id })
   }
 
   async function handleDeleteJDAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
-    if (!confirm('이 JD 분석 결과를 삭제하시겠습니까?')) return
-    setDeletingJdId(id)
-    try {
-      const res = await fetch(`/api/analyze/jd/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        setJdSavedList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
-        if (jdViewingSaved?.id === id) setJdViewingSaved(null)
+    setDeleteConfirm({ type: 'jd', id })
+  }
+
+  async function confirmDelete() {
+    if (!deleteConfirm) return
+    const { type, id } = deleteConfirm
+    setDeleteConfirm(null)
+    if (type === 'analysis') {
+      setDeletingAnalysisId(id)
+      try {
+        const res = await fetch(`/api/analyze/${id}`, { method: 'DELETE' })
+        if (res.ok) {
+          setAnalysisList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
+          if (savedSelectedItem?.id === id) setSavedSelectedItem(null)
+        }
+      } finally {
+        setDeletingAnalysisId(null)
       }
-    } finally {
-      setDeletingJdId(null)
+    } else {
+      setDeletingJdId(id)
+      try {
+        const res = await fetch(`/api/analyze/jd/${id}`, { method: 'DELETE' })
+        if (res.ok) {
+          setJdSavedList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
+          if (jdViewingSaved?.id === id) setJdViewingSaved(null)
+        }
+      } finally {
+        setDeletingJdId(null)
+      }
     }
   }
 
@@ -1001,6 +1011,25 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
           <button className="withdraw-link" onClick={() => { setWithdrawOpen(true); setWithdrawEmail(''); setWithdrawError(null) }}>
             계정 탈퇴
           </button>
+        </div>
+      )}
+
+      {/* 분析 삭제 확인 모달 */}
+      {deleteConfirm && (
+        <div className="withdraw-overlay" onClick={() => setDeleteConfirm(null)}>
+          <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="withdraw-modal-icon">🗑️</div>
+            <div className="withdraw-modal-title">
+              {deleteConfirm.type === 'analysis' ? '이력서 분석 결과를 삭제할까요?' : 'JD 적합도 분석 결과를 삭제할까요?'}
+            </div>
+            <div className="withdraw-modal-warning">
+              🚨 삭제된 데이터는 복구가 불가능합니다.
+            </div>
+            <div className="withdraw-modal-btns">
+              <button className="withdraw-modal-cancel" onClick={() => setDeleteConfirm(null)}>취소</button>
+              <button className="withdraw-modal-confirm" onClick={confirmDelete}>삭제하기</button>
+            </div>
+          </div>
         </div>
       )}
 
