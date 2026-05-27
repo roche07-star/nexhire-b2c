@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
+import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 
 interface CareerPath {
@@ -421,7 +422,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
         setWithdrawLoading(false)
         return
       }
-      window.location.href = '/login'
+      await signOut({ callbackUrl: '/login' })
     } catch {
       setWithdrawError('서버 오류가 발생했습니다.')
       setWithdrawLoading(false)

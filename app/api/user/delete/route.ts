@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth, signOut } from '@/auth'
+import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
 export async function DELETE(req: NextRequest) {
@@ -20,8 +20,6 @@ export async function DELETE(req: NextRequest) {
     await supabase.from('analyses').delete().eq('user_email', userEmail)
     await supabase.from('coupons').delete().eq('user_email', userEmail)
     await supabase.from('users').delete().eq('email', userEmail)
-
-    await signOut({ redirect: false })
 
     return NextResponse.json({ ok: true })
   } catch (e) {
