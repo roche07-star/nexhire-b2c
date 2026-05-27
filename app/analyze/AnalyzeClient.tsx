@@ -1132,31 +1132,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                   <div className="interview-section">
                     <div className="interview-section-title">SECTION 2 — 자기소개 설계</div>
-                    <div className="interview-text">{g.self_intro.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                    <div className="interview-text">{(g.self_intro ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                   </div>
                   <div className="interview-section">
                     <div className="interview-section-title">SECTION 3 — 예상 질문 & 답변 가이드</div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">A. 이직 사유</div>
-                      <div className="interview-text">{g.qa_resign_reason.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{(g.qa_resign_reason ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                     {g.qa_domain_gap && g.qa_domain_gap !== '해당없음' && (
                       <div className="interview-qa-block">
                         <div className="interview-qa-label">B. 도메인 갭 대응</div>
-                        <div className="interview-text">{g.qa_domain_gap.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                        <div className="interview-text">{(g.qa_domain_gap ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                       </div>
                     )}
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">C. 역량 검증 (STAR)</div>
-                      <div className="interview-text">{g.qa_competency.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{(g.qa_competency ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">D. 입사 후 계획</div>
-                      <div className="interview-text">{g.qa_post_join.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{(g.qa_post_join ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">E. 희망 연봉</div>
-                      <div className="interview-text">{g.qa_salary.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{(g.qa_salary ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                   </div>
                   <div className="interview-section">
