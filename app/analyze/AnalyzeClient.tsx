@@ -966,10 +966,10 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
               <>
                 {!isPro && savedAnalysis && (
                   <div className="free-saved-notice">
-                    <span>📂 이전 분析 결과</span>
-                    <span className="free-saved-date">분析일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                    <span>📂 이전 분석 결과</span>
+                    <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                     <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
-                      새로 분析하기
+                      새로 분석하기
                     </button>
                   </div>
                 )}
@@ -979,14 +979,14 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">🔒</span>
-                    <span>분析 결과가 저장되었습니다. <strong>분析 다시 보기</strong> 탭에서 언제든지 확인할 수 있습니다.</span>
+                    <span>분석 결과가 저장되었습니다. <strong>분석 다시 보기</strong> 탭에서 언제든지 확인할 수 있습니다.</span>
                   </div>
                 )}
 
                 {!isPro && !savedAnalysis && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">💡</span>
-                    <span>PRO 플랜으로 업그레이드하면 더 상세한 분析과 다중 저장이 가능합니다.</span>
+                    <span>PRO 플랜으로 업그레이드하면 더 상세한 분석과 다중 저장이 가능합니다.</span>
                   </div>
                 )}
               </>
