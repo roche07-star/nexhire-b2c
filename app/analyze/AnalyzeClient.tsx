@@ -29,6 +29,7 @@ interface AnalysisResult {
   summary: string
   plan?: 'FREE' | 'PRO' | 'EXPERT'
   _id?: string | null
+  _rewrite_saved?: boolean
   refined?: boolean
   refinement_text?: string
 }
@@ -71,7 +72,7 @@ const FEATURE_LABEL: Record<string, string> = {
   resume: '이력서 분석',
   direction: '방향성 분석',
   jd: 'JD 매칭 분석',
-  rewrite: 'Re-Writing',
+  rewrite: '이력서 보존 (Re-Writing)',
 }
 
 const CAREER_COLORS: Record<string, string> = {
@@ -1089,7 +1090,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 )}
 
-                {!isPro && !savedAnalysis && (
+ 
+
+                {isExpert && result._rewrite_saved === false && (
+                  <div className="analyze-storage-notice rewrite-not-saved-notice">
+                    <span className="storage-icon">✏️</span>
+                    <span>
+                      이 이력서는 보존되지 않아 Re-Writing을 사용할 수 없습니다.
+                      <strong> 이력서 보존 쿠폰</strong>을 위 쿠폰 입력창에 등록하면 다음 분석부터 보존됩니다.
+                    </span>
+                  </div>
+                )}               {!isPro && !savedAnalysis && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">💡</span>
                     <span>PRO 플랜으로 업그레이드하면 더 상세한 분석과 다중 저장이 가능합니다.</span>

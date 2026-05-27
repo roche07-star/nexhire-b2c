@@ -307,25 +307,63 @@ ${maskedText}
       .single()
     if (insertError) console.error('[analyze] insert error:', insertError)
 
-    // 원본 파일을 Storage에 보존 (Re-Writing용)
-    let filePath: string | null = null
+    // 원본 파일 보존 (Re-Writing용) — 1회 무료, 추가는 rewrite 쿠폰 필요
+    let rewriteSaved = false
+    let rewriteCouponUsed: string | null = null
+
     if (insertData?.id) {
-      const fileExt = file.name.split('.').pop()?.toLowerCase() ?? 'bin'
-      filePath = `${email}/${insertData.id}.${fileExt}`
-      const { error: storageErr } = await supabase.storage
-        .from('resumes')
-        .upload(filePath, buffer, { contentType: file.type, upsert: false })
-      if (storageErr) {
-        console.error('[analyze] storage upload error:', storageErr)
-        filePath = null
-      } else {
-        await supabase.from('analyses')
-          .update({ result: { ...resultPayload, _file_path: filePath } })
-          .eq('id', insertData.id)
+      // 기존 보존 이력 확인 (현재 삽입된 건은 아직 _file_path 없으므로 정확히 카운트됨)
+      const { data: prevAnalyses } = await supabase
+        .from('analyses')
+        .select('id, result')
+        .eq('user_email', email)
+        .limit(100)
+      const hasPreserved = (prevAnalyses ?? []).some(
+        (a) => a.result?._file_path && a.id !== insertData.id
+      )
+
+      let canPreserve = !hasPreserved // 보존 이력 없으면 1회 무료
+
+      if (!canPreserve) {
+        // rewrite 쿠폰 체크
+        const { data: rewriteCoupons } = await supabase
+          .from('coupons')
+          .select('id, expires_at')
+          .eq('claimed_by', email)
+          .eq('feature', 'rewrite')
+          .is('used_at', null)
+        const validRewrite = (rewriteCoupons ?? []).find(
+          (c) => !c.expires_at || new Date(c.expires_at) > new Date()
+        )
+        if (validRewrite) {
+          rewriteCouponUsed = validRewrite.id
+          canPreserve = true
+        }
+      }
+
+      if (canPreserve) {
+        const fileExt = file.name.split('.').pop()?.toLowerCase() ?? 'bin'
+        const filePath = `${email}/${insertData.id}.${fileExt}`
+        const { error: storageErr } = await supabase.storage
+          .from('resumes')
+          .upload(filePath, buffer, { contentType: file.type, upsert: false })
+        if (!storageErr) {
+          await supabase.from('analyses')
+            .update({ result: { ...resultPayload, _file_path: filePath } })
+            .eq('id', insertData.id)
+          rewriteSaved = true
+          if (rewriteCouponUsed) {
+            await supabase.from('coupons')
+              .update({ used_at: new Date().toISOString() })
+              .eq('id', rewriteCouponUsed)
+          }
+        } else {
+          console.error('[analyze] storage upload error:', storageErr)
+        }
       }
     }
 
-    return NextResponse.json({ ...resultPayload, _id: insertData?.id ?? null })
+    return NextResponse.json({ ...resultPayload, _id: insertData?.id ?? null, _rewrite_saved: rewriteSaved })
   } catch (e) {
     console.error('[analyze]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
