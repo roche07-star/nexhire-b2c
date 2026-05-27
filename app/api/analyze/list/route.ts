@@ -9,11 +9,13 @@ export async function GET() {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    const now = new Date().toISOString()
     const { data } = await supabase
       .from('analyses')
       .select('id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
-.order('created_at', { ascending: false })
+      .or(`expires_at.is.null,expires_at.gt.${now}`)
+      .order('created_at', { ascending: false })
       .limit(20)
 
     return NextResponse.json({ analyses: data ?? [] })

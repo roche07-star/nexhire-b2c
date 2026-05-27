@@ -596,14 +596,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         // 쿠폰 사용 후 목록 갱신
         fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
         // 분석 목록 갱신 (saved 탭)
-        if (data._file_path && data._id) {
-          setAnalysisList(prev => {
-            const newItem: AnalysisListItem = { id: data._id!, result: data, created_at: new Date().toISOString(), expires_at: '' }
-            return prev ? [newItem, ...prev.filter(a => a.id !== data._id)] : [newItem]
-          })
-        } else {
-          fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
-        }
+        // 항상 DB에서 재로드 (replace 시 기존 _file_path 제거 반영)
+        fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
           const newSaved: SavedAnalysis = {
             result: data,
