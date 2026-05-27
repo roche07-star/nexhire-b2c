@@ -794,7 +794,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 Report' : '이력서 분석'}
+                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 Report' : activeMenu === 'rewrite' ? '이력서 생성' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 AI가 3분 안에 커리어 방향을 제시합니다.</p>
