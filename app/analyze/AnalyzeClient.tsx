@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
-import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 
 interface CareerPath {
@@ -396,10 +395,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
   const [analysisId, setAnalysisId] = useState<string | null>(null)
-  const [withdrawOpen, setWithdrawOpen] = useState(false)
-  const [withdrawEmail, setWithdrawEmail] = useState('')
-  const [withdrawLoading, setWithdrawLoading] = useState(false)
-  const [withdrawError, setWithdrawError] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveModal, setPreserveModal] = useState(false)
   const preserveResolveRef = useRef<((choice: 'replace' | 'add' | 'skip' | 'cancel') => void) | null>(null)
@@ -425,29 +420,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
       .catch(() => {})
   }, [])
-
-  async function handleWithdraw() {
-    if (withdrawEmail !== userEmail) return
-    setWithdrawLoading(true)
-    setWithdrawError(null)
-    try {
-      const res = await fetch('/api/user/delete', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: withdrawEmail }),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setWithdrawError(data.error ?? '오류가 발생했습니다.')
-        setWithdrawLoading(false)
-        return
-      }
-      await signOut({ callbackUrl: '/login' })
-    } catch {
-      setWithdrawError('서버 오류가 발생했습니다.')
-      setWithdrawLoading(false)
-    }
-  }
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
@@ -1381,55 +1353,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         </div>
       )}
 
-      {/* 탈퇴 확인 모달 */}
-      {withdrawOpen && (
-        <div className="withdraw-overlay" onClick={() => !withdrawLoading && setWithdrawOpen(false)}>
-          <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="withdraw-modal-icon">⚠️</div>
-            <div className="withdraw-modal-title">정말 탈퇴하시겠어요?</div>
-            <div className="withdraw-modal-desc">
-              탈퇴하면 아래 데이터가 즉시 삭제됩니다.
-            </div>
-            <ul className="withdraw-modal-list">
-              <li>저장된 이력서 분석 결과 전체</li>
-              <li>JD 적합도 분석 결과 전체</li>
-              <li>보유 쿠폰</li>
-            </ul>
-            <div className="withdraw-modal-warning">
-              🚨 삭제된 데이터는 복구가 불가능합니다.
-            </div>
-            <div className="withdraw-modal-confirm-label">
-              확인을 위해 가입한 이메일을 입력해 주세요
-            </div>
-            <input
-              className="withdraw-modal-input"
-              type="email"
-              placeholder={userEmail ?? ''}
-              value={withdrawEmail}
-              onChange={(e) => { setWithdrawEmail(e.target.value); setWithdrawError(null) }}
-              disabled={withdrawLoading}
-              autoComplete="off"
-            />
-            {withdrawError && <div className="withdraw-modal-error">{withdrawError}</div>}
-            <div className="withdraw-modal-btns">
-              <button
-                className="withdraw-modal-cancel"
-                onClick={() => setWithdrawOpen(false)}
-                disabled={withdrawLoading}
-              >
-                취소
-              </button>
-              <button
-                className="withdraw-modal-confirm"
-                onClick={handleWithdraw}
-                disabled={withdrawEmail !== userEmail || withdrawLoading}
-              >
-                {withdrawLoading ? '처리 중...' : '탈퇴하기'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   )
 }
