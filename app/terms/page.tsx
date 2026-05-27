@@ -1,6 +1,8 @@
+import dynamic from 'next/dynamic'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import WithdrawSection from './WithdrawSection'
+
+const WithdrawSection = dynamic(() => import('./WithdrawSection'), { ssr: false })
 
 export const metadata = {
   title: '이용약관 — Jobizic',
