@@ -1,8 +1,6 @@
-import dynamic from 'next/dynamic'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-
-const WithdrawSection = dynamic(() => import('./WithdrawSection'), { ssr: false })
+import TermsWithdrawWrapper from './TermsWithdrawWrapper'
 
 export const metadata = {
   title: '이용약관 — Jobizic',
@@ -91,7 +89,7 @@ export default function TermsPage() {
             <p><strong>privacy@jobizic.io</strong></p>
           </div>
 
-          <WithdrawSection />
+          <TermsWithdrawWrapper />
         </div>
       </main>
       <Footer />
