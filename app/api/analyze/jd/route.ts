@@ -3,6 +3,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const jdTool: Anthropic.Tool = {
@@ -191,10 +193,14 @@ ${candidateProfile}`
       await supabase.rpc('increment_jd_count', { user_email: session.user.email })
     }
 
-    await supabase.from('jd_analyses').insert({
+    const { error: insertError } = await supabase.from('jd_analyses').insert({
       user_email: session.user.email,
       result: resultPayload,
     })
+    if (insertError) {
+      console.error('[analyze/jd] DB insert error:', insertError)
+      return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
+    }
 
     return NextResponse.json(resultPayload)
   } catch (e) {

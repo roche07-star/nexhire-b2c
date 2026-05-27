@@ -6,6 +6,8 @@ import { extractText } from '@/lib/extractText'
 import { generateResumeDocx, RewriteResult } from '@/lib/generateDocx'
 import { extractDocxParagraphs, applyDocxRewrites } from '@/lib/rewriteDocxInPlace'
 
+export const maxDuration = 60
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 interface JDContext {
