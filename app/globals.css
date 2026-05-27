@@ -2683,19 +2683,31 @@ footer {
   text-transform: uppercase;
   color: #a891ff;
 }
-.refinement-block { display: flex; flex-direction: column; gap: 10px; }
+.refinement-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.refinement-text-empty {
+  font-size: 14px;
+  color: var(--muted);
+}
 .refinement-block-label {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--muted);
+  color: #a891ff;
+  margin-top: 16px;
+  margin-bottom: 4px;
 }
+.refinement-text-wrap > .refinement-block-label:first-child { margin-top: 0; }
 .refinement-list {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 4px;
 }
 .refinement-list li {
   font-size: 14px;
@@ -2710,4 +2722,9 @@ footer {
   left: 0;
   color: #a891ff;
   font-weight: 700;
+}
+.refinement-para {
+  font-size: 14px;
+  color: var(--muted2);
+  line-height: 1.7;
 }

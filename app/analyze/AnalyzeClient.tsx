@@ -13,12 +13,6 @@ interface CareerPath {
   points: string[]
 }
 
-interface RefinementResult {
-  action_items: string[]
-  skill_gaps: string[]
-  missed_points: string[]
-}
-
 interface AnalysisResult {
   candidate_name?: string
   job_title?: string
@@ -36,7 +30,7 @@ interface AnalysisResult {
   plan?: 'FREE' | 'PRO' | 'EXPERT'
   _id?: string | null
   refined?: boolean
-  refinement?: RefinementResult
+  refinement_text?: string
 }
 
 interface SavedAnalysis {
@@ -1097,6 +1091,40 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
   )
 }
 
+function RefinementTextView({ text }: { text: string }) {
+  if (!text) return <div className="refinement-text-empty">분석 중...</div>
+  const lines = text.split('\n')
+  const nodes: React.ReactNode[] = []
+  let listItems: string[] = []
+
+  function flushList() {
+    if (listItems.length === 0) return
+    nodes.push(
+      <ul key={`list-${nodes.length}`} className="refinement-list">
+        {listItems.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    )
+    listItems = []
+  }
+
+  lines.forEach((line, i) => {
+    if (line.startsWith('## ')) {
+      flushList()
+      nodes.push(<div key={i} className="refinement-block-label">{line.slice(3)}</div>)
+    } else if (line.startsWith('- ') || line.startsWith('• ')) {
+      listItems.push(line.slice(2))
+    } else if (line.trim() === '') {
+      flushList()
+    } else {
+      flushList()
+      nodes.push(<p key={i} className="refinement-para">{line}</p>)
+    }
+  })
+  flushList()
+
+  return <div className="refinement-text-wrap">{nodes}</div>
+}
+
 function AnalysisResults({
   result,
   analysisId,
@@ -1110,7 +1138,7 @@ function AnalysisResults({
     result.career_paths ? Math.min(1, result.career_paths.length - 1) : 0
   )
   const [refined, setRefined] = useState(!!result.refined)
-  const [refinement, setRefinement] = useState<RefinementResult | null>(result.refinement ?? null)
+  const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
   const [refining, setRefining] = useState(false)
   const [refineError, setRefineError] = useState<string | null>(null)
 
@@ -1124,12 +1152,24 @@ function AnalysisResults({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ analysisId }),
       })
-      const data = await res.json()
       if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
         setRefineError(data.error ?? '오류가 발생했습니다.')
-      } else {
-        setRefinement(data.refinement)
-        setRefined(true)
+        return
+      }
+      if (!res.body) {
+        setRefineError('응답을 받지 못했습니다.')
+        return
+      }
+      setRefined(true)
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let text = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        text += decoder.decode(value, { stream: true })
+        setRefinementText(text)
       }
     } catch {
       setRefineError('서버 오류가 발생했습니다.')
@@ -1309,29 +1349,12 @@ function AnalysisResults({
               )}
               {refineError && <div className="refine-error">{refineError}</div>}
             </>
-          ) : refinement ? (
+          ) : (
             <div className="refinement-result">
               <div className="refinement-header">보완 재분석 결과</div>
-              <div className="refinement-block">
-                <div className="refinement-block-label">즉시 실행 액션 아이템 (1개월 내)</div>
-                <ul className="refinement-list">
-                  {refinement.action_items.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-              <div className="refinement-block">
-                <div className="refinement-block-label">보강이 필요한 핵심 역량</div>
-                <ul className="refinement-list">
-                  {refinement.skill_gaps.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-              <div className="refinement-block">
-                <div className="refinement-block-label">더 강조할 어필 포인트</div>
-                <ul className="refinement-list">
-                  {refinement.missed_points.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
+              <RefinementTextView text={refinementText} />
             </div>
-          ) : null}
+          )}
         </div>
       )}
 
