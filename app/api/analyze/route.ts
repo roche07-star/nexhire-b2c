@@ -309,6 +309,7 @@ ${maskedText}
 
     // 원본 파일 보존 (Re-Writing용) — 1회 무료, 추가는 rewrite 쿠폰 필요
     let rewriteSaved = false
+    let rewriteFilePath: string | null = null
     let rewriteCouponUsed: string | null = null
 
     if (insertData?.id) {
@@ -348,22 +349,32 @@ ${maskedText}
           .from('resumes')
           .upload(filePath, buffer, { contentType: file.type, upsert: false })
         if (!storageErr) {
-          await supabase.from('analyses')
+          const { error: updateErr } = await supabase.from('analyses')
             .update({ result: { ...resultPayload, _file_path: filePath } })
             .eq('id', insertData.id)
-          rewriteSaved = true
-          if (rewriteCouponUsed) {
-            await supabase.from('coupons')
-              .update({ used_at: new Date().toISOString() })
-              .eq('id', rewriteCouponUsed)
+          if (updateErr) {
+            console.error('[analyze] result update error:', updateErr)
+          } else {
+            rewriteSaved = true
+            rewriteFilePath = filePath
+            if (rewriteCouponUsed) {
+              await supabase.from('coupons')
+                .update({ used_at: new Date().toISOString() })
+                .eq('id', rewriteCouponUsed)
+            }
           }
         } else {
-          console.error('[analyze] storage upload error:', storageErr)
+          console.error('[analyze] storage upload error:', storageErr.message, storageErr)
         }
       }
     }
 
-    return NextResponse.json({ ...resultPayload, _id: insertData?.id ?? null, _rewrite_saved: rewriteSaved })
+    return NextResponse.json({
+      ...resultPayload,
+      _id: insertData?.id ?? null,
+      _rewrite_saved: rewriteSaved,
+      ...(rewriteFilePath ? { _file_path: rewriteFilePath } : {}),
+    })
   } catch (e) {
     console.error('[analyze]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
