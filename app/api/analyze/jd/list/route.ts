@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data } = await supabase
       .from('jd_analyses')
-      .select('id, result, created_at')
+      .select('id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
       .order('created_at', { ascending: false })
       .limit(20)

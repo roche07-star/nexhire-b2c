@@ -193,9 +193,13 @@ ${candidateProfile}`
       await supabase.rpc('increment_jd_count', { user_email: session.user.email })
     }
 
+    const expiresAt = new Date()
+    expiresAt.setFullYear(expiresAt.getFullYear() + 10)
+
     const { error: insertError } = await supabase.from('jd_analyses').insert({
       user_email: session.user.email,
       result: resultPayload,
+      expires_at: expiresAt.toISOString(),
     })
     if (insertError) {
       console.error('[analyze/jd] DB insert error:', insertError)
