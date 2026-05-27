@@ -4,9 +4,10 @@ import { supabase } from '@/lib/supabase'
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
@@ -15,7 +16,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('jd_analyses')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_email', session.user.email)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
