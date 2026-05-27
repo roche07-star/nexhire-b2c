@@ -19,7 +19,7 @@ interface JDContext {
 
 function buildJDSection(jd: JDContext): string {
   return `
-[JD 분析 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
+[JD 분석 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
 채용사: ${jd.company}
 적합도 판단: ${jd.fit_score}% / ${jd.verdict}
 강점 포인트 (이력서에서 더 부각할 것):
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { analysisId, jdAnalysisId } = await req.json()
-    if (!analysisId) return NextResponse.json({ error: '분析 ID가 없습니다.' }, { status: 400 })
+    if (!analysisId) return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
 
     const { data: row } = await supabase
       .from('analyses')
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       .eq('user_email', email)
       .single()
 
-    if (!row) return NextResponse.json({ error: '분析을 찾을 수 없습니다.' }, { status: 404 })
+    if (!row) return NextResponse.json({ error: '분석을 찾을 수 없습니다.' }, { status: 404 })
 
     const filePath: string | undefined = row.result?._file_path
     if (!filePath) {

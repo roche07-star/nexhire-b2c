@@ -509,7 +509,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       } catch { jdList = [] }
     }
 
-    // 유효한 JD 분析 (미만료)
+    // 유효한 JD 분석 (미만료)
     const now = new Date()
     const validJds = (jdList ?? []).filter(jd => !jd.expires_at || new Date(jd.expires_at) > now)
 
@@ -893,7 +893,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       <div key={item.id} className="jd-saved-card rewrite-card">
                         <div className="jd-saved-card-left">
                           <span className="jd-saved-company">
-                            {item.result.job_title ?? '이력서 분析'}
+                            {item.result.job_title ?? '이력서 분석'}
                             {item.result._file_path
                               ? <span className="preserve-badge saved">보존됨</span>
                               : <span className="preserve-badge unsaved">미보존</span>
@@ -912,14 +912,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         >
                           {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
                         </button>
-                        <button
-                          className="saved-delete-btn"
-                          onClick={(e) => handleDeleteAnalysis(item.id, e)}
-                          disabled={deletingAnalysisId === item.id}
-                          title="삭제"
-                        >
-                          {deletingAnalysisId === item.id ? '…' : '×'}
-                        </button>
                       </div>
                     ))}
                   </div>
@@ -928,7 +920,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               )
             })()}
 
-            {/* JD 기반 분析 모드 */}
+            {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
               <div className="jd-section">
                 {jdViewingSaved ? (
@@ -1289,11 +1281,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span className="preserve-option-icon">⏭️</span>
                   <span className="preserve-option-label">보존하지 않음</span>
                 </div>
-                <div className="preserve-option-desc">이번 이력서는 보존하지 않고 분析만 진행합니다.</div>
+                <div className="preserve-option-desc">이번 이력서는 보존하지 않고 분석만 진행합니다.</div>
               </button>
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolvePreserve('cancel')}>
-                취소 (분析 중단)
+                취소 (분석 중단)
               </button>
             </div>
           </div>
@@ -1310,7 +1302,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
               <div className="preserve-choice-title">JD 기반 Re-Writing</div>
               <div className="preserve-choice-desc">
-                JD 분析 결과를 활용하면 해당 채용사에 맞게 전략적으로 이력서를 재작성합니다.
+                JD 분석 결과를 활용하면 해당 채용사에 맞게 전략적으로 이력서를 재작성합니다.
               </div>
 
               {validJds.map(jd => (
@@ -1326,7 +1318,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {jd.result.verdict?.slice(0, 70)}{jd.result.verdict && jd.result.verdict.length > 70 ? '…' : ''}
                   </div>
                   <div className="preserve-option-existing">
-                    분析일: {new Date(jd.created_at).toLocaleDateString('ko-KR')}
+                    분석일: {new Date(jd.created_at).toLocaleDateString('ko-KR')}
                   </div>
                 </button>
               ))}

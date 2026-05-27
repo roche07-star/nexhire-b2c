@@ -1,5 +1,6 @@
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import WithdrawSection from './WithdrawSection'
 
 export const metadata = {
   title: '이용약관 — Jobizic',
@@ -87,6 +88,8 @@ export default function TermsPage() {
             <p>약관 관련 문의는 아래 이메일로 연락해 주세요.</p>
             <p><strong>privacy@jobizic.io</strong></p>
           </div>
+
+          <WithdrawSection />
         </div>
       </main>
       <Footer />

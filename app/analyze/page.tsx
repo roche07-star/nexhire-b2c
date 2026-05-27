@@ -4,7 +4,7 @@ import AnalyzeClient from './AnalyzeClient'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-export const metadata = { title: '이력서 분析 — Jobizic' }
+export const metadata = { title: '이력서 분석 — Jobizic' }
 
 export default async function AnalyzePage() {
   let isPro = false
