@@ -9,7 +9,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const baseTool: Anthropic.Tool = {
   name: 'analyze_resume',
-  description: '한국어 이력서를 분析하여 구직자의 강점, 개선점, 커리어 방향을 제시합니다.',
+  description: '한국어 이력서를 분석하여 구직자의 강점, 개선점, 커리어 방향을 제시합니다.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -254,7 +254,7 @@ ${maskedText}
 ---`
       : `${headhunterBase}
 
-[분析 절차]
+[분석 절차]
 STEP 1 — 총 경력 연수 직접 계산, 현 직장/직급, 이직 횟수, 추정 연봉 범위 파악.
 STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분散형] 판단 후 summary에 한 문장으로 명시.
 STEP 3 — strengths는 수치·결과물 있는 항목만. improvements에는 리스크와 공백 모두 포함.

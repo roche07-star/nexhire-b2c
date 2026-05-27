@@ -1014,7 +1014,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
         </div>
       )}
 
-      {/* 분析 삭제 확인 모달 */}
+      {/* 분석 삭제 확인 모달 */}
       {deleteConfirm && (
         <div className="withdraw-overlay" onClick={() => setDeleteConfirm(null)}>
           <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
