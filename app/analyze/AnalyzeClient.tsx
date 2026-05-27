@@ -755,6 +755,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     <span>✏️</span> 이력서 생성 <span className="tab-soon">준비중</span>
                   </button>
                 )}
+                <button className="analyze-tab-btn disabled" disabled>
+                  <span>🎤</span> 면접 가이드 <span className="tab-soon">준비중</span>
+                </button>
               </div>
             )}
             <div className={`analyze-header${activeMenu === 'saved' && result ? ' analyze-header--saved' : ''}`}>
