@@ -395,6 +395,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [withdrawLoading, setWithdrawLoading] = useState(false)
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
+  const [preserveModal, setPreserveModal] = useState(false)
+  const preserveResolveRef = useRef<((choice: 'replace' | 'add' | 'skip' | 'cancel') => void) | null>(null)
 
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
@@ -548,15 +550,40 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     if (f) handleFile(f)
   }
 
+  function openPreserveModal(): Promise<'replace' | 'add' | 'skip' | 'cancel'> {
+    return new Promise(resolve => {
+      preserveResolveRef.current = resolve
+      setPreserveModal(true)
+    })
+  }
+
+  function resolvePreserve(choice: 'replace' | 'add' | 'skip' | 'cancel') {
+    setPreserveModal(false)
+    preserveResolveRef.current?.(choice)
+    preserveResolveRef.current = null
+  }
+
   async function onAnalyze() {
     if (!file) return
-    setLoading(true)
     setError(null)
     setResult(null)
 
+    // Expert 유저이고 이미 보존된 이력서가 있으면 방법 선택 모달
+    let preserveMode = 'auto'
+    if (isExpert && analysisList) {
+      const preservedCount = analysisList.filter(item => item.result?._file_path).length
+      if (preservedCount > 0) {
+        const choice = await openPreserveModal()
+        if (choice === 'cancel') return
+        preserveMode = choice
+      }
+    }
+
+    setLoading(true)
     try {
       const fd = new FormData()
       fd.append('resume', file)
+      fd.append('preserveMode', preserveMode)
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -1175,6 +1202,63 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       )}
 
       {/* 분석 삭제 확인 모달 */}
+      {/* 이력서 보존 방법 선택 모달 */}
+      {preserveModal && (() => {
+        const preserved = (analysisList ?? []).filter(item => item.result?._file_path)
+        const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
+        return (
+          <div className="withdraw-overlay" onClick={() => resolvePreserve('cancel')}>
+            <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="preserve-choice-title">이력서 보존 방법 선택</div>
+              <div className="preserve-choice-desc">
+                이미 보존된 이력서가 {preserved.length}개 있습니다.
+              </div>
+
+              <button className="preserve-option-card" onClick={() => resolvePreserve('replace')}>
+                <div className="preserve-option-top">
+                  <span className="preserve-option-icon">🔄</span>
+                  <span className="preserve-option-label">기존 이력서와 교체</span>
+                  <span className="preserve-option-badge free">무료</span>
+                </div>
+                <div className="preserve-option-desc">기존에 보존된 이력서를 삭제하고 이번 이력서로 교체합니다.</div>
+                {preserved[0] && (
+                  <div className="preserve-option-existing">
+                    현재 보존: {preserved[0].result.job_title ?? '(제목 없음)'} · {new Date(preserved[0].created_at).toLocaleDateString('ko-KR')}
+                  </div>
+                )}
+              </button>
+
+              <button
+                className="preserve-option-card"
+                onClick={() => resolvePreserve('add')}
+                disabled={rewriteCouponCount === 0}
+              >
+                <div className="preserve-option-top">
+                  <span className="preserve-option-icon">➕</span>
+                  <span className="preserve-option-label">추가로 보존</span>
+                  <span className={`preserve-option-badge${rewriteCouponCount > 0 ? ' coupon' : ' none'}`}>
+                    {rewriteCouponCount > 0 ? `쿠폰 ${rewriteCouponCount}장` : '쿠폰 없음'}
+                  </span>
+                </div>
+                <div className="preserve-option-desc">이력서 보존 쿠폰 1장을 사용하여 추가로 보존합니다.</div>
+              </button>
+
+              <button className="preserve-option-card skip" onClick={() => resolvePreserve('skip')}>
+                <div className="preserve-option-top">
+                  <span className="preserve-option-icon">⏭️</span>
+                  <span className="preserve-option-label">보존하지 않음</span>
+                </div>
+                <div className="preserve-option-desc">이번 이력서는 보존하지 않고 분析만 진행합니다.</div>
+              </button>
+
+              <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolvePreserve('cancel')}>
+                취소 (분析 중단)
+              </button>
+            </div>
+          </div>
+        )
+      })()}
+
       {deleteConfirm && (
         <div className="withdraw-overlay" onClick={() => setDeleteConfirm(null)}>
           <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>

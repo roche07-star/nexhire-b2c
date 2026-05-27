@@ -191,6 +191,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData()
     const file = formData.get('resume') as File | null
+    const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
     if (!file) return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 })
     if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: '파일 크기는 10MB 이하여야 합니다.' }, { status: 400 })
 
@@ -307,26 +308,39 @@ ${maskedText}
       .single()
     if (insertError) console.error('[analyze] insert error:', insertError)
 
-    // 원본 파일 보존 (Re-Writing용) — 1회 무료, 추가는 rewrite 쿠폰 필요
+    // 원본 파일 보존 (Re-Writing용)
     let rewriteSaved = false
     let rewriteFilePath: string | null = null
     let rewriteCouponUsed: string | null = null
 
-    if (insertData?.id) {
-      // 기존 보존 이력 확인 (현재 삽입된 건은 아직 _file_path 없으므로 정확히 카운트됨)
+    if (insertData?.id && preserveMode !== 'skip') {
       const { data: prevAnalyses } = await supabase
         .from('analyses')
         .select('id, result')
         .eq('user_email', email)
         .limit(100)
-      const hasPreserved = (prevAnalyses ?? []).some(
+      const preserved = (prevAnalyses ?? []).filter(
         (a) => a.result?._file_path && a.id !== insertData.id
       )
+      const hasPreserved = preserved.length > 0
 
-      let canPreserve = !hasPreserved // 보존 이력 없으면 1회 무료
+      let canPreserve = false
 
-      if (!canPreserve) {
-        // rewrite 쿠폰 체크
+      if (preserveMode === 'replace') {
+        // 기존 보존 이력서 모두 삭제 후 교체 (무료)
+        canPreserve = true
+        for (const a of preserved) {
+          const oldPath = a.result._file_path as string
+          await supabase.storage.from('resumes').remove([oldPath])
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { _file_path: _fp, ...restResult } = a.result as Record<string, unknown>
+          await supabase.from('analyses').update({ result: restResult }).eq('id', a.id)
+        }
+      } else if (!hasPreserved) {
+        // 첫 번째 보존 — 무료
+        canPreserve = true
+      } else {
+        // 추가 보존 — rewrite 쿠폰 필요
         const { data: rewriteCoupons } = await supabase
           .from('coupons')
           .select('id, expires_at')
