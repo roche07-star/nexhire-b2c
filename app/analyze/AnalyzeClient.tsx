@@ -1011,7 +1011,15 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
             <div className="withdraw-modal-icon">⚠️</div>
             <div className="withdraw-modal-title">정말 탈퇴하시겠어요?</div>
             <div className="withdraw-modal-desc">
-              탈퇴하면 모든 분석 결과와 계정 정보가 <strong>즉시 삭제</strong>되며 복구할 수 없습니다.
+              탈퇴하면 아래 데이터가 즉시 삭제됩니다.
+            </div>
+            <ul className="withdraw-modal-list">
+              <li>저장된 이력서 분석 결과 전체</li>
+              <li>JD 적합도 분석 결과 전체</li>
+              <li>보유 쿠폰</li>
+            </ul>
+            <div className="withdraw-modal-warning">
+              🚨 삭제된 데이터는 복구가 불가능합니다.
             </div>
             <div className="withdraw-modal-confirm-label">
               확인을 위해 가입한 이메일을 입력해 주세요
