@@ -1186,10 +1186,10 @@ function AnalysisResults({
     { label: '성장 가능성', value: result.scores.growth_potential },
   ]
 
-  const paths = result.career_paths
+  const paths = Array.isArray(result.career_paths) ? result.career_paths : undefined
   const active = paths?.[activeCareerTab]
 
-  const globalMax = paths
+  const globalMax = paths && paths.length > 0
     ? Math.max(...paths.flatMap((p) => (p.salary_bands ?? []).map((b) => b.max || b.min)))
     : 0
 
