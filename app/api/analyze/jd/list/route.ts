@@ -11,9 +11,9 @@ export async function GET() {
 
     const { data } = await supabase
       .from('jd_analyses')
-      .select('id, result, created_at, expires_at')
+      .select('id, result, created_at')
       .eq('user_email', session.user.email)
-.order('created_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(20)
 
     return NextResponse.json({ analyses: data ?? [] })

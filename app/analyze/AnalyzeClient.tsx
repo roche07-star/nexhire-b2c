@@ -67,7 +67,7 @@ interface SavedJDAnalysis {
   id: string
   result: JDResult
   created_at: string
-  expires_at: string
+  expires_at?: string | null
 }
 
 const FEATURE_LABEL: Record<string, string> = {
@@ -942,7 +942,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {jdViewingSaved ? (
                   <JDResults
                     result={jdViewingSaved.result}
-                    expiresAt={jdViewingSaved.expires_at}
+                    expiresAt={jdViewingSaved.expires_at ?? undefined}
                     onReset={() => setJdViewingSaved(null)}
                   />
                 ) : jdResult ? (
