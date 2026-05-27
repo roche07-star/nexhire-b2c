@@ -938,7 +938,8 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                     <>
                       <div className="upload-icon-main">📄</div>
                       <div className="upload-main-text">이력서를 드래그하거나 클릭하여 업로드</div>
-                      <div className="upload-hint">PDF, DOCX · 최대 10MB · 파일 선택 후 열기(더블클릭) 버튼을 눌러주세요</div>
+                      <div className="upload-hint">PDF, DOCX · 최대 10MB</div>
+                      <div className="upload-hint upload-hint--warn">DOCX 파일 선택 시 Word 오류 팝업이 뜰 수 있습니다. × 로 닫으면 정상 업로드됩니다.</div>
                     </>
                   )}
                 </div>

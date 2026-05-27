@@ -1542,6 +1542,7 @@ footer {
 .upload-main-text { font-size: 16px; font-weight: 600; color: var(--text); }
 .upload-filename { font-size: 15px; font-weight: 600; color: var(--accent2); }
 .upload-hint { font-size: 13px; color: var(--muted); }
+.upload-hint--warn { font-size: 12px; color: #c8944a; margin-top: 6px; }
 
 .analyze-btn { align-self: center; min-width: 200px; }
 .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; }
