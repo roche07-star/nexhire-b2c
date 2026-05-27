@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       .eq('user_email', email)
       .single()
 
-    if (!row) return NextResponse.json({ error: '분석을 찾을 수 없습니다.' }, { status: 404 })
+    if (!row) return NextResponse.json({ error: '분析을 찾을 수 없습니다.' }, { status: 404 })
 
     const filePath: string | undefined = row.result?._file_path
     if (!filePath) {
@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Storage에서 원본 파일 다운로드
     const { data: fileData, error: fileErr } = await supabase.storage
       .from('resumes')
       .download(filePath)
@@ -57,22 +56,18 @@ export async function POST(req: NextRequest) {
     const resumeText = await extractText(buffer, originalFilename)
 
     const prompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-아래 이력서를 다음 원칙에 따라 re-writing 하십시오.
+아래 이력서를 원본의 섹션 구성을 그대로 유지하면서 재작성하십시오.
 
 [작업 원칙]
-- 기존 이력서의 항목 구성과 양식은 그대로 유지합니다
-- 내용은 원본 이력서 기반으로만 작성합니다 — 과장하거나 없는 경험을 추가하지 않습니다
-- 해당 경력 연차에 맞는 어감과 한국 채용 시장 정서에 맞게 표현을 다듬습니다
-- 채용사 담당자가 긍정적으로 읽히도록 포지셔닝과 문장을 조율합니다
-- 이직이 여러 번인 경우, 최근 경력에 가중치를 두어 서술합니다
+- 원본 이력서에 있는 모든 섹션을 빠짐없이 포함합니다 (인적사항, 학력, 경력사항, 자격/면허, 기타사항, 연봉사항, 지원사유 및 포부 등 원본에 있는 항목 전부)
+- 섹션의 순서와 제목은 원본 그대로 유지합니다
+- 내용은 원본 이력서 기반으로만 작성합니다 — 없는 경험을 추가하거나 과장하지 않습니다
+- 해당 경력 연차에 맞는 어감과 한국 채용 시장 정서에 맞게 문장을 다듬습니다
+- 채용 담당자가 긍정적으로 읽히도록 포지셔닝과 표현을 조율합니다
 - 구분자는 "/" 를 사용합니다 — "·" (가운데점) 는 절대 사용하지 않습니다
-
-[작업 항목]
-1. 경력 연차: 총 경력 연수와 직무별 경력을 "/" 로 구분하여 한 줄로 요약
-2. 핵심 역량 / 업무상 강점: 핵심 역량 3~5개 (구체적 수치/기술 포함)
-3. 세부 경력 사항: 각 회사별 업무 내용과 성과를 재작성 (최근 경력에 가중치)
-4. 자기소개: 3~5문장, 지원자의 포지셔닝이 명확하게
-5. 이직 사유: 각 이직마다 채용사가 납득할 수 있는 긍정적 서술
+- 경력이 여러 개인 경우 최근 경력에 가중치를 두어 서술합니다
+- 각 섹션의 content는 줄바꿈(\n)으로 구분하여 작성합니다
+- 목록 항목은 줄 앞에 "- " 를 붙입니다
 
 [원본 이력서]
 ${resumeText}
@@ -80,51 +75,39 @@ ${resumeText}
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       tool_choice: { type: 'tool', name: 'rewrite_resume' },
       tools: [
         {
           name: 'rewrite_resume',
-          description: '이력서 Re-Writing 결과',
+          description: '원본 이력서의 모든 섹션을 유지하며 재작성한 결과',
           input_schema: {
             type: 'object' as const,
             properties: {
-              candidate_name: { type: 'string', description: '후보자 이름 (원본에서 추출, 없으면 빈 문자열)' },
-              job_title: { type: 'string', description: '직무명 (예: 백엔드 개발자 / 5년)' },
-              career_years: { type: 'string', description: '경력 연차 요약 (예: 총 8년 / 백엔드 개발 6년 / 팀 리드 2년)' },
-              core_competencies: {
-                type: 'array',
-                items: { type: 'string' },
-                description: '핵심 역량 3~5개',
+              candidate_name: {
+                type: 'string',
+                description: '후보자 이름 (원본에서 추출, 없으면 빈 문자열)',
               },
-              careers: {
+              sections: {
                 type: 'array',
+                description: '원본 이력서의 모든 섹션을 순서대로 재작성한 목록',
                 items: {
                   type: 'object',
                   properties: {
-                    company: { type: 'string' },
-                    period: { type: 'string', description: '예: 2020.03 ~ 현재' },
-                    role: { type: 'string', description: '직책 / 직급' },
-                    tasks: { type: 'array', items: { type: 'string' }, description: '주요 업무 3~5개' },
-                    achievements: { type: 'array', items: { type: 'string' }, description: '주요 성과 (있을 경우)' },
+                    title: {
+                      type: 'string',
+                      description: '섹션 제목 (원본 그대로, 예: 경력사항, 기타사항, 연봉사항, 지원사유 및 포부)',
+                    },
+                    content: {
+                      type: 'string',
+                      description: '재작성된 섹션 내용. 줄바꿈(\\n)으로 구분. 목록은 "- " 로 시작.',
+                    },
                   },
-                  required: ['company', 'period', 'role', 'tasks'],
-                },
-              },
-              self_introduction: { type: 'string', description: '자기소개 (3~5문장)' },
-              job_change_reasons: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    label: { type: 'string', description: '예: A사 → B사 (2022.03)' },
-                    reason: { type: 'string', description: '이직 사유 (긍정적 서술)' },
-                  },
-                  required: ['label', 'reason'],
+                  required: ['title', 'content'],
                 },
               },
             },
-            required: ['career_years', 'core_competencies', 'careers', 'self_introduction', 'job_change_reasons'],
+            required: ['sections'],
           },
         },
       ],
