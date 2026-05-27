@@ -904,14 +904,26 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <div className="jd-saved-card-right">
                           <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                         </div>
-                        <button
-                          className="rewrite-dl-btn"
-                          onClick={() => handleRewrite(item.id)}
-                          disabled={rewritingId === item.id || !item.result._file_path}
-                          title={!item.result._file_path ? '원본 파일이 보존되지 않은 이력서입니다' : undefined}
-                        >
-                          {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
-                        </button>
+                        {(() => {
+                          const now = new Date()
+                          const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now)
+                          const noFile = !item.result._file_path
+                          const disabledTitle = noFile
+                            ? '원본 파일이 보존되지 않은 이력서입니다'
+                            : !hasValidJd
+                            ? 'JD 기반 분석을 먼저 진행해 주세요'
+                            : undefined
+                          return (
+                            <button
+                              className="rewrite-dl-btn"
+                              onClick={() => handleRewrite(item.id)}
+                              disabled={rewritingId === item.id || noFile || !hasValidJd}
+                              title={disabledTitle}
+                            >
+                              {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
+                            </button>
+                          )
+                        })()}
                       </div>
                     ))}
                   </div>
