@@ -397,6 +397,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveModal, setPreserveModal] = useState(false)
   const preserveResolveRef = useRef<((choice: 'replace' | 'add' | 'skip' | 'cancel') => void) | null>(null)
+  const [jdSelectModal, setJdSelectModal] = useState(false)
+  const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
 
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
@@ -480,14 +482,51 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }
 
+  function openJdSelectModal(): Promise<string | null | 'cancel'> {
+    return new Promise(resolve => {
+      jdSelectResolveRef.current = resolve
+      setJdSelectModal(true)
+    })
+  }
+
+  function resolveJdSelect(jdId: string | null | 'cancel') {
+    setJdSelectModal(false)
+    jdSelectResolveRef.current?.(jdId)
+    jdSelectResolveRef.current = null
+  }
+
   async function handleRewrite(analysisId: string) {
-    setRewritingId(analysisId)
     setRewriteError(null)
+
+    // JD 목록 로드 (없으면)
+    let jdList = jdSavedList
+    if (!jdList) {
+      try {
+        const res = await fetch('/api/analyze/jd/list')
+        const data = await res.json()
+        jdList = data.analyses ?? []
+        setJdSavedList(jdList)
+      } catch { jdList = [] }
+    }
+
+    // 유효한 JD 분析 (미만료)
+    const now = new Date()
+    const validJds = (jdList ?? []).filter(jd => !jd.expires_at || new Date(jd.expires_at) > now)
+
+    // JD 선택 모달
+    let jdAnalysisId: string | null = null
+    if (validJds.length > 0) {
+      const choice = await openJdSelectModal()
+      if (choice === 'cancel') return
+      jdAnalysisId = choice as string | null
+    }
+
+    setRewritingId(analysisId)
     try {
       const res = await fetch('/api/analyze/rewrite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysisId }),
+        body: JSON.stringify({ analysisId, jdAnalysisId }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -1255,6 +1294,53 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolvePreserve('cancel')}>
                 취소 (분析 중단)
+              </button>
+            </div>
+          </div>
+        )
+      })()}
+
+
+      {/* JD 선택 모달 */}
+      {jdSelectModal && (() => {
+        const now = new Date()
+        const validJds = (jdSavedList ?? []).filter(jd => !jd.expires_at || new Date(jd.expires_at) > now)
+        return (
+          <div className="withdraw-overlay" onClick={() => resolveJdSelect('cancel')}>
+            <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="preserve-choice-title">JD 기반 Re-Writing</div>
+              <div className="preserve-choice-desc">
+                JD 분析 결과를 활용하면 해당 채용사에 맞게 전략적으로 이력서를 재작성합니다.
+              </div>
+
+              {validJds.map(jd => (
+                <button key={jd.id} className="preserve-option-card" onClick={() => resolveJdSelect(jd.id)}>
+                  <div className="preserve-option-top">
+                    <span className="preserve-option-icon">🎯</span>
+                    <span className="preserve-option-label">{jd.result.company}</span>
+                    <span className={`preserve-option-badge${jd.result.fit_score >= 70 ? ' coupon' : ' none'}`}>
+                      적합도 {jd.result.fit_score}%
+                    </span>
+                  </div>
+                  <div className="preserve-option-desc">
+                    {jd.result.verdict?.slice(0, 70)}{jd.result.verdict && jd.result.verdict.length > 70 ? '…' : ''}
+                  </div>
+                  <div className="preserve-option-existing">
+                    분析일: {new Date(jd.created_at).toLocaleDateString('ko-KR')}
+                  </div>
+                </button>
+              ))}
+
+              <button className="preserve-option-card skip" onClick={() => resolveJdSelect(null)}>
+                <div className="preserve-option-top">
+                  <span className="preserve-option-icon">📄</span>
+                  <span className="preserve-option-label">JD 없이 진행</span>
+                </div>
+                <div className="preserve-option-desc">JD 없이 헤드헌터 관점의 일반 재작성을 진행합니다.</div>
+              </button>
+
+              <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveJdSelect('cancel')}>
+                취소
               </button>
             </div>
           </div>

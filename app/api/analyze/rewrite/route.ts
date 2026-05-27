@@ -8,6 +8,77 @@ import { extractDocxParagraphs, applyDocxRewrites } from '@/lib/rewriteDocxInPla
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+interface JDContext {
+  company: string
+  fit_score: number
+  verdict: string
+  matching_points: string[]
+  gaps: string[]
+  pitch_points: string[]
+}
+
+function buildJDSection(jd: JDContext): string {
+  return `
+[JD 분析 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
+채용사: ${jd.company}
+적합도 판단: ${jd.fit_score}% / ${jd.verdict}
+강점 포인트 (이력서에서 더 부각할 것):
+${jd.matching_points.map(p => `  - ${p}`).join('\n')}
+보완 포인트 (긍정적으로 재프레이밍할 것):
+${jd.gaps.map(g => `  - ${g}`).join('\n')}
+헤드헌터 피치 포인트 (이력서 전체 톤에 반영할 것):
+${jd.pitch_points.map(p => `  - ${p}`).join('\n')}
+`
+}
+
+function buildDocxPrompt(paraList: string, count: number, jd: JDContext | null): string {
+  const jdSection = jd
+    ? buildJDSection(jd)
+    : '\n[JD 미선택 — 일반 헤드헌터 관점으로 재작성]\n'
+
+  return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` 현재 ${jd.company} 포지션에 이 후보자를 추천하기 위해 이력서를 재작성합니다.` : ''}
+${jdSection}
+[재작성 원칙]
+1. 경력 성과를 결과 중심으로 전환합니다 — "담당" → "주도", "참여" → "기여/달성", "수행" → "구현/달성"
+2. 원본에 있는 수치·기술명·회사명·기간은 반드시 유지합니다 (없는 수치 추가 절대 금지)
+3. 각 경력 항목은 임팩트와 기여도가 명확하게 드러나도록 문장을 구성합니다${jd ? `
+4. JD 피치 포인트를 이력서 전반에 자연스럽게 녹여냅니다
+5. 강점 포인트는 더 구체적이고 임팩트 있게 표현합니다
+6. 보완 포인트는 약점 노출이 아닌 강점으로 전환하여 서술합니다` : `
+4. 채용 담당자가 긍정적으로 읽히도록 포지셔닝과 문장을 조율합니다`}
+7. 구분자 "/" 사용, "·" (가운데점) 절대 금지
+8. 해당 경력 연차에 맞는 한국 채용 시장 어감을 유지합니다
+9. 이직이 여러 번인 경우 최근 경력에 가중치를 둡니다
+10. 단락이 이름·날짜·구분선 등 단순 정보이면 원본 그대로 반환합니다
+
+[이력서 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
+${paraList}`
+}
+
+function buildSectionPrompt(resumeText: string, jd: JDContext | null): string {
+  const jdSection = jd ? buildJDSection(jd) : '\n[JD 미선택 — 일반 헤드헌터 관점으로 재작성]\n'
+
+  return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` 현재 ${jd.company} 포지션에 이 후보자를 추천하기 위해 이력서를 재작성합니다.` : ''}
+${jdSection}
+[재작성 원칙]
+- 원본 이력서에 있는 모든 섹션을 빠짐없이 포함합니다 (인적사항, 학력, 경력사항, 자격/면허, 기타사항, 연봉사항, 지원사유 및 포부 등 원본에 있는 항목 전부)
+- 섹션의 순서와 제목은 원본 그대로 유지합니다
+- 경력 성과를 결과 중심으로 전환합니다 — "담당" → "주도", "참여" → "기여/달성", "수행" → "구현/달성"
+- 원본에 있는 수치·기술명·회사명·기간은 반드시 유지합니다 (없는 수치 추가 절대 금지)${jd ? `
+- JD 피치 포인트를 이력서 전반에 자연스럽게 녹여냅니다
+- 강점 포인트는 더 구체적이고 임팩트 있게 표현합니다
+- 보완 포인트는 긍정적으로 재프레이밍합니다` : `
+- 채용 담당자가 긍정적으로 읽히도록 포지셔닝과 문장을 조율합니다`}
+- 구분자 "/" 사용, "·" (가운데점) 절대 금지
+- 해당 경력 연차에 맞는 한국 채용 시장 어감을 유지합니다
+- 이직이 여러 번인 경우 최근 경력에 가중치를 둡니다
+- 각 섹션의 content는 줄바꿈(\\n)으로 구분, 목록 항목은 "- "로 시작합니다
+
+[원본 이력서]
+${resumeText}
+[/원본 이력서]`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -24,7 +95,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'EXPERT 플랜에서만 사용 가능합니다.' }, { status: 403 })
     }
 
-    const { analysisId } = await req.json()
+    const { analysisId, jdAnalysisId } = await req.json()
     if (!analysisId) return NextResponse.json({ error: '분析 ID가 없습니다.' }, { status: 400 })
 
     const { data: row } = await supabase
@@ -42,6 +113,20 @@ export async function POST(req: NextRequest) {
         { error: '원본 파일이 저장되어 있지 않습니다. 이 기능은 이후 업로드된 이력서부터 사용 가능합니다.' },
         { status: 404 }
       )
+    }
+
+    // JD 컨텍스트 로드 (선택적)
+    let jdContext: JDContext | null = null
+    if (jdAnalysisId) {
+      const { data: jdRow } = await supabase
+        .from('jd_analyses')
+        .select('result')
+        .eq('id', jdAnalysisId)
+        .eq('user_email', email)
+        .single()
+      if (jdRow?.result) {
+        jdContext = jdRow.result as JDContext
+      }
     }
 
     const { data: fileData, error: fileErr } = await supabase.storage
@@ -64,23 +149,8 @@ export async function POST(req: NextRequest) {
       const paras = await extractDocxParagraphs(buffer)
       const nonEmpty = paras.filter(p => p.text.trim())
 
-      const paraList = nonEmpty
-        .map((p, i) => `[${i + 1}] ${p.text}`)
-        .join('\n')
-
-      const prompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-아래 이력서 단락들을 채용 담당자가 긍정적으로 읽히도록 재작성하십시오.
-
-[작업 원칙]
-- 단락 순서와 개수를 절대 바꾸지 않습니다 (입력과 동일한 수의 rewrites 반환)
-- 내용은 원본 기반으로만 작성합니다 — 없는 경험을 추가하거나 과장하지 않습니다
-- 해당 경력 연차와 한국 채용 시장 정서에 맞게 표현을 다듬습니다
-- 구분자는 "/" 를 사용합니다 — "·" (가운데점) 는 절대 사용하지 않습니다
-- 이름·날짜·회사명·숫자 등 사실 정보는 원본 그대로 유지합니다
-- 단락이 단순 구분선이거나 변경이 불필요한 경우 원본 텍스트를 그대로 반환합니다
-
-[이력서 단락 목록] (총 ${nonEmpty.length}개)
-${paraList}`
+      const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
+      const prompt = buildDocxPrompt(paraList, nonEmpty.length, jdContext)
 
       const message = await client.messages.create({
         model: 'claude-sonnet-4-6',
@@ -112,15 +182,14 @@ ${paraList}`
       }
 
       const { rewrites } = toolUse.input as { rewrites: string[] }
-
-      // nonEmpty 인덱스 → 전체 paras 배열에 매핑
       const allRewrites = paras.map(p => {
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
 
       const docxBuffer = await applyDocxRewrites(buffer, allRewrites)
-      const downloadName = `jobizic_rewrite_${candidateName}_${dateStr}.docx`
+      const suffix = jdContext ? `_${jdContext.company}` : ''
+      const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
 
       return new NextResponse(docxBuffer as unknown as BodyInit, {
         status: 200,
@@ -131,26 +200,9 @@ ${paraList}`
       })
     }
 
-    // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX 생성
+    // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX
     const resumeText = await extractText(buffer, originalFilename)
-
-    const prompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-아래 이력서를 원본의 섹션 구성을 그대로 유지하면서 재작성하십시오.
-
-[작업 원칙]
-- 원본 이력서에 있는 모든 섹션을 빠짐없이 포함합니다 (인적사항, 학력, 경력사항, 자격/면허, 기타사항, 연봉사항, 지원사유 및 포부 등 원본에 있는 항목 전부)
-- 섹션의 순서와 제목은 원본 그대로 유지합니다
-- 내용은 원본 이력서 기반으로만 작성합니다 — 없는 경험을 추가하거나 과장하지 않습니다
-- 해당 경력 연차에 맞는 어감과 한국 채용 시장 정서에 맞게 문장을 다듬습니다
-- 채용 담당자가 긍정적으로 읽히도록 포지셔닝과 표현을 조율합니다
-- 구분자는 "/" 를 사용합니다 — "·" (가운데점) 는 절대 사용하지 않습니다
-- 경력이 여러 개인 경우 최근 경력에 가중치를 두어 서술합니다
-- 각 섹션의 content는 줄바꿈(\\n)으로 구분하여 작성합니다
-- 목록 항목은 줄 앞에 "- " 를 붙입니다
-
-[원본 이력서]
-${resumeText}
-[/원본 이력서]`
+    const prompt = buildSectionPrompt(resumeText, jdContext)
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
@@ -163,10 +215,7 @@ ${resumeText}
           input_schema: {
             type: 'object' as const,
             properties: {
-              candidate_name: {
-                type: 'string',
-                description: '후보자 이름 (원본에서 추출, 없으면 빈 문자열)',
-              },
+              candidate_name: { type: 'string', description: '후보자 이름 (원본에서 추출, 없으면 빈 문자열)' },
               sections: {
                 type: 'array',
                 description: '원본 이력서의 모든 섹션을 순서대로 재작성한 목록',
@@ -195,7 +244,8 @@ ${resumeText}
     const rewriteData = toolUse.input as RewriteResult
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
     const docxBuffer = await generateResumeDocx(rewriteData)
-    const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}_${dateStr}.docx`
+    const suffix = jdContext ? `_${jdContext.company}` : ''
+    const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
 
     return new NextResponse(docxBuffer as unknown as BodyInit, {
       status: 200,
