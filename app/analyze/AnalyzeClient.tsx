@@ -756,31 +756,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   className={`analyze-tab-btn${activeMenu === 'upload' ? ' active' : ''}`}
                   onClick={() => onMenuClick('upload')}
                 >
-                  <span>📄</span> 새 분석
+                  <span>📄</span> 이력서 분석
                 </button>
                 <button
                   className={`analyze-tab-btn${activeMenu === 'saved' ? ' active' : ''}`}
                   onClick={() => onMenuClick('saved')}
                 >
-                  <span>📂</span> 분석 다시 보기
+                  <span>📂</span> 분석 Report
                   {analysisList && analysisList.length > 0 && <span className="tab-badge">{analysisList.length}개</span>}
                 </button>
                 <button
                   className={`analyze-tab-btn${activeMenu === 'jd' ? ' active' : ''}`}
                   onClick={() => onMenuClick('jd')}
                 >
-                  <span>📋</span> JD기반분석
+                  <span>📋</span> JD기반 분석
                 </button>
                 {isExpert ? (
                   <button
                     className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
                     onClick={() => onMenuClick('rewrite')}
                   >
-                    <span>✏️</span> Re-Writing <span className="tab-expert-badge">EXPERT</span>
+                    <span>✏️</span> 이력서 생성 <span className="tab-expert-badge">EXPERT</span>
                   </button>
                 ) : (
                   <button className="analyze-tab-btn disabled" disabled>
-                    <span>✏️</span> Re-Writing <span className="tab-soon">준비중</span>
+                    <span>✏️</span> 이력서 생성 <span className="tab-soon">준비중</span>
                   </button>
                 )}
               </div>
