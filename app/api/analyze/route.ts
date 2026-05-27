@@ -9,14 +9,11 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const baseTool: Anthropic.Tool = {
   name: 'analyze_resume',
-  description: '한국어 이력서를 분석하여 구직자의 강점, 개선점, 커리어 방향을 제시합니다.',
+  description: '한국어 이력서를 분析하여 구직자의 강점, 개선점, 커리어 방향을 제시합니다.',
   input_schema: {
     type: 'object' as const,
     properties: {
-      job_title: {
-        type: 'string',
-        description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)',
-      },
+      job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명' },
       scores: {
         type: 'object',
         properties: {
@@ -26,35 +23,42 @@ const baseTool: Anthropic.Tool = {
         },
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
-      careers: {
+      strengths: { type: 'array', items: { type: 'string' }, description: '핵심 강점 (최대 4개)' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선 포인트 (최대 4개)' },
+      keywords: { type: 'array', items: { type: 'string' }, description: '핵심 키워드 (최대 8개)' },
+      summary: { type: 'string', description: '전체 요약 (2-3문장)' },
+      career_paths: {
         type: 'array',
-        items: { type: 'string' },
-        description: '추천 커리어 방향 (1가지)',
-      },
-      strengths: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '이력서의 핵심 강점 (최대 4개)',
-      },
-      improvements: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '개선이 필요한 부분 (최대 4개)',
-      },
-      keywords: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '이력서에서 발견된 핵심 키워드 (최대 8개)',
-      },
-      summary: {
-        type: 'string',
-        description: '지원자에 대한 전체 요약 (2-3문장)',
+        description: 'BASELINE 1개만 반환',
+        items: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', description: 'BASELINE 고정' },
+            label: { type: 'string', description: '현재 경로 유지' },
+            title: { type: 'string', description: '직무명' },
+            salary_range: { type: 'string', description: '예상 연봉 범위 (예: 4,500만원~6,500만원)' },
+            salary_bands: {
+              type: 'array',
+              description: '4개: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+',
+              items: {
+                type: 'object',
+                properties: {
+                  period: { type: 'string' },
+                  min: { type: 'number', description: '최솟값 (만원)' },
+                  max: { type: 'number', description: '최댓값 (만원)' },
+                },
+                required: ['period', 'min', 'max'],
+              },
+            },
+            points: { type: 'array', items: { type: 'string' }, description: '구체적 조언 3~4개' },
+          },
+          required: ['type', 'label', 'title', 'salary_range', 'salary_bands', 'points'],
+        },
       },
     },
-    required: ['job_title', 'scores', 'careers', 'strengths', 'improvements', 'keywords', 'summary'],
+    required: ['job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
   },
 }
-
 const proTool: Anthropic.Tool = {
   name: 'analyze_resume',
   description: '한국어 이력서를 분석하여 구직자의 강점, 개선점, 커리어 방향을 상세히 제시합니다.',
@@ -250,18 +254,26 @@ ${maskedText}
 ---`
       : `${headhunterBase}
 
-[분석 절차]
+[분析 절차]
 STEP 1 — 총 경력 연수 직접 계산, 현 직장/직급, 이직 횟수, 추정 연봉 범위 파악.
-STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분산형] 판단 후 summary에 한 문장으로 명시.
+STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분散형] 판단 후 summary에 한 문장으로 명시.
 STEP 3 — strengths는 수치·결과물 있는 항목만. improvements에는 리스크와 공백 모두 포함.
 STEP 4 — 이직 동기를 이력서 패턴에서 역추정하여 summary에 반영.
 
-[출력 규칙] careers 1가지는 가장 적합한 포지션 직무명으로. 빈 말·근거 없는 강점 처리 금지.
+[커리어 경로]
+career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
+- type: "BASELINE", label: "현재 경로 유지"
+- title: 현실적인 직무명
+- salary_range: 업계 시세 기반 연봉 범위 (예: 4,500만원~6,500만원)
+- salary_bands: 1년 뒤/3년 뒤/5년 뒤/7년 뒤+ 연봉 밴드 4개 (min/max 만원 단위)
+- points: 현재 경로에서 성공하기 위한 구체적 조언 3~4개
 
----
+[출력 규칙] 빈 말·근거 없는 강점 처리 금지.
+
+----
 [이력서]
 ${maskedText}
----`
+----`
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
