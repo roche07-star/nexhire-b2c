@@ -374,6 +374,8 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [jdSavedList, setJdSavedList] = useState<SavedJDAnalysis[] | null>(null)
   const [jdSavedListLoading, setJdSavedListLoading] = useState(false)
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
+  const [deletingAnalysisId, setDeletingAnalysisId] = useState<string | null>(null)
+  const [deletingJdId, setDeletingJdId] = useState<string | null>(null)
   const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string }[]>([])
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
@@ -395,6 +397,36 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
       .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
       .catch(() => {})
   }, [])
+
+  async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!confirm('이 분석 결과를 삭제하시겠습니까?')) return
+    setDeletingAnalysisId(id)
+    try {
+      const res = await fetch(`/api/analyze/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setAnalysisList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
+        if (savedSelectedItem?.id === id) setSavedSelectedItem(null)
+      }
+    } finally {
+      setDeletingAnalysisId(null)
+    }
+  }
+
+  async function handleDeleteJDAnalysis(id: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!confirm('이 JD 분석 결과를 삭제하시겠습니까?')) return
+    setDeletingJdId(id)
+    try {
+      const res = await fetch(`/api/analyze/jd/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setJdSavedList((prev) => prev ? prev.filter((a) => a.id !== id) : prev)
+        if (jdViewingSaved?.id === id) setJdViewingSaved(null)
+      }
+    } finally {
+      setDeletingJdId(null)
+    }
+  }
 
   async function claimCoupon() {
     if (!couponInput.trim()) return
@@ -608,8 +640,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                     <div className="analyze-saved-notice">
                       <span>📂 저장된 분석 결과</span>
                       <span className="analyze-saved-date">
-                        분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')} &nbsp;·&nbsp;
-                        {new Date(savedSelectedItem.expires_at).toLocaleDateString('ko-KR')} 까지 저장
+                        분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
                     <AnalysisResults result={savedSelectedItem.result} />
@@ -624,11 +655,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                     ) : (
                       <div className="jd-saved-list">
                         {analysisList.map((item) => (
-                          <button
-                            key={item.id}
-                            className="jd-saved-card"
-                            onClick={() => setSavedSelectedItem(item)}
-                          >
+                          <div key={item.id} className="jd-saved-card" onClick={() => setSavedSelectedItem(item)}>
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
                               <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
@@ -639,7 +666,15 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                               </span>
                               <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                             </div>
-                          </button>
+                            <button
+                              className="saved-delete-btn"
+                              onClick={(e) => handleDeleteAnalysis(item.id, e)}
+                              disabled={deletingAnalysisId === item.id}
+                              title="삭제"
+                            >
+                              {deletingAnalysisId === item.id ? '…' : '×'}
+                            </button>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -725,7 +760,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                             const rec = item.result.recommendation
                             const color = REC_COLOR_HEX[rec] ?? '#888'
                             return (
-                              <button
+                              <div
                                 key={item.id}
                                 className="jd-saved-card"
                                 onClick={() => setJdViewingSaved(item)}
@@ -738,7 +773,15 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                                   <span className="jd-saved-score" style={{ color }}>{item.result.fit_score}%</span>
                                   <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                                 </div>
-                              </button>
+                                <button
+                                  className="saved-delete-btn"
+                                  onClick={(e) => handleDeleteJDAnalysis(item.id, e)}
+                                  disabled={deletingJdId === item.id}
+                                  title="삭제"
+                                >
+                                  {deletingJdId === item.id ? '…' : '×'}
+                                </button>
+                              </div>
                             )
                           })}
                         </div>
@@ -895,7 +938,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">🔒</span>
-                    <span>분석 결과가 저장되었습니다. <strong>분석 다시 보기</strong> 탭에서 10일간 확인할 수 있습니다.</span>
+                    <span>분석 결과가 저장되었습니다. <strong>분석 다시 보기</strong> 탭에서 언제든지 확인할 수 있습니다.</span>
                   </div>
                 )}
 
@@ -1121,16 +1164,10 @@ function JDResults({
         ※ 본 분석 결과는 입력된 채용공고(JD) 기준으로 AI가 평가한 것이며, 실제 채용 회사의 내부 기준 및 평가에 따라 결과가 다를 수 있습니다.
       </div>
 
-      {expiresAt && (
-        <div className="analyze-storage-notice">
-          <span className="storage-icon">🔒</span>
-          <span>
-            이 분석 결과는{' '}
-            <strong>{new Date(expiresAt).toLocaleDateString('ko-KR')}</strong>
-            까지 저장됩니다. (10일 후 자동 삭제)
-          </span>
-        </div>
-      )}
+      <div className="analyze-storage-notice">
+        <span className="storage-icon">🔒</span>
+        <span>이 분석 결과는 영구적으로 저장됩니다.</span>
+      </div>
 
       <div className="jd-result-actions">
         <button className="jd-reset-btn" onClick={onReset}>

@@ -1,24 +1,27 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-export async function GET() {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { data } = await supabase
+    const { error } = await supabase
       .from('jd_analyses')
-      .select('id, result, created_at, expires_at')
+      .delete()
+      .eq('id', params.id)
       .eq('user_email', session.user.email)
-.order('created_at', { ascending: false })
-      .limit(20)
 
-    return NextResponse.json({ analyses: data ?? [] })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ ok: true })
   } catch (e) {
-    console.error('[analyze/jd/list]', e)
+    console.error('[analyze/jd/delete]', e)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })
   }
 }

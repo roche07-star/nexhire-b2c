@@ -188,14 +188,12 @@ ${candidateProfile}`
       await supabase.rpc('increment_jd_count', { user_email: session.user.email })
     }
 
-    const expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
     await supabase.from('jd_analyses').insert({
       user_email: session.user.email,
       result: resultPayload,
-      expires_at: expiresAt,
     })
 
-    return NextResponse.json({ ...resultPayload, expires_at: expiresAt })
+    return NextResponse.json(resultPayload)
   } catch (e) {
     console.error('[analyze/jd]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })

@@ -289,11 +289,9 @@ ${maskedText}
     }
 
     if (isPro) {
-      const expiresAt = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
       const { error: insertError } = await supabase.from('analyses').insert({
         user_email: email,
         result: resultPayload,
-        expires_at: expiresAt,
       })
       if (insertError) console.error('[analyze] insert error:', insertError)
     }
