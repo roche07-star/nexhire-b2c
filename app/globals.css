@@ -1751,6 +1751,7 @@ footer {
   margin-bottom: 20px;
 }
 .rewrite-card { cursor: default; }
+.rewrite-card:hover { border-color: var(--border) !important; background: var(--surface) !important; }
 .rewrite-dl-btn {
   flex-shrink: 0;
   padding: 7px 14px;

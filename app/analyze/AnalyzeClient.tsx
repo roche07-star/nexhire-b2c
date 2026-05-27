@@ -879,6 +879,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         >
                           {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
                         </button>
+                        <button
+                          className="saved-delete-btn"
+                          onClick={(e) => handleDeleteAnalysis(item.id, e)}
+                          disabled={deletingAnalysisId === item.id}
+                          title="삭제"
+                        >
+                          {deletingAnalysisId === item.id ? '…' : '×'}
+                        </button>
                       </div>
                     ))}
                   </div>
