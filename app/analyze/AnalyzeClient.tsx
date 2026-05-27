@@ -354,14 +354,17 @@ function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
 
 type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite'
 
-export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPro: boolean; userEmail: string | null }) {
+export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [savedAnalysis, setSavedAnalysis] = useState<SavedAnalysis | null>(null)
   const [isPro] = useState(initialIsPro)
+  const [isExpert] = useState(!!initialIsExpert)
   const [activeMenu, setActiveMenu] = useState<SidebarMenu>('upload')
+  const [rewritingId, setRewritingId] = useState<string | null>(null)
+  const [rewriteError, setRewriteError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -470,6 +473,36 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
       } finally {
         setDeletingJdId(null)
       }
+    }
+  }
+
+  async function handleRewrite(analysisId: string) {
+    setRewritingId(analysisId)
+    setRewriteError(null)
+    try {
+      const res = await fetch('/api/analyze/rewrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysisId }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setRewriteError(data.error ?? '오류가 발생했습니다.')
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      const disposition = res.headers.get('Content-Disposition') ?? ''
+      const nameMatch = disposition.match(/filename\*=UTF-8''(.+)/)
+      a.download = nameMatch ? decodeURIComponent(nameMatch[1]) : 'rewrite.docx'
+      a.href = url
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setRewriteError('서버 오류가 발생했습니다.')
+    } finally {
+      setRewritingId(null)
     }
   }
 
@@ -589,7 +622,17 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
           .finally(() => setJdSavedListLoading(false))
       }
     } else if (id === 'rewrite') {
-      // 준비중
+      setResult(null)
+      setActiveMenu('rewrite')
+      setRewriteError(null)
+      if (!analysisList) {
+        setSavedListLoading(true)
+        fetch('/api/analyze/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setAnalysisList(analyses ?? []))
+          .catch(() => setAnalysisList([]))
+          .finally(() => setSavedListLoading(false))
+      }
     }
   }
 
@@ -652,9 +695,18 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                 >
                   <span>📋</span> JD기반분석
                 </button>
-                <button className="analyze-tab-btn disabled" disabled>
-                  <span>✏️</span> Re-Writing <span className="tab-soon">준비중</span>
-                </button>
+                {isExpert ? (
+                  <button
+                    className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
+                    onClick={() => onMenuClick('rewrite')}
+                  >
+                    <span>✏️</span> Re-Writing <span className="tab-expert-badge">EXPERT</span>
+                  </button>
+                ) : (
+                  <button className="analyze-tab-btn disabled" disabled>
+                    <span>✏️</span> Re-Writing <span className="tab-soon">준비중</span>
+                  </button>
+                )}
               </div>
             )}
             <div className={`analyze-header${activeMenu === 'saved' && result ? ' analyze-header--saved' : ''}`}>
@@ -725,6 +777,44 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                       </div>
                     )}
                   </>
+                )}
+              </div>
+            )}
+
+            {/* Re-Writing 모드 */}
+            {activeMenu === 'rewrite' && (
+              <div className="jd-section">
+                <div className="jd-list-title">Re-Writing할 이력서를 선택하세요</div>
+                <p className="rewrite-desc">
+                  원본 이력서 양식을 그대로 유지하면서 채용 담당자에게 더 잘 읽히도록 문장과 포지셔닝을 재작성합니다.
+                  완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
+                </p>
+                {rewriteError && <div className="analyze-error">{rewriteError}</div>}
+                {savedListLoading ? (
+                  <div className="jd-list-loading">불러오는 중...</div>
+                ) : !analysisList || analysisList.length === 0 ? (
+                  <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
+                ) : (
+                  <div className="jd-saved-list">
+                    {analysisList.map((item) => (
+                      <div key={item.id} className="jd-saved-card rewrite-card">
+                        <div className="jd-saved-card-left">
+                          <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                          <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
+                        </div>
+                        <div className="jd-saved-card-right">
+                          <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+                        </div>
+                        <button
+                          className="rewrite-dl-btn"
+                          onClick={() => handleRewrite(item.id)}
+                          disabled={rewritingId === item.id}
+                        >
+                          {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

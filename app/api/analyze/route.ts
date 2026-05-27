@@ -307,6 +307,24 @@ ${maskedText}
       .single()
     if (insertError) console.error('[analyze] insert error:', insertError)
 
+    // 원본 파일을 Storage에 보존 (Re-Writing용)
+    let filePath: string | null = null
+    if (insertData?.id) {
+      const fileExt = file.name.split('.').pop()?.toLowerCase() ?? 'bin'
+      filePath = `${email}/${insertData.id}.${fileExt}`
+      const { error: storageErr } = await supabase.storage
+        .from('resumes')
+        .upload(filePath, buffer, { contentType: file.type, upsert: false })
+      if (storageErr) {
+        console.error('[analyze] storage upload error:', storageErr)
+        filePath = null
+      } else {
+        await supabase.from('analyses')
+          .update({ result: { ...resultPayload, _file_path: filePath } })
+          .eq('id', insertData.id)
+      }
+    }
+
     return NextResponse.json({ ...resultPayload, _id: insertData?.id ?? null })
   } catch (e) {
     console.error('[analyze]', e)

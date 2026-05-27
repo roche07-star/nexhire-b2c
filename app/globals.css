@@ -1544,6 +1544,41 @@ footer {
 .upload-hint { font-size: 13px; color: var(--muted); }
 .upload-hint--warn { font-size: 12px; color: #c8944a; margin-top: 6px; }
 
+/* Re-Writing */
+.tab-expert-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: rgba(232,255,71,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(232,255,71,0.3);
+  border-radius: 20px;
+  padding: 2px 7px;
+  margin-left: 4px;
+}
+.rewrite-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.rewrite-card { cursor: default; }
+.rewrite-dl-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  background: rgba(232,255,71,0.08);
+  border: 1px solid rgba(232,255,71,0.25);
+  color: var(--accent);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.rewrite-dl-btn:hover:not(:disabled) { background: rgba(232,255,71,0.16); }
+.rewrite-dl-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .analyze-btn { align-self: center; min-width: 200px; }
 .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 

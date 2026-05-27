@@ -4,10 +4,11 @@ import AnalyzeClient from './AnalyzeClient'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-export const metadata = { title: '이력서 분석 — Jobizic' }
+export const metadata = { title: '이력서 분析 — Jobizic' }
 
 export default async function AnalyzePage() {
   let isPro = false
+  let isExpert = false
   let userEmail: string | null = null
 
   try {
@@ -21,7 +22,8 @@ export default async function AnalyzePage() {
         .eq('email', userEmail)
         .maybeSingle()
       const plan = data?.plan ?? 'FREE'
-      isPro = plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER'
+      isExpert = plan === 'EXPERT' || role === 'MANAGER'
+      isPro = plan === 'PRO' || isExpert
     }
   } catch {
     // auth/DB 에러 시 기본 렌더링
@@ -30,7 +32,7 @@ export default async function AnalyzePage() {
   return (
     <>
       <Nav />
-      <AnalyzeClient initialIsPro={isPro} userEmail={userEmail} />
+      <AnalyzeClient initialIsPro={isPro} initialIsExpert={isExpert} userEmail={userEmail} />
       <Footer />
     </>
   )
