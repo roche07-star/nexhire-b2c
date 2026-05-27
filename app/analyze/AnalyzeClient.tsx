@@ -1139,18 +1139,19 @@ function AnalysisResults({
   )
   const [refined, setRefined] = useState(!!result.refined)
   const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
+  const [userInput, setUserInput] = useState('')
   const [refining, setRefining] = useState(false)
   const [refineError, setRefineError] = useState<string | null>(null)
 
   async function handleRefine() {
-    if (!analysisId || refined || refining) return
+    if (!analysisId || refined || refining || !userInput.trim()) return
     setRefining(true)
     setRefineError(null)
     try {
       const res = await fetch('/api/analyze/refine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysisId }),
+        body: JSON.stringify({ analysisId, userInput }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -1334,17 +1335,31 @@ function AnalysisResults({
               <div className="refine-intro">
                 <div className="refine-intro-title">보완 재분석</div>
                 <div className="refine-intro-desc">
-                  첫 분석에서 놓쳤거나 더 깊게 짚을 수 있는 부분을 헤드헌터 AI가 추가로 분석합니다.
+                  이력서에 빠진 정보를 직접 입력하면 AI가 반영해서 다시 분석합니다.
                   <span className="refine-free-badge">1회 무료 · 기존 횟수 차감 없음</span>
                 </div>
               </div>
-              <button className="refine-btn" onClick={handleRefine} disabled={refining}>
+              <textarea
+                className="refine-textarea"
+                rows={5}
+                placeholder="이력서에 포함되지 않은 추가 정보를 자유롭게 입력하세요.
+
+예) AWS Solutions Architect 자격증 보유 / 스타트업 3년 경험 (팀 리드) / 영어 비즈니스 레벨 / 사이드 프로젝트로 월 1만 DAU 서비스 운영 중"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                disabled={refining}
+              />
+              <button
+                className="refine-btn"
+                onClick={handleRefine}
+                disabled={refining || !userInput.trim()}
+              >
                 {refining ? '보완 분석 중...' : '보완 재분석 시작하기 →'}
               </button>
               {refining && (
                 <div className="analyze-loading">
                   <div className="loading-bar"><div className="loading-fill" /></div>
-                  <div className="loading-text">놓친 부분을 추가로 분석하고 있습니다...</div>
+                  <div className="loading-text">추가 정보를 반영해 재분석하고 있습니다...</div>
                 </div>
               )}
               {refineError && <div className="refine-error">{refineError}</div>}

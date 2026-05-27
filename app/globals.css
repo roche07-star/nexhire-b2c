@@ -2645,6 +2645,23 @@ footer {
   padding: 3px 10px;
   white-space: nowrap;
 }
+.refine-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(123,97,255,0.25);
+  border-radius: 10px;
+  color: var(--muted2);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.65;
+  padding: 14px 16px;
+  resize: vertical;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+.refine-textarea::placeholder { color: var(--muted); }
+.refine-textarea:focus { outline: none; border-color: rgba(123,97,255,0.55); color: var(--text); }
+.refine-textarea:disabled { opacity: 0.5; }
 .refine-btn {
   display: inline-block;
   padding: 12px 24px;

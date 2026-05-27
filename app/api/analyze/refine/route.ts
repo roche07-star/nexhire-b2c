@@ -12,8 +12,9 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { analysisId } = await req.json()
+    const { analysisId, userInput } = await req.json()
     if (!analysisId) return Response.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
+    if (!userInput?.trim()) return Response.json({ error: '추가 정보를 입력해 주세요.' }, { status: 400 })
 
     const email = session.user.email
     const role = (session.user as { role?: string }).role ?? 'USER'
@@ -47,24 +48,25 @@ export async function POST(req: NextRequest) {
 개선점: ${(r.improvements ?? []).join(' / ')}
 커리어 방향: ${r.career_paths?.[0]?.title ?? r.careers?.[0] ?? ''}
 
-이 분석을 바탕으로 후보자에게 보완적으로 제공할 구체적이고 실행 가능한 전략을 추가로 작성하십시오.
-첫 번째 분석에서 이미 언급된 내용은 반복하지 말고, 놓쳤거나 더 깊게 짚을 수 있는 부분에 집중하십시오.
-빈 말·격려 문구 절대 금지. 수치·직무명·회사 규모 등 구체적 근거를 포함하십시오.
+후보자가 이력서에 누락되었거나 보완하고 싶다고 직접 입력한 추가 정보:
+"""
+${userInput.trim()}
+"""
+
+위 추가 정보를 기존 분석에 반영하여 종합적으로 재평가하십시오.
+기존 분석에서 이 정보로 인해 달라지는 평가, 새롭게 강조할 수 있는 강점, 수정되어야 할 약점, 업그레이드된 커리어 방향을 구체적으로 작성하십시오.
+빈 말·격려 문구 절대 금지. 수치·직무명·자격증명·회사 규모 등 구체적 근거를 포함하십시오.
 
 반드시 아래 세 섹션으로 작성하십시오 (각 섹션 제목은 ## 으로 시작):
 
-## 즉시 실행 액션 아이템 (1개월 내)
-- 항목 1 (구체적 수치·직무명 포함)
-- 항목 2
-- 항목 3
+## 추가 정보 반영 시 달라지는 평가
+- 항목 (기존 평가 대비 구체적으로 무엇이 달라지는지)
 
-## 보강이 필요한 핵심 역량
-- 항목 1
-- 항목 2
+## 새롭게 강조할 수 있는 강점
+- 항목 (수치·자격증·경험 포함)
 
-## 더 강조할 어필 포인트
-- 항목 1
-- 항목 2`
+## 업그레이드된 커리어 전략
+- 항목 (직무명·연봉 수준 포함)`
 
     const stream = client.messages.stream({
       model: 'claude-sonnet-4-6',
