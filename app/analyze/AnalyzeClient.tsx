@@ -493,7 +493,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
           const newSaved: SavedAnalysis = {
             result: data,
             created_at: new Date().toISOString(),
-            expires_at: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+            expires_at: '',
           }
           setSavedAnalysis(newSaved)
         }
@@ -945,7 +945,7 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
                 {!isPro && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">💡</span>
-                    <span>PRO 플랜으로 업그레이드하면 결과가 10일간 저장됩니다.</span>
+                    <span>PRO 플랜으로 업그레이드하면 결과가 영구적으로 저장됩니다.</span>
                   </div>
                 )}
               </>
