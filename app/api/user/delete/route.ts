@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest) {
     await supabase.from('jd_analyses').delete().eq('user_email', userEmail)
     await supabase.from('analyses').delete().eq('user_email', userEmail)
     await supabase.from('coupons').delete().eq('user_email', userEmail)
-    await supabase.from('users').delete().eq('email', userEmail)
+    // users 행은 유지 — 재가입 시 analyze_count가 초기화되는 어뷰징 방지
 
     return NextResponse.json({ ok: true })
   } catch (e) {
