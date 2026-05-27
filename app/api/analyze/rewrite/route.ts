@@ -150,14 +150,14 @@ export async function POST(req: NextRequest) {
     if (ext === 'docx') {
       const paras = await extractDocxParagraphs(buffer)
       // 단순 구분선·날짜·한두 글자짜리 단락은 Claude에 보내지 않음
-      const nonEmpty = paras.filter(p => p.text.trim().length > 2)
+      const nonEmpty = paras.filter(p => p.text.trim().length > 2).slice(0, 60)
 
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
       const prompt = buildDocxPrompt(paraList, nonEmpty.length, jdContext)
 
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        model: 'claude-haiku-4-5',
+        max_tokens: 2048,
         tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
         tools: [
           {
@@ -208,8 +208,8 @@ export async function POST(req: NextRequest) {
     const prompt = buildSectionPrompt(resumeText, jdContext)
 
     const message = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      model: 'claude-haiku-4-5',
+      max_tokens: 3000,
       tool_choice: { type: 'tool', name: 'rewrite_resume' },
       tools: [
         {

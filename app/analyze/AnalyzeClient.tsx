@@ -56,6 +56,9 @@ interface JDResult {
   expires_at?: string
 }
 
+const toArr = (v: unknown): string[] =>
+  Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
+
 interface AnalysisListItem {
   id: string
   result: AnalysisResult
@@ -261,8 +264,8 @@ function generateJDReportHTML(jd: JDResult, item: AnalysisListItem): string {
   const dateStr = new Date().toLocaleDateString('ko-KR')
   const analysisDate = new Date(item.created_at).toLocaleDateString('ko-KR')
 
-  const listHTML = (arr: string[], bullet = '›') =>
-    (arr ?? []).map((s) => `<li><span class="bullet">${bullet}</span>${s}</li>`).join('')
+  const listHTML = (arr: unknown, bullet = '›') =>
+    toArr(arr).map((s) => `<li><span class="bullet">${bullet}</span>${s}</li>`).join('')
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -316,7 +319,7 @@ li{font-size:14px;color:#b8b8ae;display:flex;gap:10px;line-height:1.6}
     </div>
     <div class="section">
       <div class="label">⚠️ 부족한 점</div>
-      <ul>${(jd.gaps ?? []).map((s) => `<li><span class="bullet gap-bullet">›</span>${s}</li>`).join('')}</ul>
+      <ul>${toArr(jd.gaps).map((s) => `<li><span class="bullet gap-bullet">›</span>${s}</li>`).join('')}</ul>
     </div>
     <div class="section">
       <div class="label">💬 어필 전략</div>
@@ -1777,19 +1780,19 @@ function JDResults({
         <div className="results-section">
           <div className="results-label">매칭 강점</div>
           <ul className="jd-match-list">
-            {(result.matching_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
+            {toArr(result.matching_points).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">부족한 점 · 리스크</div>
           <ul className="jd-gap-list">
-            {(result.gaps ?? []).map((g, i) => <li key={i}>{g}</li>)}
+            {toArr(result.gaps).map((g, i) => <li key={i}>{g}</li>)}
           </ul>
         </div>
         <div className="results-section" style={{ gridColumn: '1 / -1' }}>
           <div className="results-label">어필 전략 · 제안 포인트</div>
           <ul className="jd-pitch-list">
-            {(result.pitch_points ?? []).map((p, i) => <li key={i}>{p}</li>)}
+            {toArr(result.pitch_points).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
         </div>
       </div>
