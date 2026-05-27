@@ -3074,3 +3074,28 @@ footer {
 .check-icon { color: var(--accent); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 
 .interview-form-wrap { display: flex; flex-direction: column; gap: 20px; }
+
+.interview-expire-notice {
+  font-size: 13px;
+  color: #c8944a;
+  background: rgba(200,148,74,0.08);
+  border: 1px solid rgba(200,148,74,0.2);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+.interview-expire-notice strong { color: #e8a020; }
+
+.interview-storage-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted2);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.interview-storage-notice strong { color: var(--fg); }
+
+.interview-expire-tag { color: #c8944a !important; font-size: 12px !important; }

@@ -184,11 +184,30 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
       return NextResponse.json({ error: '면접 가이드를 생성하지 못했습니다.' }, { status: 500 })
     }
 
-    return NextResponse.json({
+    const resultPayload = {
       ...(toolUse.input as object),
       company: jdContext?.company ?? null,
       position: jdContext?.position ?? null,
       candidate_name: (a.candidate_name as string | undefined) ?? null,
+    }
+
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 10)
+
+    const { data: inserted, error: insertError } = await supabase
+      .from('interview_guides')
+      .insert({ user_email: email, result: resultPayload, expires_at: expiresAt.toISOString() })
+      .select('id, expires_at')
+      .single()
+
+    if (insertError) {
+      console.error('[analyze/interview] DB insert error:', insertError)
+    }
+
+    return NextResponse.json({
+      ...resultPayload,
+      id: inserted?.id ?? null,
+      expires_at: inserted?.expires_at ?? expiresAt.toISOString(),
     })
   } catch (e) {
     console.error('[analyze/interview]', e)
