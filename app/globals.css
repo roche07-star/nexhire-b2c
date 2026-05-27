@@ -2335,8 +2335,6 @@ footer {
 .jd-saved-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
   gap: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -2347,34 +2345,29 @@ footer {
   transition: border-color 0.15s, background 0.15s;
   width: 100%;
 }
-.jd-saved-card { cursor: pointer; }
 .jd-saved-card:hover { border-color: var(--accent2); background: rgba(123,97,255,0.04); }
+.jd-saved-card-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.jd-saved-company { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jd-saved-resume { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jd-saved-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 .saved-delete-btn {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  width: 26px; height: 26px;
+  flex-shrink: 0;
+  width: 28px; height: 28px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface2);
   color: var(--muted);
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
-  flex-shrink: 0;
 }
 .saved-delete-btn:hover {
   background: rgba(255,107,107,0.18);
   color: #ff6b6b;
   border-color: rgba(255,107,107,0.4);
 }
-.jd-saved-card-left { display: flex; flex-direction: column; gap: 4px; }
-.jd-saved-company { font-size: 14px; font-weight: 700; color: #fff; }
-.jd-saved-resume { font-size: 12px; color: var(--muted); }
-.jd-saved-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-right: 32px; }
 .jd-saved-score { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
 .jd-saved-date { font-size: 11px; color: var(--muted); }
 .jd-saved-divider {
