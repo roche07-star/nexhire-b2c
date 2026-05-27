@@ -371,6 +371,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const jdTopRef = useRef<HTMLDivElement>(null)
   const [jdCompany, setJdCompany] = useState('')
   const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
@@ -723,6 +724,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setJdError(data.error || '알 수 없는 오류가 발생했습니다.')
       } else {
         setJdResult(data)
+        setTimeout(() => jdTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
         // 저장 목록 갱신
         fetch('/api/analyze/jd/list')
           .then((r) => r.json())
@@ -936,17 +938,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
-              <div className="jd-section">
+              <div className="jd-section" ref={jdTopRef}>
                 {jdViewingSaved ? (
                   <JDResults
                     result={jdViewingSaved.result}
                     expiresAt={jdViewingSaved.expires_at}
                     onReset={() => setJdViewingSaved(null)}
                   />
-                ) : jdResult && jdSelectedAnalysis ? (
+                ) : jdResult ? (
                   <JDResults
                     result={jdResult}
-                    analysisItem={jdSelectedAnalysis}
+                    analysisItem={jdSelectedAnalysis ?? undefined}
                     expiresAt={jdResult.expires_at}
                     onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
                   />
@@ -1024,11 +1026,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               <div
                                 key={item.id}
                                 className="jd-saved-card"
-                                onClick={() => setJdViewingSaved(item)}
+                                onClick={() => {
+                                  setJdViewingSaved(item)
+                                  setTimeout(() => jdTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+                                }}
                               >
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">{item.result.company}</span>
-                                  <span className="jd-saved-resume">{item.result.resume_job_title ?? '이력서 분석'}</span>
+                                  <span className="jd-saved-resume">{item.result.position ?? item.result.resume_job_title ?? '이력서 분석'}</span>
                                 </div>
                                 <div className="jd-saved-card-right">
                                   <span className="jd-saved-score" style={{ color }}>{item.result.fit_score}%</span>
