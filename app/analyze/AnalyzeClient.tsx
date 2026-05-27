@@ -1257,14 +1257,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         </div>
       </div>
 
-      {/* 계정 탈퇴 링크 */}
-      {userEmail && (
-        <div className="withdraw-link-wrap">
-          <button className="withdraw-link" onClick={() => { setWithdrawOpen(true); setWithdrawEmail(''); setWithdrawError(null) }}>
-            계정 탈퇴
-          </button>
-        </div>
-      )}
 
       {/* 분석 삭제 확인 모달 */}
       {/* 이력서 보존 방법 선택 모달 */}
