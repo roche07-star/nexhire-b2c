@@ -19,17 +19,23 @@ interface JDContext {
   pitch_points: string[]
 }
 
+function toArr(v: unknown): string[] {
+  if (Array.isArray(v)) return v
+  if (typeof v === 'string') return v.split('\n').filter(Boolean)
+  return []
+}
+
 function buildJDSection(jd: JDContext): string {
   return `
 [JD 분석 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
 채용사: ${jd.company}
 적합도 판단: ${jd.fit_score}% / ${jd.verdict}
 강점 포인트 (이력서에서 더 부각할 것):
-${jd.matching_points.map(p => `  - ${p}`).join('\n')}
+${toArr(jd.matching_points).map(p => `  - ${p}`).join('\n')}
 보완 포인트 (긍정적으로 재프레이밍할 것):
-${jd.gaps.map(g => `  - ${g}`).join('\n')}
+${toArr(jd.gaps).map(g => `  - ${g}`).join('\n')}
 헤드헌터 피치 포인트 (이력서 전체 톤에 반영할 것):
-${jd.pitch_points.map(p => `  - ${p}`).join('\n')}
+${toArr(jd.pitch_points).map(p => `  - ${p}`).join('\n')}
 `
 }
 
