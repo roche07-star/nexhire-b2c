@@ -245,7 +245,7 @@ function downloadReport(result: AnalysisResult, date?: string) {
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  const name = result.candidate_name ?? '이력서분석'
+  const name = result.candidate_name ?? '무기명'
   a.href = url
   a.download = `jobizic_${name}_${new Date().toISOString().slice(0, 10)}.html`
   a.click()
