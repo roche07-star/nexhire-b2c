@@ -2608,3 +2608,106 @@ footer {
 }
 .withdraw-modal-confirm:disabled { opacity: 0.35; cursor: not-allowed; }
 .withdraw-modal-confirm:not(:disabled):hover { background: rgba(255,107,107,0.28); }
+
+/* 보완 재분석 */
+.refine-section {
+  margin: 28px 0 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+}
+.refine-intro {
+  margin-bottom: 16px;
+}
+.refine-intro-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.refine-intro-desc {
+  font-size: 14px;
+  color: var(--muted2);
+  line-height: 1.6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.refine-free-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(232,255,71,0.08);
+  border: 1px solid rgba(232,255,71,0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.refine-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: rgba(123,97,255,0.12);
+  border: 1px solid rgba(123,97,255,0.35);
+  color: #a891ff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.refine-btn:hover:not(:disabled) {
+  background: rgba(123,97,255,0.22);
+  border-color: rgba(123,97,255,0.6);
+}
+.refine-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.refine-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #ff6b6b;
+}
+.refinement-result {
+  background: rgba(123,97,255,0.06);
+  border: 1px solid rgba(123,97,255,0.2);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.refinement-header {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a891ff;
+}
+.refinement-block { display: flex; flex-direction: column; gap: 10px; }
+.refinement-block-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.refinement-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.refinement-list li {
+  font-size: 14px;
+  color: var(--muted2);
+  line-height: 1.65;
+  padding-left: 16px;
+  position: relative;
+}
+.refinement-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: #a891ff;
+  font-weight: 700;
+}

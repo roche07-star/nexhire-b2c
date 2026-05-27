@@ -300,13 +300,14 @@ ${maskedText}
       ...(candidateName ? { candidate_name: candidateName } : {}),
     }
 
-    const { error: insertError } = await supabase.from('analyses').insert({
-      user_email: email,
-      result: resultPayload,
-    })
+    const { data: insertData, error: insertError } = await supabase
+      .from('analyses')
+      .insert({ user_email: email, result: resultPayload })
+      .select('id')
+      .single()
     if (insertError) console.error('[analyze] insert error:', insertError)
 
-    return NextResponse.json(resultPayload)
+    return NextResponse.json({ ...resultPayload, _id: insertData?.id ?? null })
   } catch (e) {
     console.error('[analyze]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })

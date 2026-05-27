@@ -13,6 +13,12 @@ interface CareerPath {
   points: string[]
 }
 
+interface RefinementResult {
+  action_items: string[]
+  skill_gaps: string[]
+  missed_points: string[]
+}
+
 interface AnalysisResult {
   candidate_name?: string
   job_title?: string
@@ -28,6 +34,9 @@ interface AnalysisResult {
   keywords: string[]
   summary: string
   plan?: 'FREE' | 'PRO' | 'EXPERT'
+  _id?: string | null
+  refined?: boolean
+  refinement?: RefinementResult
 }
 
 interface SavedAnalysis {
@@ -381,6 +390,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
+  const [analysisId, setAnalysisId] = useState<string | null>(null)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [withdrawEmail, setWithdrawEmail] = useState('')
   const [withdrawLoading, setWithdrawLoading] = useState(false)
@@ -524,6 +534,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
         setError(data.error || '알 수 없는 오류가 발생했습니다.')
       } else {
         setResult(data)
+        setAnalysisId(data._id ?? null)
         setFile(null)
         setAgreed(false)
         // 쿠폰 사용 후 목록 갱신
@@ -684,7 +695,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                         분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
-                    <AnalysisResults result={savedSelectedItem.result} />
+                    <AnalysisResults result={savedSelectedItem.result} analysisId={savedSelectedItem.id} isPro={isPro} />
                   </>
                 ) : (
                   <>
@@ -984,7 +995,7 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
                   </div>
                 )}
 
-                <AnalysisResults result={result} />
+                <AnalysisResults result={result} analysisId={analysisId} isPro={isPro} />
 
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
@@ -1086,10 +1097,46 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
   )
 }
 
-function AnalysisResults({ result }: { result: AnalysisResult }) {
+function AnalysisResults({
+  result,
+  analysisId,
+  isPro,
+}: {
+  result: AnalysisResult
+  analysisId?: string | null
+  isPro?: boolean
+}) {
   const [activeCareerTab, setActiveCareerTab] = useState(
     result.career_paths ? Math.min(1, result.career_paths.length - 1) : 0
   )
+  const [refined, setRefined] = useState(!!result.refined)
+  const [refinement, setRefinement] = useState<RefinementResult | null>(result.refinement ?? null)
+  const [refining, setRefining] = useState(false)
+  const [refineError, setRefineError] = useState<string | null>(null)
+
+  async function handleRefine() {
+    if (!analysisId || refined || refining) return
+    setRefining(true)
+    setRefineError(null)
+    try {
+      const res = await fetch('/api/analyze/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysisId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setRefineError(data.error ?? '오류가 발생했습니다.')
+      } else {
+        setRefinement(data.refinement)
+        setRefined(true)
+      }
+    } catch {
+      setRefineError('서버 오류가 발생했습니다.')
+    } finally {
+      setRefining(false)
+    }
+  }
 
   const scores = [
     { label: '직무 적합도', value: result.scores.job_fit },
@@ -1237,6 +1284,54 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
           <ul className="result-list career-list">
             {(result.careers ?? []).map((c, i) => <li key={i}>{c}</li>)}
           </ul>
+        </div>
+      )}
+
+      {isPro && analysisId && (
+        <div className="refine-section">
+          {!refined ? (
+            <>
+              <div className="refine-intro">
+                <div className="refine-intro-title">보완 재분석</div>
+                <div className="refine-intro-desc">
+                  첫 분석에서 놓쳤거나 더 깊게 짚을 수 있는 부분을 헤드헌터 AI가 추가로 분석합니다.
+                  <span className="refine-free-badge">1회 무료 · 기존 횟수 차감 없음</span>
+                </div>
+              </div>
+              <button className="refine-btn" onClick={handleRefine} disabled={refining}>
+                {refining ? '보완 분석 중...' : '보완 재분석 시작하기 →'}
+              </button>
+              {refining && (
+                <div className="analyze-loading">
+                  <div className="loading-bar"><div className="loading-fill" /></div>
+                  <div className="loading-text">놓친 부분을 추가로 분석하고 있습니다...</div>
+                </div>
+              )}
+              {refineError && <div className="refine-error">{refineError}</div>}
+            </>
+          ) : refinement ? (
+            <div className="refinement-result">
+              <div className="refinement-header">보완 재분석 결과</div>
+              <div className="refinement-block">
+                <div className="refinement-block-label">즉시 실행 액션 아이템 (1개월 내)</div>
+                <ul className="refinement-list">
+                  {refinement.action_items.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+              <div className="refinement-block">
+                <div className="refinement-block-label">보강이 필요한 핵심 역량</div>
+                <ul className="refinement-list">
+                  {refinement.skill_gaps.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+              <div className="refinement-block">
+                <div className="refinement-block-label">더 강조할 어필 포인트</div>
+                <ul className="refinement-list">
+                  {refinement.missed_points.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
 
