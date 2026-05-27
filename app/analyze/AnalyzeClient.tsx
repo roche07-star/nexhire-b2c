@@ -927,7 +927,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               disabled={rewritingId === item.id || noFile || !hasValidJd}
                               title={disabledTitle}
                             >
-                              {rewritingId === item.id ? '생성 중...' : '✏️ Re-Write 다운로드'}
+                              {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
                             </button>
                           )
                         })()}
