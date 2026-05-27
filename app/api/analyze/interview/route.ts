@@ -67,7 +67,7 @@ const interviewTool: Anthropic.Tool = {
       reverse_questions: {
         type: 'array',
         items: { type: 'string' },
-        description: 'SECTION 5 — 면접 말미 역질문 추천 (조직 구조, 핵심 과제, 6개월 기대 성과 관련, 2~3개).',
+        description: 'SECTION 5 — 면접 말미 역질문 추천. 반드시 정확히 3개. 각 질문은 이 후보자·이 포지션에 맞춤화된 구체적 문장으로 작성. 유형: ① 조직 구조/보고 체계 ② 현재 팀의 핵심 과제 ③ 입사 후 6개월 내 기대 성과.',
       },
       checklist: {
         type: 'array',
