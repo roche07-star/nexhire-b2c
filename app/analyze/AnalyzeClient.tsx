@@ -1209,6 +1209,27 @@ function AnalysisResults({ result }: { result: AnalysisResult }) {
               {active.points.map((p, i) => <li key={i}>{p}</li>)}
             </ul>
           </div>
+
+          {paths.length === 1 && (
+            <div className="career-upsell">
+              <div className="career-upsell-title">
+                지금 보고 계신 건 <strong>현재 경로(BASELINE)</strong> 하나뿐입니다.
+              </div>
+              <div className="career-upsell-paths">
+                <div className="career-upsell-path recommended">
+                  <span className="career-upsell-badge">RECOMMENDED</span>
+                  <span>강점을 최대로 활용한 헤드헌터 추천 경로 — 지금보다 높은 연봉과 포지션이 현실적으로 가능한 방향</span>
+                </div>
+                <div className="career-upsell-path stretch">
+                  <span className="career-upsell-badge">STRETCH</span>
+                  <span>2~3년 준비 시 도달 가능한 고성장 경로 — 시장에서 희소성이 높은 포지션과 연봉 상단</span>
+                </div>
+              </div>
+              <div className="career-upsell-cta">
+                PRO 플랜으로 전환하면 두 가지 경로와 구체적인 전략을 모두 확인할 수 있습니다.
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="results-section">
