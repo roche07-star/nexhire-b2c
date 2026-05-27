@@ -2354,19 +2354,20 @@ footer {
   flex-shrink: 0;
   width: 28px; height: 28px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--muted);
-  font-size: 18px;
+  border: 1px solid rgba(255,107,107,0.35);
+  background: rgba(255,107,107,0.1);
+  color: #ff6b6b;
+  font-size: 16px;
   line-height: 1;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
+  z-index: 1;
 }
 .saved-delete-btn:hover {
-  background: rgba(255,107,107,0.18);
-  color: #ff6b6b;
-  border-color: rgba(255,107,107,0.4);
+  background: rgba(255,107,107,0.25);
+  color: #ff4444;
+  border-color: rgba(255,107,107,0.6);
 }
 .jd-saved-score { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
 .jd-saved-date { font-size: 11px; color: var(--muted); }
