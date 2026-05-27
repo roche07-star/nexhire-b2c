@@ -58,6 +58,23 @@ interface JDResult {
 const toArr = (v: unknown): string[] =>
   Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
 
+interface InterviewGuideResult {
+  positioning_message: string
+  self_intro: string
+  qa_resign_reason: string
+  qa_domain_gap: string
+  qa_competency: string
+  qa_post_join: string
+  qa_salary: string
+  strengths: string[]
+  risks: Array<{ risk: string; response: string }>
+  reverse_questions: string[]
+  checklist: string[]
+  company?: string | null
+  position?: string | null
+  candidate_name?: string | null
+}
+
 interface AnalysisListItem {
   id: string
   result: AnalysisResult
@@ -357,7 +374,7 @@ function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
   URL.revokeObjectURL(url)
 }
 
-type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite'
+type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite' | 'interview'
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
@@ -400,6 +417,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const preserveResolveRef = useRef<((choice: 'replace' | 'add' | 'skip' | 'cancel') => void) | null>(null)
   const [jdSelectModal, setJdSelectModal] = useState(false)
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
+
+  // ── 면접 가이드
+  const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
+  const [interviewJdId, setInterviewJdId] = useState<string | null>(null)
+  const [interviewFormat, setInterviewFormat] = useState('')
+  const [interviewerInfo, setInterviewerInfo] = useState('')
+  const [interviewNotes, setInterviewNotes] = useState('')
+  const [interviewResult, setInterviewResult] = useState<InterviewGuideResult | null>(null)
+  const [interviewLoading, setInterviewLoading] = useState(false)
+  const [interviewError, setInterviewError] = useState<string | null>(null)
 
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
@@ -680,6 +707,26 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           .catch(() => setAnalysisList([]))
           .finally(() => setSavedListLoading(false))
       }
+    } else if (id === 'interview') {
+      setResult(null)
+      setActiveMenu('interview')
+      setInterviewError(null)
+      if (!analysisList) {
+        setSavedListLoading(true)
+        fetch('/api/analyze/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setAnalysisList(analyses ?? []))
+          .catch(() => setAnalysisList([]))
+          .finally(() => setSavedListLoading(false))
+      }
+      if (!jdSavedList) {
+        setJdSavedListLoading(true)
+        fetch('/api/analyze/jd/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setJdSavedList(analyses ?? []))
+          .catch(() => setJdSavedList([]))
+          .finally(() => setJdSavedListLoading(false))
+      }
     }
   }
 
@@ -755,9 +802,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     <span>✏️</span> 이력서 생성 <span className="tab-soon">준비중</span>
                   </button>
                 )}
-                <button className="analyze-tab-btn disabled" disabled>
-                  <span>🎤</span> 면접 가이드 <span className="tab-soon">준비중</span>
-                </button>
+                {isExpert ? (
+                  <button
+                    className={`analyze-tab-btn${activeMenu === 'interview' ? ' active' : ''}`}
+                    onClick={() => onMenuClick('interview')}
+                  >
+                    <span>🎤</span> 면접 가이드 <span className="tab-expert-badge">EXPERT</span>
+                  </button>
+                ) : (
+                  <button className="analyze-tab-btn disabled" disabled>
+                    <span>🎤</span> 면접 가이드 <span className="tab-soon">준비중</span>
+                  </button>
+                )}
               </div>
             )}
             <div className={`analyze-header${activeMenu === 'saved' && result ? ' analyze-header--saved' : ''}`}>
@@ -769,7 +825,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 Report' : activeMenu === 'rewrite' ? '이력서 생성' : '이력서 분석'}
+                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 Report' : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 AI가 3분 안에 커리어 방향을 제시합니다.</p>
@@ -913,6 +969,199 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               </div>
               )
             })()}
+
+            {/* 면접 가이드 모드 */}
+            {activeMenu === 'interview' && (
+              <div className="jd-section">
+                {interviewResult ? (
+                  <div className="interview-guide-wrap">
+                    <button className="jd-back-btn" onClick={() => { setInterviewResult(null); setInterviewSelectedAnalysis(null) }}>
+                      ← 다시 생성
+                    </button>
+                    {(interviewResult.company || interviewResult.candidate_name) && (
+                      <div className="interview-guide-header">
+                        {interviewResult.candidate_name && <span className="interview-candidate">{interviewResult.candidate_name}</span>}
+                        {interviewResult.company && <span className="interview-company">@ {interviewResult.company}{interviewResult.position ? ` — ${interviewResult.position}` : ''}</span>}
+                      </div>
+                    )}
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 1 — 핵심 포지셔닝 메시지</div>
+                      <div className="interview-positioning">&ldquo;{interviewResult.positioning_message}&rdquo;</div>
+                    </div>
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 2 — 자기소개 설계</div>
+                      <div className="interview-text">{interviewResult.self_intro.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                    </div>
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 3 — 예상 질문 & 답변 가이드</div>
+                      <div className="interview-qa-block">
+                        <div className="interview-qa-label">A. 이직 사유</div>
+                        <div className="interview-text">{interviewResult.qa_resign_reason.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      </div>
+                      {interviewResult.qa_domain_gap && interviewResult.qa_domain_gap !== '해당없음' && (
+                        <div className="interview-qa-block">
+                          <div className="interview-qa-label">B. 도메인 갭 대응</div>
+                          <div className="interview-text">{interviewResult.qa_domain_gap.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                        </div>
+                      )}
+                      <div className="interview-qa-block">
+                        <div className="interview-qa-label">C. 역량 검증 (STAR)</div>
+                        <div className="interview-text">{interviewResult.qa_competency.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      </div>
+                      <div className="interview-qa-block">
+                        <div className="interview-qa-label">D. 입사 후 계획</div>
+                        <div className="interview-text">{interviewResult.qa_post_join.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      </div>
+                      <div className="interview-qa-block">
+                        <div className="interview-qa-label">E. 희망 연봉</div>
+                        <div className="interview-text">{interviewResult.qa_salary.split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      </div>
+                    </div>
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 4 — 강점 & 리스크</div>
+                      <div className="interview-strength-list">
+                        {toArr(interviewResult.strengths).map((s, i) => (
+                          <div key={i} className="interview-strength-item">✅ {s}</div>
+                        ))}
+                      </div>
+                      {toArr(interviewResult.risks).length > 0 && (
+                        <div className="interview-risk-list">
+                          {(interviewResult.risks ?? []).map((r, i) => (
+                            <div key={i} className="interview-risk-item">
+                              <div className="interview-risk-label">⚠️ {r.risk}</div>
+                              <div className="interview-risk-response">→ {r.response}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 5 — 역질문 추천</div>
+                      <ul className="interview-list">
+                        {toArr(interviewResult.reverse_questions).map((q, i) => <li key={i}>{q}</li>)}
+                      </ul>
+                    </div>
+
+                    <div className="interview-section">
+                      <div className="interview-section-title">SECTION 6 — 면접 전 체크리스트</div>
+                      <ul className="interview-checklist">
+                        {toArr(interviewResult.checklist).map((c, i) => <li key={i}><span className="check-icon">☑</span>{c}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                ) : interviewSelectedAnalysis ? (
+                  <div className="interview-form-wrap">
+                    <button className="jd-back-btn" onClick={() => setInterviewSelectedAnalysis(null)}>
+                      ← 이력서 다시 선택
+                    </button>
+                    <div className="jd-selected-summary">
+                      <div className="jd-selected-label">선택된 이력서</div>
+                      <div className="jd-selected-title">
+                        {interviewSelectedAnalysis.result.job_title ?? '이력서 분석'}
+                        <span className="jd-selected-date">{new Date(interviewSelectedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                      </div>
+                      <p className="jd-selected-summary-text">{interviewSelectedAnalysis.result.summary?.slice(0, 100)}…</p>
+                    </div>
+
+                    <div className="jd-form">
+                      <div className="jd-field">
+                        <label className="jd-label">JD 기반 분석 연결 <span className="jd-label-optional">(선택)</span></label>
+                        <select
+                          className="jd-input"
+                          value={interviewJdId ?? ''}
+                          onChange={(e) => setInterviewJdId(e.target.value || null)}
+                        >
+                          <option value="">선택 안 함 (일반 관점으로 생성)</option>
+                          {(jdSavedList ?? []).map((jd) => (
+                            <option key={jd.id} value={jd.id}>
+                              {jd.result.company}{jd.result.position ? ` — ${jd.result.position}` : ''} ({new Date(jd.created_at).toLocaleDateString('ko-KR')})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">면접 형식 <span className="jd-label-optional">(선택)</span></label>
+                        <input className="jd-input" type="text" placeholder="예) 1차 실무 → 2차 임원, PT 발표 포함" value={interviewFormat} onChange={(e) => setInterviewFormat(e.target.value)} />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">면접관 정보 <span className="jd-label-optional">(선택)</span></label>
+                        <input className="jd-input" type="text" placeholder="예) 인사팀 + 현업 팀장, C-level" value={interviewerInfo} onChange={(e) => setInterviewerInfo(e.target.value)} />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">특이사항 <span className="jd-label-optional">(선택)</span></label>
+                        <input className="jd-input" type="text" placeholder="예) 단기 재직 이력, 도메인 갭, 연봉 Gap" value={interviewNotes} onChange={(e) => setInterviewNotes(e.target.value)} />
+                      </div>
+                    </div>
+
+                    {interviewError && <div className="analyze-error">{interviewError}</div>}
+                    <button
+                      className="jd-analyze-btn"
+                      onClick={async () => {
+                        setInterviewLoading(true)
+                        setInterviewError(null)
+                        try {
+                          const res = await fetch('/api/analyze/interview', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              analysisId: interviewSelectedAnalysis.id,
+                              jdAnalysisId: interviewJdId,
+                              interviewFormat,
+                              interviewerInfo,
+                              specialNotes: interviewNotes,
+                            }),
+                          })
+                          const data = await res.json()
+                          if (!res.ok) { setInterviewError(data.error ?? '오류가 발생했습니다.'); return }
+                          setInterviewResult(data)
+                        } catch {
+                          setInterviewError('네트워크 오류가 발생했습니다.')
+                        } finally {
+                          setInterviewLoading(false)
+                        }
+                      }}
+                      disabled={interviewLoading}
+                    >
+                      {interviewLoading ? '생성 중...' : '🎤 면접 가이드 생성'}
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="jd-list-title">면접 가이드를 생성할 이력서를 선택하세요</div>
+                    <p className="rewrite-desc">JD 기반 분석 결과와 연결하면 해당 포지션 맞춤형 가이드가 생성됩니다.</p>
+                    {interviewError && <div className="analyze-error">{interviewError}</div>}
+                    {savedListLoading ? (
+                      <div className="jd-list-loading">불러오는 중...</div>
+                    ) : !analysisList || analysisList.length === 0 ? (
+                      <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
+                    ) : (
+                      <div className="jd-saved-list">
+                        {analysisList.map((item) => (
+                          <div
+                            key={item.id}
+                            className="jd-saved-card"
+                            onClick={() => { setInterviewSelectedAnalysis(item); setInterviewJdId(null); setInterviewFormat(''); setInterviewerInfo(''); setInterviewNotes(''); setInterviewResult(null) }}
+                          >
+                            <div className="jd-saved-card-left">
+                              <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                              <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
+                            </div>
+                            <div className="jd-saved-card-right">
+                              <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
