@@ -22,9 +22,8 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('analyses')
-    .select('result, created_at, expires_at')
+    .select('id, result, created_at')
     .eq('user_email', email)
-    .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()

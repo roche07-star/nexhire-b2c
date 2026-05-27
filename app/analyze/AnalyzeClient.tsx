@@ -386,11 +386,14 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
   const [withdrawError, setWithdrawError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!initialIsPro) return
+    if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
     fetch('/api/analyze/latest')
       .then((r) => r.json())
       .then(({ analysis }) => {
-        if (analysis) setSavedAnalysis(analysis)
+        if (analysis?.result) {
+          setResult(analysis.result)
+          setSavedAnalysis({ result: analysis.result, created_at: analysis.created_at, expires_at: '' })
+        }
       })
       .catch(() => {})
   }, [initialIsPro])
@@ -960,19 +963,29 @@ export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPr
             {/* 결과 모드 (새 분석 — upload 탭) */}
             {result && activeMenu === 'upload' && (
               <>
+                {!isPro && savedAnalysis && (
+                  <div className="free-saved-notice">
+                    <span>📂 이전 분析 결과</span>
+                    <span className="free-saved-date">분析일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                    <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
+                      새로 분析하기
+                    </button>
+                  </div>
+                )}
+
                 <AnalysisResults result={result} />
 
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">🔒</span>
-                    <span>분석 결과가 저장되었습니다. <strong>분석 다시 보기</strong> 탭에서 언제든지 확인할 수 있습니다.</span>
+                    <span>분析 결과가 저장되었습니다. <strong>분析 다시 보기</strong> 탭에서 언제든지 확인할 수 있습니다.</span>
                   </div>
                 )}
 
-                {!isPro && (
+                {!isPro && !savedAnalysis && (
                   <div className="analyze-storage-notice">
                     <span className="storage-icon">💡</span>
-                    <span>PRO 플랜으로 업그레이드하면 결과가 영구적으로 저장됩니다.</span>
+                    <span>PRO 플랜으로 업그레이드하면 더 상세한 분析과 다중 저장이 가능합니다.</span>
                   </div>
                 )}
               </>

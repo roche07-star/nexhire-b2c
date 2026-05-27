@@ -288,13 +288,11 @@ ${maskedText}
       ...(candidateName ? { candidate_name: candidateName } : {}),
     }
 
-    if (isPro) {
-      const { error: insertError } = await supabase.from('analyses').insert({
-        user_email: email,
-        result: resultPayload,
-      })
-      if (insertError) console.error('[analyze] insert error:', insertError)
-    }
+    const { error: insertError } = await supabase.from('analyses').insert({
+      user_email: email,
+      result: resultPayload,
+    })
+    if (insertError) console.error('[analyze] insert error:', insertError)
 
     return NextResponse.json(resultPayload)
   } catch (e) {
