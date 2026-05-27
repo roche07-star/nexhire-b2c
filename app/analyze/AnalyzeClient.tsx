@@ -350,7 +350,7 @@ function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
 
 type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite'
 
-export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean }) {
+export default function AnalyzeClient({ initialIsPro, userEmail }: { initialIsPro: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -380,6 +380,10 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
+  const [withdrawOpen, setWithdrawOpen] = useState(false)
+  const [withdrawEmail, setWithdrawEmail] = useState('')
+  const [withdrawLoading, setWithdrawLoading] = useState(false)
+  const [withdrawError, setWithdrawError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!initialIsPro) return
@@ -397,6 +401,29 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
       .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
       .catch(() => {})
   }, [])
+
+  async function handleWithdraw() {
+    if (withdrawEmail !== userEmail) return
+    setWithdrawLoading(true)
+    setWithdrawError(null)
+    try {
+      const res = await fetch('/api/user/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: withdrawEmail }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setWithdrawError(data.error ?? '오류가 발생했습니다.')
+        setWithdrawLoading(false)
+        return
+      }
+      window.location.href = '/login'
+    } catch {
+      setWithdrawError('서버 오류가 발생했습니다.')
+      setWithdrawLoading(false)
+    }
+  }
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
@@ -953,6 +980,57 @@ export default function AnalyzeClient({ initialIsPro }: { initialIsPro: boolean 
           </div>
         </div>
       </div>
+
+      {/* 계정 탈퇴 링크 */}
+      {userEmail && (
+        <div className="withdraw-link-wrap">
+          <button className="withdraw-link" onClick={() => { setWithdrawOpen(true); setWithdrawEmail(''); setWithdrawError(null) }}>
+            계정 탈퇴
+          </button>
+        </div>
+      )}
+
+      {/* 탈퇴 확인 모달 */}
+      {withdrawOpen && (
+        <div className="withdraw-overlay" onClick={() => !withdrawLoading && setWithdrawOpen(false)}>
+          <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="withdraw-modal-icon">⚠️</div>
+            <div className="withdraw-modal-title">정말 탈퇴하시겠어요?</div>
+            <div className="withdraw-modal-desc">
+              탈퇴하면 모든 분석 결과와 계정 정보가 <strong>즉시 삭제</strong>되며 복구할 수 없습니다.
+            </div>
+            <div className="withdraw-modal-confirm-label">
+              확인을 위해 가입한 이메일을 입력해 주세요
+            </div>
+            <input
+              className="withdraw-modal-input"
+              type="email"
+              placeholder={userEmail ?? ''}
+              value={withdrawEmail}
+              onChange={(e) => { setWithdrawEmail(e.target.value); setWithdrawError(null) }}
+              disabled={withdrawLoading}
+              autoComplete="off"
+            />
+            {withdrawError && <div className="withdraw-modal-error">{withdrawError}</div>}
+            <div className="withdraw-modal-btns">
+              <button
+                className="withdraw-modal-cancel"
+                onClick={() => setWithdrawOpen(false)}
+                disabled={withdrawLoading}
+              >
+                취소
+              </button>
+              <button
+                className="withdraw-modal-confirm"
+                onClick={handleWithdraw}
+                disabled={withdrawEmail !== userEmail || withdrawLoading}
+              >
+                {withdrawLoading ? '처리 중...' : '탈퇴하기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -8,15 +8,17 @@ export const metadata = { title: '이력서 분석 — Jobizic' }
 
 export default async function AnalyzePage() {
   let isPro = false
+  let userEmail: string | null = null
 
   try {
     const session = await auth()
     if (session?.user?.email) {
+      userEmail = session.user.email
       const role = (session.user as { role?: string }).role ?? 'USER'
       const { data } = await supabase
         .from('users')
         .select('plan')
-        .eq('email', session.user.email as string)
+        .eq('email', userEmail)
         .maybeSingle()
       const plan = data?.plan ?? 'FREE'
       isPro = plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER'
@@ -28,7 +30,7 @@ export default async function AnalyzePage() {
   return (
     <>
       <Nav />
-      <AnalyzeClient initialIsPro={isPro} />
+      <AnalyzeClient initialIsPro={isPro} userEmail={userEmail} />
       <Footer />
     </>
   )
