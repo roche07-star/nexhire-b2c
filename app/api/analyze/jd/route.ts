@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { company, jd, analysisResult } = await req.json()
+    const { company, position, jd, analysisResult } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })
     }
@@ -119,6 +119,8 @@ export async function POST(req: NextRequest) {
 핵심 키워드: ${((a.keywords as string[]) ?? []).join(', ')}
 ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
 `.trim()
+
+    const positionLine = position?.trim() ? `포지션: ${position.trim()}\n` : ''
 
     const prompt = `당신은 한국 시니어 헤드헌터입니다. 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
 JD를 요약하지 마십시오. 후보자 이력서를 나열하지 마십시오. 판단하고, 근거를 대고, 전략을 내십시오.
@@ -155,7 +157,7 @@ JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 
 
 [채용 회사]
 ${company}
-
+${positionLine}
 [JD]
 ${jd}
 
@@ -178,6 +180,7 @@ ${candidateProfile}`
     const resultPayload = {
       ...(toolUse.input as object),
       company,
+      position: position?.trim() || null,
       resume_job_title: (a.job_title as string) ?? null,
       resume_analyzed_at: new Date().toISOString(),
     }

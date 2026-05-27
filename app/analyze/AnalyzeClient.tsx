@@ -43,6 +43,7 @@ interface SavedAnalysis {
 
 interface JDResult {
   company: string
+  position?: string
   fit_score: number
   recommendation: 'APPLY' | 'CONSIDER' | 'SKIP'
   verdict: string
@@ -298,7 +299,7 @@ li{font-size:14px;color:#b8b8ae;display:flex;gap:10px;line-height:1.6}
 <div class="wrap">
   <div class="header">
     <div class="logo">JOBIZIC · JD 적합도 분석</div>
-    <div class="company">${jd.company}</div>
+    <div class="company">${jd.company}${jd.position ? ` <span style="font-size:14px;font-weight:500;opacity:0.7">· ${jd.position}</span>` : ''}</div>
     <div class="score-row">
       <span class="score">${jd.fit_score}%</span>
       <span class="badge">${label}</span>
@@ -371,6 +372,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const [jdCompany, setJdCompany] = useState('')
+  const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
@@ -714,7 +716,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const res = await fetch('/api/analyze/jd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company: jdCompany, jd: jdContent, analysisResult: jdSelectedAnalysis?.result }),
+        body: JSON.stringify({ company: jdCompany, position: jdPosition, jd: jdContent, analysisResult: jdSelectedAnalysis?.result }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -970,6 +972,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           placeholder="예) 카카오, 현대자동차, 쿠팡..."
                           value={jdCompany}
                           onChange={(e) => setJdCompany(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">포지션 <span className="jd-label-optional">(선택)</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) 백엔드 개발 리드, 마케팅 매니저..."
+                          value={jdPosition}
+                          onChange={(e) => setJdPosition(e.target.value)}
                         />
                       </div>
                       <div className="jd-field">
@@ -1321,7 +1333,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <button key={jd.id} className="preserve-option-card" onClick={() => resolveJdSelect(jd.id)}>
                   <div className="preserve-option-top">
                     <span className="preserve-option-icon">🎯</span>
-                    <span className="preserve-option-label">{jd.result.company}</span>
+                    <span className="preserve-option-label">{jd.result.company}{jd.result.position ? ` · ${jd.result.position}` : ''}</span>
                     <span className={`preserve-option-badge${jd.result.fit_score >= 70 ? ' coupon' : ' none'}`}>
                       적합도 {jd.result.fit_score}%
                     </span>
@@ -1740,7 +1752,10 @@ function JDResults({
   return (
     <div className="jd-results">
       <div className="jd-results-header">
-        <div className="jd-company-name">{result.company}</div>
+        <div className="jd-company-name">
+          {result.company}
+          {result.position && <span className="jd-position-tag">{result.position}</span>}
+        </div>
         <div className="jd-score-row">
           <span className="jd-score" style={{ color }}>{result.fit_score}%</span>
           <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
