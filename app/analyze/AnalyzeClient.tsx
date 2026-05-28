@@ -473,6 +473,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [activeMenu, setActiveMenu] = useState<SidebarMenu>('upload')
   const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [rewriteError, setRewriteError] = useState<string | null>(null)
+  const [rewriteChanges, setRewriteChanges] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -667,6 +668,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     const jdAnalysisId = validJds.length > 0 ? (jdChoice as string) : null
 
     setRewritingId(analysisId)
+    setRewriteChanges([])
     try {
       const fd = new FormData()
       fd.append('analysisId', analysisId)
@@ -678,20 +680,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         method: 'POST',
         body: fd,
       })
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
         setRewriteError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      const blob = await res.blob()
+      // base64 DOCX 디코드 후 다운로드
+      const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
+      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      const disposition = res.headers.get('Content-Disposition') ?? ''
-      const nameMatch = disposition.match(/filename\*=UTF-8''(.+)/)
-      a.download = nameMatch ? decodeURIComponent(nameMatch[1]) : 'rewrite.docx'
+      a.download = data.filename ?? 'rewrite.docx'
       a.href = url
       a.click()
       URL.revokeObjectURL(url)
+      if (Array.isArray(data.changes) && data.changes.length > 0) {
+        setRewriteChanges(data.changes)
+      }
     } catch {
       setRewriteError('서버 오류가 발생했습니다.')
     } finally {
@@ -1077,6 +1082,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
+                {rewriteChanges.length > 0 && (
+                  <div className="rewrite-changes-box">
+                    <div className="rewrite-changes-title">✏️ 주요 변경사항</div>
+                    <ul className="rewrite-changes-list">
+                      {rewriteChanges.map((c, i) => <li key={i}>{c}</li>)}
+                    </ul>
+                  </div>
+                )}
                 {savedListLoading ? (
                   <div className="jd-list-loading">불러오는 중...</div>
                 ) : !analysisList || analysisList.length === 0 ? (

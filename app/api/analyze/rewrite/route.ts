@@ -63,31 +63,29 @@ function buildDocxPrompt(paraList: string, count: number, jd: JDContext | null):
     ? buildJDSection(jd)
     : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
 
-  return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 보완합니다.` : ''}
-${jdSection}
-[보완 원칙 — 후보자가 쓴 내용을 존중하며 경쟁력을 높입니다]
-1. 후보자의 문체와 표현을 최대한 살립니다. 완전히 다른 문장으로 교체하지 마십시오.
-2. 약한 동사만 선택적으로 교체합니다: "담당했습니다" → "주도했습니다", "참여했습니다" → "기여했습니다", "수행했습니다" → "실행했습니다"
-3. 수치·기술명·회사명·기간은 절대 변경하지 않습니다 (없는 수치나 성과 추가 금지)
-4. 문장이 이미 명확하고 임팩트 있으면 원본 그대로 반환합니다${jd ? `
-5. JD 매칭 강점은 더 구체적으로 드러나도록 강조합니다
-6. JD 갭 항목은 약점이 아닌 보완 역량으로 자연스럽게 재프레이밍합니다
-7. 피치 포인트 키워드를 문장 흐름에 자연스럽게 녹입니다` : `
-5. 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다`}
-8. 이름·날짜·구분선·헤더·단순 레이블 단락은 반드시 원본 그대로 반환합니다
-9. 가운데점 "·" 사용 금지, 구분은 "/" 또는 "," 사용
-10. 각 단락 길이를 원본과 비슷하게 유지합니다 (크게 늘리거나 줄이지 마십시오)
-11. 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${jd ? `
+  const jdAggressiveRules = jd ? `
+[JD 연동 수정 원칙 — 아래 규칙이 일반 원칙보다 우선합니다]
+• matching_points 관련 단락: 해당 강점이 전면에 부각되도록 문장을 적극 재구성합니다. 수치·성과·구체적 역할이 있으면 문두로 이동하고, 임팩트 없는 표현은 교체합니다.
+• gaps 관련 단락: 약점으로 읽힐 수 있는 표현을 긍정적 역량으로 완전히 재프레이밍합니다. 문장 구조를 바꾸어도 됩니다.
+• pitch_points 키워드: 관련 단락에 자연스럽게 녹여 채용담당자가 JD 요구사항과 연결 짓도록 합니다.
+• 위 세 가지에 해당하는 단락은 "원본 그대로" 원칙을 적용하지 않고 충분히 수정합니다.
+• 자기소개/지원사유/포부 단락: 단순 보완이 아닌 완전 재작성합니다.
+  - "${jd.company}"를 본문에 자연스럽게 명시
+  - 어필 전략 키워드: ${toArr(jd.pitch_points).join(' / ')}
+  - 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
+  - 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
+  - 수동태("~하게 되었습니다") → 능동태로 전환` : ''
 
-[자기소개서 / 지원사유 / 지원동기 / 포부 단락 특별 지침]
-해당 단락 내용이 감지되면 단순 보완이 아닌 완전 재작성합니다:
-- "${jd.company}"를 본문에 자연스럽게 명시
-- 어필 전략 키워드를 녹임: ${toArr(jd.pitch_points).join(' / ')}
-- AI 표현 완전 삭제: "귀사", "시너지", "다양한 경험", "열정적으로", "탁월한"
-- 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
-- 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
-- 수동태("~하게 되었습니다") → 능동태로 전환
-- "·" → "/" 전면 교체` : ''}
+  return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 보완합니다.` : ''}
+${jdSection}${jdAggressiveRules}
+
+[기본 보완 원칙]
+1. 수치·기술명·회사명·기간은 절대 변경하지 않습니다 (없는 수치나 성과 추가 금지)
+2. 약한 동사를 강하게 교체합니다: "담당" → "주도", "참여" → "기여", "수행" → "실행", "진행" → "추진"
+3. 이름·날짜·구분선·헤더·단순 레이블 단락은 반드시 원본 그대로 반환합니다
+4. 가운데점 "·" 사용 금지, 구분은 "/" 또는 "," 사용
+5. 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${!jd ? `
+6. 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다` : ''}
 
 [이력서 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
 ${paraList}`
@@ -96,23 +94,31 @@ ${paraList}`
 function buildSectionPrompt(resumeText: string, jd: JDContext | null): string {
   const jdSection = jd ? buildJDSection(jd) : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
 
+  const jdAggressiveRules = jd ? `
+[JD 연동 수정 원칙 — 아래 규칙이 일반 원칙보다 우선합니다]
+• matching_points 관련 섹션: 해당 강점이 전면에 부각되도록 문장을 적극 재구성합니다. 수치·성과가 있으면 문두로 배치하고, 임팩트 없는 표현은 교체합니다.
+• gaps 관련 섹션: 약점으로 읽힐 수 있는 표현을 긍정적 역량으로 완전히 재프레이밍합니다. 문장 구조를 바꾸어도 됩니다.
+• pitch_points 키워드를 관련 섹션에 자연스럽게 녹여 JD 요구사항과 연결 짓습니다.
+• 위 세 가지에 해당하는 섹션은 "원본 그대로" 원칙을 적용하지 않고 충분히 수정합니다.
+• 자기소개/지원사유/지원동기/포부 섹션: 완전 재작성합니다.
+  - "${jd.company}"를 본문에 자연스럽게 명시
+  - 어필 전략 키워드: ${toArr(jd.pitch_points).join(' / ')}
+  - 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
+  - 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
+  - 수동태 → 능동태 전환` : ''
+
   return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` 현재 ${jd.company} 포지션에 이 후보자를 추천하기 위해 이력서를 보완합니다.` : ''}
-${jdSection}
-[보완 원칙 — 후보자가 쓴 내용을 존중하며 경쟁력을 높입니다]
+${jdSection}${jdAggressiveRules}
+
+[기본 보완 원칙]
 - 원본 이력서에 있는 모든 섹션을 빠짐없이 포함합니다 (인적사항, 학력, 경력사항, 자격/면허, 기타사항, 연봉사항, 지원사유 및 포부 등 원본에 있는 항목 전부)
 - 섹션의 순서와 제목은 원본 그대로 유지합니다
-- 후보자의 문체와 표현을 최대한 살립니다. 완전히 다른 문장으로 교체하지 마십시오
-- 약한 동사만 선택적으로 교체합니다: "담당했습니다" → "주도했습니다", "참여했습니다" → "기여했습니다", "수행했습니다" → "실행했습니다"
 - 수치·기술명·회사명·기간은 절대 변경하지 않습니다 (없는 수치나 성과 추가 금지)
-- 문장이 이미 명확하고 임팩트 있으면 원본 그대로 반환합니다${jd ? `
-- JD 매칭 강점은 더 구체적으로 드러나도록 강조합니다
-- JD 갭 항목은 약점이 아닌 보완 역량으로 자연스럽게 재프레이밍합니다
-- 피치 포인트 키워드를 문장 흐름에 자연스럽게 녹입니다` : `
-- 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다`}
+- 약한 동사를 강하게 교체합니다: "담당" → "주도", "참여" → "기여", "수행" → "실행", "진행" → "추진"
 - 구분자 "/" 사용, "·" (가운데점) 절대 금지
 - 해당 경력 연차에 맞는 한국 채용 시장 어감을 유지합니다
-- 각 섹션의 길이를 원본과 비슷하게 유지합니다 (크게 늘리거나 줄이지 마십시오)
-- 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다
+- 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${!jd ? `
+- 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다` : ''}
 - 각 섹션의 content는 줄바꿈(\\n)으로 구분, 목록 항목은 "- "로 시작합니다
 
 [원본 이력서]
@@ -360,8 +366,13 @@ export async function POST(req: NextRequest) {
                   description: `입력된 ${nonEmpty.length}개 단락 순서 그대로, 각각 작성된 텍스트 (반드시 ${nonEmpty.length}개)`,
                   items: { type: 'string' },
                 },
+                changes: {
+                  type: 'array',
+                  description: '주요 변경 사항 요약 (3-7개). 각 항목: "[섹션/내용] 원본 표현 → 변경 표현 / 변경 이유"',
+                  items: { type: 'string' },
+                },
               },
-              required: ['rewrites'],
+              required: ['rewrites', 'changes'],
             },
           },
         ],
@@ -373,7 +384,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
-      const { rewrites } = toolUse.input as { rewrites?: string[] }
+      const { rewrites, changes: tplChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
@@ -387,12 +398,10 @@ export async function POST(req: NextRequest) {
       const downloadName = `jobizic_updated_${candidateName}${suffix}_${dateStr}.docx`
 
       if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
-      return new NextResponse(docxBuffer as unknown as BodyInit, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`,
-        },
+      return NextResponse.json({
+        docx: (docxBuffer as Buffer).toString('base64'),
+        filename: downloadName,
+        changes: tplChanges ?? [],
       })
     }
 
@@ -420,8 +429,13 @@ export async function POST(req: NextRequest) {
                   description: `입력된 ${nonEmpty.length}개 단락 순서 그대로, 각각 재작성된 텍스트 (반드시 ${nonEmpty.length}개)`,
                   items: { type: 'string' },
                 },
+                changes: {
+                  type: 'array',
+                  description: '주요 변경 사항 요약 (3-7개). 각 항목: "[섹션/내용] 원본 표현 → 변경 표현 / 변경 이유"',
+                  items: { type: 'string' },
+                },
               },
-              required: ['rewrites'],
+              required: ['rewrites', 'changes'],
             },
           },
         ],
@@ -433,7 +447,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
-      const { rewrites } = toolUse.input as { rewrites?: string[] }
+      const { rewrites, changes: docxChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
@@ -447,12 +461,10 @@ export async function POST(req: NextRequest) {
       const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
 
       if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
-      return new NextResponse(docxBuffer as unknown as BodyInit, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`,
-        },
+      return NextResponse.json({
+        docx: (docxBuffer as Buffer).toString('base64'),
+        filename: downloadName,
+        changes: docxChanges ?? [],
       })
     }
 
@@ -484,8 +496,13 @@ export async function POST(req: NextRequest) {
                   required: ['title', 'content'],
                 },
               },
+              changes: {
+                type: 'array',
+                description: '주요 변경 사항 요약 (3-7개). 각 항목: "[섹션명] 원본 표현 → 변경 표현 / 변경 이유"',
+                items: { type: 'string' },
+              },
             },
-            required: ['sections'],
+            required: ['sections', 'changes'],
           },
         },
       ],
@@ -497,7 +514,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
     }
 
-    const rewriteData = toolUse.input as RewriteResult
+    const rewriteData = toolUse.input as RewriteResult & { changes?: string[] }
+    const sectionChanges = Array.isArray(rewriteData.changes) ? rewriteData.changes : []
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
 
     // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)
@@ -548,12 +566,10 @@ export async function POST(req: NextRequest) {
     const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
 
     if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
-    return new NextResponse(docxBuffer as unknown as BodyInit, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`,
-      },
+    return NextResponse.json({
+      docx: (docxBuffer as Buffer).toString('base64'),
+      filename: downloadName,
+      changes: sectionChanges,
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
