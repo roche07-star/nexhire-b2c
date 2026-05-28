@@ -503,6 +503,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const preserveResolveRef = useRef<((choice: 'replace' | 'add' | 'skip' | 'cancel') => void) | null>(null)
   const [jdSelectModal, setJdSelectModal] = useState(false)
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
+  const [formatSelectModal, setFormatSelectModal] = useState(false)
+  const formatSelectResolveRef = useRef<((choice: 'original' | 'updated' | 'cancel') => void) | null>(null)
 
   // ── 면접 가이드
   const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
@@ -590,8 +592,25 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     jdSelectResolveRef.current = null
   }
 
+  function openFormatSelectModal(): Promise<'original' | 'updated' | 'cancel'> {
+    return new Promise(resolve => {
+      formatSelectResolveRef.current = resolve
+      setFormatSelectModal(true)
+    })
+  }
+
+  function resolveFormatSelect(choice: 'original' | 'updated' | 'cancel') {
+    setFormatSelectModal(false)
+    formatSelectResolveRef.current?.(choice)
+    formatSelectResolveRef.current = null
+  }
+
   async function handleRewrite(analysisId: string) {
     setRewriteError(null)
+
+    // 양식 선택 모달
+    const formatChoice = await openFormatSelectModal()
+    if (formatChoice === 'cancel') return
 
     // JD 목록 로드 (없으면)
     let jdList = jdSavedList
@@ -621,7 +640,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const res = await fetch('/api/analyze/rewrite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysisId, jdAnalysisId }),
+        body: JSON.stringify({ analysisId, jdAnalysisId, formatMode: formatChoice }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -1015,10 +1034,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 </div>
 
-                <div className="jd-list-title">Re-Writing할 이력서를 선택하세요</div>
+                <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
-                  원본 이력서 양식을 그대로 유지하면서 채용 담당자에게 더 잘 읽히도록 문장과 포지셔닝을 재작성합니다.
-                  완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
+                  <strong>기존 이력서</strong>: 원본 포맷·서식을 그대로 유지하며 문장과 포지셔닝을 보완합니다.<br />
+                  <strong>업데이트 이력서</strong>: 원본 내용을 기반으로 깔끔한 새 양식의 DOCX로 재생성합니다.<br />
+                  JD 적합도 분석이 있으면 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
                 {savedListLoading ? (
@@ -1043,20 +1063,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                         </div>
                         {(() => {
-                          const now = new Date()
-                          const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now)
                           const noFile = !item.result._file_path
-                          const disabledTitle = noFile
-                            ? '원본 파일이 보존되지 않은 이력서입니다'
-                            : !hasValidJd
-                            ? 'JD 기반 분석을 먼저 진행해 주세요'
-                            : undefined
                           return (
                             <button
                               className="rewrite-dl-btn"
                               onClick={() => handleRewrite(item.id)}
-                              disabled={rewritingId === item.id || noFile || !hasValidJd}
-                              title={disabledTitle}
+                              disabled={rewritingId === item.id || noFile}
+                              title={noFile ? '원본 파일이 보존되지 않은 이력서입니다' : undefined}
                             >
                               {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
                             </button>
@@ -1709,6 +1722,43 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
 
       {/* JD 선택 모달 */}
+      {formatSelectModal && (
+        <div className="withdraw-overlay" onClick={() => resolveFormatSelect('cancel')}>
+          <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="preserve-choice-title">이력서 양식 선택</div>
+            <div className="preserve-choice-desc">
+              생성할 이력서의 양식을 선택해 주세요.
+            </div>
+
+            <button className="preserve-option-card" onClick={() => resolveFormatSelect('original')}>
+              <div className="preserve-option-top">
+                <span className="preserve-option-icon">📄</span>
+                <span className="preserve-option-label">기존 이력서</span>
+                <span className="preserve-option-badge none">원본 포맷 유지</span>
+              </div>
+              <div className="preserve-option-desc">
+                원본 이력서의 포맷·서식을 그대로 유지합니다. DOCX는 서식 완전 보존, PDF는 원본 기반 새 DOCX로 생성됩니다.
+              </div>
+            </button>
+
+            <button className="preserve-option-card" onClick={() => resolveFormatSelect('updated')}>
+              <div className="preserve-option-top">
+                <span className="preserve-option-icon">✨</span>
+                <span className="preserve-option-label">업데이트 이력서</span>
+                <span className="preserve-option-badge coupon">새 양식</span>
+              </div>
+              <div className="preserve-option-desc">
+                원본 내용을 기반으로 깔끔하게 정리된 새 양식의 DOCX로 재생성합니다. 통일된 헤드헌터 표준 서식이 적용됩니다.
+              </div>
+            </button>
+
+            <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveFormatSelect('cancel')}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
       {jdSelectModal && (() => {
         const now = new Date()
         const validJds = (jdSavedList ?? []).filter(jd => !jd.expires_at || new Date(jd.expires_at) > now)

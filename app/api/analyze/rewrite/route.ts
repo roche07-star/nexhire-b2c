@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { analysisId, jdAnalysisId } = await req.json()
+    const { analysisId, jdAnalysisId, formatMode } = await req.json()
     if (!analysisId) return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
 
     const { data: row } = await supabase
@@ -166,8 +166,8 @@ export async function POST(req: NextRequest) {
     const candidateName = (row.result?.candidate_name as string | undefined) ?? '이력서'
     const dateStr = new Date().toISOString().slice(0, 10)
 
-    // ── DOCX: 서식 완전 보존 (XML 직접 수정)
-    if (ext === 'docx') {
+    // ── DOCX: 서식 완전 보존 (XML 직접 수정) — 기존 이력서 모드에서만
+    if (ext === 'docx' && formatMode !== 'updated') {
       const paras = await extractDocxParagraphs(buffer)
       // 단순 구분선·날짜·한두 글자짜리 단락은 Claude에 보내지 않음
       const nonEmpty = paras.filter(p => p.text.trim().length > 2).slice(0, 60)
