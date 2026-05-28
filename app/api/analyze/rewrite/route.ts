@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
 import { generateResumeDocx, RewriteResult } from '@/lib/generateDocx'
-import { extractDocxParagraphs, applyDocxRewrites } from '@/lib/rewriteDocxInPlace'
+import { extractDocxParagraphs, applyDocxRewrites, DocxParagraph } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 export const maxDuration = 120
