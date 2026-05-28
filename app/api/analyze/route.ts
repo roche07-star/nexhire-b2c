@@ -81,6 +81,10 @@ const proTool: Anthropic.Tool = {
         },
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
+      summary: {
+        type: 'string',
+        description: '지원자에 대한 전체 요약 (2-3문장)',
+      },
       strengths: {
         type: 'array',
         items: { type: 'string' },
@@ -96,13 +100,9 @@ const proTool: Anthropic.Tool = {
         items: { type: 'string' },
         description: '이력서에서 발견된 핵심 키워드 (최대 8개)',
       },
-      summary: {
-        type: 'string',
-        description: '지원자에 대한 전체 요약 (2-3문장)',
-      },
       career_paths: {
         type: 'array',
-        description: '3가지 커리어 경로: BASELINE(현재 경로 유지), RECOMMENDED(추천 경로), STRETCH(고성장 경로) 순서로 반드시 3개',
+        description: '커리어 경로 3개 — BASELINE / RECOMMENDED / STRETCH 순서로 반드시 3개 모두 포함',
         items: {
           type: 'object',
           properties: {
@@ -112,7 +112,7 @@ const proTool: Anthropic.Tool = {
             salary_range: { type: 'string', description: '예상 연봉 범위 (예: 4,500만원~6,500만원)' },
             salary_bands: {
               type: 'array',
-              description: '연봉 밴드 (1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+ 순서로 4개)',
+              description: '연봉 밴드 4개 (1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+)',
               items: {
                 type: 'object',
                 properties: {
@@ -126,14 +126,14 @@ const proTool: Anthropic.Tool = {
             points: {
               type: 'array',
               items: { type: 'string' },
-              description: '이 경로에 대한 구체적인 조언 3~4개',
+              description: '이 경로에 대한 구체적인 조언 3개',
             },
           },
           required: ['type', 'label', 'title', 'salary_range', 'salary_bands', 'points'],
         },
       },
     },
-    required: ['job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
+    required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords', 'career_paths'],
   },
 }
 
@@ -259,7 +259,7 @@ ${maskedText}
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: isPro ? 3000 : 2000,
+      max_tokens: isPro ? 4096 : 2000,
       tool_choice: { type: 'tool', name: 'analyze_resume' },
       tools: [tool],
       messages: [{ role: 'user', content: prompt }],
