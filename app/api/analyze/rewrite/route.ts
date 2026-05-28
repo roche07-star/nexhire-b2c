@@ -13,6 +13,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 interface JDContext {
   company: string
+  position?: string | null
   fit_score: number
   verdict: string
   matching_points: string[]
