@@ -121,7 +121,12 @@ ${jdSection}${jdAggressiveRules}
 5. 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${!jd ? `
 6. 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다` : ''}
 
-[이력서 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
+[출력 규칙]
+- rewrites: 반드시 ${count}개, 입력 순서 그대로
+- [CL] 표시 단락: 위 자기소개서 특별 지침에 따라 완전 재작성하십시오
+- changes: 실제로 수정한 내용을 최소 3개 이상 구체적으로 기록하십시오. 형식: "[단락번호/섹션] 원본 → 수정본 (이유)"
+
+[이력서 단락 목록] (총 ${count}개)
 ${paraList}`
 }
 
@@ -154,6 +159,7 @@ ${jdSection}${jdAggressiveRules}
 - 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${!jd ? `
 - 채용 담당자가 긍정적으로 읽히도록 포지셔닝을 강화합니다` : ''}
 - 각 섹션의 content는 줄바꿈(\\n)으로 구분, 목록 항목은 "- "로 시작합니다
+- changes 필드에 실제로 수정한 내용을 최소 3개 이상 구체적으로 기록하십시오. 형식: "[섹션명] 원본 → 수정본 (이유)"
 
 [원본 이력서]
 ${resumeText}
@@ -388,7 +394,7 @@ export async function POST(req: NextRequest) {
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
+        max_tokens: 6000,
         tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
         tools: [
           {
@@ -449,12 +455,20 @@ export async function POST(req: NextRequest) {
       const piiIndexes = new Set(paras.filter(p => hasPII(p.text)).map(p => p.index))
       const nonEmpty = paras.filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index)).slice(0, 60)
 
-      const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
+      // 자기소개서 섹션 헤더 이후 단락에 [CL] 마킹 → Claude가 완전 재작성
+      let inCLSection = false
+      const paraList = nonEmpty.map((p, i) => {
+        const t = p.text.trim()
+        const isCLHeader = t.length <= 30 && CL_KEYWORDS.some(k => t.replace(/\s/g, '').includes(k.replace(/\s/g, '')))
+        if (isCLHeader) { inCLSection = true; return `[${i + 1}] ${p.text}` }
+        const marker = inCLSection ? ' [CL]' : ''
+        return `[${i + 1}]${marker} ${p.text}`
+      }).join('\n')
       const prompt = buildDocxPrompt(paraList, nonEmpty.length, jdContext)
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
+        max_tokens: 6000,
         tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
         tools: [
           {
@@ -517,7 +531,7 @@ export async function POST(req: NextRequest) {
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 6000,
       tool_choice: { type: 'tool', name: 'rewrite_resume' },
       tools: [
         {
