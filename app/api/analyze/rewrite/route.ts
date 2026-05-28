@@ -27,6 +27,40 @@ function toArr(v: unknown): string[] {
   return []
 }
 
+// PII 감지: 이메일·전화번호·주민번호·이름 레이블 포함 여부
+function hasPII(text: string): boolean {
+  if (/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/.test(text)) return true
+  if (/(?:010|011|016|017|018|019|02|0[3-9]\d)[\s.\-]?\d{3,4}[\s.\-]?\d{4}/.test(text)) return true
+  if (/\d{6}[\-]\d{7}/.test(text)) return true
+  if (/(이름|성명|Name|성 명|성함)\s*[:：]/i.test(text)) return true
+  return false
+}
+
+// PDF 경로: 마스킹 전 원본 PII 값 추출
+function extractPIIValues(text: string) {
+  const emails = [...new Set(text.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g) ?? [])]
+  const phones = [...new Set(text.match(/(?:010|011|016|017|018|019|02|0[3-9]\d)[\s.\-]?\d{3,4}[\s.\-]?\d{4}/g) ?? [])]
+  const nameRaw = text.match(/(이름|성명|Name|성 명|성함)\s*[:：]?\s*([가-힣]{2,5}|[a-zA-Z]{2,30}(?:\s[a-zA-Z]{1,20})?)/)
+  const names = nameRaw ? [nameRaw[2]] : []
+  return { emails, phones, names }
+}
+
+function maskPIILocal(text: string): string {
+  return text
+    .replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, '[이메일]')
+    .replace(/(?:010|011|016|017|018|019|02|0[3-9]\d)[\s.\-]?\d{3,4}[\s.\-]?\d{4}/g, '[연락처]')
+    .replace(/\d{6}[\-]\d{7}/g, '[주민번호]')
+    .replace(/(이름|성명|Name|성 명|성함)\s*[:：]?\s*([가-힣]{2,5}|[a-zA-Z]{2,30}(?:\s[a-zA-Z]{1,20})?)/gi, '$1: [이름]')
+}
+
+function restorePIIValues(text: string, pii: ReturnType<typeof extractPIIValues>): string {
+  let out = text
+  if (pii.emails[0]) out = out.replace(/\[이메일\]/g, pii.emails[0])
+  if (pii.phones[0]) out = out.replace(/\[연락처\]/g, pii.phones[0])
+  if (pii.names[0]) out = out.replace(/\[이름\]/g, pii.names[0])
+  return out
+}
+
 const CL_KEYWORDS = ['자기소개', '지원사유', '지원동기', '지원 사유', '지원 동기', '포부']
 
 function isCoverLetterSection(title: string): boolean {
@@ -344,7 +378,9 @@ export async function POST(req: NextRequest) {
     if (formatMode === 'updated' && templateFileEntry) {
       const templateBuffer = Buffer.from(await templateFileEntry.arrayBuffer())
       const templateParas = await extractDocxParagraphs(templateBuffer)
-      const nonEmpty = templateParas.filter(p => p.text.trim().length > 2).slice(0, 60)
+      // 템플릿의 PII 단락(헤더 등)은 Claude에 전송하지 않음
+      const piiIndexes = new Set(templateParas.filter(p => hasPII(p.text)).map(p => p.index))
+      const nonEmpty = templateParas.filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index)).slice(0, 60)
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
 
       const resumeText = await extractText(buffer, originalFilename)
@@ -389,6 +425,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
       const allRewrites = templateParas.map(p => {
+        if (piiIndexes.has(p.index)) return p.text  // PII 단락: 원본 그대로
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
@@ -408,7 +445,9 @@ export async function POST(req: NextRequest) {
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx' && formatMode !== 'updated') {
       const paras = await extractDocxParagraphs(buffer)
-      const nonEmpty = paras.filter(p => p.text.trim().length > 2).slice(0, 60)
+      // PII 단락은 Claude에 전송하지 않고 원본 그대로 유지
+      const piiIndexes = new Set(paras.filter(p => hasPII(p.text)).map(p => p.index))
+      const nonEmpty = paras.filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index)).slice(0, 60)
 
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
       const prompt = buildDocxPrompt(paraList, nonEmpty.length, jdContext)
@@ -452,6 +491,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
       const allRewrites = paras.map(p => {
+        if (piiIndexes.has(p.index)) return p.text  // PII 단락: 원본 그대로
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
@@ -470,7 +510,10 @@ export async function POST(req: NextRequest) {
 
     // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX
     const resumeText = await extractText(buffer, originalFilename)
-    const prompt = buildSectionPrompt(resumeText, jdContext)
+    // PII 마스킹 후 Claude에 전송, 응답에서 원본값으로 복원
+    const piiValues = extractPIIValues(resumeText)
+    const maskedResumeText = maskPIILocal(resumeText)
+    const prompt = buildSectionPrompt(maskedResumeText, jdContext)
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -517,6 +560,13 @@ export async function POST(req: NextRequest) {
     const rewriteData = toolUse.input as RewriteResult & { changes?: string[] }
     const sectionChanges = Array.isArray(rewriteData.changes) ? rewriteData.changes : []
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
+
+    // PII 복원: Claude가 마스킹된 값으로 작성한 경우 원본 이메일·연락처·이름으로 치환
+    if (Array.isArray(rewriteData.sections)) {
+      for (const sec of rewriteData.sections) {
+        sec.content = restorePIIValues(sec.content, piiValues)
+      }
+    }
 
     // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)
     if (jdContext && Array.isArray(rewriteData.sections)) {
