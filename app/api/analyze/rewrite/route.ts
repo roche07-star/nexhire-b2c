@@ -26,6 +26,23 @@ function toArr(v: unknown): string[] {
   return []
 }
 
+const CL_KEYWORDS = ['자기소개', '지원사유', '지원동기', '지원 사유', '지원 동기', '포부']
+
+function isCoverLetterSection(title: string): boolean {
+  const n = title.replace(/\s+/g, '')
+  return CL_KEYWORDS.some(k => n.includes(k.replace(/\s+/g, '')))
+}
+
+function coverLetterSectionType(title: string): 'application' | 'selfintro' | 'combined' {
+  const n = title.replace(/\s+/g, '')
+  const isApp = ['지원사유', '지원동기', '포부'].some(k => n.includes(k))
+  const isSelf = ['자기소개'].some(k => n.includes(k))
+  if (isApp && isSelf) return 'combined'
+  if (isApp) return 'application'
+  if (isSelf) return 'selfintro'
+  return 'combined'
+}
+
 function buildJDSection(jd: JDContext): string {
   return `
 [JD 분석 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
@@ -59,7 +76,17 @@ ${jdSection}
 8. 이름·날짜·구분선·헤더·단순 레이블 단락은 반드시 원본 그대로 반환합니다
 9. 가운데점 "·" 사용 금지, 구분은 "/" 또는 "," 사용
 10. 각 단락 길이를 원본과 비슷하게 유지합니다 (크게 늘리거나 줄이지 마십시오)
-11. 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다
+11. 불필요한 조사·접속사·수식어를 제거해 문장을 간결하게 정리합니다${jd ? `
+
+[자기소개서 / 지원사유 / 지원동기 / 포부 단락 특별 지침]
+해당 단락 내용이 감지되면 단순 보완이 아닌 완전 재작성합니다:
+- "${jd.company}"를 본문에 자연스럽게 명시
+- 어필 전략 키워드를 녹임: ${toArr(jd.pitch_points).join(' / ')}
+- AI 표현 완전 삭제: "귀사", "시너지", "다양한 경험", "열정적으로", "탁월한"
+- 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
+- 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
+- 수동태("~하게 되었습니다") → 능동태로 전환
+- "·" → "/" 전면 교체` : ''}
 
 [이력서 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
 ${paraList}`
@@ -114,10 +141,117 @@ ${resumeText}
 7. JD 갭 항목은 긍정적으로 재프레이밍합니다
 8. JD 피치 포인트 키워드를 자연스럽게 녹입니다` : ''}
 9. 가운데점 "·" 사용 금지, 구분은 "/" 또는 "," 사용
-10. 각 단락 길이를 양식 단락 길이와 비슷하게 유지합니다
+10. 각 단락 길이를 양식 단락 길이와 비슷하게 유지합니다${jd ? `
+
+[자기소개서 / 지원사유 / 지원동기 / 포부 단락 특별 지침]
+해당 단락 위치가 감지되면 원본 이력서 내용을 활용해 완전 작성합니다:
+- "${jd.company}"를 본문에 자연스럽게 명시
+- 어필 전략 키워드를 녹임: ${toArr(jd.pitch_points).join(' / ')}
+- AI 표현 완전 삭제: "귀사", "시너지", "다양한 경험", "열정적으로"
+- 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
+- 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
+- "·" → "/" 전면 교체` : ''}
 
 [새 양식 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
 ${paraList}`
+}
+
+function buildCoverLetterPrompt(resumeText: string, jd: JDContext): string {
+  const pos = jd.position?.trim() || '채용공고 포지션'
+  const matchStr = toArr(jd.matching_points).join(' / ')
+  const pitchStr = toArr(jd.pitch_points).join(' / ')
+  const gapsStr = toArr(jd.gaps).join(' / ')
+
+  return `🎯 역할 정의
+당신은 한국 채용 시장에 정통한 커리어 컨설턴트입니다.
+후보자가 제공한 이력서와 경험을 바탕으로
+채용 담당자가 "이 사람 한번 만나봐야겠다"는 느낌이 드는
+자기소개서를 작성합니다.
+
+다음을 절대 하지 마십시오:
+- AI가 쓴 것처럼 읽히는 문장
+- 없는 경험을 만들어내는 것
+- 과도한 미사여구와 추상적 표현
+- 모든 사람에게 적용 가능한 범용 문장
+
+📥 인풋
+
+[이력서 또는 경력 요약]
+${resumeText}
+
+[지원 포지션 / JD]
+${pos}
+
+[지원 회사명]
+${jd.company}
+
+[JD 적합도 분석 결과 — 어필 포인트 및 전략]
+적합도: ${jd.fit_score}% / ${jd.verdict}
+매칭 강점 (강조할 것): ${matchStr}
+보완 포인트 (긍정 재프레이밍): ${gapsStr}
+어필 전략 (녹여낼 것): ${pitchStr}
+
+✍️ 항목별 작성 가이드
+
+항목 1 — 지원 사유 및 포부
+목적: "왜 하필 이 회사, 이 포지션인가"를 납득시키는 것.
+지원자의 커리어 방향과 회사의 방향이 교차하는 지점을 보여줘야 함.
+
+【필수 포함 요소】
+✅ "${jd.company}"를 본문에 반드시 명시
+✅ JD 어필 전략 키워드가 자연스럽게 녹아 있을 것
+✅ 커리어 방향과 이 회사의 접점을 구체적으로 연결
+
+【작성 구조】
+① 내가 지금까지 쌓아온 방향 한 문장
+② ${jd.company}에서 발견한 접점 (JD 핵심 키워드 자연스럽게 포함)
+③ 입사 후 기여하고 싶은 구체적 영역 + 성장 방향
+
+【분량】300~400자
+
+【절대 쓰지 말 것】
+❌ "귀사의 비전에 공감하여"
+❌ "글로벌 선도 기업인 귀사에서"
+❌ "성장 가능성이 높은 귀사를 선택했습니다"
+❌ 연봉 / 복지 / 네임밸류를 이유로 언급
+❌ 어느 회사에나 쓸 수 있는 범용 문장
+
+항목 2 — 자기소개서
+목적: 이력서에 담지 못한 사람됨과 실력을 보여주는 것.
+직무 역량 + 성격 + 실전 경험이 유기적으로 연결된 서술.
+
+【작성 방향】
+이력서에 이미 쓴 내용을 반복하지 말 것.
+다음 소재 2~3개를 유기적으로 연결:
+① 업무상 강점 — 이력서 수치로 드러나지 않는 일하는 방식/습관/태도
+② 성격 — 구체적 상황 + 그 성격이 발휘된 결과로 서술 (단어 나열 금지)
+   "___상황에서 ___방식으로 접근해 ___결과를 냈습니다" 구조
+③ 성공 또는 실패 스토리 — STAR 구조 (상황→역할→행동→결과/수치)
+
+【분량】600자 이상
+
+【문체 원칙】
+✅ 첫 문장은 인상적인 한 줄로 시작 (평범한 자기소개 금지)
+   예: "저는 숫자보다 구조를 먼저 봅니다." / "실패한 프로젝트가 저를 만들었습니다."
+✅ 단락 간 자연스러운 연결
+✅ 문장 끝 변화 — 명사형/평서형 혼용으로 단조로움 방지
+
+【절대 쓰지 말 것】
+❌ "저는 성실하고 책임감 있는 사람입니다"
+❌ "팀워크를 중시하며 소통을 잘합니다"
+❌ "항상 최선을 다하겠습니다"
+❌ ChatGPT 특유의 "첫째~, 둘째~, 셋째~" 3단 병렬 구조 반복
+❌ "·" 구분자 → 반드시 "/" 로 대체
+
+🔍 AI스러움 제거 체크리스트 (반드시 점검 후 출력)
+☑ "시너지", "다양한 경험을 바탕으로", "열정적으로" → 삭제
+☑ "탁월한/뛰어난/우수한" → 수치 또는 근거로 대체
+☑ 수동태 남발("~하게 되었습니다") → 능동태로
+☑ "·" → "/" 전면 교체
+☑ 지원 사유에 "${jd.company}" 명시 확인
+☑ 이 지원 사유가 다른 회사에도 쓸 수 있는가 → YES면 다시 작성
+☑ 자기소개서에 성공 또는 실패 스토리 1개 이상 포함 확인
+☑ 자기소개서 분량 600자 이상 확인`
 }
 
 export async function POST(req: NextRequest) {
@@ -358,6 +492,50 @@ export async function POST(req: NextRequest) {
 
     const rewriteData = toolUse.input as RewriteResult
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
+
+    // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)
+    if (jdContext) {
+      const clSections = rewriteData.sections.filter(s => isCoverLetterSection(s.title))
+      if (clSections.length > 0) {
+        try {
+          const clPrompt = buildCoverLetterPrompt(resumeText, jdContext)
+          const clMsg = await client.messages.create({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 2000,
+            tool_choice: { type: 'tool', name: 'generate_cover_letter' },
+            tools: [{
+              name: 'generate_cover_letter',
+              description: '지원 사유 및 자기소개서 전문 작성',
+              input_schema: {
+                type: 'object' as const,
+                properties: {
+                  application_reason: { type: 'string', description: '지원 사유 및 포부 (300~400자, 회사명 명시)' },
+                  self_introduction: { type: 'string', description: '자기소개서 (600자 이상, 경험 기반)' },
+                },
+                required: ['application_reason', 'self_introduction'],
+              },
+            }],
+            messages: [{ role: 'user', content: clPrompt }],
+          })
+          const clTool = clMsg.content.find(c => c.type === 'tool_use')
+          if (clTool?.type === 'tool_use') {
+            const { application_reason, self_introduction } = clTool.input as {
+              application_reason: string; self_introduction: string
+            }
+            for (const sec of rewriteData.sections) {
+              if (!isCoverLetterSection(sec.title)) continue
+              const t = coverLetterSectionType(sec.title)
+              if (t === 'application') sec.content = application_reason
+              else if (t === 'selfintro') sec.content = self_introduction
+              else sec.content = `${application_reason}\n\n${self_introduction}`
+            }
+          }
+        } catch (err) {
+          console.error('[rewrite] cover letter generation failed (non-fatal):', err)
+        }
+      }
+    }
+
     const docxBuffer = await generateResumeDocx(rewriteData)
     const suffix = jdContext ? `_${jdContext.company}` : ''
     const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
