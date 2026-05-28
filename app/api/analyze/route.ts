@@ -62,16 +62,14 @@ const baseTool: Anthropic.Tool = {
     required: ['job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
   },
 }
-const proTool: Anthropic.Tool = {
+// PRO 기본 분석 (career_paths 제외 — 별도 call로 분리)
+const proBasicTool: Anthropic.Tool = {
   name: 'analyze_resume',
-  description: '한국어 이력서를 분석하여 구직자의 강점, 개선점, 커리어 방향을 상세히 제시합니다.',
+  description: '한국어 이력서를 분석하여 구직자의 강점, 개선점을 상세히 제시합니다.',
   input_schema: {
     type: 'object' as const,
     properties: {
-      job_title: {
-        type: 'string',
-        description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)',
-      },
+      job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)' },
       scores: {
         type: 'object',
         properties: {
@@ -81,38 +79,35 @@ const proTool: Anthropic.Tool = {
         },
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
-      summary: {
-        type: 'string',
-        description: '지원자에 대한 전체 요약 (2-3문장)',
-      },
-      strengths: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '이력서의 핵심 강점 (최대 4개)',
-      },
-      improvements: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '개선이 필요한 부분 (최대 4개)',
-      },
-      keywords: {
-        type: 'array',
-        items: { type: 'string' },
-        description: '이력서에서 발견된 핵심 키워드 (최대 8개)',
-      },
+      summary: { type: 'string', description: '지원자에 대한 전체 요약 (2-3문장)' },
+      strengths: { type: 'array', items: { type: 'string' }, description: '이력서의 핵심 강점 (최대 4개)' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (최대 4개)' },
+      keywords: { type: 'array', items: { type: 'string' }, description: '이력서에서 발견된 핵심 키워드 (최대 8개)' },
+    },
+    required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
+  },
+}
+
+// PRO 커리어 경로 전용 tool
+const proCareerTool: Anthropic.Tool = {
+  name: 'generate_career_paths',
+  description: '후보자 이력서를 분석하여 3가지 커리어 방향을 제시합니다.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
       career_paths: {
         type: 'array',
-        description: '커리어 경로 3개 — BASELINE / RECOMMENDED / STRETCH 순서로 반드시 3개 모두 포함',
+        description: 'BASELINE / RECOMMENDED / STRETCH 순서로 정확히 3개',
         items: {
           type: 'object',
           properties: {
             type: { type: 'string', description: 'BASELINE 또는 RECOMMENDED 또는 STRETCH' },
             label: { type: 'string', description: '현재 경로 유지 또는 추천 경로 또는 고성장 경로' },
-            title: { type: 'string', description: '직무명 (예: Product Manager, 마케팅 팀장)' },
+            title: { type: 'string', description: '직무명 (한국 채용 시장 통용 포지션명)' },
             salary_range: { type: 'string', description: '예상 연봉 범위 (예: 4,500만원~6,500만원)' },
             salary_bands: {
               type: 'array',
-              description: '연봉 밴드 4개 (1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+)',
+              description: '4개: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+',
               items: {
                 type: 'object',
                 properties: {
@@ -123,17 +118,13 @@ const proTool: Anthropic.Tool = {
                 required: ['period', 'min', 'max'],
               },
             },
-            points: {
-              type: 'array',
-              items: { type: 'string' },
-              description: '이 경로에 대한 구체적인 조언 3개',
-            },
+            points: { type: 'array', items: { type: 'string' }, description: '이 경로의 실전 조언 3개' },
           },
           required: ['type', 'label', 'title', 'salary_range', 'salary_bands', 'points'],
         },
       },
     },
-    required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords', 'career_paths'],
+    required: ['career_paths'],
   },
 }
 
@@ -201,15 +192,16 @@ export async function POST(req: NextRequest) {
 
     const plan = role === 'MANAGER' ? 'EXPERT' : (planData?.plan ?? 'FREE')
     const isPro = plan === 'PRO' || plan === 'EXPERT'
-    const tool = isPro ? proTool : baseTool
 
     const headhunterBase = `당신은 10년 경력의 한국 시니어 헤드헌터입니다. 반도체, 로보틱스, 배터리, AI/fintech, 화장품 R&D, 자동차, 금융회계 등 다양한 산업군에서 임원~전문직급 서치를 수행해왔습니다.
-
 이력서를 읽는 목적은 하나입니다: "이 사람을 클라이언트에게 제안할 수 있는가, 있다면 어떤 포지션에, 어떤 포인트로 제안하는가."
 절대로 이력서를 요약하거나 나열하지 마십시오. 해석하고 판단하고 전략을 내십시오.`
 
-    const prompt = isPro
-      ? `${headhunterBase}
+    let resultPayload: Record<string, unknown>
+
+    if (isPro) {
+      // PRO: 기본 분석 + 커리어 경로를 병렬 실행
+      const basicPrompt = `${headhunterBase}
 
 [분석 절차]
 STEP 1 — 후보자 기본 프로파일 파악
@@ -223,22 +215,71 @@ STEP 3 — 강점/리스크/공백 3분류
 - improvements: ① 리스크(짧은 재직기간, 직급 대비 성과 불명확, 처우-시세 괴리 등) + ② 공백(해당 직군 통상 요구 역량 중 이력서에 근거 없는 것). 모든 항목을 강점으로 처리 금지.
 
 STEP 4 — 이직 동기 추정
-이력서 패턴에서 역으로 추정하여 summary에 반영하십시오. (재직 3년차 대리급 이직→승진 누락, 스타트업→대기업→안정 추구, 공백 6개월+→비자발적 이직 가능성, 동일 직급 반복→관리직 전환 실패 등)
+이력서 패턴에서 역으로 추정하여 summary에 반영하십시오.
 
-[커리어 경로 3가지]
-BASELINE: 현재 방향 유지 시 현실적 예상 경로 / RECOMMENDED: 강점 최대 활용 헤드헌터 추천 방향 / STRETCH: 2~3년 준비 후 도달 가능한 고성장 경로(리스크 포함)
-
-[출력 규칙] 빈 말("다양한 경험", "훌륭한 경력") 절대 금지. 후보자가 쓴 표현 검증 없이 수용 금지. 날짜·경력 계산 오류 금지.
+[출력 규칙] 빈 말("다양한 경험", "훌륭한 경력") 절대 금지. 날짜·경력 계산 오류 금지.
 
 ---
 [이력서]
 ${maskedText}
 ---`
-      : `${headhunterBase}
+
+      const careerPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.
+아래 이력서를 분석하여 3가지 커리어 방향을 제시하십시오.
+
+BASELINE — 현재 방향 유지 시 현실적 경로: 지금 궤도대로 갔을 때 3~7년 후 위치
+RECOMMENDED — 헤드헌터 추천 경로: 강점을 최대 활용하고 갭을 최소화한 최적 이동 방향
+STRETCH — 고성장 도전 경로: 2~3년 적극 준비 시 도달 가능한 상위 포지션 (리스크 포함 설명)
+
+각 경로에 대해:
+- 한국 채용 시장에서 실제 통용되는 직무명/포지션명
+- 업계 실제 시세 기반 연봉 범위 (현실적으로)
+- 연봉 밴드: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+ (각 min/max, 만원 단위)
+- 이 경로에서 성공하기 위한 실전 조언 3개
+
+[이력서]
+${maskedText}
+`
+
+      const [basicMsg, careerMsg] = await Promise.all([
+        client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2000,
+          tool_choice: { type: 'tool', name: 'analyze_resume' },
+          tools: [proBasicTool],
+          messages: [{ role: 'user', content: basicPrompt }],
+        }),
+        client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 3000,
+          tool_choice: { type: 'tool', name: 'generate_career_paths' },
+          tools: [proCareerTool],
+          messages: [{ role: 'user', content: careerPrompt }],
+        }),
+      ])
+
+      const basicTU = basicMsg.content.find(c => c.type === 'tool_use')
+      if (!basicTU || basicTU.type !== 'tool_use') {
+        return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+      }
+      const careerTU = careerMsg.content.find(c => c.type === 'tool_use')
+      const careerPaths = careerTU?.type === 'tool_use'
+        ? ((careerTU.input as { career_paths?: unknown[] }).career_paths ?? [])
+        : []
+
+      resultPayload = {
+        ...(basicTU.input as object),
+        career_paths: careerPaths,
+        plan,
+        ...(candidateName ? { candidate_name: candidateName } : {}),
+      }
+    } else {
+      // FREE: 단일 call, BASELINE 1개
+      const freePrompt = `${headhunterBase}
 
 [분석 절차]
 STEP 1 — 총 경력 연수 직접 계산, 현 직장/직급, 이직 횟수, 추정 연봉 범위 파악.
-STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분散형] 판단 후 summary에 한 문장으로 명시.
+STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분산형] 판단 후 summary에 한 문장으로 명시.
 STEP 3 — strengths는 수치·결과물 있는 항목만. improvements에는 리스크와 공백 모두 포함.
 STEP 4 — 이직 동기를 이력서 패턴에서 역추정하여 summary에 반영.
 
@@ -248,7 +289,7 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 - title: 현실적인 직무명
 - salary_range: 업계 시세 기반 연봉 범위 (예: 4,500만원~6,500만원)
 - salary_bands: 1년 뒤/3년 뒤/5년 뒤/7년 뒤+ 연봉 밴드 4개 (min/max 만원 단위)
-- points: 현재 경로에서 성공하기 위한 구체적 조언 3~4개
+- points: 현재 경로에서 성공하기 위한 구체적 조언 3개
 
 [출력 규칙] 빈 말·근거 없는 강점 처리 금지.
 
@@ -257,29 +298,28 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 ${maskedText}
 ----`
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: isPro ? 4096 : 2000,
-      tool_choice: { type: 'tool', name: 'analyze_resume' },
-      tools: [tool],
-      messages: [{ role: 'user', content: prompt }],
-    })
-
-    const toolUse = message.content.find((c) => c.type === 'tool_use')
-    if (!toolUse || toolUse.type !== 'tool_use') {
-      return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        tool_choice: { type: 'tool', name: 'analyze_resume' },
+        tools: [baseTool],
+        messages: [{ role: 'user', content: freePrompt }],
+      })
+      const toolUse = message.content.find(c => c.type === 'tool_use')
+      if (!toolUse || toolUse.type !== 'tool_use') {
+        return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+      }
+      resultPayload = {
+        ...(toolUse.input as object),
+        plan,
+        ...(candidateName ? { candidate_name: candidateName } : {}),
+      }
     }
 
     if (resumeCouponId) {
       await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', resumeCouponId)
     } else if (role !== 'MANAGER') {
       await incrementUsage(email, 'analyze')
-    }
-
-    const resultPayload = {
-      ...(toolUse.input as object),
-      plan,
-      ...(candidateName ? { candidate_name: candidateName } : {}),
     }
 
     const { data: insertData, error: insertError } = await supabase
