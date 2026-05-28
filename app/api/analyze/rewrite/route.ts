@@ -92,6 +92,34 @@ ${resumeText}
 [/원본 이력서]`
 }
 
+function buildTemplateDocxPrompt(paraList: string, count: number, resumeText: string, jd: JDContext | null): string {
+  const jdSection = jd
+    ? buildJDSection(jd)
+    : '\n[JD 미선택 — 일반 헤드헌터 관점으로 작성]\n'
+
+  return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 새 양식에 맞게 작성합니다.` : ''}
+${jdSection}
+
+[원본 후보자 이력서]
+${resumeText}
+[/원본 이력서]
+
+[새 양식 작성 원칙]
+1. 원본 이력서의 내용(경력, 학력, 기술, 성과)을 아래 양식의 각 단락 구조에 맞게 채워 씁니다
+2. 수치·기술명·회사명·기간은 절대 변경하지 않습니다 (없는 수치나 성과 추가 금지)
+3. 약한 동사는 강하게 교체합니다: "담당" → "주도", "참여" → "기여", "수행" → "실행"
+4. 양식의 헤더·날짜·구분선·단순 레이블은 원래 양식 텍스트 그대로 반환합니다
+5. 해당 단락 위치에 맞는 원본 내용이 없으면 원래 양식 텍스트 그대로 반환합니다${jd ? `
+6. JD 매칭 강점은 더 구체적으로 드러나도록 강조합니다
+7. JD 갭 항목은 긍정적으로 재프레이밍합니다
+8. JD 피치 포인트 키워드를 자연스럽게 녹입니다` : ''}
+9. 가운데점 "·" 사용 금지, 구분은 "/" 또는 "," 사용
+10. 각 단락 길이를 양식 단락 길이와 비슷하게 유지합니다
+
+[새 양식 단락 목록] (총 ${count}개 — 반드시 ${count}개 반환)
+${paraList}`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -117,7 +145,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { analysisId, jdAnalysisId, formatMode } = await req.json()
+    const formData = await req.formData()
+    const analysisId = formData.get('analysisId') as string | null
+    const jdAnalysisId = formData.get('jdAnalysisId') as string | null
+    const formatMode = (formData.get('formatMode') as string | null) ?? 'original'
+    const templateFileEntry = formData.get('templateFile') as File | null
+
     if (!analysisId) return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
 
     const { data: row } = await supabase
@@ -137,7 +170,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // JD 컨텍스트 로드 (선택적)
+    // JD 컨텍스트 로드
     let jdContext: JDContext | null = null
     if (jdAnalysisId) {
       const { data: jdRow } = await supabase
@@ -166,10 +199,68 @@ export async function POST(req: NextRequest) {
     const candidateName = (row.result?.candidate_name as string | undefined) ?? '이력서'
     const dateStr = new Date().toISOString().slice(0, 10)
 
-    // ── DOCX: 서식 완전 보존 (XML 직접 수정) — 기존 이력서 모드에서만
+    // ── 업데이트 이력서: 사용자 업로드 템플릿에 원본 내용 채우기
+    if (formatMode === 'updated' && templateFileEntry) {
+      const templateBuffer = Buffer.from(await templateFileEntry.arrayBuffer())
+      const templateParas = await extractDocxParagraphs(templateBuffer)
+      const nonEmpty = templateParas.filter(p => p.text.trim().length > 2).slice(0, 60)
+      const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
+
+      const resumeText = await extractText(buffer, originalFilename)
+      const prompt = buildTemplateDocxPrompt(paraList, nonEmpty.length, resumeText, jdContext)
+
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4096,
+        tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
+        tools: [
+          {
+            name: 'rewrite_paragraphs',
+            description: '각 단락을 채운 결과',
+            input_schema: {
+              type: 'object' as const,
+              properties: {
+                rewrites: {
+                  type: 'array',
+                  description: `입력된 ${nonEmpty.length}개 단락 순서 그대로, 각각 작성된 텍스트 (반드시 ${nonEmpty.length}개)`,
+                  items: { type: 'string' },
+                },
+              },
+              required: ['rewrites'],
+            },
+          },
+        ],
+        messages: [{ role: 'user', content: prompt }],
+      })
+
+      const toolUse = message.content.find(c => c.type === 'tool_use')
+      if (!toolUse || toolUse.type !== 'tool_use') {
+        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+      }
+
+      const { rewrites } = toolUse.input as { rewrites: string[] }
+      const allRewrites = templateParas.map(p => {
+        const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
+        return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
+      })
+
+      const docxBuffer = await applyDocxRewrites(templateBuffer, allRewrites)
+      const suffix = jdContext ? `_${jdContext.company}` : ''
+      const downloadName = `jobizic_updated_${candidateName}${suffix}_${dateStr}.docx`
+
+      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
+      return new NextResponse(docxBuffer as unknown as BodyInit, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`,
+        },
+      })
+    }
+
+    // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx' && formatMode !== 'updated') {
       const paras = await extractDocxParagraphs(buffer)
-      // 단순 구분선·날짜·한두 글자짜리 단락은 Claude에 보내지 않음
       const nonEmpty = paras.filter(p => p.text.trim().length > 2).slice(0, 60)
 
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')

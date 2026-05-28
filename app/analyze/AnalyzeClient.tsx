@@ -505,6 +505,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
   const [formatSelectModal, setFormatSelectModal] = useState(false)
   const formatSelectResolveRef = useRef<((choice: 'original' | 'updated' | 'cancel') => void) | null>(null)
+  const [templateUploadModal, setTemplateUploadModal] = useState(false)
+  const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
+  const [modalTemplateFile, setModalTemplateFile] = useState<File | null>(null)
+  const templateInputRef = useRef<HTMLInputElement>(null)
 
   // ── 면접 가이드
   const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
@@ -605,12 +609,35 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     formatSelectResolveRef.current = null
   }
 
+  function openTemplateUploadModal(): Promise<File | 'cancel'> {
+    return new Promise(resolve => {
+      setModalTemplateFile(null)
+      templateUploadResolveRef.current = resolve
+      setTemplateUploadModal(true)
+    })
+  }
+
+  function resolveTemplateUpload(file: File | 'cancel') {
+    setTemplateUploadModal(false)
+    setModalTemplateFile(null)
+    templateUploadResolveRef.current?.(file)
+    templateUploadResolveRef.current = null
+  }
+
   async function handleRewrite(analysisId: string) {
     setRewriteError(null)
 
     // 양식 선택 모달
     const formatChoice = await openFormatSelectModal()
     if (formatChoice === 'cancel') return
+
+    // 업데이트 이력서: 템플릿 DOCX 업로드
+    let templateFile: File | null = null
+    if (formatChoice === 'updated') {
+      const fileChoice = await openTemplateUploadModal()
+      if (fileChoice === 'cancel') return
+      templateFile = fileChoice
+    }
 
     // JD 목록 로드 (없으면)
     let jdList = jdSavedList
@@ -623,24 +650,24 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       } catch { jdList = [] }
     }
 
-    // 유효한 JD 분석 (미만료)
+    // JD 선택 모달 (JD 필수)
     const now = new Date()
     const validJds = (jdList ?? []).filter(jd => !jd.expires_at || new Date(jd.expires_at) > now)
-
-    // JD 선택 모달
-    let jdAnalysisId: string | null = null
-    if (validJds.length > 0) {
-      const choice = await openJdSelectModal()
-      if (choice === 'cancel') return
-      jdAnalysisId = choice as string | null
-    }
+    const jdChoice = await openJdSelectModal()
+    if (jdChoice === 'cancel') return
+    const jdAnalysisId = validJds.length > 0 ? (jdChoice as string) : null
 
     setRewritingId(analysisId)
     try {
+      const fd = new FormData()
+      fd.append('analysisId', analysisId)
+      if (jdAnalysisId) fd.append('jdAnalysisId', jdAnalysisId)
+      fd.append('formatMode', formatChoice)
+      if (templateFile) fd.append('templateFile', templateFile)
+
       const res = await fetch('/api/analyze/rewrite', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysisId, jdAnalysisId, formatMode: formatChoice }),
+        body: fd,
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -1036,9 +1063,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
-                  <strong>기존 이력서</strong>: 원본 포맷·서식을 그대로 유지하며 문장과 포지셔닝을 보완합니다.<br />
-                  <strong>업데이트 이력서</strong>: 원본 내용을 기반으로 깔끔한 새 양식의 DOCX로 재생성합니다.<br />
-                  JD 적합도 분석이 있으면 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
+                  <strong>기존 이력서</strong>: 원본 포맷·서식을 그대로 유지하며 JD 기반으로 내용을 보완합니다.<br />
+                  <strong>업데이트 이력서</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
+                  JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
                 {savedListLoading ? (
@@ -1063,13 +1090,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                         </div>
                         {(() => {
+                          const now2 = new Date()
+                          const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now2)
                           const noFile = !item.result._file_path
+                          const disabledTitle = noFile
+                            ? '원본 파일이 보존되지 않은 이력서입니다'
+                            : !hasValidJd
+                            ? 'JD 적합도 분석을 먼저 진행해 주세요'
+                            : undefined
                           return (
                             <button
                               className="rewrite-dl-btn"
                               onClick={() => handleRewrite(item.id)}
-                              disabled={rewritingId === item.id || noFile}
-                              title={noFile ? '원본 파일이 보존되지 않은 이력서입니다' : undefined}
+                              disabled={rewritingId === item.id || noFile || !hasValidJd}
+                              title={disabledTitle}
                             >
                               {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
                             </button>
@@ -1722,6 +1756,67 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
 
       {/* JD 선택 모달 */}
+      {templateUploadModal && (
+        <div className="withdraw-overlay" onClick={() => resolveTemplateUpload('cancel')}>
+          <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="preserve-choice-title">업데이트 이력서 양식 업로드</div>
+            <div className="preserve-choice-desc">
+              원하는 이력서 양식의 .docx 파일을 업로드해 주세요.<br />
+              원본 이력서 내용이 해당 양식에 맞게 채워집니다.
+            </div>
+
+            <div
+              className={`upload-zone${modalTemplateFile ? ' has-file' : ''}`}
+              style={{margin: '12px 0', cursor: 'pointer'}}
+              onClick={() => templateInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault()
+                const f = e.dataTransfer.files[0]
+                if (f && f.name.endsWith('.docx')) setModalTemplateFile(f)
+              }}
+            >
+              {modalTemplateFile ? (
+                <>
+                  <div className="upload-icon-success" style={{fontSize: '32px'}}>✅</div>
+                  <div className="upload-filename">{modalTemplateFile.name}</div>
+                  <div className="upload-hint">다른 파일로 교체하려면 클릭하세요</div>
+                </>
+              ) : (
+                <>
+                  <div className="upload-icon-main" style={{fontSize: '32px'}}>📄</div>
+                  <div className="upload-main-text">클릭하거나 파일을 드래그하세요</div>
+                  <div className="upload-hint">.docx 파일만 업로드 가능합니다</div>
+                </>
+              )}
+              <input
+                ref={templateInputRef}
+                type="file"
+                accept=".docx"
+                style={{display: 'none'}}
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) setModalTemplateFile(f)
+                  e.target.value = ''
+                }}
+              />
+            </div>
+
+            <button
+              className="rewrite-dl-btn"
+              style={{width: '100%', marginTop: '4px'}}
+              disabled={!modalTemplateFile}
+              onClick={() => modalTemplateFile && resolveTemplateUpload(modalTemplateFile)}
+            >
+              생성 시작
+            </button>
+            <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveTemplateUpload('cancel')}>
+              취소
+            </button>
+          </div>
+        </div>
+      )}
+
       {formatSelectModal && (
         <div className="withdraw-overlay" onClick={() => resolveFormatSelect('cancel')}>
           <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
@@ -1745,10 +1840,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">✨</span>
                 <span className="preserve-option-label">업데이트 이력서</span>
-                <span className="preserve-option-badge coupon">새 양식</span>
+                <span className="preserve-option-badge coupon">양식 업로드</span>
               </div>
               <div className="preserve-option-desc">
-                원본 내용을 기반으로 깔끔하게 정리된 새 양식의 DOCX로 재생성합니다. 통일된 헤드헌터 표준 서식이 적용됩니다.
+                원하는 DOCX 양식을 업로드하면 원본 이력서 내용을 해당 양식에 맞게 채워 생성합니다.
               </div>
             </button>
 
@@ -1765,9 +1860,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         return (
           <div className="withdraw-overlay" onClick={() => resolveJdSelect('cancel')}>
             <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="preserve-choice-title">JD 기반 Re-Writing</div>
+              <div className="preserve-choice-title">JD 선택</div>
               <div className="preserve-choice-desc">
-                JD 분석 결과를 활용하면 해당 채용사에 맞게 전략적으로 이력서를 재작성합니다.
+                생성할 이력서에 반영할 JD 분석 결과를 선택해 주세요.
               </div>
 
               {validJds.map(jd => (
@@ -1787,14 +1882,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 </button>
               ))}
-
-              <button className="preserve-option-card skip" onClick={() => resolveJdSelect(null)}>
-                <div className="preserve-option-top">
-                  <span className="preserve-option-icon">📄</span>
-                  <span className="preserve-option-label">JD 없이 진행</span>
-                </div>
-                <div className="preserve-option-desc">JD 없이 헤드헌터 관점의 일반 재작성을 진행합니다.</div>
-              </button>
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveJdSelect('cancel')}>
                 취소
