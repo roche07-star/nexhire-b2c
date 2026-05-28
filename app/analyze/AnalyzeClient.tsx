@@ -234,9 +234,9 @@ function generateReportHTML(result: AnalysisResult, date?: string): string {
       }).join('')
     : (result.careers ?? []).map((c) => `<li>${c}</li>`).join('')
 
-  const keywordsHTML = result.keywords.map((k) => `<span class="chip">${k}</span>`).join('')
-  const strengthsHTML = result.strengths.map((s) => `<li>${s}</li>`).join('')
-  const improvementsHTML = result.improvements.map((s) => `<li>${s}</li>`).join('')
+  const keywordsHTML = toArr(result.keywords).map((k) => `<span class="chip">${k}</span>`).join('')
+  const strengthsHTML = toArr(result.strengths).map((s) => `<li>${s}</li>`).join('')
+  const improvementsHTML = toArr(result.improvements).map((s) => `<li>${s}</li>`).join('')
   const scoresHTML = scores.map((s) => `
 <div class="score-row">
   <div class="score-meta"><span class="score-name">${s.label}</span><span class="score-val">${s.value}%</span></div>
@@ -543,6 +543,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
       .catch(() => {})
   }, [])
+
+  // PRO/Expert 유저는 마운트 시 분석 목록 미리 로드 (보존 모달용)
+  useEffect(() => {
+    if (!initialIsPro) return
+    fetch('/api/analyze/list')
+      .then((r) => r.json())
+      .then(({ analyses }) => setAnalysisList(analyses ?? []))
+      .catch(() => setAnalysisList([]))
+  }, [initialIsPro])
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
@@ -2046,19 +2055,19 @@ function AnalysisResults({
         <div className="results-section">
           <div className="results-label">핵심 키워드</div>
           <div className="keyword-chips">
-            {(result.keywords ?? []).map((k, i) => <span key={i} className="keyword-chip">{k}</span>)}
+            {toArr(result.keywords).map((k, i) => <span key={i} className="keyword-chip">{k}</span>)}
           </div>
         </div>
         <div className="results-section">
           <div className="results-label">✦ 강점</div>
           <ul className="result-list">
-            {(result.strengths ?? []).map((s, i) => <li key={i}>{s}</li>)}
+            {toArr(result.strengths).map((s, i) => <li key={i}>{s}</li>)}
           </ul>
         </div>
         <div className="results-section">
           <div className="results-label">개선 포인트</div>
           <ul className="result-list improvement-list">
-            {(result.improvements ?? []).map((s, i) => <li key={i}>{s}</li>)}
+            {toArr(result.improvements).map((s, i) => <li key={i}>{s}</li>)}
           </ul>
         </div>
       </div>
