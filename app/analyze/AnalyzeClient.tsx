@@ -748,9 +748,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setError(null)
     setResult(null)
 
-    // Expert 유저이고 이미 보존된 이력서가 있으면 방법 선택 모달
+    // PRO/Expert 유저이고 이미 보존된 이력서가 있으면 방법 선택 모달
     let preserveMode = 'auto'
-    if (isExpert && analysisList) {
+    if ((isPro || isExpert) && analysisList) {
       const preservedCount = analysisList.filter(item => item.result?._file_path).length
       if (preservedCount > 0) {
         const choice = await openPreserveModal()
