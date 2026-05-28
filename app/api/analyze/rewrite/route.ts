@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
 import { generateResumeDocx, RewriteResult } from '@/lib/generateDocx'
 import { extractDocxParagraphs, applyDocxRewrites } from '@/lib/rewriteDocxInPlace'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 export const maxDuration = 60
 
@@ -99,8 +100,17 @@ export async function POST(req: NextRequest) {
 
     const { data: userData } = await supabase.from('users').select('plan').eq('email', email).single()
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
-    if (plan !== 'EXPERT') {
-      return NextResponse.json({ error: 'EXPERT 플랜에서만 사용 가능합니다.' }, { status: 403 })
+    if (plan === 'FREE') {
+      return NextResponse.json({ error: '이력서 생성은 PRO 이상 플랜에서 이용 가능합니다.' }, { status: 403 })
+    }
+    if (role !== 'MANAGER') {
+      const { allowed, limit } = await checkUsage(email, 'rewrite')
+      if (!allowed) {
+        return NextResponse.json(
+          { error: `이번 달 이력서 생성 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하세요.` },
+          { status: 403 }
+        )
+      }
     }
 
     const { analysisId, jdAnalysisId } = await req.json()
@@ -200,6 +210,7 @@ export async function POST(req: NextRequest) {
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
 
+      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
       return new NextResponse(docxBuffer as unknown as BodyInit, {
         status: 200,
         headers: {
@@ -256,6 +267,7 @@ export async function POST(req: NextRequest) {
     const suffix = jdContext ? `_${jdContext.company}` : ''
     const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
 
+    if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
     return new NextResponse(docxBuffer as unknown as BodyInit, {
       status: 200,
       headers: {

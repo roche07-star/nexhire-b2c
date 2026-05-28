@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 export const maxDuration = 60
 
@@ -97,6 +98,16 @@ export async function POST(req: NextRequest) {
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
     if (plan !== 'EXPERT') {
       return NextResponse.json({ error: 'EXPERT 플랜에서만 사용 가능합니다.' }, { status: 403 })
+    }
+
+    if (role !== 'MANAGER') {
+      const { allowed, limit } = await checkUsage(email, 'interview')
+      if (!allowed) {
+        return NextResponse.json(
+          { error: `이번 달 면접 가이드 횟수(${limit}회)를 모두 사용했습니다.` },
+          { status: 403 }
+        )
+      }
     }
 
     const { analysisId, jdAnalysisId, interviewFormat, interviewerInfo, specialNotes } = await req.json()
@@ -207,6 +218,8 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
         { status: 500 }
       )
     }
+
+    if (role !== 'MANAGER') await incrementUsage(email, 'interview')
 
     return NextResponse.json({
       ...resultPayload,

@@ -13,7 +13,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '잘못된 요청' }, { status: 400 })
   }
 
-  const { error } = await supabase.from('users').update({ plan }).eq('email', email)
+  // 플랜 변경 시 모든 사용량 초기화 + 새 월 기준 시작
+  const { error } = await supabase.from('users').update({
+    plan,
+    analyze_count: 0,
+    jd_count: 0,
+    rewrite_count: 0,
+    interview_count: 0,
+    monthly_reset_at: new Date().toISOString(),
+  }).eq('email', email)
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })

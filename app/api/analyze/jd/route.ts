@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 export const maxDuration = 60
 
@@ -67,34 +68,12 @@ export async function POST(req: NextRequest) {
 
     // 플랜 횟수 제한 체크
     if (userRole !== 'MANAGER' && !jdCouponId) {
-      const { data: userData } = await supabase
-        .from('users')
-        .select('plan, jd_count, jd_reset_at')
-        .eq('email', session.user.email)
-        .single()
-
-      if (userData) {
-        const resetAt = new Date(userData.jd_reset_at)
-        if (new Date() >= resetAt) {
-          const nextReset = new Date()
-          nextReset.setMonth(nextReset.getMonth() + 1)
-          nextReset.setDate(1)
-          nextReset.setHours(0, 0, 0, 0)
-          await supabase
-            .from('users')
-            .update({ jd_count: 0, jd_reset_at: nextReset.toISOString() })
-            .eq('email', session.user.email)
-          userData.jd_count = 0
-        }
-
-        const jdLimits: Record<string, number> = { FREE: 0, PRO: 15, EXPERT: 30 }
-        const limit = jdLimits[userData.plan] ?? 0
-        if (userData.jd_count >= limit) {
-          const msg = limit === 0
-            ? 'JD 적합도 분석은 PRO 이상 플랜에서 이용 가능합니다.'
-            : `이번 달 JD 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.`
-          return NextResponse.json({ error: msg }, { status: 403 })
-        }
+      const { allowed, limit } = await checkUsage(session.user.email, 'jd')
+      if (!allowed) {
+        const msg = limit === 0
+          ? 'JD 적합도 분석은 PRO 이상 플랜에서 이용 가능합니다.'
+          : `이번 달 JD 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.`
+        return NextResponse.json({ error: msg }, { status: 403 })
       }
     }
 
@@ -190,7 +169,7 @@ ${candidateProfile}`
     if (jdCouponId) {
       await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCouponId)
     } else if (userRole !== 'MANAGER') {
-      await supabase.rpc('increment_jd_count', { user_email: session.user.email })
+      await incrementUsage(session.user.email, 'jd')
     }
 
     const expiresAt = new Date()

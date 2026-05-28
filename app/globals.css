@@ -1310,6 +1310,10 @@ footer {
 .admin-plan-badge.free { background: var(--surface2); color: var(--muted); }
 
 .admin-count { font-family: 'Outfit', sans-serif; font-weight: 600; }
+.admin-count.warn { color: #f5a623; }
+.admin-count.full { color: #e74c3c; }
+.admin-count.muted { color: var(--muted); }
+.admin-count-limit { font-weight: 400; color: var(--muted); font-size: 12px; }
 .admin-date { color: var(--muted); font-size: 13px; }
 .admin-empty { text-align: center; color: var(--muted); padding: 40px; }
 

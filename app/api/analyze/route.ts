@@ -4,6 +4,7 @@ import { extractText } from '@/lib/extractText'
 import { maskPII } from '@/lib/maskPII'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 export const maxDuration = 60
 
@@ -160,34 +161,12 @@ export async function POST(req: NextRequest) {
     }
 
     if (role !== 'MANAGER' && !resumeCouponId) {
-      const { data: userData } = await supabase
-        .from('users')
-        .select('plan, analyze_count, analyze_reset_at')
-        .eq('email', email)
-        .single()
-
-      if (userData) {
-        const resetAt = new Date(userData.analyze_reset_at)
-        if (new Date() >= resetAt) {
-          const nextReset = new Date()
-          nextReset.setMonth(nextReset.getMonth() + 1)
-          nextReset.setDate(1)
-          nextReset.setHours(0, 0, 0, 0)
-          await supabase
-            .from('users')
-            .update({ analyze_count: 0, analyze_reset_at: nextReset.toISOString() })
-            .eq('email', email)
-          userData.analyze_count = 0
-        }
-
-        const planLimits: Record<string, number> = { FREE: 1, PRO: 10, EXPERT: 30 }
-        const limit = planLimits[userData.plan] ?? 1
-        if (userData.analyze_count >= limit) {
-          return NextResponse.json(
-            { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
-            { status: 403 }
-          )
-        }
+      const { allowed, limit } = await checkUsage(email, 'analyze')
+      if (!allowed) {
+        return NextResponse.json(
+          { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
+          { status: 403 }
+        )
       }
     }
 
@@ -294,7 +273,7 @@ ${maskedText}
     if (resumeCouponId) {
       await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', resumeCouponId)
     } else if (role !== 'MANAGER') {
-      await supabase.rpc('increment_analyze_count', { user_email: email })
+      await incrementUsage(email, 'analyze')
     }
 
     const resultPayload = {
