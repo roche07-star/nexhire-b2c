@@ -1789,6 +1789,369 @@ footer {
   color: var(--accent);
 }
 .rewrite-card { cursor: default; }
+
+/* ── Demo Feature Tabs (modal) ── */
+.demo-feature-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 32px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.demo-feature-tab {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.18s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.demo-feature-tab:hover { color: var(--muted2); border-color: rgba(255,255,255,0.18); }
+.demo-feature-tab.active {
+  background: rgba(232,255,71,0.08);
+  color: var(--accent);
+  border-color: rgba(232,255,71,0.35);
+}
+
+/* ── JD Demo (modal tab 1) ── */
+.jd-demo-company-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.jd-demo-co {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.jd-demo-pos {
+  font-size: 12px;
+  color: var(--muted2);
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+}
+.jd-fit-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.jd-fit-score-block {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.jd-fit-score-num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.jd-fit-score-denom {
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.jd-fit-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.jd-fit-bar-wrap {
+  width: 100%;
+  height: 7px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.jd-fit-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+.jd-recommendation-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 700;
+  width: fit-content;
+}
+.jd-verdict {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+  font-style: italic;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border-left: 2px solid rgba(232,255,71,0.35);
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 8px;
+}
+
+/* ── Interview Guide (modal tab 2) ── */
+.interview-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.interview-q-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.18s;
+}
+.interview-q-item:hover { border-color: rgba(255,255,255,0.18); }
+.interview-q-item.expanded { border-color: rgba(232,255,71,0.3); }
+.interview-q-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+}
+.interview-q-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  font-family: 'Outfit', sans-serif;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.interview-q-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.interview-q-toggle {
+  font-size: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+.interview-q-answer {
+  padding: 10px 14px 14px;
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.interview-q-answer-label {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  margin-right: 8px;
+  background: rgba(232,255,71,0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.reverse-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reverse-q-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: rgba(123,97,255,0.07);
+  border: 1px solid rgba(123,97,255,0.2);
+  border-radius: 10px;
+}
+.reverse-q-type {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent2);
+  background: rgba(123,97,255,0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+.reverse-q-text {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.5;
+}
+
+/* ── Hero mini card tabs ── */
+.demo-hero-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.demo-hero-tab {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: 'Noto Sans KR', sans-serif;
+  white-space: nowrap;
+}
+.demo-hero-tab:hover { color: var(--muted2); }
+.demo-hero-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Hero mini card — JD tab ── */
+.demo-body-jd, .demo-body-interview {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mini-jd-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.mini-jd-co {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.mini-jd-pos {
+  font-size: 10px;
+  color: var(--muted);
+  border-left: 1px solid var(--border);
+  padding-left: 8px;
+}
+.mini-jd-score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mini-jd-score {
+  font-family: 'Outfit', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.mini-jd-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 1px solid;
+}
+.mini-jd-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.mini-jd-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 99px;
+}
+.mini-jd-verdict {
+  font-size: 10px;
+  color: var(--muted2);
+  font-style: italic;
+  line-height: 1.4;
+  border-left: 2px solid rgba(232,255,71,0.3);
+  padding-left: 7px;
+}
+.mini-jd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mini-jd-row {
+  font-size: 10px;
+  line-height: 1.4;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.mini-jd-row.ok { color: #86efac; background: rgba(34,197,94,0.08); }
+.mini-jd-row.gap { color: #fca5a5; background: rgba(239,68,68,0.08); }
+.mini-jd-row.pitch { color: var(--muted2); background: rgba(255,255,255,0.04); }
+
+/* ── Hero mini card — Interview tab ── */
+.mini-interview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mini-q-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  font-size: 10px;
+  color: var(--muted2);
+}
+.mini-q-item.expanded {
+  flex-direction: column;
+  background: rgba(232,255,71,0.05);
+  border: 1px solid rgba(232,255,71,0.15);
+  gap: 4px;
+}
+.mini-q-item.expanded .mini-q-row { display: flex; gap: 6px; }
+.mini-q-row { display: contents; }
+.mini-q-num {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent);
+  font-family: 'Outfit', sans-serif;
+  flex-shrink: 0;
+}
+.mini-q-text { flex: 1; }
+.mini-q-answer {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.4;
+  padding-left: 18px;
+  font-style: italic;
+}
+.mini-reverse-bar {
+  font-size: 10px;
+  color: var(--muted);
+  padding: 6px 8px;
+  background: rgba(123,97,255,0.07);
+  border: 1px solid rgba(123,97,255,0.15);
+  border-radius: 6px;
+}
+.dir-item.highlighted {
+  color: var(--accent);
+  font-weight: 600;
+}
 .rewrite-card:hover { border-color: var(--border) !important; background: var(--surface) !important; }
 .rewrite-dl-btn {
   flex-shrink: 0;
