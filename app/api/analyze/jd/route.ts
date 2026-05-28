@@ -103,6 +103,32 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
 
     const positionLine = position?.trim() ? `포지션: ${position.trim()}\n` : ''
 
+    // 웹 검색으로 회사 실시간 정보 수집
+    let companyInfo = ''
+    try {
+      const searchMsg = await client.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1200,
+        tools: [{ type: 'web_search_20250305' as const, name: 'web_search', max_uses: 3 }],
+        messages: [{
+          role: 'user',
+          content: `"${company}" 회사 정보를 웹에서 검색해줘.${position?.trim() ? ` 채용 포지션: "${position}"` : ''} 다음을 한국어로 간결하게 요약해줘:
+- 회사 규모, 업종, 주요 사업 영역
+- 최근 주요 뉴스·이슈 (1~2개)
+- 조직 문화, 직원 평판 (Glassdoor·블라인드 등 참고)
+- 해당 포지션에서 실제로 요구되는 것으로 보이는 역량/환경 특이사항
+없는 정보는 생략하고 확인된 내용만 써줘.`,
+        }],
+      })
+      const text = searchMsg.content
+        .filter((c): c is Anthropic.TextBlock => c.type === 'text')
+        .map(c => c.text)
+        .join('\n')
+      if (text.trim()) companyInfo = text.trim()
+    } catch (err) {
+      console.error('[analyze/jd] web search error (non-fatal):', err)
+    }
+
     const prompt = `당신은 한국 시니어 헤드헌터입니다. 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
 JD를 요약하지 마십시오. 후보자 이력서를 나열하지 마십시오. 판단하고, 근거를 대고, 전략을 내십시오.
 후보자 프로필과 채용공고를 냉정하고 날카롭게 비교 분석하십시오. 좋은 점만 말하지 말고 부족한 점도 직설적으로 지적하십시오.
@@ -113,7 +139,7 @@ STEP 1 — JD 핵심 요구 역량 추출
 JD를 읽고 요구사항을 3가지로 분리합니다:
 ① 필수 요건(없으면 탈락): 최소 학력/전공, 최소 경력 연수, 특정 도메인/직무 경험, 자격증/어학
 ② 우대 사항(있으면 가산점): 특정 툴/플랫폼, 관련 업종, 특수 환경(해외/IPO/스타트업 등)
-③ 숨은 요구 역량(JD에 없지만 맥락상 필요한 것): "글로벌 팀 협업"→영어 실무, "C-level 보고"→문서화 능력, "스타트업 환경"→멀티태스킹, "팀 리딩"→실제 인사권 여부, "외부 파트너"→협상 경험
+③ 숨은 요구 역량(JD에 없지만 맥락상 필요한 것): "글로벌 팀 협업"→영어 실무, "C-level 보고"→문서화 능력, "스타트업 환경"→멀티태스킹, "팀 리딩"→실제 인사권 여부, "외부 파트너"→협상 경험${companyInfo ? '\n웹 검색으로 확인한 회사 실제 정보도 반드시 반영하십시오.' : ''}
 
 STEP 2 — 타깃 프로파일 한 줄 정의
 STEP 1을 종합해 "[도메인]에서 [N]년 이상 [핵심 직무]를 직접 수행한 경험이 있으며, [환경]에서 [역할]을 해본 [직급대] 인재" 형식으로 기준선을 먼저 정한 뒤 후보자를 대조합니다.
@@ -138,8 +164,10 @@ JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 
 
 [채용 회사]
 ${company}
-${positionLine}
-[JD]
+${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
+${companyInfo}
+
+` : ''}[JD]
 ${jd}
 
 [후보자 이력서 분석 결과]
