@@ -322,12 +322,16 @@ ${maskedText}
       await incrementUsage(email, 'analyze')
     }
 
+    const resultToSave = JSON.parse(JSON.stringify(resultPayload)) as Record<string, unknown>
     const { data: insertData, error: insertError } = await supabase
       .from('analyses')
-      .insert({ user_email: email, result: resultPayload })
+      .insert({ user_email: email, result: resultToSave })
       .select('id')
       .single()
-    if (insertError) console.error('[analyze] insert error:', insertError)
+    if (insertError) {
+      console.error('[analyze] insert error:', insertError)
+      return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
+    }
 
     // 원본 파일 보존 (Re-Writing용)
     let rewriteSaved = false
@@ -385,7 +389,7 @@ ${maskedText}
           .upload(filePath, buffer, { contentType: file.type, upsert: false })
         if (!storageErr) {
           const { error: updateErr } = await supabase.from('analyses')
-            .update({ result: { ...resultPayload, _file_path: filePath } })
+            .update({ result: JSON.parse(JSON.stringify({ ...resultPayload, _file_path: filePath })) })
             .eq('id', insertData.id)
           if (updateErr) {
             console.error('[analyze] result update error:', updateErr)
