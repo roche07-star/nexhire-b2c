@@ -92,6 +92,26 @@ ${toArr(jd.pitch_points).map(p => `  - ${p}`).join('\n')}
 `
 }
 
+// DOCX 단락에서 자기소개서 섹션 콘텐츠 단락 인덱스 감지
+function detectCLParagraphs(paras: DocxParagraph[], piiIndexes: Set<number>): { clContentIndexSet: Set<number>; clContentIndices: number[] } {
+  const clContentIndices: number[] = []
+  let inCL = false
+  const visible = paras.filter(p => !piiIndexes.has(p.index))
+  for (let i = 0; i < visible.length; i++) {
+    const t = visible[i].text.trim()
+    if (!t) continue
+    const isCLHeader = t.length <= 30 && CL_KEYWORDS.some(k => t.replace(/\s/g, '').includes(k.replace(/\s/g, '')))
+    if (isCLHeader) { inCL = true; continue }
+    if (inCL) {
+      // 새 섹션 헤더로 판단: 짧고 서술어 없는 단어열
+      const isNewSection = t.length <= 25 && !/(습니다|합니다|었습니다|됩니다|겠습니다)/.test(t) && /^[가-힣A-Za-z0-9\s\-\/·]+$/.test(t)
+      if (isNewSection) { inCL = false; continue }
+      clContentIndices.push(visible[i].index)
+    }
+  }
+  return { clContentIndexSet: new Set(clContentIndices), clContentIndices }
+}
+
 function buildDocxPrompt(paraList: string, count: number, jd: JDContext | null): string {
   const jdSection = jd
     ? buildJDSection(jd)
@@ -99,16 +119,10 @@ function buildDocxPrompt(paraList: string, count: number, jd: JDContext | null):
 
   const jdAggressiveRules = jd ? `
 [JD 연동 수정 원칙 — 아래 규칙이 일반 원칙보다 우선합니다]
-• matching_points 관련 단락: 해당 강점이 전면에 부각되도록 문장을 적극 재구성합니다. 수치·성과·구체적 역할이 있으면 문두로 이동하고, 임팩트 없는 표현은 교체합니다.
+• matching_points 관련 단락: 해당 강점이 전면에 부각되도록 문장을 적극 재구성합니다. 수치·성과가 있으면 문두로 배치하고, 임팩트 없는 표현은 교체합니다.
 • gaps 관련 단락: 약점으로 읽힐 수 있는 표현을 긍정적 역량으로 완전히 재프레이밍합니다. 문장 구조를 바꾸어도 됩니다.
-• pitch_points 키워드: 관련 단락에 자연스럽게 녹여 채용담당자가 JD 요구사항과 연결 짓도록 합니다.
-• 위 세 가지에 해당하는 단락은 "원본 그대로" 원칙을 적용하지 않고 충분히 수정합니다.
-• 자기소개/지원사유/포부 단락: 단순 보완이 아닌 완전 재작성합니다.
-  - "${jd.company}"를 본문에 자연스럽게 명시
-  - 어필 전략 키워드: ${toArr(jd.pitch_points).join(' / ')}
-  - 지원사유: 커리어 방향 → ${jd.company} 접점 → 기여 방향 구조로
-  - 자기소개: STAR 구조(상황→역할→행동→결과) + 인상적인 첫 문장
-  - 수동태("~하게 되었습니다") → 능동태로 전환` : ''
+• pitch_points 키워드를 관련 단락에 자연스럽게 녹입니다.
+• 위 세 가지에 해당하는 단락은 원본 표현을 충분히 수정합니다.` : ''
 
   return `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 보완합니다.` : ''}
 ${jdSection}${jdAggressiveRules}
@@ -123,7 +137,6 @@ ${jdSection}${jdAggressiveRules}
 
 [출력 규칙]
 - rewrites: 반드시 ${count}개, 입력 순서 그대로
-- [CL] 표시 단락: 위 자기소개서 특별 지침에 따라 완전 재작성하십시오
 - changes: 실제로 수정한 내용을 최소 3개 이상 구체적으로 기록하십시오. 형식: "[단락번호/섹션] 원본 → 수정본 (이유)"
 
 [이력서 단락 목록] (총 ${count}개)
@@ -451,49 +464,88 @@ export async function POST(req: NextRequest) {
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx' && formatMode !== 'updated') {
       const paras = await extractDocxParagraphs(buffer)
-      // PII 단락은 Claude에 전송하지 않고 원본 그대로 유지
       const piiIndexes = new Set(paras.filter(p => hasPII(p.text)).map(p => p.index))
-      const nonEmpty = paras.filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index)).slice(0, 60)
 
-      // 자기소개서 섹션 헤더 이후 단락에 [CL] 마킹 → Claude가 완전 재작성
-      let inCLSection = false
-      const paraList = nonEmpty.map((p, i) => {
-        const t = p.text.trim()
-        const isCLHeader = t.length <= 30 && CL_KEYWORDS.some(k => t.replace(/\s/g, '').includes(k.replace(/\s/g, '')))
-        if (isCLHeader) { inCLSection = true; return `[${i + 1}] ${p.text}` }
-        const marker = inCLSection ? ' [CL]' : ''
-        return `[${i + 1}]${marker} ${p.text}`
-      }).join('\n')
+      // JD 있을 때: CL 단락을 메인 call에서 제외 → 전용 buildCoverLetterPrompt call 병렬 실행
+      const { clContentIndexSet, clContentIndices } = detectCLParagraphs(paras, piiIndexes)
+      const excludeFromMain = jdContext ? clContentIndexSet : new Set<number>()
+      const nonEmpty = paras
+        .filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index) && !excludeFromMain.has(p.index))
+        .slice(0, 60)
+
+      const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
       const prompt = buildDocxPrompt(paraList, nonEmpty.length, jdContext)
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 6000,
-        tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
-        tools: [
-          {
-            name: 'rewrite_paragraphs',
-            description: '각 단락을 재작성한 결과',
-            input_schema: {
-              type: 'object' as const,
-              properties: {
-                rewrites: {
-                  type: 'array',
-                  description: `입력된 ${nonEmpty.length}개 단락 순서 그대로, 각각 재작성된 텍스트 (반드시 ${nonEmpty.length}개)`,
-                  items: { type: 'string' },
+      // 커버레터 전용 call (JD + CL 단락 존재 시)
+      const clCallPromise: Promise<{ application_reason: string; self_introduction: string } | null> =
+        jdContext && clContentIndices.length > 0
+          ? (async () => {
+              try {
+                const resumeForCL = await extractText(buffer, originalFilename)
+                const piiValsCL = extractPIIValues(resumeForCL)
+                const clPrompt = buildCoverLetterPrompt(maskPIILocal(resumeForCL), jdContext)
+                const clMsg = await client.messages.create({
+                  model: 'claude-haiku-4-5-20251001',
+                  max_tokens: 2500,
+                  tool_choice: { type: 'tool', name: 'generate_cover_letter' },
+                  tools: [{
+                    name: 'generate_cover_letter',
+                    description: '지원 사유 및 자기소개서 전문 작성',
+                    input_schema: {
+                      type: 'object' as const,
+                      properties: {
+                        application_reason: { type: 'string', description: '지원 사유 및 포부 (300~400자, 회사명 명시)' },
+                        self_introduction: { type: 'string', description: '자기소개서 (600자 이상, 경험 기반)' },
+                      },
+                      required: ['application_reason', 'self_introduction'],
+                    },
+                  }],
+                  messages: [{ role: 'user', content: clPrompt }],
+                })
+                const clTool = clMsg.content.find(c => c.type === 'tool_use')
+                if (clTool?.type === 'tool_use') {
+                  const inp = clTool.input as { application_reason: string; self_introduction: string }
+                  return {
+                    application_reason: restorePIIValues(inp.application_reason, piiValsCL),
+                    self_introduction: restorePIIValues(inp.self_introduction, piiValsCL),
+                  }
+                }
+              } catch (e) { console.error('[rewrite] CL call failed (non-fatal):', e) }
+              return null
+            })()
+          : Promise.resolve(null)
+
+      const [message, clContent] = await Promise.all([
+        client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 6000,
+          tool_choice: { type: 'tool', name: 'rewrite_paragraphs' },
+          tools: [
+            {
+              name: 'rewrite_paragraphs',
+              description: '각 단락을 재작성한 결과',
+              input_schema: {
+                type: 'object' as const,
+                properties: {
+                  rewrites: {
+                    type: 'array',
+                    description: `입력된 ${nonEmpty.length}개 단락 순서 그대로, 각각 재작성된 텍스트 (반드시 ${nonEmpty.length}개)`,
+                    items: { type: 'string' },
+                  },
+                  changes: {
+                    type: 'array',
+                    description: '주요 변경 사항 요약 (3-7개). 각 항목: "[단락번호/섹션] 원본 → 수정본 (이유)"',
+                    items: { type: 'string' },
+                  },
                 },
-                changes: {
-                  type: 'array',
-                  description: '주요 변경 사항 요약 (3-7개). 각 항목: "[섹션/내용] 원본 표현 → 변경 표현 / 변경 이유"',
-                  items: { type: 'string' },
-                },
+                required: ['rewrites', 'changes'],
               },
-              required: ['rewrites', 'changes'],
             },
-          },
-        ],
-        messages: [{ role: 'user', content: prompt }],
-      })
+          ],
+          messages: [{ role: 'user', content: prompt }],
+        }),
+        clCallPromise,
+      ])
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
@@ -504,11 +556,25 @@ export async function POST(req: NextRequest) {
       if (!Array.isArray(rewrites)) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
+
       const allRewrites = paras.map(p => {
-        if (piiIndexes.has(p.index)) return p.text  // PII 단락: 원본 그대로
+        if (piiIndexes.has(p.index)) return p.text
+        if (clContentIndexSet.has(p.index)) {
+          if (clContent) {
+            const slotIdx = clContentIndices.indexOf(p.index)
+            if (slotIdx === 0) return clContent.application_reason
+            if (slotIdx === 1) return clContent.self_introduction
+          }
+          return p.text  // fallback: 원본 유지
+        }
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
+
+      const allChanges = [
+        ...(docxChanges ?? []),
+        ...(clContent ? ['[자기소개서/지원사유] 전용 헤드헌터 프롬프트로 완전 재작성'] : []),
+      ]
 
       const docxBuffer = await applyDocxRewrites(buffer, allRewrites)
       const suffix = jdContext ? `_${jdContext.company}` : ''
@@ -518,7 +584,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         docx: (docxBuffer as Buffer).toString('base64'),
         filename: downloadName,
-        changes: docxChanges ?? [],
+        changes: allChanges,
       })
     }
 
