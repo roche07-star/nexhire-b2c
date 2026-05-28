@@ -373,7 +373,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
-      const { rewrites } = toolUse.input as { rewrites: string[] }
+      const { rewrites } = toolUse.input as { rewrites?: string[] }
+      if (!Array.isArray(rewrites)) {
+        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+      }
       const allRewrites = templateParas.map(p => {
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
@@ -430,7 +433,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
-      const { rewrites } = toolUse.input as { rewrites: string[] }
+      const { rewrites } = toolUse.input as { rewrites?: string[] }
+      if (!Array.isArray(rewrites)) {
+        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+      }
       const allRewrites = paras.map(p => {
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
