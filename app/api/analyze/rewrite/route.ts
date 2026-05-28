@@ -7,7 +7,7 @@ import { generateResumeDocx, RewriteResult } from '@/lib/generateDocx'
 import { extractDocxParagraphs, applyDocxRewrites } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
-export const maxDuration = 60
+export const maxDuration = 120
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -495,7 +495,7 @@ export async function POST(req: NextRequest) {
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
 
     // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)
-    if (jdContext) {
+    if (jdContext && Array.isArray(rewriteData.sections)) {
       const clSections = rewriteData.sections.filter(s => isCoverLetterSection(s.title))
       if (clSections.length > 0) {
         try {
@@ -550,7 +550,8 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (e) {
-    console.error('[analyze/rewrite]', e)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('[analyze/rewrite]', msg, e)
+    return NextResponse.json({ error: `서버 오류가 발생했습니다. (${msg})` }, { status: 500 })
   }
 }
