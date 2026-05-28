@@ -200,9 +200,9 @@ li::before{content:'›';position:absolute;left:0;color:#e8ff47;font-weight:700}
 
 function generateReportHTML(result: AnalysisResult, date?: string): string {
   const scores = [
-    { label: '직무 적합도', value: result.scores.job_fit },
-    { label: '시장 경쟁력', value: result.scores.market_competitiveness },
-    { label: '성장 가능성', value: result.scores.growth_potential },
+    { label: '직무 적합도', value: result.scores?.job_fit },
+    { label: '시장 경쟁력', value: result.scores?.market_competitiveness },
+    { label: '성장 가능성', value: result.scores?.growth_potential },
   ]
 
   const careerPathsHTML = result.career_paths
@@ -2002,9 +2002,9 @@ function AnalysisResults({
   }
 
   const scores = [
-    { label: '직무 적합도', value: result.scores.job_fit },
-    { label: '시장 경쟁력', value: result.scores.market_competitiveness },
-    { label: '성장 가능성', value: result.scores.growth_potential },
+    { label: '직무 적합도', value: result.scores?.job_fit },
+    { label: '시장 경쟁력', value: result.scores?.market_competitiveness },
+    { label: '성장 가능성', value: result.scores?.growth_potential },
   ]
 
   const paths = Array.isArray(result.career_paths) ? result.career_paths : undefined
