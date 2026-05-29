@@ -206,7 +206,8 @@ export async function POST(req: NextRequest) {
     let resultPayload: Record<string, unknown>
 
     if (isPro) {
-      // PRO: 기본 분석 + 커리어 경로를 병렬 실행
+      // PRO: 기본 분석만 실행 — 커리어 경로는 클라이언트에서 expand 엔드포인트로 별도 로드
+      // (병렬 실행 시 합산 시간이 Vercel 60초 한도를 초과해 504 발생하는 문제 해결)
       const basicPrompt = `${headhunterBase}
 
 [분석 절차]
@@ -230,52 +231,22 @@ STEP 4 — 이직 동기 추정
 ${maskedText}
 ---`
 
-      const careerPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-아래 이력서를 분석하여 3가지 커리어 방향을 제시하십시오.
-
-BASELINE — 현재 방향 유지 시 현실적 경로: 지금 궤도대로 갔을 때 3~7년 후 위치
-RECOMMENDED — 헤드헌터 추천 경로: 강점을 최대 활용하고 갭을 최소화한 최적 이동 방향
-STRETCH — 고성장 도전 경로: 2~3년 적극 준비 시 도달 가능한 상위 포지션 (리스크 포함 설명)
-
-각 경로에 대해:
-- 한국 채용 시장에서 실제 통용되는 직무명/포지션명
-- 업계 실제 시세 기반 연봉 범위 (현실적으로)
-- 연봉 밴드: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+ (각 min/max, 만원 단위)
-- 이 경로에서 성공하기 위한 실전 조언 3개
-
-[이력서]
-${maskedText}
-`
-
-      const [basicMsg, careerMsg] = await Promise.all([
-        client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2000,
-          tool_choice: { type: 'tool', name: 'analyze_resume' },
-          tools: [proBasicTool],
-          messages: [{ role: 'user', content: basicPrompt }],
-        }),
-        client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 3000,
-          tool_choice: { type: 'tool', name: 'generate_career_paths' },
-          tools: [proCareerTool],
-          messages: [{ role: 'user', content: careerPrompt }],
-        }),
-      ])
+      const basicMsg = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        tool_choice: { type: 'tool', name: 'analyze_resume' },
+        tools: [proBasicTool],
+        messages: [{ role: 'user', content: basicPrompt }],
+      })
 
       const basicTU = basicMsg.content.find(c => c.type === 'tool_use')
       if (!basicTU || basicTU.type !== 'tool_use') {
         return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
       }
-      const careerTU = careerMsg.content.find(c => c.type === 'tool_use')
-      const careerPaths = careerTU?.type === 'tool_use'
-        ? ((careerTU.input as { career_paths?: unknown[] }).career_paths ?? [])
-        : []
 
       resultPayload = {
         ...(basicTU.input as object),
-        career_paths: careerPaths,
+        career_paths: [],  // expand 엔드포인트에서 자동 로드
         plan,
         ...(candidateName ? { candidate_name: candidateName } : {}),
       }

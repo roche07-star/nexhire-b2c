@@ -2048,6 +2048,24 @@ function AnalysisResults({
   const [expanding, setExpanding] = useState(false)
   const [expandError, setExpandError] = useState<string | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
+
+  // PRO 분석 후 커리어 경로가 없으면 자동으로 expand 호출 (504 방지용 분리 설계)
+  useEffect(() => {
+    if (!isPro || !analysisId) return
+    if (expandedPaths && expandedPaths.length >= 3) return
+    setExpanding(true)
+    fetch(`/api/analyze/${analysisId}/expand`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.career_paths) {
+          setExpandedPaths(data.career_paths)
+          setActiveCareerTab(Math.min(1, data.career_paths.length - 1))
+        }
+      })
+      .catch(() => {})
+      .finally(() => setExpanding(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
   const [userInput, setUserInput] = useState('')
   const [refining, setRefining] = useState(false)
