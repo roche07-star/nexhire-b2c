@@ -837,14 +837,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           .catch(() => setAnalysisList([]))
           .finally(() => setAnalysisListLoading(false))
       }
-      if (!jdSavedList) {
-        setJdSavedListLoading(true)
-        fetch('/api/analyze/jd/list')
-          .then((r) => r.json())
-          .then(({ analyses }) => setJdSavedList(analyses ?? []))
-          .catch(() => setJdSavedList([]))
-          .finally(() => setJdSavedListLoading(false))
-      }
+      setJdSavedListLoading(true)
+      fetch('/api/analyze/jd/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setJdSavedList(analyses ?? []))
+        .catch(() => {})
+        .finally(() => setJdSavedListLoading(false))
     } else if (id === 'rewrite') {
       setResult(null)
       setActiveMenu('rewrite')
