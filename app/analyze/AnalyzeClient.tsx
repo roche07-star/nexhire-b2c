@@ -1724,9 +1724,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         return (
           <div className="withdraw-overlay" onClick={() => resolvePreserve('cancel')}>
             <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="preserve-choice-title">이력서 보존 방법 선택</div>
+              <div className="preserve-choice-title">이력서를 원본 파일로 저장할까요?</div>
+              <div className="preserve-choice-context">
+                <span className="preserve-context-icon">✏️</span>
+                <span>
+                  <strong>Re-Writing</strong> 기능을 사용하려면 원본 이력서 파일을 저장해 두어야 합니다.
+                  저장된 파일을 바탕으로 AI가 공고 맞춤형 이력서를 재작성하고 DOCX로 다운로드해 드립니다.
+                </span>
+              </div>
               <div className="preserve-choice-desc">
-                이미 보존된 이력서가 {preserved.length}개 있습니다.
+                이미 저장된 이력서가 {preserved.length}개 있습니다. 어떻게 처리할까요?
               </div>
 
               <button className="preserve-option-card" onClick={() => resolvePreserve('replace')}>
@@ -1735,7 +1742,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span className="preserve-option-label">기존 이력서와 교체</span>
                   <span className="preserve-option-badge free">무료</span>
                 </div>
-                <div className="preserve-option-desc">기존에 보존된 이력서를 삭제하고 이번 이력서로 교체합니다.</div>
+                <div className="preserve-option-desc">기존에 저장된 이력서를 삭제하고 이번 이력서로 교체합니다. Re-Writing은 이번 이력서 기준으로 제공됩니다.</div>
                 {preserved[0] && (
                   <div className="preserve-option-existing">
                     현재 보존: {preserved[0].result.job_title ?? '(제목 없음)'} · {new Date(preserved[0].created_at).toLocaleDateString('ko-KR')}
@@ -1755,7 +1762,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {rewriteCouponCount > 0 ? `쿠폰 ${rewriteCouponCount}장` : '쿠폰 없음'}
                   </span>
                 </div>
-                <div className="preserve-option-desc">이력서 보존 쿠폰 1장을 사용하여 추가로 보존합니다.</div>
+                <div className="preserve-option-desc">이력서 보존 쿠폰 1장을 사용하여 기존 이력서를 유지한 채 이번 이력서도 함께 저장합니다.</div>
               </button>
 
               <button className="preserve-option-card skip" onClick={() => resolvePreserve('skip')}>
@@ -1763,7 +1770,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span className="preserve-option-icon">⏭️</span>
                   <span className="preserve-option-label">보존하지 않음</span>
                 </div>
-                <div className="preserve-option-desc">이번 이력서는 보존하지 않고 분석만 진행합니다.</div>
+                <div className="preserve-option-desc">이번 이력서는 저장하지 않습니다. 분석 결과는 볼 수 있지만, Re-Writing은 사용할 수 없습니다.</div>
               </button>
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolvePreserve('cancel')}>
