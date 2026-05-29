@@ -2373,12 +2373,14 @@ function JDResults({
         {resumeDate && <span className="jd-ref-date">{resumeDate}</span>}
       </div>
 
-      <div className="results-section jd-pitch-section">
-        <div className="results-label">어필 전략 · 제안 포인트</div>
-        <ul className="jd-pitch-list">
-          {toArr(result.pitch_points).map((p, i) => <li key={i}>{p}</li>)}
-        </ul>
-      </div>
+      {toArr(result.pitch_points).length > 0 && (
+        <div className="results-section jd-pitch-section">
+          <div className="results-label">어필 전략 · 제안 포인트</div>
+          <ul className="jd-pitch-list">
+            {toArr(result.pitch_points).map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        </div>
+      )}
 
       <div className="jd-grid">
         <div className="results-section">
