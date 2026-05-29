@@ -3189,6 +3189,14 @@ footer {
   background: rgba(232,255,71,0.05);
   border-color: rgba(232,255,71,0.2);
 }
+.career-lock-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted2);
+  padding: 10px 0 4px;
+}
 
 /* ─── Free 이전 분석 배너 ─── */
 .free-saved-notice {

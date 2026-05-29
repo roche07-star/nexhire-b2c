@@ -1982,6 +1982,11 @@ function AnalysisResults({
     result.career_paths ? Math.min(1, result.career_paths.length - 1) : 0
   )
   const [lockedTab, setLockedTab] = useState<'RECOMMENDED' | 'STRETCH' | null>(null)
+  const [expandedPaths, setExpandedPaths] = useState<CareerPath[] | undefined>(
+    Array.isArray(result.career_paths) ? result.career_paths : undefined
+  )
+  const [expanding, setExpanding] = useState(false)
+  const [expandError, setExpandError] = useState<string | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
   const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
   const [userInput, setUserInput] = useState('')
@@ -2030,7 +2035,7 @@ function AnalysisResults({
     { label: '성장 가능성', value: result.scores?.growth_potential },
   ]
 
-  const paths = Array.isArray(result.career_paths) ? result.career_paths : undefined
+  const paths = expandedPaths
   const active = paths?.[activeCareerTab]
 
   const globalMax = paths && paths.length > 0
@@ -2041,6 +2046,32 @@ function AnalysisResults({
     const val = b.max || b.min
     if (!globalMax || !val) return 0
     return Math.min(100, Math.round((val / globalMax) * 100))
+  }
+
+  async function handleExpandPaths(clickedType: 'RECOMMENDED' | 'STRETCH') {
+    if (!isPro || !analysisId) { setLockedTab(clickedType); return }
+    // 이미 확장된 경우 바로 탭 전환
+    if (expandedPaths && expandedPaths.length >= 3) {
+      const idx = expandedPaths.findIndex((p) => p.type === clickedType)
+      if (idx >= 0) { setActiveCareerTab(idx); setLockedTab(null) }
+      return
+    }
+    setLockedTab(clickedType)
+    setExpanding(true)
+    setExpandError(null)
+    try {
+      const res = await fetch(`/api/analyze/${analysisId}/expand`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) { setExpandError(data.error ?? '오류가 발생했습니다.'); return }
+      const newPaths: CareerPath[] = data.career_paths
+      setExpandedPaths(newPaths)
+      const idx = newPaths.findIndex((p) => p.type === clickedType)
+      if (idx >= 0) { setActiveCareerTab(idx); setLockedTab(null) }
+    } catch {
+      setExpandError('서버 오류가 발생했습니다.')
+    } finally {
+      setExpanding(false)
+    }
   }
 
   return (
@@ -2107,7 +2138,8 @@ function AnalysisResults({
               <button
                 key={type}
                 className={`career-card career-card-locked${lockedTab === type ? ' active' : ''} career-card--${type.toLowerCase()}`}
-                onClick={() => setLockedTab(type)}
+                onClick={() => handleExpandPaths(type)}
+                disabled={expanding}
               >
                 <div className="career-card-type">{type}</div>
                 <div className="career-card-salary career-blur-text" style={{ color: CAREER_COLORS[type] ?? 'inherit' }}>
@@ -2133,7 +2165,8 @@ function AnalysisResults({
               <button
                 key={type}
                 className={`career-tab career-tab-locked${lockedTab === type ? ' active' : ''}`}
-                onClick={() => setLockedTab(type)}
+                onClick={() => handleExpandPaths(type)}
+                disabled={expanding}
               >
                 <span className="career-tab-label" style={{ color: CAREER_COLORS[type] }}>{type}</span>
                 <span className="career-tab-sub">{isPro ? '🔄 재분석 필요' : '🔒 PRO 전용'}</span>
@@ -2142,6 +2175,13 @@ function AnalysisResults({
           </div>
           {lockedTab ? (
             <div className="career-lock-detail">
+              {expanding && (
+                <div className="career-lock-loading">
+                  <div className="analyze-spinner" />
+                  <span>AI가 커리어 경로를 분석 중입니다...</span>
+                </div>
+              )}
+              {expandError && <div className="analyze-error">{expandError}</div>}
               <div className="career-lock-preview">
                 <div className="career-lock-preview-badge" style={{ color: CAREER_COLORS[lockedTab], borderColor: CAREER_COLORS[lockedTab] + '50' }}>
                   {lockedTab}
@@ -2174,15 +2214,11 @@ function AnalysisResults({
               <div className={`career-lock-cta${isPro ? ' career-lock-cta--pro' : ''}`}>
                 {isPro ? (
                   <>
-                    <div className="career-lock-cta-icon">🔄</div>
-                    <div className="career-lock-cta-title">재분석으로 잠금 해제</div>
+                    <div className="career-lock-cta-icon">⏳</div>
+                    <div className="career-lock-cta-title">경로 생성 중...</div>
                     <p className="career-lock-cta-desc">
-                      이 분석은 Free 플랜에서 생성되어 {lockedTab === 'RECOMMENDED' ? 'RECOMMENDED' : 'STRETCH'} 경로가 포함되지 않았습니다.
-                      이력서를 다시 업로드하면 3가지 커리어 경로를 즉시 확인할 수 있습니다.
+                      AI가 RECOMMENDED·STRETCH 경로를 분석하고 있습니다. 잠시만 기다려 주세요.
                     </p>
-                    <Link href="/analyze">
-                      <button className="btn-hero" style={{ width: '100%', marginTop: 4 }}>이력서 다시 분석하기 →</button>
-                    </Link>
                   </>
                 ) : (
                   <>
