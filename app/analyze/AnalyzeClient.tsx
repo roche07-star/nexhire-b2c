@@ -1113,7 +1113,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
-                  <strong>기존 이력서</strong>: 원본 포맷·서식을 그대로 유지하며 JD 기반으로 내용을 보완합니다.<br />
+                  <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식·서식 그대로 JD 기반으로 내용을 보완합니다.<br />
                   <strong>자율 포맷 생성</strong>: 텍스트 붙여넣기로 분석한 경우, AI가 섹션별로 구성하여 새 DOCX로 생성합니다.<br />
                   <strong>양식 업로드</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
@@ -1898,13 +1898,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             <button className="preserve-option-card" onClick={() => resolveFormatSelect('original')}>
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">{isTextPasteRewrite ? '📝' : '📄'}</span>
-                <span className="preserve-option-label">{isTextPasteRewrite ? '자율 포맷 생성' : '기존 이력서'}</span>
-                <span className="preserve-option-badge none">{isTextPasteRewrite ? 'AI 구성' : '원본 포맷 유지'}</span>
+                <span className="preserve-option-label">{isTextPasteRewrite ? '자율 포맷 생성' : '업로드 양식 기반'}</span>
+                <span className="preserve-option-badge none">{isTextPasteRewrite ? 'AI 구성' : '업로드 포맷 유지'}</span>
               </div>
               <div className="preserve-option-desc">
                 {isTextPasteRewrite
                   ? 'AI가 이력서 내용을 섹션별로 분석하여 깔끔한 DOCX 형식으로 새로 구성합니다.'
-                  : '원본 이력서의 포맷·서식을 그대로 유지합니다. DOCX는 서식 완전 보존, PDF는 원본 기반 새 DOCX로 생성됩니다.'}
+                  : '업로드한 이력서 파일의 양식·서식 그대로 내용을 보완하여 생성합니다. DOCX는 서식 완전 보존, PDF는 업로드 파일 기반 새 DOCX로 생성됩니다.'}
               </div>
             </button>
 
