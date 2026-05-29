@@ -116,7 +116,7 @@ ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1500,
+      max_tokens: 2000,
       tool_choice: { type: 'tool', name: 'generate_career_paths' },
       tools: [careerPathsTool],
       messages: [{ role: 'user', content: prompt }],
@@ -128,6 +128,9 @@ ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''
     }
 
     const careerPaths = (toolUse.input as { career_paths: unknown[] }).career_paths
+    if (!Array.isArray(careerPaths) || careerPaths.length === 0) {
+      return NextResponse.json({ error: '커리어 경로 생성에 실패했습니다. 다시 시도해 주세요.' }, { status: 500 })
+    }
 
     // DB 업데이트 (fire-and-forget)
     const updatedResult = { ...result, career_paths: careerPaths, plan: 'PRO' }
