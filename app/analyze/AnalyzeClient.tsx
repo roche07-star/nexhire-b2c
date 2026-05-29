@@ -101,7 +101,7 @@ const FEATURE_LABEL: Record<string, string> = {
   resume: '이력서 분석',
   direction: '방향성 분석',
   jd: 'JD 매칭 분석',
-  rewrite: '이력서 보존 (Re-Writing)',
+  rewrite: '이력서 생성',
 }
 
 const CAREER_COLORS: Record<string, string> = {
@@ -1627,9 +1627,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                 {isExpert && (
                   <div className="preserve-info-box">
-                    <div className="preserve-info-title">✏️ 이력서 보존 (Re-Writing)</div>
+                    <div className="preserve-info-title">✏️ 이력서 생성</div>
                     <div className="preserve-info-body">
-                      업로드한 이력서는 자동으로 보존되어 <strong>Re-Writing</strong> 탭에서 AI가 재작성한 이력서를 DOCX로 다운로드할 수 있습니다.
+                      업로드한 이력서는 자동으로 저장되어 <strong>이력서 생성</strong> 탭에서 AI가 재작성한 이력서를 DOCX로 다운로드할 수 있습니다.
                     </div>
                     <div className="preserve-info-rule">
                       <span className="preserve-info-free">✓ 첫 번째 이력서 무료 보존</span>
@@ -1699,7 +1699,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="analyze-storage-notice rewrite-not-saved-notice">
                     <span className="storage-icon">✏️</span>
                     <span>
-                      이 이력서는 보존되지 않아 Re-Writing을 사용할 수 없습니다.
+                      이 이력서는 저장되지 않아 이력서 생성을 사용할 수 없습니다.
                       <strong> 이력서 보존 쿠폰</strong>을 위 쿠폰 입력창에 등록하면 다음 분석부터 보존됩니다.
                     </span>
                   </div>
@@ -1728,7 +1728,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <div className="preserve-choice-context">
                 <span className="preserve-context-icon">✏️</span>
                 <span>
-                  <strong>Re-Writing</strong> 기능을 사용하려면 원본 이력서 파일을 저장해 두어야 합니다.
+                  <strong>이력서 생성</strong> 기능을 사용하려면 원본 이력서 파일을 저장해 두어야 합니다.
                   저장된 파일을 바탕으로 AI가 공고 맞춤형 이력서를 재작성하고 DOCX로 다운로드해 드립니다.
                 </span>
               </div>
@@ -1742,7 +1742,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span className="preserve-option-label">기존 이력서와 교체</span>
                   <span className="preserve-option-badge free">무료</span>
                 </div>
-                <div className="preserve-option-desc">기존에 저장된 이력서를 삭제하고 이번 이력서로 교체합니다. Re-Writing은 이번 이력서 기준으로 제공됩니다.</div>
+                <div className="preserve-option-desc">기존에 저장된 이력서를 삭제하고 이번 이력서로 교체합니다. 이력서 생성은 이번 이력서 기준으로 제공됩니다.</div>
                 {preserved[0] && (
                   <div className="preserve-option-existing">
                     현재 보존: {preserved[0].result.job_title ?? '(제목 없음)'} · {new Date(preserved[0].created_at).toLocaleDateString('ko-KR')}
@@ -1770,7 +1770,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span className="preserve-option-icon">⏭️</span>
                   <span className="preserve-option-label">보존하지 않음</span>
                 </div>
-                <div className="preserve-option-desc">이번 이력서는 저장하지 않습니다. 분석 결과는 볼 수 있지만, Re-Writing은 사용할 수 없습니다.</div>
+                <div className="preserve-option-desc">이번 이력서는 저장하지 않습니다. 분석 결과는 볼 수 있지만, 이력서 생성은 사용할 수 없습니다.</div>
               </button>
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolvePreserve('cancel')}>

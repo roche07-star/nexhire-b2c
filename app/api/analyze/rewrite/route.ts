@@ -436,12 +436,12 @@ export async function POST(req: NextRequest) {
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
-        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
       const { rewrites, changes: tplChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
-        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
       }
       const allRewrites = templateParas.map(p => {
         if (piiIndexes.has(p.index)) return p.text  // PII 단락: 원본 그대로
@@ -549,12 +549,12 @@ export async function POST(req: NextRequest) {
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
-        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
       const { rewrites, changes: docxChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
-        return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
       const allRewrites = paras.map(p => {
@@ -634,7 +634,7 @@ export async function POST(req: NextRequest) {
 
     const toolUse = message.content.find(c => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
-      return NextResponse.json({ error: 'Re-Writing 결과를 받지 못했습니다.' }, { status: 500 })
+      return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
     }
 
     const rewriteData = toolUse.input as RewriteResult & { changes?: string[] }
