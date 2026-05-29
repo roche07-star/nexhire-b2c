@@ -79,5 +79,9 @@ export async function extractText(buffer: Buffer, filename: string): Promise<str
     throw new Error('HWP 형식은 지원되지 않습니다. 한글에서 파일 → PDF로 저장 후 업로드해 주세요.')
   }
 
+  if (ext === 'txt') {
+    return buffer.toString('utf-8')
+  }
+
   throw new Error('지원하지 않는 파일 형식입니다. PDF 또는 DOCX 파일을 업로드해 주세요.')
 }

@@ -761,18 +761,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setError(null)
     setResult(null)
 
-    // 파일 모드 + PRO/Expert: 체크박스 값으로 보존 모드 결정
+    // PRO/Expert: 체크박스 값으로 보존 모드 결정 (파일/텍스트 공통)
     let preserveMode = 'skip'
-    if (inputMode === 'file' && (isPro || isExpert)) {
-      if (preserveChecked) {
-        const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
-        if (preserveAddWithCoupon && preservedCount > 0) {
-          preserveMode = 'add'
-        } else if (preservedCount > 0) {
-          preserveMode = 'replace'
-        } else {
-          preserveMode = 'auto'
-        }
+    if ((isPro || isExpert) && preserveChecked) {
+      const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
+      if (preserveAddWithCoupon && preservedCount > 0) {
+        preserveMode = 'add'
+      } else if (preservedCount > 0) {
+        preserveMode = 'replace'
+      } else {
+        preserveMode = 'auto'
       }
     }
 
@@ -788,11 +786,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const fd = new FormData()
       if (inputMode === 'text') {
         fd.append('resumeText', resumeText)
-        fd.append('preserveMode', 'skip')
       } else {
         fd.append('resume', file!)
-        fd.append('preserveMode', preserveMode)
       }
+      fd.append('preserveMode', preserveMode)
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -1663,16 +1660,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       rows={10}
                     />
                     <div className="resume-textarea-hint">{resumeText.length.toLocaleString()}자</div>
-                    {(isPro || isExpert) && (
-                      <div className="text-mode-notice">
-                        💡 텍스트 입력 모드에서는 원본 파일이 저장되지 않아 <strong>이력서 생성</strong> 기능을 사용할 수 없습니다.
-                        이력서 생성이 필요하다면 파일 업로드를 이용해 주세요.
-                      </div>
-                    )}
                   </div>
                 )}
 
-                {inputMode === 'file' && (isPro || isExpert) && (() => {
+                {(isPro || isExpert) && (() => {
                   const preserved = (analysisList ?? []).filter(item => item.result?._file_path)
                   const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
                   return (
@@ -1694,6 +1685,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           </div>
                           <div className="preserve-checkbox-desc">
                             저장해두면 <strong>이력서 생성</strong> 탭에서 AI가 JD 맞춤으로 재작성해 드립니다.
+                            {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
                             {preserved.length > 0 && (
                               <span className="preserve-checkbox-replace">
                                 {' '}현재 저장: {preserved[0].result.job_title ?? '(제목 없음)'} → 새 이력서로 교체됩니다.

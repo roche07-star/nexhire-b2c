@@ -315,7 +315,7 @@ ${maskedText}
     let rewriteFilePath: string | null = null
     let rewriteCouponUsed: string | null = null
 
-    if (insertData?.id && preserveMode !== 'skip' && file && buffer) {
+    if (insertData?.id && preserveMode !== 'skip' && (file && buffer || pastedText)) {
       const { data: prevAnalyses } = await supabase
         .from('analyses')
         .select('id, result')
@@ -359,11 +359,13 @@ ${maskedText}
       }
 
       if (canPreserve) {
-        const fileExt = file.name.split('.').pop()?.toLowerCase() ?? 'bin'
+        const uploadBuffer = (file && buffer) ? buffer : Buffer.from(pastedText, 'utf-8')
+        const fileExt = (file && buffer) ? (file.name.split('.').pop()?.toLowerCase() ?? 'bin') : 'txt'
+        const contentType = (file && buffer) ? file.type : 'text/plain'
         const filePath = `${email}/${insertData.id}.${fileExt}`
         const { error: storageErr } = await supabase.storage
           .from('resumes')
-          .upload(filePath, buffer, { contentType: file.type, upsert: false })
+          .upload(filePath, uploadBuffer, { contentType, upsert: false })
         if (!storageErr) {
           const { error: updateErr } = await supabase.from('analyses')
             .update({ result: JSON.parse(JSON.stringify({ ...resultPayload, _file_path: filePath })) })
