@@ -2237,6 +2237,15 @@ footer {
 .resume-textarea:focus { border-color: var(--accent); }
 .resume-textarea::placeholder { color: var(--muted2); }
 .resume-textarea-hint { font-size: 12px; color: var(--muted2); text-align: right; }
+.text-mode-notice {
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  line-height: 1.55;
+}
 /* 에러 + 재시도 */
 .analyze-error-wrap { display: flex; align-items: flex-start; gap: 10px; }
 .analyze-error {

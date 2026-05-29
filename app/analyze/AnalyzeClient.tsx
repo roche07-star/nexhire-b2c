@@ -1672,6 +1672,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       rows={10}
                     />
                     <div className="resume-textarea-hint">{resumeText.length.toLocaleString()}자</div>
+                    {(isPro || isExpert) && (
+                      <div className="text-mode-notice">
+                        💡 텍스트 입력 모드에서는 원본 파일이 저장되지 않아 <strong>이력서 생성</strong> 기능을 사용할 수 없습니다.
+                        이력서 생성이 필요하다면 파일 업로드를 이용해 주세요.
+                      </div>
+                    )}
                   </div>
                 )}
 
