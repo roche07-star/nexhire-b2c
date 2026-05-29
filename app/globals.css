@@ -3082,6 +3082,110 @@ footer {
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
+/* ─── Career locked cards & upsell detail ─── */
+.career-card-locked { position: relative; opacity: 0.75; }
+.career-card-locked:hover { opacity: 0.95; }
+.career-card-locked.active { opacity: 1; }
+.career-card-lock-icon {
+  position: absolute;
+  top: 6px; right: 8px;
+  font-size: 11px;
+}
+.career-blur-text {
+  filter: blur(4px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.8;
+}
+.career-tab-locked { opacity: 0.65; }
+.career-tab-locked:hover { opacity: 0.9; }
+.career-tab-locked.active { opacity: 1; }
+
+.career-lock-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+.career-lock-preview {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.career-lock-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, var(--surface2) 90%);
+  pointer-events: none;
+}
+.career-lock-preview-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  border: 1px solid;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 12px;
+}
+.career-lock-preview-body { display: flex; flex-direction: column; gap: 10px; }
+.career-lock-blur-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.career-lock-blur-salary {
+  font-size: 14px;
+  font-weight: 600;
+}
+.career-lock-blur-bands { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+.career-lock-blur-bar { pointer-events: none; }
+.career-blur-bar-inner {
+  height: 100%;
+  background: rgba(255,255,255,0.15);
+  border-radius: 99px;
+  width: 70%;
+  filter: blur(2px);
+}
+.career-lock-blur-points {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 4px;
+}
+.career-lock-blur-line {
+  height: 11px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  filter: blur(3px);
+}
+
+.career-lock-cta {
+  background: rgba(123,97,255,0.08);
+  border: 1px solid rgba(123,97,255,0.25);
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+.career-lock-cta-icon { font-size: 24px; }
+.career-lock-cta-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+.career-lock-cta-desc {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+}
+
 /* ─── Free 이전 분석 배너 ─── */
 .free-saved-notice {
   display: flex;

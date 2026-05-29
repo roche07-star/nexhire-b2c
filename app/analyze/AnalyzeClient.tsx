@@ -1981,6 +1981,7 @@ function AnalysisResults({
   const [activeCareerTab, setActiveCareerTab] = useState(
     result.career_paths ? Math.min(1, result.career_paths.length - 1) : 0
   )
+  const [lockedTab, setLockedTab] = useState<'RECOMMENDED' | 'STRETCH' | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
   const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
   const [userInput, setUserInput] = useState('')
@@ -2092,8 +2093,8 @@ function AnalysisResults({
             {paths.map((p, i) => (
               <button
                 key={p.type}
-                className={`career-card${i === activeCareerTab ? ' active' : ''} career-card--${p.type.toLowerCase()}`}
-                onClick={() => setActiveCareerTab(i)}
+                className={`career-card${i === activeCareerTab && !lockedTab ? ' active' : ''} career-card--${p.type.toLowerCase()}`}
+                onClick={() => { setActiveCareerTab(i); setLockedTab(null) }}
               >
                 <div className="career-card-type">{p.type}</div>
                 <div className="career-card-salary" style={{ color: CAREER_COLORS[p.type] ?? 'inherit' }}>
@@ -2102,65 +2103,118 @@ function AnalysisResults({
                 <div className="career-card-title">{p.title}</div>
               </button>
             ))}
+            {paths.length === 1 && (['RECOMMENDED', 'STRETCH'] as const).map((type) => (
+              <button
+                key={type}
+                className={`career-card career-card-locked${lockedTab === type ? ' active' : ''} career-card--${type.toLowerCase()}`}
+                onClick={() => setLockedTab(type)}
+              >
+                <div className="career-card-type">{type}</div>
+                <div className="career-card-salary career-blur-text" style={{ color: CAREER_COLORS[type] ?? 'inherit' }}>
+                  {type === 'RECOMMENDED' ? 'X,XXX~X,XXX만원' : 'X,XXX만원~1억+'}
+                </div>
+                <div className="career-card-title career-blur-text">AI 추천 경로</div>
+                <div className="career-card-lock-icon">🔒</div>
+              </button>
+            ))}
           </div>
           <div className="career-tabs">
             {paths.map((p, i) => (
               <button
                 key={p.type}
-                className={`career-tab${i === activeCareerTab ? ' active' : ''}`}
-                onClick={() => setActiveCareerTab(i)}
+                className={`career-tab${i === activeCareerTab && !lockedTab ? ' active' : ''}`}
+                onClick={() => { setActiveCareerTab(i); setLockedTab(null) }}
               >
                 <span className="career-tab-label">{p.type}</span>
                 <span className="career-tab-sub">{p.label}</span>
               </button>
             ))}
-          </div>
-          <div className="salary-band-wrap">
-            <div className="salary-band-title">연봉 밴드 — {active.label} (단위: 만원)</div>
-            {(active.salary_bands ?? []).map((b) => (
-              <div key={b.period} className="salary-band-row">
-                <span className="salary-band-year">{b.period}</span>
-                <div className="salary-band-bar-wrap">
-                  <div className="salary-band-bar" style={{ width: `${bandPct(b)}%` }} />
-                </div>
-                <span className="salary-band-range">
-                  {!b.min ? '–' : b.max ? `${b.min.toLocaleString()}~${b.max.toLocaleString()}` : `${b.min.toLocaleString()}+`}
-                </span>
-              </div>
+            {paths.length === 1 && (['RECOMMENDED', 'STRETCH'] as const).map((type) => (
+              <button
+                key={type}
+                className={`career-tab career-tab-locked${lockedTab === type ? ' active' : ''}`}
+                onClick={() => setLockedTab(type)}
+              >
+                <span className="career-tab-label" style={{ color: CAREER_COLORS[type] }}>{type}</span>
+                <span className="career-tab-sub">🔒 PRO 전용</span>
+              </button>
             ))}
           </div>
-          <div className="career-detail">
-            <div className="career-detail-badge">{active.type}</div>
-            <div className="career-detail-header">
-              <span className="career-detail-title">{active.title}</span>
-              <span className="career-detail-salary" style={{ color: CAREER_COLORS[active.type] ?? 'inherit' }}>
-                {active.salary_range}
-              </span>
-            </div>
-            <ul className="career-detail-list">
-              {active.points.map((p, i) => <li key={i}>{p}</li>)}
-            </ul>
-          </div>
-
-          {paths.length === 1 && (
-            <div className="career-upsell">
-              <div className="career-upsell-title">
-                지금 보고 계신 건 <strong>현재 경로(BASELINE)</strong> 하나뿐입니다.
-              </div>
-              <div className="career-upsell-paths">
-                <div className="career-upsell-path recommended">
-                  <span className="career-upsell-badge">RECOMMENDED</span>
-                  <span>강점을 최대로 활용한 헤드헌터 추천 경로 — 지금보다 높은 연봉과 포지션이 현실적으로 가능한 방향</span>
+          {lockedTab ? (
+            <div className="career-lock-detail">
+              <div className="career-lock-preview">
+                <div className="career-lock-preview-badge" style={{ color: CAREER_COLORS[lockedTab], borderColor: CAREER_COLORS[lockedTab] + '50' }}>
+                  {lockedTab}
                 </div>
-                <div className="career-upsell-path stretch">
-                  <span className="career-upsell-badge">STRETCH</span>
-                  <span>2~3년 준비 시 도달 가능한 고성장 경로 — 시장에서 희소성이 높은 포지션과 연봉 상단</span>
+                <div className="career-lock-preview-body">
+                  <div className="career-lock-blur-title career-blur-text">
+                    {lockedTab === 'RECOMMENDED' ? 'AI 헤드헌터 추천 직무명 (잠금됨)' : '고성장 목표 포지션 (잠금됨)'}
+                  </div>
+                  <div className="career-lock-blur-salary career-blur-text" style={{ color: CAREER_COLORS[lockedTab] }}>
+                    {lockedTab === 'RECOMMENDED' ? 'X,XXX만원~X,XXX만원' : 'X,XXX만원~1억+'}
+                  </div>
+                  <div className="career-lock-blur-bands">
+                    {['현재', '1년 뒤', '3년 뒤', '5년 뒤'].map((label) => (
+                      <div key={label} className="salary-band-row">
+                        <span className="salary-band-year career-blur-text">{label}</span>
+                        <div className="salary-band-bar-wrap career-lock-blur-bar">
+                          <div className="salary-band-bar career-blur-bar-inner" />
+                        </div>
+                        <span className="salary-band-range career-blur-text">X,XXX~X,XXX</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="career-lock-blur-points">
+                    {[85, 70, 90, 60].map((w, i) => (
+                      <div key={i} className="career-lock-blur-line" style={{ width: `${w}%` }} />
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="career-upsell-cta">
-                PRO 플랜으로 전환하면 두 가지 경로와 구체적인 전략을 모두 확인할 수 있습니다.
+              <div className="career-lock-cta">
+                <div className="career-lock-cta-icon">🔒</div>
+                <div className="career-lock-cta-title">
+                  {lockedTab === 'RECOMMENDED' ? 'AI 추천 커리어 전환 경로' : '고성장 도전 커리어 경로'}
+                </div>
+                <p className="career-lock-cta-desc">
+                  {lockedTab === 'RECOMMENDED'
+                    ? '내 강점을 최대로 활용한 헤드헌터 추천 경로 — 현실적으로 가능한 연봉 점프와 구체적인 전환 전략을 PRO에서 확인하세요.'
+                    : '2~3년 준비 시 도달 가능한 고성장 경로 — 시장 희소성이 높은 포지션과 연봉 상단, 단계별 액션플랜을 확인하세요.'}
+                </p>
+                <Link href="/#pricing">
+                  <button className="btn-hero" style={{ width: '100%', marginTop: 4 }}>PRO 플랜 보기 →</button>
+                </Link>
               </div>
             </div>
+          ) : (
+            <>
+              <div className="salary-band-wrap">
+                <div className="salary-band-title">연봉 밴드 — {active.label} (단위: 만원)</div>
+                {(active.salary_bands ?? []).map((b) => (
+                  <div key={b.period} className="salary-band-row">
+                    <span className="salary-band-year">{b.period}</span>
+                    <div className="salary-band-bar-wrap">
+                      <div className="salary-band-bar" style={{ width: `${bandPct(b)}%` }} />
+                    </div>
+                    <span className="salary-band-range">
+                      {!b.min ? '–' : b.max ? `${b.min.toLocaleString()}~${b.max.toLocaleString()}` : `${b.min.toLocaleString()}+`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="career-detail">
+                <div className="career-detail-badge">{active.type}</div>
+                <div className="career-detail-header">
+                  <span className="career-detail-title">{active.title}</span>
+                  <span className="career-detail-salary" style={{ color: CAREER_COLORS[active.type] ?? 'inherit' }}>
+                    {active.salary_range}
+                  </span>
+                </div>
+                <ul className="career-detail-list">
+                  {active.points.map((p, i) => <li key={i}>{p}</li>)}
+                </ul>
+              </div>
+            </>
           )}
         </div>
       ) : (
