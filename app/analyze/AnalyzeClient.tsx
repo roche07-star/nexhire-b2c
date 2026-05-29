@@ -1133,8 +1133,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
                 ) : (
                   <div className="jd-saved-list">
-                    {analysisList.map((item) => (
-                      {(() => {
+                    {analysisList.map((item) => {
                         const now2 = new Date()
                         const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now2)
                         const filePath = item.result._file_path as string | undefined
@@ -1177,8 +1176,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             </button>
                           </div>
                         )
-                      })()}
-                    ))}
+                      })}
                   </div>
                 )}
               </div>
