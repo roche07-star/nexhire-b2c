@@ -23,6 +23,14 @@ const jdTool: Anthropic.Tool = {
         type: 'string',
         description: '한 줄 판정 — 솔직하고 날카롭게 (예: "핵심 기술 스택 80% 부합, 리더십 경험 공백이 유일한 약점")',
       },
+      company_insight: {
+        type: 'string',
+        description: '회사 특성 요약 — 규모·업종·조직 문화·최근 이슈 등 (웹 검색 결과 또는 JD 문맥 기반, 2-3문장)',
+      },
+      jd_interpretation: {
+        type: 'string',
+        description: 'JD 실제 해석 — 명시된 요건 너머의 숨은 요구역량, 이 포지션이 진짜 필요로 하는 것 (2-3문장)',
+      },
       matching_points: {
         type: 'array',
         items: { type: 'string' },
@@ -39,7 +47,7 @@ const jdTool: Anthropic.Tool = {
         description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (3-4개, 구체적으로)',
       },
     },
-    required: ['fit_score', 'recommendation', 'verdict', 'matching_points', 'gaps', 'pitch_points'],
+    required: ['fit_score', 'recommendation', 'verdict', 'company_insight', 'jd_interpretation', 'matching_points', 'gaps', 'pitch_points'],
   },
 }
 
@@ -155,9 +163,11 @@ STEP 4 — 매칭 판정 + 제안 전략
 - fit_score: STEP 3 결과 종합 점수 (필수 가중 60%, 우대 25%, 숨은요구 15%)
 - recommendation: APPLY / CONSIDER / SKIP
 - verdict: "이 후보자는 [강점]이 강점이나, [리스크] 부분이 리스크입니다. [제안 포지셔닝]으로 제안합니다." — 한 문장, 날카롭게
-- matching_points: 필수✅ + 우대✅ + 숨은요구✅ 항목 (구체적 근거 포함, 3-5개)
-- gaps: 필수❌/△ + 예상 클라이언트 우려 사항 (2-4개, 솔직하게)
-- pitch_points: ① 클라이언트 제안 포지셔닝 전략 ② 서류/면접 핵심 어필 포인트 ③ 예상 우려 대응 방안 ④ 제안 전 후보자에게 반드시 확인할 사항 (4-6개, 실전적으로)
+- company_insight: 회사 규모·업종·조직 문화·최근 이슈 등 핵심 정보를 2-3문장으로 요약. 웹 검색 결과가 있으면 반드시 반영하고, 없으면 JD 문맥에서 추론
+- jd_interpretation: JD 문서에 명시되지 않은 숨은 요구역량과 이 포지션의 실제 맥락을 2-3문장으로 해석. STEP 1의 숨은 요구 역량 분석 결과를 활용
+- matching_points: 필수✅ + 우대✅ + 숨은요구✅ 항목 (구체적 근거 포함, 3개)
+- gaps: 필수❌/△ + 예상 클라이언트 우려 사항 (2-3개, 솔직하게)
+- pitch_points: ① 클라이언트 제안 포지셔닝 전략 ② 서류/면접 핵심 어필 포인트 ③ 예상 우려 대응 방안 ④ 제안 전 후보자에게 반드시 확인할 사항 (3-4개, 실전적으로)
 
 [금지]
 JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지
@@ -175,7 +185,7 @@ ${candidateProfile}`
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 1500,
       tool_choice: { type: 'tool', name: 'analyze_jd_fit' },
       tools: [jdTool],
       messages: [{ role: 'user', content: prompt }],

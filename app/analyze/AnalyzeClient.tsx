@@ -46,6 +46,8 @@ interface JDResult {
   fit_score: number
   recommendation: 'APPLY' | 'CONSIDER' | 'SKIP'
   verdict: string
+  company_insight?: string
+  jd_interpretation?: string
   matching_points: string[]
   gaps: string[]
   pitch_points: string[]
@@ -2469,6 +2471,26 @@ function JDResults({
         기반 이력서: <strong>{resumeTitle}</strong>
         {resumeDate && <span className="jd-ref-date">{resumeDate}</span>}
       </div>
+
+      {(result.company_insight || result.jd_interpretation) && (
+        <div className="jd-context-section">
+          {result.company_insight && (
+            <div className="jd-context-block">
+              <div className="jd-context-label">🏢 회사 인사이트</div>
+              <p className="jd-context-text">{result.company_insight}</p>
+            </div>
+          )}
+          {result.jd_interpretation && (
+            <div className="jd-context-block">
+              <div className="jd-context-label">📋 JD 해석</div>
+              <p className="jd-context-text">{result.jd_interpretation}</p>
+              <p className="jd-interp-caveat">
+                ※ 채용공고는 회사 내부 상황(팀 구성, 채용 긴급도, 내부 평가 기준 등)에 따라 실제 요구사항이 JD 내용과 다를 수 있습니다.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {toArr(result.pitch_points).length > 0 && (
         <div className="results-section jd-pitch-section">
