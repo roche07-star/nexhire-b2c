@@ -1660,6 +1660,52 @@ footer {
   border: 1px solid var(--border);
 }
 
+/* 이력서 저장 체크박스 */
+.preserve-checkbox-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.preserve-checkbox-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+.preserve-checkbox-body { display: flex; flex-direction: column; gap: 3px; }
+.preserve-checkbox-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.preserve-checkbox-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.preserve-checkbox-replace { color: var(--muted2); }
+.preserve-add-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 26px;
+  cursor: pointer;
+}
+.preserve-add-desc {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* 이력서 보존 방법 선택 모달 */
 .preserve-choice-modal {
   background: var(--card);
