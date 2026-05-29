@@ -2164,10 +2164,10 @@ function AnalysisResults({
           <div key={s.label} className="result-score-row">
             <div className="score-meta">
               <span className="score-name">{s.label}</span>
-              <span className="score-val">{s.value}%</span>
+              <span className="score-val">{s.value != null ? `${s.value}%` : '—'}</span>
             </div>
             <div className="score-bar-wrap">
-              <div className="score-bar" style={{ width: `${s.value}%` }} />
+              <div className="score-bar" style={{ width: `${s.value ?? 0}%` }} />
             </div>
           </div>
         ))}
@@ -2182,7 +2182,10 @@ function AnalysisResults({
         <div className="results-section">
           <div className="results-label">핵심 키워드</div>
           <div className="keyword-chips">
-            {toArr(result.keywords).map((k, i) => <span key={i} className="keyword-chip">{k}</span>)}
+            {toArr(result.keywords).length > 0
+              ? toArr(result.keywords).map((k, i) => <span key={i} className="keyword-chip">{k}</span>)
+              : <span className="keyword-empty">키워드 정보 없음</span>
+            }
           </div>
         </div>
         <div className="results-section">

@@ -2722,6 +2722,11 @@ footer {
   background: rgba(123,97,255,0.22);
   box-shadow: 0 0 10px rgba(123,97,255,0.18);
 }
+.keyword-empty {
+  font-size: 13px;
+  color: var(--muted2);
+  font-style: italic;
+}
 
 /* RESPONSIVE */
 @media (max-width: 768px) {

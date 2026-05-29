@@ -244,6 +244,16 @@ ${maskedText}
 
       const basicInput = basicTU.input as Record<string, unknown>
 
+      const scoresObj = basicInput.scores as Record<string, unknown> | undefined
+      if (!scoresObj || typeof scoresObj.job_fit !== 'number') {
+        console.error('[analyze] missing scores in PRO tool output:', JSON.stringify(basicInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+      if (!Array.isArray(basicInput.keywords) || (basicInput.keywords as unknown[]).length === 0) {
+        console.error('[analyze] missing keywords in PRO tool output:', JSON.stringify(basicInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+
       // 커리어 경로: 기본 분석 완료 후 순차 실행 (실패 시 [] 반환 — expand 엔드포인트가 재시도 역할)
       let careerPaths: unknown[] = []
       try {
@@ -325,6 +335,16 @@ ${maskedText}
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
         return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+      }
+      const freeInput = toolUse.input as Record<string, unknown>
+      const freeScores = freeInput.scores as Record<string, unknown> | undefined
+      if (!freeScores || typeof freeScores.job_fit !== 'number') {
+        console.error('[analyze] missing scores in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+      if (!Array.isArray(freeInput.keywords) || (freeInput.keywords as unknown[]).length === 0) {
+        console.error('[analyze] missing keywords in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       resultPayload = {
         ...(toolUse.input as object),
