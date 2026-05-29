@@ -462,6 +462,13 @@ function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
 
 type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite' | 'interview'
 
+const LOADING_STEPS = [
+  '이력서를 읽는 중...',
+  '강점과 개선점을 분석하는 중...',
+  '커리어 경로를 설계하는 중...',
+  '마무리 검토 중...',
+]
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -476,6 +483,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [rewriteChanges, setRewriteChanges] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
+  const [inputMode, setInputMode] = useState<'file' | 'text'>('file')
+  const [resumeText, setResumeText] = useState('')
+  const [loadingMsg, setLoadingMsg] = useState('')
+  const loadingStepRef = useRef(0)
+  const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const jdTopRef = useRef<HTMLDivElement>(null)
   const [jdCompany, setJdCompany] = useState('')
@@ -758,13 +770,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   }
 
   async function onAnalyze() {
-    if (!file) return
+    if (inputMode === 'file' ? !file : !resumeText.trim()) return
     setError(null)
     setResult(null)
 
-    // PRO/Expert 유저이고 이미 보존된 이력서가 있으면 방법 선택 모달
+    // 파일 모드일 때만 보존 모달 표시 (텍스트 모드는 저장 불가)
     let preserveMode = 'auto'
-    if ((isPro || isExpert) && analysisList) {
+    if (inputMode === 'file' && (isPro || isExpert) && analysisList) {
       const preservedCount = analysisList.filter(item => item.result?._file_path).length
       if (preservedCount > 0) {
         const choice = await openPreserveModal()
@@ -774,10 +786,22 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
 
     setLoading(true)
+    loadingStepRef.current = 0
+    setLoadingMsg(LOADING_STEPS[0])
+    loadingIntervalRef.current = setInterval(() => {
+      loadingStepRef.current = Math.min(loadingStepRef.current + 1, LOADING_STEPS.length - 1)
+      setLoadingMsg(LOADING_STEPS[loadingStepRef.current])
+    }, 7000)
+
     try {
       const fd = new FormData()
-      fd.append('resume', file)
-      fd.append('preserveMode', preserveMode)
+      if (inputMode === 'text') {
+        fd.append('resumeText', resumeText)
+        fd.append('preserveMode', 'skip')
+      } else {
+        fd.append('resume', file!)
+        fd.append('preserveMode', preserveMode)
+      }
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -786,11 +810,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setResult(data)
         setAnalysisId(data._id ?? null)
         setFile(null)
+        setResumeText('')
         setAgreed(false)
-        // 쿠폰 사용 후 목록 갱신
         fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
-        // 분석 목록 갱신 (saved 탭)
-        // 항상 DB에서 재로드 (replace 시 기존 _file_path 제거 반영)
         fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
           const newSaved: SavedAnalysis = {
@@ -804,6 +826,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
     } finally {
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current)
+        loadingIntervalRef.current = null
+      }
       setLoading(false)
     }
   }
@@ -1595,35 +1621,59 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   )}
                 </div>
 
-                <div
-                  className={`upload-zone${dragging ? ' dragging' : ''}${file ? ' has-file' : ''}`}
-                  onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-                  onDragLeave={() => setDragging(false)}
-                  onDrop={onDrop}
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <input
-                    ref={inputRef}
-                    type="file"
-                    accept=".pdf,.docx"
-                    style={{ display: 'none' }}
-                    onChange={onFileChange}
-                  />
-                  {file ? (
-                    <>
-                      <div className="upload-icon-success">✓</div>
-                      <div className="upload-filename">{file.name}</div>
-                      <div className="upload-hint">클릭하여 다른 파일 선택</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="upload-icon-main">📄</div>
-                      <div className="upload-main-text">이력서를 드래그하거나 클릭하여 업로드</div>
-                      <div className="upload-hint">PDF, DOCX · 최대 10MB</div>
-                      <div className="upload-hint upload-hint--warn">Windows 시스템에 따라 DOCX 파일 선택 시 Word 오류 팝업이 뜰 수 있습니다. × 로 닫으면 정상 업로드됩니다.</div>
-                    </>
-                  )}
+                <div className="upload-mode-tabs">
+                  <button
+                    className={`upload-mode-tab${inputMode === 'file' ? ' active' : ''}`}
+                    onClick={() => { setInputMode('file'); setResumeText('') }}
+                  >📎 파일 업로드</button>
+                  <button
+                    className={`upload-mode-tab${inputMode === 'text' ? ' active' : ''}`}
+                    onClick={() => { setInputMode('text'); setFile(null) }}
+                  >📋 텍스트 붙여넣기</button>
                 </div>
+
+                {inputMode === 'file' ? (
+                  <div
+                    className={`upload-zone${dragging ? ' dragging' : ''}${file ? ' has-file' : ''}`}
+                    onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={onDrop}
+                    onClick={() => inputRef.current?.click()}
+                  >
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept=".pdf,.docx"
+                      style={{ display: 'none' }}
+                      onChange={onFileChange}
+                    />
+                    {file ? (
+                      <>
+                        <div className="upload-icon-success">✓</div>
+                        <div className="upload-filename">{file.name}</div>
+                        <div className="upload-hint">클릭하여 다른 파일 선택</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="upload-icon-main">📄</div>
+                        <div className="upload-main-text">이력서를 드래그하거나 클릭하여 업로드</div>
+                        <div className="upload-hint">PDF, DOCX · 최대 10MB</div>
+                        <div className="upload-hint upload-hint--warn">Windows 시스템에 따라 DOCX 파일 선택 시 Word 오류 팝업이 뜰 수 있습니다. × 로 닫으면 정상 업로드됩니다.</div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="resume-text-wrap">
+                    <textarea
+                      className="resume-textarea"
+                      placeholder="이력서 내용을 여기에 붙여넣기 하세요.&#10;&#10;경력, 학력, 기술 스택, 프로젝트 등 이력서 전체 내용을 복사해서 붙여넣으면 됩니다."
+                      value={resumeText}
+                      onChange={e => setResumeText(e.target.value)}
+                      rows={10}
+                    />
+                    <div className="resume-textarea-hint">{resumeText.length.toLocaleString()}자</div>
+                  </div>
+                )}
 
                 {isExpert && (
                   <div className="preserve-info-box">
@@ -1652,12 +1702,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </span>
                 </label>
 
-                {error && <div className="analyze-error">{error}</div>}
+                {error && (
+                  <div className="analyze-error-wrap">
+                    <div className="analyze-error">{error}</div>
+                    <button className="analyze-retry-btn" onClick={onAnalyze}>다시 시도</button>
+                  </div>
+                )}
 
                 <button
                   className="btn-hero analyze-btn"
                   onClick={onAnalyze}
-                  disabled={!file || loading || !agreed}
+                  disabled={(inputMode === 'file' ? !file : !resumeText.trim()) || loading || !agreed}
                 >
                   {loading ? 'AI 분석 중...' : '분석 시작하기 →'}
                 </button>
@@ -1665,7 +1720,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {loading && (
                   <div className="analyze-loading">
                     <div className="loading-bar"><div className="loading-fill" /></div>
-                    <div className="loading-text">헤드헌터 AI가 이력서를 검토하고 있습니다...</div>
+                    <div className="loading-text">{loadingMsg || '헤드헌터 AI가 이력서를 검토하고 있습니다...'}</div>
                   </div>
                 )}
               </>

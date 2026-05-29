@@ -163,21 +163,27 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData()
     const file = formData.get('resume') as File | null
+    const pastedText = ((formData.get('resumeText') as string | null) ?? '').trim()
     const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
-    if (!file) return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 })
-    if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: '파일 크기는 10MB 이하여야 합니다.' }, { status: 400 })
 
-    const buffer = Buffer.from(await file.arrayBuffer())
     let resumeText: string
-    try {
-      resumeText = await extractText(buffer, file.name)
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : '파일을 읽을 수 없습니다.'
-      return NextResponse.json({ error: msg }, { status: 422 })
-    }
+    let buffer: Buffer | null = null
 
-    if (!resumeText.trim()) {
-      return NextResponse.json({ error: '이력서에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
+    if (pastedText) {
+      resumeText = pastedText
+    } else {
+      if (!file) return NextResponse.json({ error: '파일 또는 텍스트를 입력해 주세요.' }, { status: 400 })
+      if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: '파일 크기는 10MB 이하여야 합니다.' }, { status: 400 })
+      buffer = Buffer.from(await file.arrayBuffer())
+      try {
+        resumeText = await extractText(buffer, file.name)
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : '파일을 읽을 수 없습니다.'
+        return NextResponse.json({ error: msg }, { status: 422 })
+      }
+      if (!resumeText.trim()) {
+        return NextResponse.json({ error: '이력서에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
+      }
     }
 
     const nameMatch = resumeText.match(
@@ -338,7 +344,7 @@ ${maskedText}
     let rewriteFilePath: string | null = null
     let rewriteCouponUsed: string | null = null
 
-    if (insertData?.id && preserveMode !== 'skip') {
+    if (insertData?.id && preserveMode !== 'skip' && file && buffer) {
       const { data: prevAnalyses } = await supabase
         .from('analyses')
         .select('id, result')
