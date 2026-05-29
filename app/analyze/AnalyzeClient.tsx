@@ -2529,9 +2529,13 @@ function JDResults({
         </div>
         <div className="results-section">
           <div className="results-label">부족한 점 · 리스크</div>
-          <ul className="jd-gap-list">
-            {toArr(result.gaps).map((g, i) => <li key={i}>{g}</li>)}
-          </ul>
+          {toArr(result.gaps).length > 0 ? (
+            <ul className="jd-gap-list">
+              {toArr(result.gaps).map((g, i) => <li key={i}>{g}</li>)}
+            </ul>
+          ) : (
+            <p className="jd-gap-empty">특별한 리스크가 감지되지 않았습니다.</p>
+          )}
         </div>
       </div>
 
