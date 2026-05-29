@@ -25,7 +25,7 @@ const careerPathsTool: Anthropic.Tool = {
             salary_range: { type: 'string', description: '예상 연봉 범위 (예: 4,500만원~6,500만원)' },
             salary_bands: {
               type: 'array',
-              description: '4개: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+',
+              description: '3개: 1년 뒤, 3년 뒤, 5년 뒤',
               items: {
                 type: 'object',
                 properties: {
@@ -36,7 +36,7 @@ const careerPathsTool: Anthropic.Tool = {
                 required: ['period', 'min', 'max'],
               },
             },
-            points: { type: 'array', items: { type: 'string' }, description: '이 경로의 실전 조언 3개' },
+            points: { type: 'array', items: { type: 'string' }, description: '이 경로의 실전 조언 2개' },
           },
           required: ['type', 'label', 'title', 'salary_range', 'salary_bands', 'points'],
         },
@@ -112,11 +112,11 @@ ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''
 - RECOMMENDED: 강점을 최대로 활용한 현실적인 커리어 전환 경로. 지금보다 높은 연봉과 성장 가능성
 - STRETCH: 2~3년 준비 시 도달 가능한 고성장·고위험 경로. 시장 희소성이 높은 포지션
 
-각 경로에 연봉 밴드(1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+)와 실전 조언 3개를 반드시 포함하십시오.`
+각 경로에 연봉 밴드(1년 뒤, 3년 뒤, 5년 뒤)와 실전 조언 2개를 반드시 포함하십시오.`
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2500,
+      max_tokens: 1500,
       tool_choice: { type: 'tool', name: 'generate_career_paths' },
       tools: [careerPathsTool],
       messages: [{ role: 'user', content: prompt }],
@@ -129,13 +129,14 @@ ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''
 
     const careerPaths = (toolUse.input as { career_paths: unknown[] }).career_paths
 
-    // DB 업데이트 (career_paths 갱신)
+    // DB 업데이트 (fire-and-forget)
     const updatedResult = { ...result, career_paths: careerPaths, plan: 'PRO' }
-    await supabase
+    supabase
       .from('analyses')
       .update({ result: updatedResult })
       .eq('id', id)
       .eq('user_email', email)
+      .then(() => {})
 
     return NextResponse.json({ career_paths: careerPaths })
   } catch (e) {
