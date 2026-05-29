@@ -3336,6 +3336,31 @@ footer {
   color: var(--muted2);
   padding: 10px 0 4px;
 }
+.career-expand-spinner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted2);
+  padding: 12px 0;
+}
+.career-expand-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #ff8080;
+  padding: 10px 0;
+}
+.analyze-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ─── Free 이전 분석 배너 ─── */
 .free-saved-notice {

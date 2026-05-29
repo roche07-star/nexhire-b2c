@@ -2000,7 +2000,7 @@ function AnalysisResults({
   isPro?: boolean
 }) {
   const [activeCareerTab, setActiveCareerTab] = useState(
-    result.career_paths ? Math.min(1, result.career_paths.length - 1) : 0
+    result.career_paths && result.career_paths.length > 0 ? Math.min(1, result.career_paths.length - 1) : 0
   )
   const [lockedTab, setLockedTab] = useState<'RECOMMENDED' | 'STRETCH' | null>(null)
   const [expandedPaths, setExpandedPaths] = useState<CareerPath[] | undefined>(
@@ -2015,15 +2015,18 @@ function AnalysisResults({
     if (!isPro || !analysisId) return
     if (expandedPaths && expandedPaths.length >= 3) return
     setExpanding(true)
+    setExpandError(null)
     fetch(`/api/analyze/${analysisId}/expand`, { method: 'POST' })
       .then(r => r.json())
       .then(data => {
         if (data.career_paths) {
           setExpandedPaths(data.career_paths)
           setActiveCareerTab(Math.min(1, data.career_paths.length - 1))
+        } else {
+          setExpandError(data.error ?? '커리어 경로를 불러오지 못했습니다.')
         }
       })
-      .catch(() => {})
+      .catch(() => setExpandError('커리어 경로 로딩 중 오류가 발생했습니다.'))
       .finally(() => setExpanding(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -2156,6 +2159,39 @@ function AnalysisResults({
         </div>
       </div>
 
+      {isPro && expanding && (!paths || paths.length === 0) && (
+        <div className="results-section career-expand-loading">
+          <div className="results-label" style={{ marginTop: 8 }}>💡 커리어 방향 분석</div>
+          <div className="career-expand-spinner">
+            <div className="analyze-spinner" />
+            <span>커리어 경로를 분석하는 중...</span>
+          </div>
+        </div>
+      )}
+      {isPro && !expanding && expandError && (!paths || paths.length === 0) && (
+        <div className="results-section">
+          <div className="results-label" style={{ marginTop: 8 }}>💡 커리어 방향 분석</div>
+          <div className="career-expand-error">
+            <span>{expandError}</span>
+            <button className="analyze-retry-btn" onClick={() => {
+              setExpandError(null)
+              setExpanding(true)
+              fetch(`/api/analyze/${analysisId}/expand`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                  if (data.career_paths) {
+                    setExpandedPaths(data.career_paths)
+                    setActiveCareerTab(Math.min(1, data.career_paths.length - 1))
+                  } else {
+                    setExpandError(data.error ?? '커리어 경로를 불러오지 못했습니다.')
+                  }
+                })
+                .catch(() => setExpandError('커리어 경로 로딩 중 오류가 발생했습니다.'))
+                .finally(() => setExpanding(false))
+            }}>다시 시도</button>
+          </div>
+        </div>
+      )}
       {paths && active ? (
         <div className="results-section">
           <div className="results-label" style={{ marginTop: 8 }}>💡 커리어 방향 분석</div>
