@@ -1659,6 +1659,11 @@ footer {
   color: var(--muted);
   border: 1px solid var(--border);
 }
+.preserve-badge.text-paste {
+  background: rgba(100,160,255,0.1);
+  color: #7ab4ff;
+  border: 1px solid rgba(100,160,255,0.3);
+}
 
 /* 이력서 저장 체크박스 */
 .preserve-checkbox-section {

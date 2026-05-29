@@ -1134,41 +1134,50 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 ) : (
                   <div className="jd-saved-list">
                     {analysisList.map((item) => (
-                      <div key={item.id} className="jd-saved-card rewrite-card">
-                        <div className="jd-saved-card-left">
-                          <span className="jd-saved-company">
-                            {item.result.job_title ?? '이력서 분석'}
-                            {item.result._file_path
-                              ? <span className="preserve-badge saved">보존됨</span>
-                              : <span className="preserve-badge unsaved">미보존</span>
-                            }
-                          </span>
-                          <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
-                        </div>
-                        <div className="jd-saved-card-right">
-                          <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
-                        </div>
-                        {(() => {
-                          const now2 = new Date()
-                          const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now2)
-                          const noFile = !item.result._file_path
-                          const disabledTitle = noFile
-                            ? '원본 파일이 보존되지 않은 이력서입니다'
-                            : !hasValidJd
-                            ? 'JD 적합도 분석을 먼저 진행해 주세요'
-                            : undefined
-                          return (
+                      {(() => {
+                        const now2 = new Date()
+                        const hasValidJd = (jdSavedList ?? []).some(jd => !jd.expires_at || new Date(jd.expires_at) > now2)
+                        const filePath = item.result._file_path as string | undefined
+                        const isTextPaste = filePath?.endsWith('.txt') ?? false
+                        const noFile = !filePath
+                        const disabledTitle = noFile
+                          ? '원본 파일이 보존되지 않은 이력서입니다'
+                          : !hasValidJd
+                          ? 'JD 적합도 분석을 먼저 진행해 주세요'
+                          : undefined
+                        return (
+                          <div key={item.id} className="jd-saved-card rewrite-card">
+                            <div className="jd-saved-card-left">
+                              <span className="jd-saved-company">
+                                {item.result.job_title ?? '이력서 분석'}
+                                {isTextPaste
+                                  ? <span className="preserve-badge text-paste">텍스트 입력</span>
+                                  : filePath
+                                  ? <span className="preserve-badge saved">보존됨</span>
+                                  : <span className="preserve-badge unsaved">미보존</span>
+                                }
+                              </span>
+                              <span className="jd-saved-resume">
+                                {isTextPaste
+                                  ? '양식 업로드 또는 자율 포맷으로 이력서 생성 가능'
+                                  : item.result.summary?.slice(0, 60) + '…'
+                                }
+                              </span>
+                            </div>
+                            <div className="jd-saved-card-right">
+                              <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+                            </div>
                             <button
                               className="rewrite-dl-btn"
-                              onClick={() => handleRewrite(item.id, item.result._file_path)}
+                              onClick={() => handleRewrite(item.id, filePath)}
                               disabled={rewritingId === item.id || noFile || !hasValidJd}
                               title={disabledTitle}
                             >
                               {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
                             </button>
-                          )
-                        })()}
-                      </div>
+                          </div>
+                        )
+                      })()}
                     ))}
                   </div>
                 )}
