@@ -529,6 +529,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdSelectModal, setJdSelectModal] = useState(false)
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
   const [formatSelectModal, setFormatSelectModal] = useState(false)
+  const [isTextPasteRewrite, setIsTextPasteRewrite] = useState(false)
   const formatSelectResolveRef = useRef<((choice: 'original' | 'updated' | 'cancel') => void) | null>(null)
   const [templateUploadModal, setTemplateUploadModal] = useState(false)
   const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
@@ -658,8 +659,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     templateUploadResolveRef.current = null
   }
 
-  async function handleRewrite(analysisId: string) {
+  async function handleRewrite(analysisId: string, filePath?: string | null) {
     setRewriteError(null)
+    setIsTextPasteRewrite(filePath?.endsWith('.txt') ?? false)
 
     // 양식 선택 모달
     const formatChoice = await openFormatSelectModal()
@@ -1112,7 +1114,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
                   <strong>기존 이력서</strong>: 원본 포맷·서식을 그대로 유지하며 JD 기반으로 내용을 보완합니다.<br />
-                  <strong>업데이트 이력서</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
+                  <strong>자율 포맷 생성</strong>: 텍스트 붙여넣기로 분석한 경우, AI가 섹션별로 구성하여 새 DOCX로 생성합니다.<br />
+                  <strong>양식 업로드</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
@@ -1157,7 +1160,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           return (
                             <button
                               className="rewrite-dl-btn"
-                              onClick={() => handleRewrite(item.id)}
+                              onClick={() => handleRewrite(item.id, item.result._file_path)}
                               disabled={rewritingId === item.id || noFile || !hasValidJd}
                               title={disabledTitle}
                             >
@@ -1887,28 +1890,34 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
             <div className="preserve-choice-title">이력서 양식 선택</div>
             <div className="preserve-choice-desc">
-              생성할 이력서의 양식을 선택해 주세요.
+              {isTextPasteRewrite
+                ? '텍스트 붙여넣기로 분석된 이력서입니다. 원본 파일 포맷이 없으므로 자율 포맷 생성 또는 양식 업로드 중 선택해 주세요.'
+                : '생성할 이력서의 양식을 선택해 주세요.'}
             </div>
 
             <button className="preserve-option-card" onClick={() => resolveFormatSelect('original')}>
               <div className="preserve-option-top">
-                <span className="preserve-option-icon">📄</span>
-                <span className="preserve-option-label">기존 이력서</span>
-                <span className="preserve-option-badge none">원본 포맷 유지</span>
+                <span className="preserve-option-icon">{isTextPasteRewrite ? '📝' : '📄'}</span>
+                <span className="preserve-option-label">{isTextPasteRewrite ? '자율 포맷 생성' : '기존 이력서'}</span>
+                <span className="preserve-option-badge none">{isTextPasteRewrite ? 'AI 구성' : '원본 포맷 유지'}</span>
               </div>
               <div className="preserve-option-desc">
-                원본 이력서의 포맷·서식을 그대로 유지합니다. DOCX는 서식 완전 보존, PDF는 원본 기반 새 DOCX로 생성됩니다.
+                {isTextPasteRewrite
+                  ? 'AI가 이력서 내용을 섹션별로 분석하여 깔끔한 DOCX 형식으로 새로 구성합니다.'
+                  : '원본 이력서의 포맷·서식을 그대로 유지합니다. DOCX는 서식 완전 보존, PDF는 원본 기반 새 DOCX로 생성됩니다.'}
               </div>
             </button>
 
             <button className="preserve-option-card" onClick={() => resolveFormatSelect('updated')}>
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">✨</span>
-                <span className="preserve-option-label">업데이트 이력서</span>
+                <span className="preserve-option-label">{isTextPasteRewrite ? '이력서 양식 업로드' : '업데이트 이력서'}</span>
                 <span className="preserve-option-badge coupon">양식 업로드</span>
               </div>
               <div className="preserve-option-desc">
-                원하는 DOCX 양식을 업로드하면 원본 이력서 내용을 해당 양식에 맞게 채워 생성합니다.
+                {isTextPasteRewrite
+                  ? '원하는 DOCX 이력서 양식을 업로드하면 분석된 내용을 해당 양식에 맞게 채워 생성합니다.'
+                  : '원하는 DOCX 양식을 업로드하면 원본 이력서 내용을 해당 양식에 맞게 채워 생성합니다.'}
               </div>
             </button>
 
