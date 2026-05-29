@@ -26,17 +26,17 @@ const jdTool: Anthropic.Tool = {
       matching_points: {
         type: 'array',
         items: { type: 'string' },
-        description: 'JD 요구사항과 이력서가 정확히 일치하는 강점 (3-5개, 구체적으로)',
+        description: 'JD 요구사항과 이력서가 정확히 일치하는 강점 (3개, 구체적으로)',
       },
       gaps: {
         type: 'array',
         items: { type: 'string' },
-        description: 'JD 요구사항 중 이력서에 없거나 부족한 항목 (2-4개, 솔직하게)',
+        description: 'JD 요구사항 중 이력서에 없거나 부족한 항목 (2-3개, 솔직하게)',
       },
       pitch_points: {
         type: 'array',
         items: { type: 'string' },
-        description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (4-6개, 구체적으로)',
+        description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (3-4개, 구체적으로)',
       },
     },
     required: ['fit_score', 'recommendation', 'verdict', 'matching_points', 'gaps', 'pitch_points'],
@@ -108,8 +108,8 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
     try {
       const searchMsg = await client.messages.create({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1200,
-        tools: [{ type: 'web_search_20250305' as const, name: 'web_search', max_uses: 3 }],
+        max_tokens: 600,
+        tools: [{ type: 'web_search_20250305' as const, name: 'web_search', max_uses: 2 }],
         messages: [{
           role: 'user',
           content: `"${company}" 회사 정보를 웹에서 검색해줘.${position?.trim() ? ` 채용 포지션: "${position}"` : ''} 다음을 한국어로 간결하게 요약해줘:
@@ -175,7 +175,7 @@ ${candidateProfile}`
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
+      max_tokens: 1200,
       tool_choice: { type: 'tool', name: 'analyze_jd_fit' },
       tools: [jdTool],
       messages: [{ role: 'user', content: prompt }],

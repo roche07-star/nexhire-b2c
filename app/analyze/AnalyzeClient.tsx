@@ -469,6 +469,13 @@ const LOADING_STEPS = [
   '마무리 검토 중...',
 ]
 
+const JD_LOADING_STEPS = [
+  '채용공고를 파악하는 중...',
+  '회사 정보를 검색하는 중...',
+  '후보자 이력과 비교하는 중...',
+  '적합도 리포트를 작성하는 중...',
+]
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -495,6 +502,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdContent, setJdContent] = useState('')
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
+  const [jdLoadingMsg, setJdLoadingMsg] = useState('')
+  const jdLoadingStepRef = useRef(0)
+  const jdLoadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [jdError, setJdError] = useState<string | null>(null)
   const [analysisList, setAnalysisList] = useState<AnalysisListItem[] | null>(null)
   const [analysisListLoading, setAnalysisListLoading] = useState(false)
@@ -907,6 +917,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setJdLoading(true)
     setJdError(null)
     setJdResult(null)
+    jdLoadingStepRef.current = 0
+    setJdLoadingMsg(JD_LOADING_STEPS[0])
+    jdLoadingIntervalRef.current = setInterval(() => {
+      jdLoadingStepRef.current = Math.min(jdLoadingStepRef.current + 1, JD_LOADING_STEPS.length - 1)
+      setJdLoadingMsg(JD_LOADING_STEPS[jdLoadingStepRef.current])
+    }, 8000)
     try {
       const res = await fetch('/api/analyze/jd', {
         method: 'POST',
@@ -928,6 +944,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     } catch {
       setJdError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
     } finally {
+      if (jdLoadingIntervalRef.current) {
+        clearInterval(jdLoadingIntervalRef.current)
+        jdLoadingIntervalRef.current = null
+      }
       setJdLoading(false)
     }
   }
@@ -1482,7 +1502,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       {jdLoading && (
                         <div className="analyze-loading">
                           <div className="loading-bar"><div className="loading-fill" /></div>
-                          <div className="loading-text">헤드헌터 AI가 JD 적합도를 분석하고 있습니다...</div>
+                          <div className="loading-text">{jdLoadingMsg}</div>
                         </div>
                       )}
                     </div>
