@@ -3185,6 +3185,10 @@ footer {
   color: var(--muted2);
   line-height: 1.6;
 }
+.career-lock-cta--pro {
+  background: rgba(232,255,71,0.05);
+  border-color: rgba(232,255,71,0.2);
+}
 
 /* ─── Free 이전 분석 배너 ─── */
 .free-saved-notice {

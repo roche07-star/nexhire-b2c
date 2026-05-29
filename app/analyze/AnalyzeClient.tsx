@@ -2114,7 +2114,7 @@ function AnalysisResults({
                   {type === 'RECOMMENDED' ? 'X,XXX~X,XXX만원' : 'X,XXX만원~1억+'}
                 </div>
                 <div className="career-card-title career-blur-text">AI 추천 경로</div>
-                <div className="career-card-lock-icon">🔒</div>
+                <div className="career-card-lock-icon">{isPro ? '🔄' : '🔒'}</div>
               </button>
             ))}
           </div>
@@ -2136,7 +2136,7 @@ function AnalysisResults({
                 onClick={() => setLockedTab(type)}
               >
                 <span className="career-tab-label" style={{ color: CAREER_COLORS[type] }}>{type}</span>
-                <span className="career-tab-sub">🔒 PRO 전용</span>
+                <span className="career-tab-sub">{isPro ? '🔄 재분석 필요' : '🔒 PRO 전용'}</span>
               </button>
             ))}
           </div>
@@ -2171,19 +2171,35 @@ function AnalysisResults({
                   </div>
                 </div>
               </div>
-              <div className="career-lock-cta">
-                <div className="career-lock-cta-icon">🔒</div>
-                <div className="career-lock-cta-title">
-                  {lockedTab === 'RECOMMENDED' ? 'AI 추천 커리어 전환 경로' : '고성장 도전 커리어 경로'}
-                </div>
-                <p className="career-lock-cta-desc">
-                  {lockedTab === 'RECOMMENDED'
-                    ? '내 강점을 최대로 활용한 헤드헌터 추천 경로 — 현실적으로 가능한 연봉 점프와 구체적인 전환 전략을 PRO에서 확인하세요.'
-                    : '2~3년 준비 시 도달 가능한 고성장 경로 — 시장 희소성이 높은 포지션과 연봉 상단, 단계별 액션플랜을 확인하세요.'}
-                </p>
-                <Link href="/#pricing">
-                  <button className="btn-hero" style={{ width: '100%', marginTop: 4 }}>PRO 플랜 보기 →</button>
-                </Link>
+              <div className={`career-lock-cta${isPro ? ' career-lock-cta--pro' : ''}`}>
+                {isPro ? (
+                  <>
+                    <div className="career-lock-cta-icon">🔄</div>
+                    <div className="career-lock-cta-title">재분석으로 잠금 해제</div>
+                    <p className="career-lock-cta-desc">
+                      이 분석은 Free 플랜에서 생성되어 {lockedTab === 'RECOMMENDED' ? 'RECOMMENDED' : 'STRETCH'} 경로가 포함되지 않았습니다.
+                      이력서를 다시 업로드하면 3가지 커리어 경로를 즉시 확인할 수 있습니다.
+                    </p>
+                    <Link href="/analyze">
+                      <button className="btn-hero" style={{ width: '100%', marginTop: 4 }}>이력서 다시 분석하기 →</button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <div className="career-lock-cta-icon">🔒</div>
+                    <div className="career-lock-cta-title">
+                      {lockedTab === 'RECOMMENDED' ? 'AI 추천 커리어 전환 경로' : '고성장 도전 커리어 경로'}
+                    </div>
+                    <p className="career-lock-cta-desc">
+                      {lockedTab === 'RECOMMENDED'
+                        ? '내 강점을 최대로 활용한 헤드헌터 추천 경로 — 현실적으로 가능한 연봉 점프와 구체적인 전환 전략을 PRO에서 확인하세요.'
+                        : '2~3년 준비 시 도달 가능한 고성장 경로 — 시장 희소성이 높은 포지션과 연봉 상단, 단계별 액션플랜을 확인하세요.'}
+                    </p>
+                    <Link href="/#pricing">
+                      <button className="btn-hero" style={{ width: '100%', marginTop: 4 }}>PRO 플랜 보기 →</button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           ) : (
