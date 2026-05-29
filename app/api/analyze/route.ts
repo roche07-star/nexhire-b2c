@@ -6,7 +6,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
-export const maxDuration = 60
+export const maxDuration = 90
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -62,7 +62,6 @@ const baseTool: Anthropic.Tool = {
     required: ['job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
   },
 }
-// PRO 기본 분석 (career_paths 제외 — 별도 call로 분리)
 const proBasicTool: Anthropic.Tool = {
   name: 'analyze_resume',
   description: '한국어 이력서를 분석하여 구직자의 강점, 개선점을 상세히 제시합니다.',
@@ -88,10 +87,10 @@ const proBasicTool: Anthropic.Tool = {
   },
 }
 
-// PRO 커리어 경로 전용 tool
+// PRO 커리어 경로 전용 tool (3 salary bands, 2 points — expand route와 동일 스키마)
 const proCareerTool: Anthropic.Tool = {
   name: 'generate_career_paths',
-  description: '후보자 이력서를 분석하여 3가지 커리어 방향을 제시합니다.',
+  description: '후보자 프로필을 바탕으로 3가지 커리어 방향(BASELINE/RECOMMENDED/STRETCH)을 제시합니다.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -107,7 +106,7 @@ const proCareerTool: Anthropic.Tool = {
             salary_range: { type: 'string', description: '예상 연봉 범위 (예: 4,500만원~6,500만원)' },
             salary_bands: {
               type: 'array',
-              description: '4개: 1년 뒤, 3년 뒤, 5년 뒤, 7년 뒤+',
+              description: '3개: 1년 뒤, 3년 뒤, 5년 뒤',
               items: {
                 type: 'object',
                 properties: {
@@ -118,7 +117,7 @@ const proCareerTool: Anthropic.Tool = {
                 required: ['period', 'min', 'max'],
               },
             },
-            points: { type: 'array', items: { type: 'string' }, description: '이 경로의 실전 조언 3개' },
+            points: { type: 'array', items: { type: 'string' }, description: '이 경로의 실전 조언 2개' },
           },
           required: ['type', 'label', 'title', 'salary_range', 'salary_bands', 'points'],
         },
@@ -206,8 +205,7 @@ export async function POST(req: NextRequest) {
     let resultPayload: Record<string, unknown>
 
     if (isPro) {
-      // PRO: 기본 분석만 실행 — 커리어 경로는 클라이언트에서 expand 엔드포인트로 별도 로드
-      // (병렬 실행 시 합산 시간이 Vercel 60초 한도를 초과해 504 발생하는 문제 해결)
+      // PRO: 기본 분석 → 커리어 경로 순차 실행 (병렬→504 문제 해결, maxDuration=90)
       const basicPrompt = `${headhunterBase}
 
 [분석 절차]
@@ -244,9 +242,51 @@ ${maskedText}
         return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
       }
 
+      const basicInput = basicTU.input as Record<string, unknown>
+
+      // 커리어 경로: 기본 분석 완료 후 순차 실행 (실패 시 [] 반환 — expand 엔드포인트가 재시도 역할)
+      let careerPaths: unknown[] = []
+      try {
+        const strengths = Array.isArray(basicInput.strengths) ? (basicInput.strengths as string[]).join(' / ') : ''
+        const improvements = Array.isArray(basicInput.improvements) ? (basicInput.improvements as string[]).join(' / ') : ''
+        const keywords = Array.isArray(basicInput.keywords) ? (basicInput.keywords as string[]).join(', ') : ''
+
+        const careerPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다. 아래 후보자 프로필을 바탕으로 3가지 커리어 방향을 제시하십시오.
+
+[후보자 프로필]
+현재 직무: ${basicInput.job_title ?? '미상'}
+종합 요약: ${basicInput.summary ?? ''}
+핵심 강점: ${strengths}
+개선 포인트: ${improvements}
+핵심 키워드: ${keywords}
+
+[경로별 지침]
+- BASELINE: 현재 직무 트랙을 유지·발전하는 가장 현실적인 경로
+- RECOMMENDED: 강점을 최대로 활용한 현실적인 커리어 전환 경로. 지금보다 높은 연봉과 성장 가능성
+- STRETCH: 2~3년 준비 시 도달 가능한 고성장·고위험 경로. 시장 희소성이 높은 포지션
+
+각 경로에 연봉 밴드(1년 뒤, 3년 뒤, 5년 뒤)와 실전 조언 2개를 반드시 포함하십시오.`
+
+        const careerMsg = await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2000,
+          tool_choice: { type: 'tool', name: 'generate_career_paths' },
+          tools: [proCareerTool],
+          messages: [{ role: 'user', content: careerPrompt }],
+        })
+
+        const careerTU = careerMsg.content.find(c => c.type === 'tool_use')
+        if (careerTU && careerTU.type === 'tool_use') {
+          const paths = (careerTU.input as { career_paths: unknown[] }).career_paths
+          if (Array.isArray(paths) && paths.length > 0) careerPaths = paths
+        }
+      } catch (err) {
+        console.error('[analyze] career paths error (non-fatal):', err)
+      }
+
       resultPayload = {
-        ...(basicTU.input as object),
-        career_paths: [],  // expand 엔드포인트에서 자동 로드
+        ...basicInput,
+        career_paths: careerPaths,
         plan,
         ...(candidateName ? { candidate_name: candidateName } : {}),
       }
