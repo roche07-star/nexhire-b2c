@@ -641,11 +641,13 @@ export async function POST(req: NextRequest) {
     const sectionChanges = Array.isArray(rewriteData.changes) ? rewriteData.changes : []
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
 
+    if (!Array.isArray(rewriteData.sections) || rewriteData.sections.length === 0) {
+      return NextResponse.json({ error: '이력서 섹션 데이터를 받지 못했습니다. 다시 시도해 주세요.' }, { status: 500 })
+    }
+
     // PII 복원: Claude가 마스킹된 값으로 작성한 경우 원본 이메일·연락처·이름으로 치환
-    if (Array.isArray(rewriteData.sections)) {
-      for (const sec of rewriteData.sections) {
-        sec.content = restorePIIValues(sec.content, piiValues)
-      }
+    for (const sec of rewriteData.sections) {
+      sec.content = restorePIIValues(sec.content, piiValues)
     }
 
     // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)

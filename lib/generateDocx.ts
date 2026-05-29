@@ -71,7 +71,7 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
   }
 
   // 원본 섹션 순서 그대로
-  for (const section of data.sections) {
+  for (const section of (data.sections ?? [])) {
     children.push(sectionHeading(section.title))
     children.push(...contentLines(section.content))
   }
