@@ -1228,6 +1228,34 @@ footer {
 .admin-header { display: flex; flex-direction: column; gap: 6px; }
 .admin-title { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 700; }
 
+.admin-detail-link {
+  background: none; border: none; padding: 0;
+  color: var(--accent2); font-size: 13px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.admin-detail-link:hover { color: var(--accent); }
+.admin-detail-modal {
+  background: #13131a; border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; width: 560px; max-width: 95vw;
+  max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+}
+.admin-detail-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.admin-detail-email { font-size: 15px; font-weight: 700; color: #fff; }
+.admin-detail-loading { text-align: center; color: var(--muted2); padding: 24px; }
+.admin-detail-section { display: flex; flex-direction: column; gap: 8px; }
+.admin-detail-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--muted2); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 6px;
+}
+.admin-detail-row {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  font-size: 13px; color: var(--muted2); padding: 4px 0;
+}
+.admin-detail-row span { color: #c0c0d0; }
+.admin-detail-row code { font-size: 12px; color: var(--accent); background: rgba(232,255,71,0.08); padding: 2px 8px; border-radius: 6px; }
+
 .admin-toast {
   background: var(--accent);
   color: #000;

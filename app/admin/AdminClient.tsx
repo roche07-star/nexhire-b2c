@@ -60,6 +60,24 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const [genResult, setGenResult] = useState<string[] | null>(null)
   const [genLoading, setGenLoading] = useState(false)
 
+  // 유저 상세 모달
+  const [detailEmail, setDetailEmail] = useState<string | null>(null)
+  const [detailData, setDetailData] = useState<Record<string, unknown> | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  async function openUserDetail(email: string) {
+    setDetailEmail(email)
+    setDetailData(null)
+    setDetailLoading(true)
+    try {
+      const res = await fetch(`/api/admin/user-detail?email=${encodeURIComponent(email)}`)
+      const data = await res.json()
+      setDetailData(data)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   function showMsg(text: string) {
     setMsg(text)
     setTimeout(() => setMsg(null), 3000)
@@ -392,7 +410,11 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                           <td>{FEATURE_LABELS[c.feature] ?? c.feature}</td>
                           <td>{c.price > 0 ? `₩${c.price.toLocaleString()}` : '—'}</td>
                           <td className="admin-user-email">{c.issued_to ?? '—'}</td>
-                          <td className="admin-user-email">{c.claimed_by ?? '—'}</td>
+                          <td className="admin-user-email">
+                            {c.claimed_by
+                              ? <button className="admin-detail-link" onClick={() => openUserDetail(c.claimed_by!)}>{c.claimed_by}</button>
+                              : '—'}
+                          </td>
                           <td className="admin-date">{c.expires_at ? new Date(c.expires_at).toLocaleDateString('ko-KR') : '무제한'}</td>
                           <td><span className={`coupon-status-badge ${st.cls}`}>{st.label}</span></td>
                         </tr>
@@ -408,6 +430,88 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
           </div>
         )}
       </div>
+
+      {/* 유저 상세 모달 */}
+      {detailEmail && (
+        <div className="withdraw-overlay" onClick={() => setDetailEmail(null)}>
+          <div className="admin-detail-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-detail-header">
+              <span className="admin-detail-email">{detailEmail}</span>
+              <button className="withdraw-close" onClick={() => setDetailEmail(null)}>×</button>
+            </div>
+
+            {detailLoading ? (
+              <div className="admin-detail-loading">불러오는 중...</div>
+            ) : detailData && (() => {
+              const u = detailData.user as Record<string, unknown> | null
+              const analyses = detailData.analyses as Array<Record<string, unknown>>
+              const jdAnalyses = detailData.jdAnalyses as Array<Record<string, unknown>>
+              const couponsUsed = detailData.coupons as Array<Record<string, unknown>>
+              return (
+                <>
+                  {u && (
+                    <div className="admin-detail-section">
+                      <div className="admin-detail-label">플랜 · 사용량</div>
+                      <div className="admin-detail-row">
+                        <span className={`plan-badge ${String(u.plan).toLowerCase()}`}>{String(u.plan)}</span>
+                        <span>이력서 분석 {String(u.analyze_count)}회</span>
+                        <span>JD 분석 {String(u.jd_count)}회</span>
+                        <span>이력서 생성 {String(u.rewrite_count)}회</span>
+                        <span>면접 가이드 {String(u.interview_count)}회</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {couponsUsed.length > 0 && (
+                    <div className="admin-detail-section">
+                      <div className="admin-detail-label">등록한 쿠폰</div>
+                      {couponsUsed.map((c, i) => (
+                        <div key={i} className="admin-detail-row">
+                          <code>{String(c.code)}</code>
+                          <span>{FEATURE_LABELS[String(c.feature)] ?? String(c.feature)}</span>
+                          <span>{c.used_at ? '사용 완료' : '미사용'}</span>
+                          <span className="admin-date">{new Date(String(c.claimed_at)).toLocaleDateString('ko-KR')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {analyses.length > 0 && (
+                    <div className="admin-detail-section">
+                      <div className="admin-detail-label">이력서 분석 내역 (최근 5건)</div>
+                      {analyses.map((a, i) => {
+                        const r = a.result as Record<string, unknown>
+                        return (
+                          <div key={i} className="admin-detail-row">
+                            <span>{String(r?.job_title ?? '—')}</span>
+                            <span className="admin-date">{new Date(String(a.created_at)).toLocaleDateString('ko-KR')}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {jdAnalyses.length > 0 && (
+                    <div className="admin-detail-section">
+                      <div className="admin-detail-label">JD 분석 내역 (최근 5건)</div>
+                      {jdAnalyses.map((a, i) => {
+                        const r = a.result as Record<string, unknown>
+                        return (
+                          <div key={i} className="admin-detail-row">
+                            <span>{String(r?.company ?? '—')}</span>
+                            <span>{String(r?.position ?? '')}</span>
+                            <span className="admin-date">{new Date(String(a.created_at)).toLocaleDateString('ko-KR')}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
     </main>
   )
 }
