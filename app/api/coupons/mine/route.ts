@@ -13,10 +13,17 @@ export async function GET() {
       .from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
       .eq('claimed_by', session.user.email)
-      .is('used_at', null)
       .order('claimed_at', { ascending: false })
 
-    return NextResponse.json({ coupons: data ?? [] })
+    const now = new Date()
+    const coupons = (data ?? []).map(c => ({
+      ...c,
+      status: c.used_at ? 'used'
+        : c.expires_at && new Date(c.expires_at) < now ? 'expired'
+        : 'active',
+    }))
+
+    return NextResponse.json({ coupons })
   } catch (e) {
     console.error('[coupons/mine]', e)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })

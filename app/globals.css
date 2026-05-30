@@ -3052,6 +3052,17 @@ footer {
 .coupon-msg.ok { background: rgba(123,97,255,0.1); color: #b8a0ff; }
 .coupon-msg.err { background: rgba(255,80,80,0.1); color: #ff8080; }
 
+.my-coupons-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.my-coupons-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--muted2); text-transform: uppercase; margin-bottom: 4px; }
+.my-coupon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; }
+.my-coupon-code { font-size: 12px; color: var(--accent); background: rgba(232,255,71,0.07); padding: 2px 8px; border-radius: 5px; }
+.my-coupon-feature { font-size: 12px; color: var(--muted2); }
+.my-coupon-status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: auto; }
+.my-coupon-status.active { background: rgba(76,175,134,0.15); color: #4caf86; }
+.my-coupon-status.used { background: rgba(150,150,150,0.1); color: #666; }
+.my-coupon-status.expired { background: rgba(255,107,107,0.1); color: #ff6b6b; }
+.my-coupon-expires { font-size: 11px; color: var(--muted2); }
+
 /* ─── COUPON ADMIN ─── */
 .admin-tab-bar {
   display: flex;

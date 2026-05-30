@@ -518,7 +518,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
   const [deletingAnalysisId, setDeletingAnalysisId] = useState<string | null>(null)
   const [deletingJdId, setDeletingJdId] = useState<string | null>(null)
-  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string }[]>([])
+  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string; used_at?: string | null; expires_at?: string | null }[]>([])
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
@@ -1618,9 +1618,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <>
                 {/* 쿠폰 영역 */}
                 <div className="coupon-section">
-                  {myCoupons.filter(c => c.feature === 'resume').length > 0 ? (
+                  {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length > 0 ? (
                     <div className="coupon-active-badge">
-                      🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume').length}개 보유 — 이번 분석이 무료로 진행됩니다
+                      🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 이번 분석이 무료로 진행됩니다
                     </div>
                   ) : (
                     <div className="coupon-input-row">
@@ -1638,6 +1638,27 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   )}
                   {couponMsg && (
                     <div className={`coupon-msg${couponMsg.ok ? ' ok' : ' err'}`}>{couponMsg.text}</div>
+                  )}
+
+                  {/* 내 쿠폰 현황 */}
+                  {myCoupons.length > 0 && (
+                    <div className="my-coupons-list">
+                      <div className="my-coupons-title">내 쿠폰 현황</div>
+                      {myCoupons.map(c => (
+                        <div key={c.id} className="my-coupon-row">
+                          <code className="my-coupon-code">{c.code}</code>
+                          <span className="my-coupon-feature">{FEATURE_LABEL[c.feature] ?? c.feature}</span>
+                          <span className={`my-coupon-status ${c.status ?? 'active'}`}>
+                            {c.status === 'used' ? '사용 완료' : c.status === 'expired' ? '만료' : '사용 가능'}
+                          </span>
+                          {c.expires_at && c.status === 'active' && (
+                            <span className="my-coupon-expires">
+                              ~{new Date(c.expires_at).toLocaleDateString('ko-KR')}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
 
