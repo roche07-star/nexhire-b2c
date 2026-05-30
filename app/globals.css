@@ -3052,7 +3052,34 @@ footer {
 .coupon-msg.ok { background: rgba(123,97,255,0.1); color: #b8a0ff; }
 .coupon-msg.err { background: rgba(255,80,80,0.1); color: #ff8080; }
 
-.my-coupons-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.my-info-btn { font-size: 13px !important; padding: 6px 14px !important; }
+.my-info-modal {
+  background: #13131a; border: 1px solid var(--border); border-radius: 16px;
+  padding: 28px; width: 480px; max-width: 95vw; max-height: 82vh;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
+}
+.my-info-header { display: flex; justify-content: space-between; align-items: center; }
+.my-info-title { font-size: 16px; font-weight: 700; color: #fff; }
+.my-info-loading { text-align: center; color: var(--muted2); padding: 32px; }
+.my-info-empty { font-size: 13px; color: var(--muted2); }
+.my-info-section { display: flex; flex-direction: column; gap: 12px; }
+.my-info-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted2); text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.my-info-plan-row { display: flex; align-items: center; gap: 10px; }
+.my-info-reset { font-size: 12px; color: var(--muted2); }
+.my-info-usage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.my-info-usage-item { display: flex; flex-direction: column; gap: 6px; }
+.my-info-usage-top { display: flex; justify-content: space-between; align-items: baseline; }
+.my-info-usage-name { font-size: 12px; color: var(--muted2); }
+.my-info-usage-val { font-size: 14px; font-weight: 700; color: var(--accent); }
+.my-info-usage-val span { font-size: 11px; color: var(--muted2); font-weight: 400; }
+.my-info-usage-val.warn { color: #e8a020; }
+.my-info-usage-val.full { color: #ff6b6b; }
+.my-info-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+.my-info-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s; }
+.my-info-bar.warn { background: #e8a020; }
+.my-info-bar.full { background: #ff6b6b; }
+
+.my-coupons-list { display: flex; flex-direction: column; gap: 6px; }
 .my-coupons-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--muted2); text-transform: uppercase; margin-bottom: 4px; }
 .my-coupon-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; }
 .my-coupon-code { font-size: 12px; color: var(--accent); background: rgba(232,255,71,0.07); padding: 2px 8px; border-radius: 5px; }

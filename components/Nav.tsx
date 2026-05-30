@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { auth, signOut } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import MyInfoButton from './MyInfoModal'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -85,6 +86,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
                 </div>
               )}
             </div>
+            {user.role !== 'MANAGER' && <MyInfoButton />}
             {user.role === 'MANAGER' && (
               <Link href="/admin"><button className="btn-ghost">관리자</button></Link>
             )}
