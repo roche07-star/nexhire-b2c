@@ -3053,10 +3053,17 @@ footer {
 .coupon-msg.err { background: rgba(255,80,80,0.1); color: #ff8080; }
 
 .my-info-btn { font-size: 13px !important; padding: 6px 14px !important; }
+.my-info-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 1000; display: flex;
+  align-items: flex-start; justify-content: flex-end;
+  padding: 68px 24px 0;
+}
 .my-info-modal {
   background: #13131a; border: 1px solid var(--border); border-radius: 16px;
   padding: 28px; width: 480px; max-width: 95vw; max-height: 82vh;
   overflow-y: auto; display: flex; flex-direction: column; gap: 24px;
+  margin-top: 72px; align-self: flex-start;
 }
 .my-info-header { display: flex; justify-content: space-between; align-items: center; }
 .my-info-title { font-size: 16px; font-weight: 700; color: #fff; }

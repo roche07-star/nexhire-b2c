@@ -518,10 +518,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
   const [deletingAnalysisId, setDeletingAnalysisId] = useState<string | null>(null)
   const [deletingJdId, setDeletingJdId] = useState<string | null>(null)
-  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string; used_at?: string | null; expires_at?: string | null }[]>([])
-  const [couponInput, setCouponInput] = useState('')
-  const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
-  const [couponClaiming, setCouponClaiming] = useState(false)
+  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string }[]>([])
   const [analysisId, setAnalysisId] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveChecked, setPreserveChecked] = useState(true)
@@ -727,29 +724,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       setRewriteError('서버 오류가 발생했습니다.')
     } finally {
       setRewritingId(null)
-    }
-  }
-
-  async function claimCoupon() {
-    if (!couponInput.trim()) return
-    setCouponClaiming(true)
-    setCouponMsg(null)
-    try {
-      const res = await fetch('/api/coupons/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponInput.trim() }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setMyCoupons((prev) => [...prev, { id: data.id ?? '', code: data.code, feature: data.feature }])
-        setCouponMsg({ text: `쿠폰 등록 완료! (${FEATURE_LABEL[data.feature] ?? data.feature})`, ok: true })
-        setCouponInput('')
-      } else {
-        setCouponMsg({ text: data.error ?? '오류가 발생했습니다.', ok: false })
-      }
-    } finally {
-      setCouponClaiming(false)
     }
   }
 
@@ -1616,30 +1590,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* 업로드 모드 */}
             {activeMenu === 'upload' && !result && (
               <>
-                {/* 쿠폰 영역 */}
-                <div className="coupon-section">
-                  {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length > 0 ? (
-                    <div className="coupon-active-badge">
-                      🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 이번 분석이 무료로 진행됩니다
-                    </div>
-                  ) : (
-                    <div className="coupon-input-row">
-                      <input
-                        className="coupon-input"
-                        placeholder="쿠폰 코드 입력 (예: NH-RS-XXXXXX)"
-                        value={couponInput}
-                        onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponMsg(null) }}
-                        onKeyDown={e => e.key === 'Enter' && claimCoupon()}
-                      />
-                      <button className="coupon-claim-btn" onClick={claimCoupon} disabled={!couponInput.trim() || couponClaiming}>
-                        {couponClaiming ? '등록 중...' : '등록'}
-                      </button>
-                    </div>
-                  )}
-                  {couponMsg && (
-                    <div className={`coupon-msg${couponMsg.ok ? ' ok' : ' err'}`}>{couponMsg.text}</div>
-                  )}
-                </div>
+                {/* 이력서 분석 쿠폰 보유 배지 */}
+                {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length > 0 && (
+                  <div className="coupon-active-badge">
+                    🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 이번 분석이 무료로 진행됩니다
+                  </div>
+                )}
 
                 <div className="upload-mode-tabs">
                   <button

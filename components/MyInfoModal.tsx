@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 const FEATURE_LABEL: Record<string, string> = {
-  resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
+  resume: '이력서 분석', direction: '방향성 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
 }
 const USAGE_LABEL: Record<string, string> = {
   analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
@@ -73,7 +73,7 @@ export default function MyInfoButton() {
       <button className="btn-ghost my-info-btn" onClick={openModal}>내 정보</button>
 
       {open && (
-        <div className="withdraw-overlay" onClick={() => setOpen(false)}>
+        <div className="my-info-overlay" onClick={() => setOpen(false)}>
           <div className="my-info-modal" onClick={e => e.stopPropagation()}>
             <div className="my-info-header">
               <span className="my-info-title">내 정보</span>
