@@ -389,7 +389,7 @@ export default function Hero() {
 
       <div className="hero-badge">
         <div className="badge-dot" />
-        AI 커리어 분석 플랫폼 — 오픈 베타
+        재직 중 이직 준비 직장인을 위한 AI 커리어 코치
       </div>
 
       <h1>
@@ -398,8 +398,8 @@ export default function Hero() {
       </h1>
 
       <p className="hero-sub">
-        이력서를 업로드하면 AI가 강점을 분석하고,<br />
-        JD 적합도·이력서 생성·면접 가이드까지 — 서류부터 최종 합격을 준비합니다.
+        현직에 있으면서 조용히 이직을 준비 중이라면.<br />
+        AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
       </p>
 
       <div className="hero-actions">

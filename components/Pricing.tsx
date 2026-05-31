@@ -4,7 +4,7 @@ const plans = [
   {
     name: 'Free',
     price: '₩0',
-    desc: '시작하는 구직자를 위해',
+    desc: '이직 방향이 궁금한 직장인을 위해',
     features: ['이력서 분석 3회/월', '기본 점수 리포트', '커리어 방향 1가지 제안'],
     disabled: ['JD 적합도 분석', '이력서 생성', '면접 가이드', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
@@ -14,7 +14,7 @@ const plans = [
   {
     name: 'Pro',
     price: '₩19,900',
-    desc: '진지하게 이직을 준비하는 분',
+    desc: '본격적으로 이직을 준비 중인 재직자',
     features: ['이력서 분석 10회/월', 'JD 적합도 분석 15회/월', '이력서 생성 3회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
     disabled: ['면접 가이드'],
     btnClass: 'btn-plan-fill',
@@ -24,7 +24,7 @@ const plans = [
   {
     name: 'Expert',
     price: '₩49,900',
-    desc: '서류부터 면접까지 완전히 준비하는 분',
+    desc: '최종 합격까지 끝내고 싶은 진지한 이직자',
     features: ['이력서 분석 30회/월', 'JD 적합도 분석 30회/월', '이력서 생성 15회/월', '면접 가이드 15회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
     disabled: [],
     btnClass: 'btn-plan-outline',
