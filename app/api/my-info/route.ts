@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
 const PLAN_LIMITS: Record<string, Record<string, number>> = {
-  FREE:   { analyze: 1,  jd: 0,  rewrite: 0,  interview: 0 },
+  FREE:   { analyze: 3,  jd: 0,  rewrite: 0,  interview: 0 },
   PRO:    { analyze: 10, jd: 15, rewrite: 3,  interview: 0 },
   EXPERT: { analyze: 30, jd: 30, rewrite: 15, interview: 15 },
 }
