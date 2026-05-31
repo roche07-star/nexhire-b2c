@@ -5,7 +5,7 @@ const plans = [
     name: 'Free',
     price: '₩0',
     desc: '시작하는 구직자를 위해',
-    features: ['이력서 분석 1회/월', '기본 점수 리포트', '커리어 방향 1가지 제안'],
+    features: ['이력서 분석 3회/월', '기본 점수 리포트', '커리어 방향 1가지 제안'],
     disabled: ['JD 적합도 분석', '이력서 생성', '면접 가이드', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
