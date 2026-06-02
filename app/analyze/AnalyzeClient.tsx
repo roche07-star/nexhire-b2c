@@ -2114,6 +2114,16 @@ function AnalysisResults({
     <div className="results-wrap">
       <div className="results-section">
         <div className="results-label">MATCH SCORE</div>
+        {result.job_title && (
+          <div style={{
+            fontSize: 14,
+            color: '#8b8b7a',
+            marginBottom: 12,
+            fontWeight: 500
+          }}>
+            📌 분석 직무: {result.job_title}
+          </div>
+        )}
         {scores.map((s) => (
           <div key={s.label} className="result-score-row">
             <div className="score-meta">
