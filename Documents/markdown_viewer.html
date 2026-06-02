@@ -3,217 +3,138 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   #wrap{
     display:flex;flex-direction:column;
-    height:640px;
     background:#f5f5f3;
     font-family:'Helvetica Neue',Arial,'Noto Sans KR',sans-serif;
-    border:1px solid #ddd;
-    border-radius:4px;
-    overflow:hidden;
+    border:1px solid #ddd;border-radius:4px;overflow:hidden;
   }
-  /* top bar */
   #topbar{
     display:flex;align-items:center;
-    background:#f5f5f3;
-    border-bottom:1px solid #ddd;
-    height:38px;
-    flex-shrink:0;
-    user-select:none;
+    background:#f5f5f3;border-bottom:1px solid #ddd;
+    height:38px;flex-shrink:0;user-select:none;position:sticky;top:0;z-index:10;
   }
   .tb-label{
     font-size:11px;font-weight:600;letter-spacing:0.08em;
     color:#888;text-transform:uppercase;
-    padding:0 20px;
-    border-right:1px solid #ddd;
+    padding:0 18px;border-right:1px solid #ddd;
     height:100%;display:flex;align-items:center;
-    cursor:pointer;
-    transition:color .15s;
+    cursor:pointer;transition:color .15s;
   }
   .tb-label:hover{color:#333;}
   .tb-spacer{flex:1;}
-  .tb-label.preview-label{border-right:none;border-left:1px solid #ddd;}
   .tb-action{
     font-size:11px;font-weight:600;letter-spacing:0.06em;
-    color:#555;
-    padding:0 18px;height:100%;
-    display:flex;align-items:center;gap:6px;
+    color:#555;padding:0 14px;height:100%;
+    display:flex;align-items:center;gap:5px;
     border-left:1px solid #ddd;
-    cursor:pointer;background:none;border-top:none;border-bottom:none;border-right:none;
-    font-family:inherit;
-    transition:background .15s,color .15s;
+    cursor:pointer;background:none;
+    border-top:none;border-bottom:none;border-right:none;
+    font-family:inherit;transition:background .15s,color .15s;
   }
   .tb-action:hover{background:#ebebeb;color:#111;}
+  .tb-action.on{background:#222;color:#fff;}
+  .tb-action.on:hover{background:#333;}
   .tb-action i{font-size:13px;}
-  /* body */
-  #body{display:flex;flex:1;overflow:hidden;}
+  #body{display:flex;align-items:flex-start;}
+
   /* editor */
   #editor-col{
     width:50%;flex-shrink:0;
     display:flex;flex-direction:column;
-    border-right:1px solid #ddd;
-    background:#fff;
+    border-right:1px solid #ddd;background:#fff;
+    position:sticky;top:38px;
+    height:calc(100vh - 38px);
+    max-height:700px;
   }
+  #editor-col.hidden{width:0;overflow:hidden;border-right:none;}
   #md-textarea{
-    flex:1;
-    padding:16px 20px;
+    flex:1;padding:16px 18px;
     font-family:'Courier New',Courier,monospace;
-    font-size:13px;line-height:1.75;
-    color:#222;
-    background:#fff;
-    border:none;outline:none;resize:none;
-    overflow-y:auto;
+    font-size:13px;line-height:1.75;color:#222;
+    background:#fff;border:none;outline:none;resize:none;overflow-y:auto;
   }
-  /* preview col */
-  #preview-col{
-    flex:1;
-    display:flex;flex-direction:column;
-    background:#f5f5f3;
-    overflow:hidden;
-  }
-  /* TOC panel */
+
+  /* right col */
+  #right-col{flex:1;display:flex;flex-direction:column;min-height:0;}
+
+  /* TOC */
   #toc-panel{
-    background:#ebebea;
-    border-bottom:1px solid #ddd;
-    flex-shrink:0;
-    max-height:220px;
-    display:flex;flex-direction:column;
+    background:#ebebea;border-bottom:1px solid #ddd;flex-shrink:0;
+    position:sticky;top:38px;z-index:9;
   }
-  #toc-header{
-    display:flex;align-items:center;
-    padding:8px 16px;
-    cursor:pointer;
-    user-select:none;
-    border-bottom:1px solid #ddd;
-    gap:6px;
-  }
-  #toc-header span{font-size:13px;font-weight:600;color:#333;}
-  #toc-toggle{font-size:11px;color:#888;margin-left:2px;transition:transform .2s;}
-  #toc-toggle.open{transform:rotate(0deg);}
-  #toc-toggle.closed{transform:rotate(-90deg);}
-  #toc-body{
-    overflow-y:auto;padding:6px 0;flex:1;
-  }
-  .toc-item{
-    font-size:13px;color:#444;
-    padding:3px 16px;
-    cursor:pointer;
-    transition:background .1s;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
+  #toc-header{display:flex;align-items:center;padding:7px 14px;cursor:pointer;user-select:none;border-bottom:1px solid #ddd;gap:6px;}
+  #toc-header .toc-title{font-size:13px;font-weight:600;color:#333;}
+  #toc-toggle{font-size:11px;color:#888;}
+  #toc-body{overflow-y:auto;padding:4px 0;max-height:180px;}
+  .toc-item{font-size:13px;color:#444;padding:3px 14px;cursor:pointer;transition:background .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .toc-item:hover{background:#ddddd9;color:#111;}
-  .toc-h1{font-weight:600;padding-left:16px;}
+  .toc-h1{font-weight:600;}
   .toc-h2{padding-left:22px;}
   .toc-h3{padding-left:32px;color:#666;}
   .toc-h4{padding-left:42px;color:#888;font-size:12px;}
-  /* content panel */
-  #content-panel{
-    flex:1;overflow-y:auto;
-    background:#fff;
-    margin:0;
-  }
+
+  /* content — 높이 제한 없이 자연스럽게 늘어남 */
   #md-preview{
-    padding:20px 24px;
-    font-size:14px;line-height:1.8;
-    color:#1a1a1a;
+    padding:20px 28px 40px;
+    font-size:14px;line-height:1.8;color:#1a1a1a;
+    background:#fff;
   }
-  #md-preview h1{font-size:22px;font-weight:700;margin:0 0 14px;color:#111;}
-  #md-preview h2{font-size:17px;font-weight:700;margin:22px 0 8px;color:#111;}
-  #md-preview h3{font-size:15px;font-weight:700;margin:16px 0 6px;color:#111;}
-  #md-preview h4{font-size:14px;font-weight:600;margin:12px 0 4px;color:#333;}
-  #md-preview p{margin:0 0 10px;}
+  #md-preview h1{font-size:22px;font-weight:700;margin:0 0 14px;}
+  #md-preview h2{font-size:17px;font-weight:700;margin:22px 0 8px;}
+  #md-preview h3{font-size:15px;font-weight:700;margin:15px 0 6px;}
+  #md-preview h4{font-size:13px;font-weight:600;margin:10px 0 4px;color:#333;}
+  #md-preview p{margin:0 0 9px;}
   #md-preview strong{font-weight:700;}
-  #md-preview em{font-style:italic;}
-  #md-preview ul{margin:0 0 10px;padding-left:22px;}
-  #md-preview ol{margin:0 0 10px;padding-left:22px;}
+  #md-preview ul,#md-preview ol{margin:0 0 9px;padding-left:22px;}
   #md-preview li{margin:3px 0;}
   #md-preview hr{border:none;border-top:1px solid #e0e0e0;margin:14px 0;}
-  #md-preview blockquote{
-    border-left:3px solid #ccc;
-    padding-left:14px;color:#666;margin:0 0 10px;
-  }
+  #md-preview blockquote{border-left:3px solid #ccc;padding-left:12px;color:#666;margin:0 0 9px;}
   #md-preview a{color:#0066cc;}
-  #md-preview code{
-    font-family:'Courier New',Courier,monospace;
-    font-size:12px;
-    background:#f0f0ee;
-    padding:1px 5px;border-radius:3px;
-    color:#d14;
-  }
-  #md-preview pre{
-    background:#1e1e1e;
-    color:#d4d4d4;
-    border-radius:4px;
-    padding:14px 16px;
-    margin:0 0 12px;
-    overflow-x:auto;
-    font-size:12.5px;
-    line-height:1.65;
-  }
-  #md-preview pre code{
-    background:none;padding:0;color:inherit;font-size:inherit;
-  }
-  #md-preview table{
-    width:100%;border-collapse:collapse;
-    margin:0 0 14px;font-size:13px;
-  }
-  #md-preview th{
-    background:#f0f0ee;
-    padding:6px 10px;
-    border:1px solid #ddd;
-    font-weight:600;text-align:left;
-    font-size:13px;
-  }
-  #md-preview td{
-    padding:5px 10px;
-    border:1px solid #ddd;
-  }
-  /* file input hidden */
+  #md-preview code{font-family:'Courier New',monospace;font-size:12px;background:#f0f0ee;padding:1px 5px;border-radius:3px;color:#d14;}
+  #md-preview pre{background:#1e1e1e;color:#d4d4d4;border-radius:4px;padding:13px 16px;margin:0 0 12px;overflow-x:auto;font-size:12.5px;line-height:1.65;}
+  #md-preview pre code{background:none;padding:0;color:inherit;}
+  #md-preview table{width:100%;border-collapse:collapse;margin:0 0 12px;font-size:13px;}
+  #md-preview th{background:#f0f0ee;padding:6px 10px;border:1px solid #ddd;font-weight:600;text-align:left;}
+  #md-preview td{padding:5px 10px;border:1px solid #ddd;}
+
+  #toc-body::-webkit-scrollbar,#md-textarea::-webkit-scrollbar{width:6px;}
+  #toc-body::-webkit-scrollbar-thumb,#md-textarea::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
   #file-in{display:none;}
-  /* scrollbar */
-  #toc-body::-webkit-scrollbar,#md-textarea::-webkit-scrollbar,#md-preview::-webkit-scrollbar,#content-panel::-webkit-scrollbar{width:6px;}
-  #toc-body::-webkit-scrollbar-thumb,#md-textarea::-webkit-scrollbar-thumb,#content-panel::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
-  #toc-body::-webkit-scrollbar-track,#md-textarea::-webkit-scrollbar-track,#content-panel::-webkit-scrollbar-track{background:#f0f0ee;}
 </style>
 
 <div id="wrap">
   <div id="topbar">
-    <label class="tb-label" for="file-in" title="MD 파일 열기">MARKDOWN 편집</label>
+    <label class="tb-label" for="file-in">MARKDOWN 편집</label>
     <input type="file" id="file-in" accept=".md,.markdown,.txt">
     <div class="tb-spacer"></div>
-    <span class="tb-label preview-label" style="border-right:1px solid #ddd;border-left:none;cursor:default;">미리보기</span>
+    <span class="tb-label" style="cursor:default;border-left:1px solid #ddd;border-right:none;">미리보기</span>
     <div class="tb-spacer"></div>
-    <button class="tb-action" onclick="copyHTML()" title="HTML 전체 복사">
-      <i class="ti ti-copy" aria-hidden="true"></i> HTML 복사
+    <button class="tb-action" id="btn-fullview" onclick="toggleFull()">
+      <i class="ti ti-maximize" aria-hidden="true"></i> 전체 보기
     </button>
-    <button class="tb-action" onclick="dlHTML()">
-      <i class="ti ti-download" aria-hidden="true"></i> HTML
-    </button>
-    <button class="tb-action" onclick="dlMD()">
-      <i class="ti ti-file" aria-hidden="true"></i> MD
-    </button>
+    <button class="tb-action" id="btn-copy" onclick="copyHTML()"><i class="ti ti-copy" aria-hidden="true"></i> HTML 복사</button>
+    <button class="tb-action" onclick="dlHTML()"><i class="ti ti-download" aria-hidden="true"></i> HTML</button>
+    <button class="tb-action" onclick="dlMD()"><i class="ti ti-file" aria-hidden="true"></i> MD</button>
   </div>
 
   <div id="body">
     <div id="editor-col">
       <textarea id="md-textarea" spellcheck="false" oninput="onEdit()"></textarea>
     </div>
-
-    <div id="preview-col">
+    <div id="right-col">
       <div id="toc-panel">
         <div id="toc-header" onclick="toggleToc()">
-          <span id="toc-toggle" class="open">▼</span>
-          <span>목차</span>
+          <span id="toc-toggle">▼</span>
+          <span class="toc-title">목차</span>
         </div>
         <div id="toc-body"></div>
       </div>
-      <div id="content-panel">
-        <div id="md-preview"></div>
-      </div>
+      <div id="md-preview"></div>
     </div>
   </div>
 </div>
 
 <script>
-const DEFAULT = `# 기능 명세서 (Functional Specification)
+const DEFAULT=`# 기능 명세서 (Functional Specification)
 
 **프로젝트명:** Jobizic (코드명: adam)
 **버전:** v1.0
@@ -305,34 +226,40 @@ JD 파싱 → 키워드 추출 → 이력서 매칭 → 적합도 산출
 
 \`\`\`
 랜딩 페이지 → [무료로 시작하기] → Google 로그인
-→ after-login 처리 (users 테이블 생성) → /analyze 리다이렉트
+→ after-login 처리 → /analyze 리다이렉트
 \`\`\`
+
+### 3.2 기존 회원 흐름
+
+로그인 → 대시보드 → 분석 선택 → 결과 확인 → 저장
 `;
 
-const ta = document.getElementById('md-textarea');
-const preview = document.getElementById('md-preview');
-const tocBody = document.getElementById('toc-body');
-ta.value = DEFAULT;
+const ta=document.getElementById('md-textarea');
+const preview=document.getElementById('md-preview');
+const tocBody=document.getElementById('toc-body');
+ta.value=DEFAULT;
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function parseMD(raw){
-  let md = esc(raw);
+  let md=esc(raw);
   const blocks=[];
-  md=md.replace(/```([\s\S]*?)```/g,(_,c)=>{const i=blocks.length;blocks.push(`<pre><code>${c.replace(/^\n/,'')}</code></pre>`);return `\x00B${i}\x00`;});
+  md=md.replace(/```([\s\S]*?)```/g,(_,c)=>{
+    const i=blocks.length;
+    blocks.push(`<pre><code>${c.replace(/^\n/,'')}</code></pre>`);
+    return `\x00B${i}\x00`;
+  });
   md=md.replace(/`([^`\n]+)`/g,'<code>$1</code>');
   const lines=md.split('\n');
   const out=[];
   let ul=false,ol=false,inTable=false,tRows=[],tHead=true;
-
-  function flushList(){if(ul){out.push('</ul>');ul=false;}if(ol){out.push('</ol>');ol=false;}};
+  function flushList(){if(ul){out.push('</ul>');ul=false;}if(ol){out.push('</ol>');ol=false;}}
   function flushTable(){
     if(!inTable)return;
     let h='<table>';
-    tRows.forEach(r=>{h+='<tr>';r.cells.forEach((c,i)=>h+=r.isH?`<th>${c}</th>`:`<td>${c}</td>`);h+='</tr>';});
+    tRows.forEach(r=>{h+='<tr>';r.cells.forEach(c=>h+=r.isH?`<th>${c}</th>`:`<td>${c}</td>`);h+='</tr>';});
     h+='</table>';out.push(h);inTable=false;tRows=[];tHead=true;
   }
-
   for(let i=0;i<lines.length;i++){
     const l=lines[i];
     const hm=l.match(/^(#{1,6})\s+(.+)/);
@@ -340,38 +267,31 @@ function parseMD(raw){
     const olm=l.match(/^\d+\.\s+(.+)/);
     const tm=l.match(/^\|(.+)\|$/);
     const sep=l.match(/^\|[\s\-:|]+\|$/);
-
     if(!ulm&&!tm&&!sep)flushList();
     if(!tm&&!sep)flushTable();
-
     if(sep)continue;
-
-    if(hm){const lvl=hm[1].length;out.push(`<h${lvl}>${applyInline(hm[2])}</h${lvl}>`);continue;}
-    if(ulm){if(!ul){out.push('<ul>');ul=true;}out.push(`<li>${applyInline(ulm[1])}</li>`);continue;}
-    if(olm){if(!ol){out.push('<ol>');ol=true;}out.push(`<li>${applyInline(olm[1])}</li>`);continue;}
+    if(hm){out.push(`<h${hm[1].length}>${inl(hm[2])}</h${hm[1].length}>`);continue;}
+    if(ulm){if(!ul){out.push('<ul>');ul=true;}out.push(`<li>${inl(ulm[1])}</li>`);continue;}
+    if(olm){if(!ol){out.push('<ol>');ol=true;}out.push(`<li>${inl(olm[1])}</li>`);continue;}
     if(tm){
       if(!inTable){inTable=true;tRows=[];tHead=true;}
       const cells=l.split('|').slice(1,-1).map(c=>c.trim());
-      tRows.push({cells,isH:tHead});
-      tHead=false;
-      continue;
+      tRows.push({cells,isH:tHead});tHead=false;continue;
     }
-    const bqm=l.match(/^&gt;\s*(.+)/);
-    if(bqm){out.push(`<blockquote><p>${applyInline(bqm[1])}</p></blockquote>`);continue;}
-    if(l.match(/^---$|^<hr>$/)){out.push('<hr>');continue;}
+    const bq=l.match(/^&gt;\s*(.+)/);
+    if(bq){out.push(`<blockquote><p>${inl(bq[1])}</p></blockquote>`);continue;}
+    if(l.match(/^---$/)){out.push('<hr>');continue;}
     if(l.match(/^\x00B\d+\x00$/)){out.push(l);continue;}
     if(l.trim()===''){out.push('');continue;}
-    out.push(`<p>${applyInline(l)}</p>`);
+    out.push(`<p>${inl(l)}</p>`);
   }
   flushList();flushTable();
-
-  let result=out.join('\n');
-  blocks.forEach((b,i)=>{result=result.replace(`\x00B${i}\x00`,b);});
-  result=result.replace(/<p><\/p>/g,'');
-  return result;
+  let r=out.join('\n');
+  blocks.forEach((b,i)=>{r=r.replace(`\x00B${i}\x00`,b);});
+  return r.replace(/<p><\/p>/g,'');
 }
 
-function applyInline(s){
+function inl(s){
   return s
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
@@ -379,78 +299,61 @@ function applyInline(s){
 }
 
 function buildTOC(raw){
-  const items=[];
+  tocBody.innerHTML='';
   raw.split('\n').forEach(l=>{
     const m=l.match(/^(#{1,4})\s+(.+)/);
-    if(m)items.push({lvl:m[1].length,text:m[2].replace(/\*\*/g,'').replace(/\*/g,'')});
-  });
-  tocBody.innerHTML='';
-  items.forEach(item=>{
+    if(!m)return;
+    const text=m[2].replace(/\*\*/g,'').replace(/\*/g,'');
     const d=document.createElement('div');
-    d.className=`toc-item toc-h${item.lvl}`;
-    d.textContent=item.text;
-    d.title=item.text;
+    d.className=`toc-item toc-h${m[1].length}`;
+    d.textContent=text;d.title=text;
     d.onclick=()=>{
-      const hs=preview.querySelectorAll('h1,h2,h3,h4');
-      for(const h of hs){
-        if(h.textContent.replace(/\*\*/g,'').trim()===item.text.trim()){
-          h.scrollIntoView({behavior:'smooth',block:'start'});break;
-        }
-      }
+      document.querySelectorAll('#md-preview h1,#md-preview h2,#md-preview h3,#md-preview h4').forEach(h=>{
+        if(h.textContent.trim()===text.trim())h.scrollIntoView({behavior:'smooth',block:'start'});
+      });
     };
     tocBody.appendChild(d);
   });
 }
 
 function onEdit(){
-  const md=ta.value;
-  preview.innerHTML=parseMD(md);
-  buildTOC(md);
+  preview.innerHTML=parseMD(ta.value);
+  buildTOC(ta.value);
 }
 
 let tocOpen=true;
 function toggleToc(){
-  const body=document.getElementById('toc-body');
-  const toggle=document.getElementById('toc-toggle');
   tocOpen=!tocOpen;
-  body.style.display=tocOpen?'block':'none';
-  toggle.textContent=tocOpen?'▼':'▶';
+  document.getElementById('toc-body').style.display=tocOpen?'block':'none';
+  document.getElementById('toc-toggle').textContent=tocOpen?'▼':'▶';
+}
+
+let fullMode=false;
+function toggleFull(){
+  fullMode=!fullMode;
+  const ec=document.getElementById('editor-col');
+  const btn=document.getElementById('btn-fullview');
+  if(fullMode){
+    ec.classList.add('hidden');
+    btn.classList.add('on');
+    btn.innerHTML='<i class="ti ti-minimize" aria-hidden="true"></i> 편집 보기';
+  } else {
+    ec.classList.remove('hidden');
+    btn.classList.remove('on');
+    btn.innerHTML='<i class="ti ti-maximize" aria-hidden="true"></i> 전체 보기';
+  }
 }
 
 function getFullHTML(){
-  const html=parseMD(ta.value);
-  return `<!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Markdown Export</title>
-<style>
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;max-width:860px;margin:48px auto;padding:0 28px;line-height:1.8;color:#1a1a1a;background:#fff;}
-h1{font-size:24px;font-weight:700;margin:0 0 16px;}
-h2{font-size:18px;font-weight:700;margin:28px 0 10px;border-bottom:1px solid #e8e8e8;padding-bottom:6px;}
-h3{font-size:15px;font-weight:700;margin:20px 0 6px;}
-h4{font-size:14px;font-weight:600;margin:14px 0 4px;color:#444;}
-p{margin:0 0 10px;}
-code{font-family:'Courier New',monospace;font-size:13px;background:#f5f5f5;padding:1px 5px;border-radius:3px;color:#d14;}
-pre{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:16px;overflow-x:auto;margin:0 0 14px;font-size:13px;line-height:1.6;}
-pre code{background:none;padding:0;color:inherit;}
-table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:13px;}
-th{background:#f5f5f3;padding:7px 11px;border:1px solid #ddd;font-weight:600;text-align:left;}
-td{padding:6px 11px;border:1px solid #ddd;}
-blockquote{border-left:3px solid #ccc;padding-left:14px;color:#666;margin:0 0 10px;}
-hr{border:none;border-top:1px solid #e8e8e8;margin:18px 0;}
-ul,ol{margin:0 0 10px;padding-left:24px;}
-li{margin:3px 0;}
-a{color:#0066cc;}
-strong{font-weight:700;}
-</style>
-</head><body>${html}</body></html>`;
+  return `<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>Markdown Export</title>\n<style>\nbody{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;max-width:860px;margin:48px auto;padding:0 28px;line-height:1.8;color:#1a1a1a;background:#fff;}\nh1{font-size:24px;font-weight:700;margin:0 0 16px;}\nh2{font-size:18px;font-weight:700;margin:28px 0 10px;border-bottom:1px solid #e8e8e8;padding-bottom:6px;}\nh3{font-size:15px;font-weight:700;margin:20px 0 6px;}\nh4{font-size:14px;font-weight:600;margin:14px 0 4px;color:#444;}\np{margin:0 0 10px;}\ncode{font-family:'Courier New',monospace;font-size:13px;background:#f5f5f5;padding:1px 5px;border-radius:3px;color:#d14;}\npre{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:16px;overflow-x:auto;margin:0 0 14px;font-size:13px;line-height:1.65;}\npre code{background:none;padding:0;color:inherit;}\ntable{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:13px;}\nth{background:#f5f5f3;padding:7px 11px;border:1px solid #ddd;font-weight:600;text-align:left;}\ntd{padding:6px 11px;border:1px solid #ddd;}\nblockquote{border-left:3px solid #ccc;padding-left:14px;color:#666;margin:0 0 10px;}\nhr{border:none;border-top:1px solid #e8e8e8;margin:18px 0;}\nul,ol{margin:0 0 10px;padding-left:24px;}\nli{margin:3px 0;}\na{color:#0066cc;}\nstrong{font-weight:700;}\n</style>\n</head>\n<body>\n${parseMD(ta.value)}\n</body>\n</html>`;
 }
 
 function copyHTML(){
   navigator.clipboard.writeText(getFullHTML()).then(()=>{
-    const btn=document.querySelector('.tb-action');
-    const orig=btn.innerHTML;
-    btn.innerHTML='<i class="ti ti-check"></i> 복사됨';
-    setTimeout(()=>{btn.innerHTML=orig;},1800);
+    const b=document.getElementById('btn-copy');
+    const o=b.innerHTML;
+    b.innerHTML='<i class="ti ti-check"></i> 복사됨';
+    setTimeout(()=>{b.innerHTML=o;},1800);
   });
 }
 function dlHTML(){
