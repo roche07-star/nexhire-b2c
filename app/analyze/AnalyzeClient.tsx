@@ -1741,12 +1741,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* 결과 모드 (새 분석 — upload 탭) */}
             {result && activeMenu === 'upload' && (
               <>
-                {!isPro && savedAnalysis && (
+                {!isPro && (
                   <div className="free-saved-notice">
-                    <span>📂 이전 분석 결과</span>
-                    <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                    {savedAnalysis && (
+                      <>
+                        <span>📂 이전 분석 결과</span>
+                        <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                      </>
+                    )}
                     <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
-                      새로 분석하기
+                      {savedAnalysis ? '새로 분석하기' : '← 돌아가기'}
                     </button>
                   </div>
                 )}
