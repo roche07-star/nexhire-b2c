@@ -2610,6 +2610,17 @@ function JDResults({
         ※ 본 분석 결과는 입력된 채용공고(JD) 기준으로 AI가 평가한 것이며, 실제 채용 회사의 내부 기준 및 평가에 따라 결과가 다를 수 있습니다.
       </div>
 
+      <div className="jd-ai-notice">
+        <div className="jd-ai-notice-icon">🤖</div>
+        <div className="jd-ai-notice-content">
+          <div className="jd-ai-notice-title">AI 분석의 특성</div>
+          <p className="jd-ai-notice-text">
+            동일한 이력서와 동일한 JD를 분석하더라도, AI의 특성상 <strong>분석 결과의 표현과 구성이 매번 달라질 수 있습니다.</strong>
+            {' '}핵심 평가(적합도 점수, 추천 등급)는 일관성을 유지하지만, 강점·리스크 분석 및 어필 전략의 구체적인 문장은 실행마다 다르게 생성됩니다.
+          </p>
+        </div>
+      </div>
+
       <div className="analyze-storage-notice">
         <span className="storage-icon">🔒</span>
         <span>이 분석 결과는 영구적으로 저장됩니다.</span>

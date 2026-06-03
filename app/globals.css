@@ -3318,6 +3318,46 @@ footer {
   padding: 10px 14px;
   border-left: 2px solid rgba(255,255,255,0.1);
 }
+
+.jd-ai-notice {
+  display: flex;
+  gap: 12px;
+  background: rgba(232,255,71,0.05);
+  border: 1px solid rgba(232,255,71,0.15);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.jd-ai-notice-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.jd-ai-notice-content {
+  flex: 1;
+}
+
+.jd-ai-notice-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.jd-ai-notice-text {
+  font-size: 12px;
+  color: #b8b8ae;
+  line-height: 1.7;
+}
+
+.jd-ai-notice-text strong {
+  color: #e8ff47;
+  font-weight: 600;
+}
+
 .jd-context-section {
   display: flex;
   flex-direction: column;
