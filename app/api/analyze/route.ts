@@ -402,6 +402,7 @@ ${maskedText}
     let rewriteCouponUsed: string | null = null
 
     if (insertData?.id && preserveMode !== 'skip' && (file && buffer || pastedText)) {
+      console.log('[analyze] 보존 조건 확인:', { preserveMode, hasFile: !!(file && buffer), hasPastedText: !!pastedText })
       const { data: prevAnalyses } = await supabase
         .from('analyses')
         .select('id, result')
@@ -445,6 +446,7 @@ ${maskedText}
       }
 
       if (canPreserve) {
+        console.log('[analyze] 이력서 보존 시작:', { email, preserveMode, hasPreserved })
         const uploadBuffer = (file && buffer) ? buffer : Buffer.from(pastedText, 'utf-8')
         const fileExt = (file && buffer) ? (file.name.split('.').pop()?.toLowerCase() ?? 'bin') : 'txt'
         const contentType = (file && buffer) ? file.type : 'text/plain'
@@ -457,10 +459,11 @@ ${maskedText}
             .update({ result: JSON.parse(JSON.stringify({ ...resultPayload, _file_path: filePath })) })
             .eq('id', insertData.id)
           if (updateErr) {
-            console.error('[analyze] result update error:', updateErr)
+            console.error('[analyze] 이력서 보존 실패 - DB 업데이트 오류:', updateErr)
           } else {
             rewriteSaved = true
             rewriteFilePath = filePath
+            console.log('[analyze] ✅ 이력서 파일 보존 성공:', { email, analysisId: insertData.id, filePath, preserveMode })
             if (rewriteCouponUsed) {
               await supabase.from('coupons')
                 .update({ used_at: new Date().toISOString() })
@@ -468,9 +471,18 @@ ${maskedText}
             }
           }
         } else {
-          console.error('[analyze] storage upload error:', storageErr.message, storageErr)
+          console.error('[analyze] 이력서 보존 실패 - 스토리지 업로드 오류:', storageErr.message, storageErr)
         }
+      } else {
+        console.log('[analyze] ❌ 보존 불가:', { canPreserve, hasPreserved, preserveMode, hasRewriteCoupon: !!rewriteCouponUsed })
       }
+    } else {
+      console.log('[analyze] ⏭️ 보존 생략:', {
+        hasInsertId: !!insertData?.id,
+        preserveMode,
+        hasFile: !!(file && buffer),
+        hasPastedText: !!pastedText
+      })
     }
 
     return NextResponse.json({
