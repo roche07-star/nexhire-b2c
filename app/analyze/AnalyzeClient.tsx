@@ -2280,7 +2280,14 @@ function AnalysisResults({
         <div className="results-section">
           <div className="results-label">개선 포인트</div>
           <ul className="result-list improvement-list">
-            {toArr(result.improvements).map((s, i) => <li key={i}>{s}</li>)}
+            {toArr(result.improvements).map((s, i) => (
+              <li
+                key={i}
+                style={i < 2 ? { color: '#ff6b6b', fontWeight: 500 } : undefined}
+              >
+                {s}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
