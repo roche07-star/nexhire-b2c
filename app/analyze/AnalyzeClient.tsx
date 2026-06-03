@@ -1838,19 +1838,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* 결과 모드 (새 분석 — upload 탭) */}
             {result && activeMenu === 'upload' && (
               <>
-                {!isPro && (
-                  <div className="free-saved-notice">
-                    {savedAnalysis && (
-                      <>
-                        <span>📂 이전 분석 결과</span>
-                        <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
-                      </>
-                    )}
-                    <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
-                      {savedAnalysis ? '새로 분석하기' : '← 돌아가기'}
-                    </button>
-                  </div>
-                )}
+                <div className="free-saved-notice">
+                  {!isPro && savedAnalysis && (
+                    <>
+                      <span>📂 이전 분석 결과</span>
+                      <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
+                    </>
+                  )}
+                  <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
+                    {!isPro && savedAnalysis ? '새로 분석하기' : '← 돌아가기'}
+                  </button>
+                </div>
 
                 <AnalysisResults result={result} analysisId={analysisId} isPro={isPro} />
 
@@ -2541,6 +2539,10 @@ function JDResults({
 
   return (
     <div className="jd-results">
+      <button className="jd-back-btn" onClick={onReset} style={{ marginBottom: 16 }}>
+        {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
+      </button>
+
       <div className="jd-results-header">
         <div className="jd-company-name">
           {result.company}
