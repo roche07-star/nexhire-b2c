@@ -99,6 +99,14 @@ interface SavedJDAnalysis {
   expires_at?: string | null
 }
 
+interface JDTemplate {
+  id: string
+  company: string
+  position?: string
+  content: string
+  created_at: string
+}
+
 const FEATURE_LABEL: Record<string, string> = {
   resume: '이력서 분석',
   direction: '방향성 분석',
@@ -527,6 +535,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
   const [formatSelectModal, setFormatSelectModal] = useState(false)
   const [isTextPasteRewrite, setIsTextPasteRewrite] = useState(false)
+  const [savedJDTemplates, setSavedJDTemplates] = useState<JDTemplate[]>([])
+  const [showJDInput, setShowJDInput] = useState(false)
   const formatSelectResolveRef = useRef<((choice: 'original' | 'updated' | 'cancel') => void) | null>(null)
   const [templateUploadModal, setTemplateUploadModal] = useState(false)
   const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
@@ -565,6 +575,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .then((r) => r.json())
       .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
       .catch(() => {})
+  }, [])
+
+  // Load saved JD templates from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('jdTemplates')
+      if (saved) {
+        setSavedJDTemplates(JSON.parse(saved))
+      }
+    } catch {}
   }, [])
 
   // PRO/Expert 유저는 마운트 시 분석 목록 미리 로드 (보존 모달용)
@@ -888,6 +908,34 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .catch(() => setInterviewSavedList([]))
         .finally(() => setInterviewSavedListLoading(false))
     }
+  }
+
+  function saveJDTemplate() {
+    if (!jdCompany.trim() || !jdContent.trim()) return
+    const newTemplate: JDTemplate = {
+      id: Date.now().toString(),
+      company: jdCompany,
+      position: jdPosition || undefined,
+      content: jdContent,
+      created_at: new Date().toISOString()
+    }
+    const updated = [newTemplate, ...savedJDTemplates]
+    setSavedJDTemplates(updated)
+    localStorage.setItem('jdTemplates', JSON.stringify(updated))
+  }
+
+  function deleteJDTemplate(id: string) {
+    if (!confirm('이 JD를 삭제할까요?')) return
+    const updated = savedJDTemplates.filter(t => t.id !== id)
+    setSavedJDTemplates(updated)
+    localStorage.setItem('jdTemplates', JSON.stringify(updated))
+  }
+
+  function selectJDTemplate(template: JDTemplate) {
+    setJdCompany(template.company)
+    setJdPosition(template.position || '')
+    setJdContent(template.content)
+    setShowJDInput(true)
   }
 
   async function onJDAnalyze() {
@@ -1435,7 +1483,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   />
                 ) : jdSelectedAnalysis ? (
                   <>
-                    <button className="jd-back-btn" onClick={() => setJdSelectedAnalysis(null)}>
+                    <button className="jd-back-btn" onClick={() => { setJdSelectedAnalysis(null); setShowJDInput(false) }}>
                       ← 이력서 다시 선택
                     </button>
                     <div className="jd-selected-summary">
@@ -1446,7 +1494,45 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </div>
                       <p className="jd-selected-summary-text">{jdSelectedAnalysis.result.summary?.slice(0, 100)}…</p>
                     </div>
-                    <div className="jd-form">
+
+                    {!showJDInput ? (
+                      <>
+                        {savedJDTemplates.length > 0 && (
+                          <div className="jd-template-section">
+                            <div className="jd-list-title">저장된 JD</div>
+                            <div className="jd-template-list">
+                              {savedJDTemplates.map((template) => (
+                                <div
+                                  key={template.id}
+                                  className="jd-template-card"
+                                  onClick={() => selectJDTemplate(template)}
+                                >
+                                  <div className="jd-template-info">
+                                    <span className="jd-template-company">{template.company}</span>
+                                    {template.position && <span className="jd-template-position">{template.position}</span>}
+                                  </div>
+                                  <button
+                                    className="jd-template-delete"
+                                    onClick={(e) => { e.stopPropagation(); deleteJDTemplate(template.id) }}
+                                    title="삭제"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <button
+                          className="btn-hero"
+                          onClick={() => { setJdCompany(''); setJdPosition(''); setJdContent(''); setShowJDInput(true) }}
+                          style={{ width: '100%', marginTop: savedJDTemplates.length > 0 ? 16 : 0 }}
+                        >
+                          + 새 JD 입력
+                        </button>
+                      </>
+                    ) : (
+                      <div className="jd-form">
                       <div className="jd-field">
                         <label className="jd-label">회사명</label>
                         <input
@@ -1478,13 +1564,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         />
                       </div>
                       {jdError && <div className="analyze-error">{jdError}</div>}
-                      <button
-                        className="btn-hero analyze-btn"
-                        onClick={onJDAnalyze}
-                        disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading}
-                      >
-                        {jdLoading ? 'AI 분석 중...' : '적합도 분석하기 →'}
-                      </button>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+                        <button
+                          className="btn-ghost"
+                          onClick={() => setShowJDInput(false)}
+                          style={{ flex: '0 0 auto' }}
+                        >
+                          ← 목록으로
+                        </button>
+                        <button
+                          className="btn-hero analyze-btn"
+                          onClick={() => { saveJDTemplate(); onJDAnalyze() }}
+                          disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading}
+                          style={{ flex: 1 }}
+                        >
+                          {jdLoading ? 'AI 분석 중...' : '저장 & 분석하기 →'}
+                        </button>
+                      </div>
                       {jdLoading && (
                         <div className="analyze-loading">
                           <div className="loading-bar"><div className="loading-fill" /></div>
@@ -1492,6 +1588,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </div>
                       )}
                     </div>
+                    )}
                   </>
                 ) : (
                   <>
