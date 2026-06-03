@@ -2281,14 +2281,22 @@ function AnalysisResults({
           <div className="results-label">개선 포인트</div>
           <ul className="result-list improvement-list">
             {toArr(result.improvements).map((s, i) => {
-              // 상위 2개: 작은따옴표로 감싸진 핵심 키워드만 빨간색
+              // 상위 2개: 리스크 키워드 포함 구문 빨간색
               if (i < 2) {
-                const parts = s.split(/('.*?'|'.*?')/)
+                const riskKeywords = ['불명확', '부재', '부족', '낮음', '없음', '불안정', '리스크', '우려', '약함', '미흡', '잦은', '짧은', '불충분']
+
+                // 작은따옴표로 감싸진 부분 또는 리스크 키워드 포함 구문 감지
+                const regex = new RegExp(`('.*?'|'.*?'|[^,、]+(?:${riskKeywords.join('|')})[^,、]*)`, 'g')
+                const parts = s.split(regex).filter(p => p)
+
                 return (
                   <li key={i}>
                     {parts.map((part, idx) => {
-                      if ((part.startsWith("'") && part.endsWith("'")) ||
-                          (part.startsWith("'") && part.endsWith("'"))) {
+                      const hasQuote = (part.startsWith("'") && part.endsWith("'")) ||
+                                      (part.startsWith("'") && part.endsWith("'"))
+                      const hasRiskKeyword = riskKeywords.some(kw => part.includes(kw))
+
+                      if (hasQuote || hasRiskKeyword) {
                         return (
                           <span key={idx} style={{ color: '#ff6b6b', fontWeight: 600 }}>
                             {part}
