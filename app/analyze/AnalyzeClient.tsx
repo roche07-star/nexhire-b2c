@@ -577,14 +577,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .catch(() => {})
   }, [])
 
-  // Load saved JD templates from localStorage
+  // Load saved JD templates from database
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('jdTemplates')
-      if (saved) {
-        setSavedJDTemplates(JSON.parse(saved))
-      }
-    } catch {}
+    fetch('/api/jd-templates')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSavedJDTemplates(data)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   // PRO/Expert 유저는 마운트 시 분석 목록 미리 로드 (보존 모달용)
@@ -910,25 +912,35 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }
 
-  function saveJDTemplate() {
+  async function saveJDTemplate() {
     if (!jdCompany.trim() || !jdContent.trim()) return
-    const newTemplate: JDTemplate = {
-      id: Date.now().toString(),
-      company: jdCompany,
-      position: jdPosition || undefined,
-      content: jdContent,
-      created_at: new Date().toISOString()
+    try {
+      const res = await fetch('/api/jd-templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company: jdCompany,
+          position: jdPosition || null,
+          content: jdContent,
+        }),
+      })
+      if (!res.ok) throw new Error('저장 실패')
+      const newTemplate = await res.json()
+      setSavedJDTemplates([newTemplate, ...savedJDTemplates])
+    } catch (e) {
+      alert('JD 템플릿 저장 중 오류가 발생했습니다.')
     }
-    const updated = [newTemplate, ...savedJDTemplates]
-    setSavedJDTemplates(updated)
-    localStorage.setItem('jdTemplates', JSON.stringify(updated))
   }
 
-  function deleteJDTemplate(id: string) {
+  async function deleteJDTemplate(id: string) {
     if (!confirm('이 JD를 삭제할까요?')) return
-    const updated = savedJDTemplates.filter(t => t.id !== id)
-    setSavedJDTemplates(updated)
-    localStorage.setItem('jdTemplates', JSON.stringify(updated))
+    try {
+      const res = await fetch(`/api/jd-templates?id=${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('삭제 실패')
+      setSavedJDTemplates(savedJDTemplates.filter(t => t.id !== id))
+    } catch (e) {
+      alert('JD 템플릿 삭제 중 오류가 발생했습니다.')
+    }
   }
 
   function selectJDTemplate(template: JDTemplate) {
@@ -1574,7 +1586,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </button>
                         <button
                           className="btn-hero analyze-btn"
-                          onClick={() => { saveJDTemplate(); onJDAnalyze() }}
+                          onClick={async () => { await saveJDTemplate(); onJDAnalyze() }}
                           disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading}
                           style={{ flex: 1 }}
                         >
