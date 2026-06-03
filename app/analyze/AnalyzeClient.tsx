@@ -2240,30 +2240,22 @@ function AnalysisResults({
         <div className="results-label">종합 요약</div>
         <div className="result-summary">
           {(() => {
-            // 줄바꿈 처리: \n 또는 ". " (마침표+공백) 뒤 레이블 패턴으로 분리
-            const lines = result.summary
-              .split(/\n/)
-              .flatMap(line =>
-                line.split(/\.\s+(?=[가-힣]+:)/)
-                  .map(s => s.trim())
-                  .filter(s => s)
-                  .map(s => s.endsWith('.') ? s : s + '.')
-              )
-              .map(s => s.replace(/\.$/, '').trim())
+            const labels = ['포지셔닝', '핵심 강점', '커리어 패턴', '시장 제안']
+            const lines = result.summary.split(/\n/).map(s => s.trim()).filter(Boolean)
 
             return lines.map((line, idx) => {
-              const colonIndex = line.indexOf(':')
-              if (colonIndex > 0) {
-                const label = line.substring(0, colonIndex + 1)
-                const content = line.substring(colonIndex + 1).trim()
+              // 레이블로 시작하는지 확인
+              const matchedLabel = labels.find(label => line.startsWith(label))
+              if (matchedLabel) {
+                const content = line.substring(matchedLabel.length).trim()
                 return (
                   <p key={idx} style={{ marginBottom: 8 }}>
-                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{label}</span>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{matchedLabel}</span>
                     {' '}{content}
                   </p>
                 )
               }
-              return line ? <p key={idx} style={{ marginBottom: 8 }}>{line}</p> : null
+              return <p key={idx} style={{ marginBottom: 8 }}>{line}</p>
             })
           })()}
         </div>
