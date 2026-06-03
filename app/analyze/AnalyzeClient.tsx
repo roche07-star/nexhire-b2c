@@ -2240,18 +2240,18 @@ function AnalysisResults({
         <div className="results-label">종합 요약</div>
         <div className="result-summary">
           {result.summary.split(/\n/).map((line, idx) => {
-            // 레이블 강조 (포지셔닝:, 핵심 강점:, 구체적 성과: 등)
-            const parts = line.split(/(:)/g)
-            return (
-              <p key={idx}>
-                {parts.map((part, i) => {
-                  if (part === ':' || (i > 0 && parts[i - 1] === ':')) {
-                    return <span key={i} style={{ color: 'var(--accent)', fontWeight: 600 }}>{part}</span>
-                  }
-                  return <span key={i}>{part}</span>
-                })}
-              </p>
-            )
+            const colonIndex = line.indexOf(':')
+            if (colonIndex > 0) {
+              const label = line.substring(0, colonIndex + 1) // "포지셔닝:" 포함
+              const content = line.substring(colonIndex + 1) // 뒤의 내용
+              return (
+                <p key={idx}>
+                  <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{label}</span>
+                  <span>{content}</span>
+                </p>
+              )
+            }
+            return <p key={idx}>{line}</p>
           })}
         </div>
       </div>
