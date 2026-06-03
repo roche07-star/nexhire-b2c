@@ -2280,14 +2280,28 @@ function AnalysisResults({
         <div className="results-section">
           <div className="results-label">개선 포인트</div>
           <ul className="result-list improvement-list">
-            {toArr(result.improvements).map((s, i) => (
-              <li
-                key={i}
-                style={i < 2 ? { color: '#ff6b6b', fontWeight: 500 } : undefined}
-              >
-                {s}
-              </li>
-            ))}
+            {toArr(result.improvements).map((s, i) => {
+              // 상위 2개: 작은따옴표로 감싸진 핵심 키워드만 빨간색
+              if (i < 2) {
+                const parts = s.split(/('.*?'|'.*?')/)
+                return (
+                  <li key={i}>
+                    {parts.map((part, idx) => {
+                      if ((part.startsWith("'") && part.endsWith("'")) ||
+                          (part.startsWith("'") && part.endsWith("'"))) {
+                        return (
+                          <span key={idx} style={{ color: '#ff6b6b', fontWeight: 600 }}>
+                            {part}
+                          </span>
+                        )
+                      }
+                      return <span key={idx}>{part}</span>
+                    })}
+                  </li>
+                )
+              }
+              return <li key={i}>{s}</li>
+            })}
           </ul>
         </div>
       </div>
