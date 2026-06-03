@@ -1511,7 +1511,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       <>
                         {savedJDTemplates.length > 0 && (
                           <div className="jd-template-section">
-                            <div className="jd-list-title">저장된 JD</div>
+                            <div className="jd-list-title">📁 저장된 JD</div>
                             <div className="jd-template-list">
                               {savedJDTemplates.map((template) => (
                                 <div
@@ -1607,7 +1607,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {/* 저장된 JD 분석 목록 */}
                     {(jdSavedList && jdSavedList.length > 0) && (
                       <div className="jd-saved-section">
-                        <div className="jd-list-title">이전 JD 분석 결과</div>
+                        <div className="jd-list-title">📊 이전 JD 분석 결과</div>
                         <div className="jd-saved-list">
                           {jdSavedList.map((item) => {
                             const rec = item.result.recommendation
@@ -1646,7 +1646,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     )}
                     {jdSavedListLoading && <div className="jd-list-loading">불러오는 중...</div>}
 
-                    <div className="jd-list-title">분석할 이력서를 선택하세요</div>
+                    <div className="jd-list-title">📄 분석할 이력서를 선택하세요</div>
                     {analysisListLoading ? (
                       <div className="jd-list-loading">이력서 분석 목록을 불러오는 중...</div>
                     ) : !analysisList || analysisList.length === 0 ? (
