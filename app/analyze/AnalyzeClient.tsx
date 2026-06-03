@@ -486,6 +486,14 @@ const JD_LOADING_STEPS = [
   '적합도 리포트를 작성하는 중...',
 ]
 
+const REWRITE_LOADING_STEPS = [
+  '원본 이력서를 분석하는 중...',
+  'JD 기반 전략을 수립하는 중...',
+  '내용을 보완하고 있습니다...',
+  '서식을 정리하는 중...',
+  'DOCX 파일을 생성하는 중...',
+]
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -496,6 +504,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [isExpert] = useState(!!initialIsExpert)
   const [activeMenu, setActiveMenu] = useState<SidebarMenu>('upload')
   const [rewritingId, setRewritingId] = useState<string | null>(null)
+  const [rewriteLoadingMsg, setRewriteLoadingMsg] = useState<string>('')
   const [rewriteError, setRewriteError] = useState<string | null>(null)
   const [rewriteChanges, setRewriteChanges] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -714,6 +723,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
     setRewritingId(analysisId)
     setRewriteChanges([])
+    setRewriteError(null)
+
+    // 로딩 메시지 단계별 표시
+    let rewriteStepIndex = 0
+    setRewriteLoadingMsg(REWRITE_LOADING_STEPS[0])
+    const rewriteInterval = setInterval(() => {
+      rewriteStepIndex = Math.min(rewriteStepIndex + 1, REWRITE_LOADING_STEPS.length - 1)
+      setRewriteLoadingMsg(REWRITE_LOADING_STEPS[rewriteStepIndex])
+    }, 8000)
+
     try {
       const fd = new FormData()
       fd.append('analysisId', analysisId)
@@ -745,7 +764,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     } catch {
       setRewriteError('서버 오류가 발생했습니다.')
     } finally {
+      clearInterval(rewriteInterval)
       setRewritingId(null)
+      setRewriteLoadingMsg('')
     }
   }
 
@@ -1147,7 +1168,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
-                  <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식·서식 그대로 JD 기반으로 내용을 보완합니다.<br />
+                  <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식·서식을 거의 비슷하게 유지하며 JD 기반으로 내용을 보완합니다.<br />
                   <strong>자율 포맷 생성</strong>: 텍스트 붙여넣기로 분석한 경우, AI가 섹션별로 구성하여 새 DOCX로 생성합니다.<br />
                   <strong>양식 업로드</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
@@ -1208,6 +1229,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             >
                               {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
                             </button>
+                            {rewritingId === item.id && rewriteLoadingMsg && (
+                              <div className="rewrite-loading-msg">{rewriteLoadingMsg}</div>
+                            )}
                           </div>
                         )
                       })}
@@ -1978,7 +2002,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <div className="preserve-option-desc">
                 {isTextPasteRewrite
                   ? 'AI가 이력서 내용을 섹션별로 분석하여 깔끔한 DOCX 형식으로 새로 구성합니다.'
-                  : '업로드한 이력서 파일의 양식·서식 그대로 내용을 보완하여 생성합니다. DOCX는 서식 완전 보존, PDF는 업로드 파일 기반 새 DOCX로 생성됩니다.'}
+                  : '업로드한 이력서 파일의 양식·서식을 거의 비슷하게 유지하며 내용을 보완하여 생성합니다. DOCX는 서식 최대한 보존, PDF는 업로드 파일 기반 새 DOCX로 생성됩니다.'}
               </div>
             </button>
 
