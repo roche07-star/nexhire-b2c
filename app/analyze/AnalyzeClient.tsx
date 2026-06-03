@@ -2239,20 +2239,33 @@ function AnalysisResults({
       <div className="results-section">
         <div className="results-label">종합 요약</div>
         <div className="result-summary">
-          {result.summary.split(/\n/).map((line, idx) => {
-            const colonIndex = line.indexOf(':')
-            if (colonIndex > 0) {
-              const label = line.substring(0, colonIndex + 1) // "포지셔닝:" 포함
-              const content = line.substring(colonIndex + 1) // 뒤의 내용
-              return (
-                <p key={idx}>
-                  <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{label}</span>
-                  <span>{content}</span>
-                </p>
+          {(() => {
+            // 줄바꿈 처리: \n 또는 ". " (마침표+공백) 뒤 레이블 패턴으로 분리
+            const lines = result.summary
+              .split(/\n/)
+              .flatMap(line =>
+                line.split(/\.\s+(?=[가-힣]+:)/)
+                  .map(s => s.trim())
+                  .filter(s => s)
+                  .map(s => s.endsWith('.') ? s : s + '.')
               )
-            }
-            return <p key={idx}>{line}</p>
-          })}
+              .map(s => s.replace(/\.$/, '').trim())
+
+            return lines.map((line, idx) => {
+              const colonIndex = line.indexOf(':')
+              if (colonIndex > 0) {
+                const label = line.substring(0, colonIndex + 1)
+                const content = line.substring(colonIndex + 1).trim()
+                return (
+                  <p key={idx} style={{ marginBottom: 8 }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{label}</span>
+                    {' '}{content}
+                  </p>
+                )
+              }
+              return line ? <p key={idx} style={{ marginBottom: 8 }}>{line}</p> : null
+            })
+          })()}
         </div>
       </div>
 
