@@ -4045,45 +4045,45 @@ footer {
   /* 전체 기본 폰트 크기 축소 */
   body {
     cursor: auto !important;
-    font-size: 13px;
+    font-size: 12px;
   }
   .cursor, .cursor-ring { display: none !important; }
 
   /* NAV */
   nav {
-    padding: 8px 12px;
-    gap: 6px;
+    padding: 6px 10px;
+    gap: 5px;
   }
-  .nav-logo-icon { width: 20px; height: 20px; }
-  .nav-logo-text { font-size: 12px; letter-spacing: 0.5px; }
+  .nav-logo-icon { width: 18px; height: 18px; }
+  .nav-logo-text { font-size: 11px; letter-spacing: 0.3px; }
   .nav-links { display: none; }
-  .nav-cta { gap: 4px; }
+  .nav-cta { gap: 3px; }
   .btn-ghost {
-    padding: 5px 8px;
-    font-size: 10px;
-    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 9px;
+    border-radius: 4px;
   }
   .btn-primary {
-    padding: 5px 10px;
-    font-size: 10px;
-    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 9px;
+    border-radius: 4px;
   }
 
   /* HERO */
-  .hero { padding: 80px 12px 40px; }
-  .hero h1 { font-size: clamp(24px, 8vw, 40px); margin-bottom: 12px; }
-  .hero-sub { font-size: 12px; margin-bottom: 20px; }
+  .hero { padding: 70px 10px 35px; }
+  .hero h1 { font-size: clamp(22px, 7vw, 36px); margin-bottom: 10px; }
+  .hero-sub { font-size: 11px; margin-bottom: 18px; }
   .hero-badge {
-    padding: 4px 10px;
-    font-size: 10px;
-    margin-bottom: 20px;
+    padding: 3px 9px;
+    font-size: 9px;
+    margin-bottom: 18px;
   }
-  .hero-actions { gap: 6px; margin-bottom: 32px; }
+  .hero-actions { gap: 5px; margin-bottom: 28px; }
 
   /* SECTION */
-  .section { padding: 40px 12px; }
-  .section-title { font-size: clamp(20px, 6vw, 32px); margin-bottom: 10px; }
-  .section-sub { font-size: 11px; }
+  .section { padding: 35px 10px; }
+  .section-title { font-size: clamp(18px, 5vw, 28px); margin-bottom: 8px; }
+  .section-sub { font-size: 10px; }
 
   /* FEATURE */
   .feature-grid {
@@ -4131,14 +4131,21 @@ footer {
 
   /* FOOTER */
   footer {
-    padding: 20px 12px;
+    padding: 16px 12px;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     text-align: center;
+    align-items: center;
   }
-  .footer-logo { font-size: 14px; }
-  .footer-copy, .footer-links a { font-size: 11px; }
-  .footer-links { flex-direction: column; gap: 10px; }
+  .footer-logo { font-size: 12px; }
+  .footer-copy { font-size: 10px; }
+  .footer-links {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+  .footer-links a { font-size: 10px; }
 
   /* LOGIN PAGE */
   .login-wrap {
