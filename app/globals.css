@@ -4037,3 +4037,263 @@ footer {
 .interview-storage-notice strong { color: var(--fg); }
 
 .interview-expire-tag { color: #c8944a !important; font-size: 12px !important; }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE RESPONSIVE (≤768px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* 커스텀 커서 비활성화 */
+  body { cursor: auto !important; }
+  .cursor, .cursor-ring { display: none !important; }
+
+  /* NAV */
+  nav {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .nav-logo-icon { width: 24px; height: 24px; }
+  .nav-logo-text { font-size: 14px; letter-spacing: 1px; }
+  .nav-links { display: none; } /* 모바일에서 nav-links 숨김 */
+  .nav-cta { gap: 6px; }
+  .btn-ghost {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  .btn-primary {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  /* HERO */
+  .hero { padding: 100px 16px 50px; }
+  .hero h1 { font-size: clamp(28px, 9vw, 48px); margin-bottom: 16px; }
+  .hero-sub { font-size: 14px; margin-bottom: 28px; }
+  .hero-badge {
+    padding: 5px 12px;
+    font-size: 11px;
+    margin-bottom: 24px;
+  }
+  .hero-actions { gap: 8px; margin-bottom: 40px; }
+
+  /* SECTION */
+  .section { padding: 50px 16px; }
+  .section-title { font-size: clamp(24px, 6vw, 36px); margin-bottom: 12px; }
+  .section-sub { font-size: 13px; }
+
+  /* FEATURE */
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .feature-card { padding: 18px; }
+  .feature-icon { font-size: 32px; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 16px; }
+  .feature-card p { font-size: 13px; }
+
+  /* PERSONA */
+  .persona-section { padding: 50px 16px; }
+  .persona-wrap {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .persona-card { padding: 20px; }
+  .persona-card h3 { font-size: 17px; }
+
+  /* PRICING */
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .pricing-card { padding: 24px 20px; }
+
+  /* FAQ */
+  .faq-list { margin-top: 32px; }
+  .faq-q { padding: 14px 16px; font-size: 14px; }
+  .faq-a { font-size: 13px; }
+  .faq-item.open .faq-a { padding: 0 16px 14px; }
+
+  /* CTA */
+  .cta-section { padding: 60px 16px; }
+  .cta-inner h2 { font-size: clamp(24px, 7vw, 40px); }
+  .cta-inner p { font-size: 14px; margin-bottom: 24px; }
+
+  /* FOOTER */
+  footer {
+    padding: 24px 16px;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  .footer-links { flex-direction: column; gap: 12px; }
+
+  /* LOGIN PAGE */
+  .login-wrap {
+    padding: 80px 16px 40px;
+    min-height: calc(100vh - 56px);
+  }
+  .login-box {
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 400px;
+  }
+  .login-title { font-size: 22px; }
+  .login-subtitle { font-size: 12px; }
+
+  /* ANALYZE PAGE */
+  .analyze-container { padding: 70px 14px 40px; }
+  .analyze-header h1 { font-size: 20px; }
+  .analyze-header p { font-size: 12px; }
+
+  .upload-section { padding: 20px 16px; }
+  .upload-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .upload-btn {
+    padding: 10px 16px;
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .dropzone {
+    padding: 30px 20px;
+    min-height: 180px;
+  }
+  .dropzone-icon { font-size: 36px; }
+  .dropzone-text { font-size: 13px; }
+  .dropzone-hint { font-size: 11px; }
+
+  .paste-area {
+    padding: 14px;
+    font-size: 13px;
+    min-height: 180px;
+  }
+
+  .privacy-section { padding: 16px; }
+  .privacy-label { font-size: 12px; }
+
+  .submit-section { padding: 16px; }
+  .submit-btn {
+    padding: 12px 24px;
+    font-size: 13px;
+  }
+
+  /* JD 분석 결과 */
+  .jd-result-wrap { padding: 70px 14px 40px; }
+  .jd-header {
+    padding: 18px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .jd-company-info h2 { font-size: 18px; }
+  .jd-company-info p { font-size: 12px; }
+  .jd-actions-top {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .jd-actions-top button { width: 100%; font-size: 11px; }
+
+  .jd-content { padding: 20px 14px; }
+  .jd-section { padding: 18px; }
+  .jd-section-title { font-size: 11px; padding-bottom: 8px; }
+  .jd-section h3 { font-size: 15px; }
+  .jd-section p { font-size: 13px; }
+
+  .jd-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .skill-chip {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  /* 후보자 매칭 결과 */
+  .candidate-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .candidate-card { padding: 16px; }
+  .candidate-name { font-size: 16px; }
+  .candidate-score {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  /* 이력서 분석 결과 */
+  .result-header {
+    padding: 18px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .result-candidate h2 { font-size: 18px; }
+  .result-candidate p { font-size: 12px; }
+  .result-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .result-actions button { width: 100%; font-size: 11px; }
+
+  .result-content { padding: 20px 14px; }
+
+  .summary-card { padding: 18px 16px; }
+  .summary-title { font-size: 11px; }
+  .summary-text { font-size: 14px; }
+
+  .section-card { padding: 18px; }
+  .section-header { margin-bottom: 12px; }
+  .section-label { font-size: 10px; padding: 3px 10px; }
+  .section-title-text { font-size: 15px; }
+
+  /* 점수 카드 */
+  .score-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .score-item { padding: 12px; }
+  .score-label { font-size: 10px; }
+  .score-value { font-size: 20px; }
+  .score-bar { height: 4px; }
+
+  /* 면접 가이드 */
+  .interview-guide-header { padding: 14px 16px; }
+  .interview-candidate { font-size: 16px; }
+  .interview-company { font-size: 12px; }
+  .interview-section { padding: 16px 18px; }
+  .interview-positioning { font-size: 14px; padding: 10px 14px; }
+
+  /* 리스트 */
+  .strength-list, .weakness-list, .refinement-list,
+  .interview-list, .interview-checklist { gap: 6px; }
+
+  /* 인풋/폼 */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  /* 테이블 */
+  table { font-size: 12px; }
+
+  /* 모달 */
+  .modal-content {
+    width: 95vw;
+    max-width: 400px;
+    padding: 20px;
+  }
+}
