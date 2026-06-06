@@ -137,7 +137,7 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
       console.error('[analyze/jd] web search error (non-fatal):', err)
     }
 
-    const prompt = `당신은 한국 시니어 헤드헌터입니다. 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
+    const systemPrompt = `당신은 한국 시니어 헤드헌터입니다. 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
 JD를 요약하지 마십시오. 후보자 이력서를 나열하지 마십시오. 판단하고, 근거를 대고, 전략을 내십시오.
 후보자 프로필과 채용공고를 냉정하고 날카롭게 비교 분석하십시오. 좋은 점만 말하지 말고 부족한 점도 직설적으로 지적하십시오.
 
@@ -152,7 +152,7 @@ STEP 1 — JD 핵심 요구 역량 추출
 JD를 읽고 요구사항을 3가지로 분리합니다:
 ① 필수 요건(없으면 탈락): 최소 학력/전공, 최소 경력 연수, 특정 도메인/직무 경험, 자격증/어학
 ② 우대 사항(있으면 가산점): 특정 툴/플랫폼, 관련 업종, 특수 환경(해외/IPO/스타트업 등)
-③ 숨은 요구 역량(JD에 없지만 맥락상 필요한 것): "글로벌 팀 협업"→영어 실무, "C-level 보고"→문서화 능력, "스타트업 환경"→멀티태스킹, "팀 리딩"→실제 인사권 여부, "외부 파트너"→협상 경험${companyInfo ? '\n웹 검색으로 확인한 회사 실제 정보도 반드시 반영하십시오.' : ''}
+③ 숨은 요구 역량(JD에 없지만 맥락상 필요한 것): "글로벌 팀 협업"→영어 실무, "C-level 보고"→문서화 능력, "스타트업 환경"→멀티태스킹, "팀 리딩"→실제 인사권 여부, "외부 파트너"→협상 경험
 
 STEP 2 — 타깃 프로파일 한 줄 정의
 STEP 1을 종합해 "[도메인]에서 [N]년 이상 [핵심 직무]를 직접 수행한 경험이 있으며, [환경]에서 [역할]을 해본 [직급대] 인재" 형식으로 기준선을 먼저 정한 뒤 후보자를 대조합니다.
@@ -175,9 +175,9 @@ STEP 4 — 매칭 판정 + 제안 전략
 - pitch_points: ① 클라이언트 제안 포지셔닝 전략 ② 서류/면접 핵심 어필 포인트 ③ 예상 우려 대응 방안 ④ 제안 전 후보자에게 반드시 확인할 사항 (3-4개, 실전적으로)
 
 [금지]
-JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지 / 중간점(·) 사용 금지 → 쉼표(,) 또는 "및" 사용
+JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지 / 중간점(·) 사용 금지 → 쉼표(,) 또는 "및" 사용`
 
-[채용 회사]
+    const userContent = `[채용 회사]
 ${company}
 ${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
 ${companyInfo}
@@ -191,9 +191,14 @@ ${candidateProfile}`
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2500,
+      system: [{
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' }
+      }],
       tool_choice: { type: 'tool', name: 'analyze_jd_fit' },
       tools: [jdTool],
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content: userContent }],
     })
 
     const toolUse = message.content.find((c) => c.type === 'tool_use')

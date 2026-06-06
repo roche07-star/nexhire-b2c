@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
 
     if (isPro) {
       // PRO: 기본 분석 → 커리어 경로 순차 실행 (병렬→504 문제 해결, maxDuration=90)
-      const basicPrompt = `${headhunterBase}
+      const basicSystemPrompt = `${headhunterBase}
 
 [분석 절차]
 STEP 1 — 후보자 기본 프로파일 파악
@@ -248,19 +248,19 @@ STEP 4 — 종합 요약 작성 (summary 필드)
 - 중간점(·) 절대 사용 금지 → 반드시 쉼표(,) 또는 "및" 사용
   잘못된 예: "Java·Spring·MySQL" / "백엔드·데이터베이스" / "개발·운영·설계"
   올바른 예: "Java, Spring, MySQL" / "백엔드, 데이터베이스" / "개발, 운영 및 설계"
-- summary 각 항목은 반드시 개행(\n)으로 구분
-
----
-[이력서]
-${maskedText}
----`
+- summary 각 항목은 반드시 개행(\n)으로 구분`
 
       const basicMsg = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 2000,
+        system: [{
+          type: 'text',
+          text: basicSystemPrompt,
+          cache_control: { type: 'ephemeral' }
+        }],
         tool_choice: { type: 'tool', name: 'analyze_resume' },
         tools: [proBasicTool],
-        messages: [{ role: 'user', content: basicPrompt }],
+        messages: [{ role: 'user', content: `다음 이력서를 분석해주세요:\n\n${maskedText}` }],
       })
 
       const basicTU = basicMsg.content.find(c => c.type === 'tool_use')
@@ -328,7 +328,7 @@ ${maskedText}
       }
     } else {
       // FREE: 단일 call, BASELINE 1개
-      const freePrompt = `${headhunterBase}
+      const freeSystemPrompt = `${headhunterBase}
 
 [분석 절차]
 STEP 1 — 총 경력 연수 직접 계산, 현 직장/직급, 이직 횟수, 추정 연봉 범위 파악.
@@ -344,19 +344,19 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 - salary_bands: 1년 뒤/3년 뒤/5년 뒤/7년 뒤+ 연봉 밴드 4개 (min/max 만원 단위)
 - points: 현재 경로에서 성공하기 위한 구체적 조언 3개
 
-[출력 규칙] 빈 말·근거 없는 강점 처리 금지.
-
-----
-[이력서]
-${maskedText}
-----`
+[출력 규칙] 빈 말·근거 없는 강점 처리 금지.`
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 2000,
+        system: [{
+          type: 'text',
+          text: freeSystemPrompt,
+          cache_control: { type: 'ephemeral' }
+        }],
         tool_choice: { type: 'tool', name: 'analyze_resume' },
         tools: [baseTool],
-        messages: [{ role: 'user', content: freePrompt }],
+        messages: [{ role: 'user', content: `다음 이력서를 분석해주세요:\n\n${maskedText}` }],
       })
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
