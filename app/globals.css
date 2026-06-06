@@ -4358,4 +4358,318 @@ footer {
   button {
     border-radius: 6px;
   }
+
+  /* ═══ 분석 페이지 추가 최적화 ═══ */
+
+  /* 분석 레이아웃 */
+  .analyze-page { padding-top: 48px; }
+  .analyze-layout { padding: 0 10px; }
+  .analyze-main { padding: 0; }
+  .analyze-container { gap: 20px; padding: 12px 0; }
+
+  /* 사이드바 */
+  .analyze-sidebar {
+    display: none !important; /* 모바일에서 사이드바 숨김 */
+  }
+
+  /* 탭바 */
+  .analyze-tab-bar {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .analyze-tab-bar::-webkit-scrollbar { display: none; }
+  .analyze-tab-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* 헤더 */
+  .analyze-header {
+    padding: 16px 0;
+    margin-bottom: 12px;
+  }
+  .analyze-title {
+    font-size: clamp(20px, 6vw, 32px) !important;
+    margin: 6px 0 10px !important;
+  }
+  .analyze-sub {
+    font-size: 12px !important;
+    line-height: 1.6;
+  }
+
+  .analyze-candidate-header { margin-bottom: 12px; }
+  .analyze-candidate-name { font-size: 18px; }
+  .analyze-candidate-job { font-size: 12px; }
+
+  /* 업로드 영역 */
+  .upload-mode-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .upload-mode-tab {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  .upload-zone {
+    padding: 28px 20px !important;
+    border-radius: 12px !important;
+    gap: 10px !important;
+    min-height: 140px;
+  }
+  .upload-icon-main {
+    font-size: 32px !important;
+  }
+  .upload-icon-success {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 18px !important;
+  }
+  .upload-main-text {
+    font-size: 13px !important;
+    text-align: center;
+  }
+  .upload-filename {
+    font-size: 12px !important;
+    text-align: center;
+  }
+  .upload-hint {
+    font-size: 11px !important;
+    text-align: center;
+  }
+  .upload-hint--warn {
+    font-size: 10px !important;
+    margin-top: 4px !important;
+  }
+
+  /* 텍스트 입력 영역 */
+  .paste-textarea {
+    min-height: 140px !important;
+    padding: 12px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* 개인정보 동의 */
+  .privacy-agree-wrap {
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+  .privacy-agree-label {
+    font-size: 11px !important;
+  }
+  .privacy-agree-link {
+    font-size: 10px !important;
+  }
+
+  /* 분석 버튼 */
+  .analyze-btn,
+  .btn-hero.analyze-btn {
+    padding: 10px 24px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    width: 100%;
+    max-width: none;
+  }
+
+  .jd-analyze-btn {
+    padding: 10px 20px !important;
+    font-size: 12px !important;
+  }
+
+  /* 로딩 */
+  .analyze-loading {
+    padding: 24px !important;
+    font-size: 12px !important;
+  }
+  .analyze-spinner {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* 에러 */
+  .analyze-error {
+    font-size: 12px !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+  }
+  .analyze-error-wrap {
+    padding: 20px 14px !important;
+  }
+  .analyze-retry-btn {
+    padding: 8px 16px !important;
+    font-size: 11px !important;
+  }
+
+  /* 저장된 분석 노티스 */
+  .analyze-saved-notice,
+  .analyze-storage-notice {
+    padding: 10px 14px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+    margin: 12px 0 !important;
+  }
+  .analyze-saved-date {
+    font-size: 10px !important;
+  }
+
+  /* 보존 정책 안내 */
+  .preserve-info-box {
+    padding: 12px 14px !important;
+    margin-bottom: 12px !important;
+    border-radius: 10px !important;
+  }
+  .preserve-info-title {
+    font-size: 11px !important;
+  }
+  .preserve-info-body {
+    font-size: 11px !important;
+  }
+  .preserve-info-free,
+  .preserve-info-paid {
+    font-size: 10px !important;
+  }
+
+  /* Re-Writing 상태바 */
+  .rewrite-status-bar {
+    padding: 10px 14px !important;
+    margin-bottom: 14px !important;
+    border-radius: 10px !important;
+    gap: 8px !important;
+  }
+  .rewrite-status-item {
+    min-width: 70px;
+    gap: 3px;
+  }
+  .rewrite-status-label {
+    font-size: 10px !important;
+  }
+  .rewrite-status-value {
+    font-size: 11px !important;
+  }
+
+  /* 다운로드 */
+  .analyze-download-wrap {
+    padding: 14px 12px !important;
+    border-radius: 10px !important;
+  }
+  .analyze-download-btn {
+    padding: 8px 16px !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+  }
+
+  /* 재분석 버튼 */
+  .free-reanalyze-btn {
+    padding: 8px 16px !important;
+    font-size: 11px !important;
+  }
+
+  /* JD 템플릿 */
+  .jd-template-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .jd-template-card {
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+  .jd-template-name {
+    font-size: 13px !important;
+  }
+  .jd-template-company {
+    font-size: 11px !important;
+  }
+
+  /* JD 입력 폼 */
+  .jd-form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .jd-form-group {
+    margin-bottom: 12px !important;
+  }
+  .jd-form-label {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+  .jd-form-input,
+  .jd-form-textarea {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+  .jd-form-textarea {
+    min-height: 120px !important;
+  }
+
+  /* 인터뷰 가이드 폼 */
+  .interview-form-group {
+    margin-bottom: 12px !important;
+  }
+  .interview-form-label {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+  }
+  .interview-form-input,
+  .interview-form-textarea {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  /* 저장된 분석 목록 */
+  .saved-analysis-list {
+    gap: 10px !important;
+  }
+  .saved-analysis-item {
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+  .saved-analysis-name {
+    font-size: 14px !important;
+  }
+  .saved-analysis-date {
+    font-size: 10px !important;
+  }
+  .saved-analysis-expire {
+    font-size: 10px !important;
+  }
+
+  /* 모달 */
+  .modal-overlay {
+    padding: 10px;
+  }
+  .modal-box {
+    max-width: 95vw !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+  .modal-header {
+    margin-bottom: 12px !important;
+  }
+  .modal-title {
+    font-size: 16px !important;
+  }
+  .modal-body {
+    font-size: 12px !important;
+  }
+  .modal-footer {
+    margin-top: 16px !important;
+    gap: 8px !important;
+  }
+  .modal-btn {
+    padding: 8px 16px !important;
+    font-size: 11px !important;
+  }
 }
