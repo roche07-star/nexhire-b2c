@@ -4042,236 +4042,288 @@ footer {
    MOBILE RESPONSIVE (≤768px)
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* 커스텀 커서 비활성화 */
-  body { cursor: auto !important; }
+  /* 전체 기본 폰트 크기 축소 */
+  body {
+    cursor: auto !important;
+    font-size: 13px;
+  }
   .cursor, .cursor-ring { display: none !important; }
 
   /* NAV */
   nav {
-    padding: 10px 14px;
-    gap: 8px;
+    padding: 8px 12px;
+    gap: 6px;
   }
-  .nav-logo-icon { width: 24px; height: 24px; }
-  .nav-logo-text { font-size: 14px; letter-spacing: 1px; }
-  .nav-links { display: none; } /* 모바일에서 nav-links 숨김 */
-  .nav-cta { gap: 6px; }
+  .nav-logo-icon { width: 20px; height: 20px; }
+  .nav-logo-text { font-size: 12px; letter-spacing: 0.5px; }
+  .nav-links { display: none; }
+  .nav-cta { gap: 4px; }
   .btn-ghost {
-    padding: 6px 10px;
-    font-size: 11px;
-    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 10px;
+    border-radius: 5px;
   }
   .btn-primary {
-    padding: 6px 12px;
-    font-size: 11px;
-    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    border-radius: 5px;
   }
 
   /* HERO */
-  .hero { padding: 100px 16px 50px; }
-  .hero h1 { font-size: clamp(28px, 9vw, 48px); margin-bottom: 16px; }
-  .hero-sub { font-size: 14px; margin-bottom: 28px; }
+  .hero { padding: 80px 12px 40px; }
+  .hero h1 { font-size: clamp(24px, 8vw, 40px); margin-bottom: 12px; }
+  .hero-sub { font-size: 12px; margin-bottom: 20px; }
   .hero-badge {
-    padding: 5px 12px;
-    font-size: 11px;
-    margin-bottom: 24px;
+    padding: 4px 10px;
+    font-size: 10px;
+    margin-bottom: 20px;
   }
-  .hero-actions { gap: 8px; margin-bottom: 40px; }
+  .hero-actions { gap: 6px; margin-bottom: 32px; }
 
   /* SECTION */
-  .section { padding: 50px 16px; }
-  .section-title { font-size: clamp(24px, 6vw, 36px); margin-bottom: 12px; }
-  .section-sub { font-size: 13px; }
+  .section { padding: 40px 12px; }
+  .section-title { font-size: clamp(20px, 6vw, 32px); margin-bottom: 10px; }
+  .section-sub { font-size: 11px; }
 
   /* FEATURE */
   .feature-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 32px;
+    gap: 10px;
+    margin-top: 24px;
   }
-  .feature-card { padding: 18px; }
-  .feature-icon { font-size: 32px; margin-bottom: 12px; }
-  .feature-card h3 { font-size: 16px; }
-  .feature-card p { font-size: 13px; }
+  .feature-card { padding: 14px; border-radius: 10px; }
+  .feature-icon { font-size: 28px; margin-bottom: 10px; }
+  .feature-card h3 { font-size: 14px; }
+  .feature-card p { font-size: 12px; }
+  .ftag { font-size: 10px; padding: 3px 8px; }
 
   /* PERSONA */
-  .persona-section { padding: 50px 16px; }
+  .persona-section { padding: 40px 12px; }
   .persona-wrap {
     grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 32px;
+    gap: 10px;
+    margin-top: 24px;
   }
-  .persona-card { padding: 20px; }
-  .persona-card h3 { font-size: 17px; }
+  .persona-card { padding: 16px; border-radius: 12px; }
+  .persona-card h3 { font-size: 15px; }
+  .persona-card li { font-size: 12px; }
 
   /* PRICING */
   .pricing-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 32px;
+    gap: 10px;
+    margin-top: 24px;
   }
-  .pricing-card { padding: 24px 20px; }
+  .pricing-card { padding: 20px 16px; border-radius: 14px; }
+  .pricing-header h3 { font-size: 16px; }
+  .pricing-price { font-size: 28px; }
 
   /* FAQ */
-  .faq-list { margin-top: 32px; }
-  .faq-q { padding: 14px 16px; font-size: 14px; }
-  .faq-a { font-size: 13px; }
-  .faq-item.open .faq-a { padding: 0 16px 14px; }
+  .faq-list { margin-top: 24px; gap: 1px; }
+  .faq-q { padding: 12px 14px; font-size: 13px; }
+  .faq-a { font-size: 12px; }
+  .faq-item.open .faq-a { padding: 0 14px 12px; }
 
   /* CTA */
-  .cta-section { padding: 60px 16px; }
-  .cta-inner h2 { font-size: clamp(24px, 7vw, 40px); }
-  .cta-inner p { font-size: 14px; margin-bottom: 24px; }
+  .cta-section { padding: 50px 12px; }
+  .cta-inner h2 { font-size: clamp(20px, 7vw, 36px); }
+  .cta-inner p { font-size: 12px; margin-bottom: 20px; }
 
   /* FOOTER */
   footer {
-    padding: 24px 16px;
+    padding: 20px 12px;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     text-align: center;
   }
-  .footer-links { flex-direction: column; gap: 12px; }
+  .footer-logo { font-size: 14px; }
+  .footer-copy, .footer-links a { font-size: 11px; }
+  .footer-links { flex-direction: column; gap: 10px; }
 
   /* LOGIN PAGE */
   .login-wrap {
-    padding: 80px 16px 40px;
-    min-height: calc(100vh - 56px);
+    padding: 60px 12px 30px;
+    min-height: calc(100vh - 48px);
   }
   .login-box {
-    padding: 24px 20px;
+    padding: 20px 16px;
     width: 100%;
     max-width: 400px;
+    border-radius: 12px;
   }
-  .login-title { font-size: 22px; }
-  .login-subtitle { font-size: 12px; }
+  .login-title { font-size: 18px; }
+  .login-subtitle { font-size: 11px; }
+  .login-input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .login-btn {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
 
   /* ANALYZE PAGE */
-  .analyze-container { padding: 70px 14px 40px; }
-  .analyze-header h1 { font-size: 20px; }
-  .analyze-header p { font-size: 12px; }
+  .analyze-container { padding: 60px 12px 30px; }
+  .analyze-header h1 { font-size: 18px; }
+  .analyze-header p { font-size: 11px; }
 
-  .upload-section { padding: 20px 16px; }
+  .upload-section { padding: 16px 12px; border-radius: 10px; }
   .upload-buttons {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
   .upload-btn {
-    padding: 10px 16px;
-    font-size: 12px;
+    padding: 8px 14px;
+    font-size: 11px;
     width: 100%;
+    border-radius: 6px;
   }
 
   .dropzone {
-    padding: 30px 20px;
-    min-height: 180px;
+    padding: 24px 16px;
+    min-height: 150px;
+    border-radius: 10px;
   }
-  .dropzone-icon { font-size: 36px; }
-  .dropzone-text { font-size: 13px; }
-  .dropzone-hint { font-size: 11px; }
+  .dropzone-icon { font-size: 32px; }
+  .dropzone-text { font-size: 12px; }
+  .dropzone-hint { font-size: 10px; }
 
   .paste-area {
-    padding: 14px;
-    font-size: 13px;
-    min-height: 180px;
+    padding: 12px;
+    font-size: 12px;
+    min-height: 150px;
+    border-radius: 8px;
   }
 
-  .privacy-section { padding: 16px; }
-  .privacy-label { font-size: 12px; }
+  .privacy-section { padding: 14px 12px; }
+  .privacy-label { font-size: 11px; }
+  .privacy-checkbox {
+    width: 16px;
+    height: 16px;
+  }
 
-  .submit-section { padding: 16px; }
+  .submit-section { padding: 14px 12px; }
   .submit-btn {
-    padding: 12px 24px;
-    font-size: 13px;
+    padding: 10px 20px;
+    font-size: 12px;
+    border-radius: 8px;
   }
 
   /* JD 분석 결과 */
-  .jd-result-wrap { padding: 70px 14px 40px; }
+  .jd-result-wrap { padding: 60px 12px 30px; }
   .jd-header {
-    padding: 18px 16px;
+    padding: 14px 12px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
+    border-radius: 10px;
   }
-  .jd-company-info h2 { font-size: 18px; }
-  .jd-company-info p { font-size: 12px; }
+  .jd-company-info h2 { font-size: 16px; }
+  .jd-company-info p { font-size: 11px; }
   .jd-actions-top {
     flex-direction: column;
     width: 100%;
-    gap: 8px;
+    gap: 6px;
   }
-  .jd-actions-top button { width: 100%; font-size: 11px; }
+  .jd-actions-top button { width: 100%; font-size: 10px; padding: 6px 12px; }
 
-  .jd-content { padding: 20px 14px; }
-  .jd-section { padding: 18px; }
-  .jd-section-title { font-size: 11px; padding-bottom: 8px; }
-  .jd-section h3 { font-size: 15px; }
-  .jd-section p { font-size: 13px; }
+  .jd-content { padding: 16px 12px; }
+  .jd-section { padding: 14px; border-radius: 10px; }
+  .jd-section-title { font-size: 10px; padding-bottom: 6px; }
+  .jd-section h3 { font-size: 13px; margin-bottom: 8px; }
+  .jd-section p { font-size: 12px; }
 
   .jd-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .skill-chip {
-    padding: 4px 10px;
-    font-size: 11px;
+    padding: 3px 8px;
+    font-size: 10px;
+    border-radius: 4px;
   }
 
   /* 후보자 매칭 결과 */
   .candidate-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
-  .candidate-card { padding: 16px; }
-  .candidate-name { font-size: 16px; }
+  .candidate-card { padding: 14px; border-radius: 10px; }
+  .candidate-name { font-size: 14px; }
   .candidate-score {
-    width: 50px;
-    height: 50px;
-    font-size: 18px;
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
   }
 
   /* 이력서 분석 결과 */
   .result-header {
-    padding: 18px 16px;
+    padding: 14px 12px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
+    border-radius: 10px;
   }
-  .result-candidate h2 { font-size: 18px; }
-  .result-candidate p { font-size: 12px; }
+  .result-candidate h2 { font-size: 16px; }
+  .result-candidate p { font-size: 11px; }
   .result-actions {
     flex-direction: column;
     width: 100%;
-    gap: 8px;
+    gap: 6px;
   }
-  .result-actions button { width: 100%; font-size: 11px; }
+  .result-actions button { width: 100%; font-size: 10px; padding: 6px 12px; }
 
-  .result-content { padding: 20px 14px; }
+  .result-content { padding: 16px 12px; }
 
-  .summary-card { padding: 18px 16px; }
-  .summary-title { font-size: 11px; }
-  .summary-text { font-size: 14px; }
+  .summary-card { padding: 14px 12px; border-radius: 10px; }
+  .summary-title { font-size: 10px; }
+  .summary-text { font-size: 13px; }
 
-  .section-card { padding: 18px; }
-  .section-header { margin-bottom: 12px; }
-  .section-label { font-size: 10px; padding: 3px 10px; }
-  .section-title-text { font-size: 15px; }
+  .section-card { padding: 14px; border-radius: 10px; }
+  .section-header { margin-bottom: 10px; }
+  .section-label { font-size: 9px; padding: 2px 8px; }
+  .section-title-text { font-size: 13px; }
 
   /* 점수 카드 */
   .score-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
-  .score-item { padding: 12px; }
-  .score-label { font-size: 10px; }
-  .score-value { font-size: 20px; }
-  .score-bar { height: 4px; }
+  .score-item { padding: 10px; border-radius: 8px; }
+  .score-label { font-size: 9px; }
+  .score-value { font-size: 18px; }
+  .score-bar { height: 3px; }
+
+  /* 강점/약점 리스트 */
+  .strength-item, .weakness-item {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .refinement-card { padding: 14px; border-radius: 10px; }
+  .refinement-card h4 { font-size: 13px; }
+  .refinement-list li { font-size: 12px; padding-left: 14px; }
+  .refinement-para { font-size: 12px; }
 
   /* 면접 가이드 */
-  .interview-guide-header { padding: 14px 16px; }
-  .interview-candidate { font-size: 16px; }
-  .interview-company { font-size: 12px; }
-  .interview-section { padding: 16px 18px; }
-  .interview-positioning { font-size: 14px; padding: 10px 14px; }
+  .interview-guide-header { padding: 12px 14px; border-radius: 10px; }
+  .interview-candidate { font-size: 14px; }
+  .interview-company { font-size: 11px; }
+  .interview-section { padding: 14px 16px; border-radius: 10px; gap: 12px; }
+  .interview-section-title { font-size: 10px; }
+  .interview-positioning { font-size: 13px; padding: 10px 12px; border-radius: 6px; }
+  .interview-text p { font-size: 12px; }
+  .interview-qa-label { font-size: 11px; }
+  .interview-strength-item, .interview-risk-item {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+  .interview-risk-label { font-size: 12px; }
+  .interview-risk-response { font-size: 12px; }
+  .interview-list li, .interview-checklist li { font-size: 12px; }
 
   /* 리스트 */
   .strength-list, .weakness-list, .refinement-list,
@@ -4283,17 +4335,27 @@ footer {
   input[type="password"],
   textarea,
   select {
-    font-size: 14px;
-    padding: 10px 14px;
+    font-size: 13px;
+    padding: 9px 12px;
+    border-radius: 6px;
   }
 
   /* 테이블 */
-  table { font-size: 12px; }
+  table { font-size: 11px; }
 
   /* 모달 */
   .modal-content {
     width: 95vw;
-    max-width: 400px;
-    padding: 20px;
+    max-width: 380px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  /* 배지 */
+  .badge { font-size: 10px; padding: 2px 8px; }
+
+  /* 버튼 공통 */
+  button {
+    border-radius: 6px;
   }
 }
