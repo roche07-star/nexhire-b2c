@@ -2780,30 +2780,7 @@ footer {
 }
 
 /* RESPONSIVE */
-@media (max-width: 768px) {
-  .nav-links { display: none; }
-  section { padding: 60px 20px; }
-  .hero { padding: 120px 20px 60px; }
-  .how-grid { grid-template-columns: repeat(2, 1fr); }
-  .features-grid { grid-template-columns: 1fr; }
-  .feature-card.wide { grid-column: span 1; }
-  .persona-wrap { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .demo-body { grid-template-columns: 1fr; }
-  .stats-bar { flex-wrap: wrap; gap: 16px; padding: 24px 20px; }
-  .stat-item { border-right: none; padding: 0 24px; }
-  footer { flex-direction: column; gap: 16px; text-align: center; }
-  .nav-logo-text { font-size: 15px; letter-spacing: 1.5px; }
-  .results-grid { grid-template-columns: 1fr; }
-  .analyze-page { padding: 60px 12px 40px !important; }
-  .analyze-layout { flex-direction: column; padding: 0 8px !important; }
-  .analyze-sidebar { display: none !important; }
-  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
-  .sidebar-btn { width: auto; padding: 8px 12px; }
-  .sidebar-expire { display: none; }
-  .demo-grid { grid-template-columns: 1fr; }
-  .demo-modal-header, .demo-modal-body { padding-left: 20px; padding-right: 20px; }
-}
+/* 이 중복 미디어 쿼리는 삭제됨 - 하단의 통합 버전 참조 */
 
 /* ─── STORE PAGE ─── */
 .store-page {
