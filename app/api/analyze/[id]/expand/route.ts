@@ -97,15 +97,7 @@ export async function POST(
     const improvements = Array.isArray(result.improvements) ? (result.improvements as string[]).join(' / ') : ''
     const keywords = Array.isArray(result.keywords) ? (result.keywords as string[]).join(', ') : ''
 
-    const prompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다. 아래 후보자 프로필을 바탕으로 3가지 커리어 방향을 제시하십시오.
-
-[후보자 프로필]
-현재 직무: ${result.job_title ?? '미상'}
-종합 요약: ${result.summary ?? ''}
-핵심 강점: ${strengths}
-개선 포인트: ${improvements}
-핵심 키워드: ${keywords}
-${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''} (${(baseline.salary_range as string) ?? ''})` : ''}
+    const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다. 아래 후보자 프로필을 바탕으로 3가지 커리어 방향을 제시하십시오.
 
 [경로별 지침]
 - BASELINE: 현재 직무 트랙을 유지·발전하는 가장 현실적인 경로. 위 BASELINE 방향과 일치해야 함
@@ -114,12 +106,25 @@ ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''
 
 각 경로에 연봉 밴드(1년 뒤, 3년 뒤, 5년 뒤)와 실전 조언 2개를 반드시 포함하십시오.`
 
+    const userContent = `[후보자 프로필]
+현재 직무: ${result.job_title ?? '미상'}
+종합 요약: ${result.summary ?? ''}
+핵심 강점: ${strengths}
+개선 포인트: ${improvements}
+핵심 키워드: ${keywords}
+${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''} (${(baseline.salary_range as string) ?? ''})` : ''}`
+
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
+      system: [{
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' }
+      }],
       tool_choice: { type: 'tool', name: 'generate_career_paths' },
       tools: [careerPathsTool],
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content: userContent }],
     })
 
     const toolUse = message.content.find((c) => c.type === 'tool_use')

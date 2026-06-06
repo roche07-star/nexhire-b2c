@@ -162,18 +162,11 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}`
       specialNotes && `특이사항: ${specialNotes}`,
     ].filter(Boolean).join('\n')
 
-    const prompt = `🎯 역할 정의
+    const systemPrompt = `🎯 역할 정의
 당신은 10년 경력의 한국 시니어 헤드헌터입니다.
 후보자가 면접에서 최상의 퍼포먼스를 낼 수 있도록 JD와 후보자 프로파일을 기반으로 맞춤형 면접 가이드를 작성합니다.
 일반적인 면접 팁을 나열하지 마십시오.
 이 후보자가, 이 회사의, 이 포지션 면접에서 구체적으로 무엇을 어떻게 말해야 하는지를 설계하십시오.
-
-[후보자 이력서 분석 결과]
-${candidateProfile}
-
-[채용 정보]
-${jdSection}
-${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
 
 🚫 절대 하지 말 것
 ❌ 일반적인 면접 팁 나열 (이 후보자에게 맞춤화되지 않은 내용)
@@ -182,12 +175,24 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}
 ❌ STAR 답변에서 팀 성과를 개인 성과로 포장
 ❌ 도메인 갭을 답변에서 회피하거나 축소`
 
+    const userContent = `[후보자 이력서 분석 결과]
+${candidateProfile}
+
+[채용 정보]
+${jdSection}
+${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
+
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 8192,
+      system: [{
+        type: 'text',
+        text: systemPrompt,
+        cache_control: { type: 'ephemeral' }
+      }],
       tool_choice: { type: 'tool', name: 'generate_interview_guide' },
       tools: [interviewTool],
-      messages: [{ role: 'user', content: prompt }],
+      messages: [{ role: 'user', content: userContent }],
     })
 
     const toolUse = message.content.find(c => c.type === 'tool_use')
