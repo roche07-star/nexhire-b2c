@@ -2795,9 +2795,9 @@ footer {
   footer { flex-direction: column; gap: 16px; text-align: center; }
   .nav-logo-text { font-size: 15px; letter-spacing: 1.5px; }
   .results-grid { grid-template-columns: 1fr; }
-  .analyze-page { padding: 80px 16px 60px; }
-  .analyze-layout { flex-direction: column; }
-  .analyze-sidebar { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; padding: 12px; }
+  .analyze-page { padding: 60px 12px 40px !important; }
+  .analyze-layout { flex-direction: column; padding: 0 8px !important; }
+  .analyze-sidebar { display: none !important; }
   .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
   .sidebar-btn { width: auto; padding: 8px 12px; }
   .sidebar-expire { display: none; }
