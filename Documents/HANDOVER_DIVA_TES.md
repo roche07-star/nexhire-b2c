@@ -12,7 +12,7 @@
 - **제품명**: Jobizic (브랜드명), 회사명 HEDING
 - **성격**: 한국 구직자 대상 AI 이력서 분석 B2C SaaS
 - **디렉토리**: `c:\project\nexhire_b2c`
-- **배포 URL**: https://jobizic.vercel.app
+- **배포 URL**: https://jobizic.vercel.app/
 - **GitHub**: https://github.com/roche07-star/nexhire-b2c.git (main 브랜치)
 
 ### 팀 구성
@@ -413,7 +413,7 @@ git push origin main  # Vercel 자동 배포
 
 ## 🔗 관련 링크
 
-- **프로덕션**: https://jobizic.vercel.app
+- **프로덕션**: https://jobizic.vercel.app/
 - **GitHub**: https://github.com/roche07-star/nexhire-b2c
 - **Vercel Dashboard**: (디바에게 초대 필요)
 - **Supabase Dashboard**: (디바에게 초대 필요)
