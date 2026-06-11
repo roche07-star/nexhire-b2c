@@ -2,6 +2,9 @@
   "name": "jobizic_next",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
+  "author": "ROCHE",
+  "homepage": "https://jobizic.vercel.app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
