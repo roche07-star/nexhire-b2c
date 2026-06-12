@@ -2632,7 +2632,39 @@ footer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(350%); }
 }
-.loading-text { font-size: 14px; color: var(--muted2); }
+.loading-text { font-size: 14px; color: var(--muted2); margin-top: 12px; }
+.loading-time { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+
+/* 진행률 바 */
+.loading-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.loading-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+.loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 8px;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 12px rgba(232, 255, 71, 0.4);
+}
+.loading-progress-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'Outfit', sans-serif;
+  min-width: 50px;
+  text-align: right;
+}
 
 /* Results */
 .results-wrap { display: flex; flex-direction: column; gap: 28px; }

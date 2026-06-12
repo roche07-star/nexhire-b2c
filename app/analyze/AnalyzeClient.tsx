@@ -512,8 +512,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [inputMode, setInputMode] = useState<'file' | 'text'>('file')
   const [resumeText, setResumeText] = useState('')
   const [loadingMsg, setLoadingMsg] = useState('')
+  const [progress, setProgress] = useState(0) // 진행률 (0-100)
+  const [estimatedTime, setEstimatedTime] = useState(30) // 예상 시간 (초)
   const loadingStepRef = useRef(0)
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const jdTopRef = useRef<HTMLDivElement>(null)
   const [jdCompany, setJdCompany] = useState('')
@@ -833,9 +836,25 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
     }
 
+    // 예상 시간 설정 (PDF는 더 오래 걸림)
+    const isPdf = file?.type === 'application/pdf'
+    const estimatedSeconds = isPdf ? 60 : 30 // PDF: 60초, DOCX/텍스트: 30초
+    setEstimatedTime(estimatedSeconds)
+    setProgress(0)
+
     setLoading(true)
     loadingStepRef.current = 0
     setLoadingMsg(LOADING_STEPS[0])
+
+    // 진행률 업데이트 (0.5초마다)
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return 95 // 95%에서 대기 (완료는 API 응답 후)
+        return prev + (100 / (estimatedSeconds * 2)) // 0.5초마다 증가
+      })
+    }, 500)
+
+    // 메시지 업데이트 (7초마다)
     loadingIntervalRef.current = setInterval(() => {
       loadingStepRef.current = Math.min(loadingStepRef.current + 1, LOADING_STEPS.length - 1)
       setLoadingMsg(LOADING_STEPS[loadingStepRef.current])
@@ -854,6 +873,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       if (!res.ok) {
         setError(data.error || '알 수 없는 오류가 발생했습니다.')
       } else {
+        setProgress(100) // 완료!
         setResult(data)
         setAnalysisId(data._id ?? null)
         setFile(null)
@@ -876,6 +896,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       if (loadingIntervalRef.current) {
         clearInterval(loadingIntervalRef.current)
         loadingIntervalRef.current = null
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+        progressIntervalRef.current = null
       }
       setLoading(false)
     }
@@ -1962,8 +1986,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                 {loading && (
                   <div className="analyze-loading">
-                    <div className="loading-bar"><div className="loading-fill" /></div>
+                    <div className="loading-progress-container">
+                      <div className="loading-progress-bar">
+                        <div className="loading-progress-fill" style={{ width: `${progress}%` }} />
+                      </div>
+                      <div className="loading-progress-text">{Math.round(progress)}%</div>
+                    </div>
                     <div className="loading-text">{loadingMsg || '헤드헌터 AI가 이력서를 검토하고 있습니다...'}</div>
+                    <div className="loading-time">약 {estimatedTime}초 소요 예상</div>
                   </div>
                 )}
               </>
