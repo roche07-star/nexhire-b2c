@@ -1034,11 +1034,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           content: jdContent,
         }),
       })
-      if (!res.ok) throw new Error('저장 실패')
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        alert(errorData.error || 'JD 템플릿 저장 중 오류가 발생했습니다.')
+        throw new Error(errorData.error || '저장 실패')
+      }
+
       const newTemplate = await res.json()
       setSavedJDTemplates([newTemplate, ...savedJDTemplates])
     } catch (e) {
-      alert('JD 템플릿 저장 중 오류가 발생했습니다.')
+      // 에러는 이미 alert로 표시했으므로 여기서는 로그만
+      console.error('[saveJDTemplate]', e)
     }
   }
 
