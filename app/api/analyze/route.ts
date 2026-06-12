@@ -6,6 +6,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
+import { VALIDATION_PROMPT, ValidationResult } from '@/lib/prompts/validation'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
@@ -85,6 +86,71 @@ const proBasicTool: Anthropic.Tool = {
       keywords: { type: 'array', items: { type: 'string' }, description: '이력서에서 발견된 핵심 키워드 (최대 8개)' },
     },
     required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
+  },
+}
+
+// 검증 Tool (하이브리드 하네스 엔지니어링)
+const validationTool: Anthropic.Tool = {
+  name: 'validate_analysis',
+  description: '1차 분석 결과를 검증하고 문제를 찾아 수정합니다.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      career_level_issues: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            original: { type: 'string', description: '원본 개선 포인트' },
+            reason: { type: 'string', description: '문제 이유 (연차별 기준 위반)' },
+            corrected: { type: 'string', description: '수정된 개선 포인트' },
+          },
+          required: ['original', 'reason', 'corrected'],
+        },
+        description: '연차별 비현실적 기대치 문제들',
+      },
+      hallucination_issues: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            original: { type: 'string', description: '원본 개선 포인트/약점' },
+            reason: { type: 'string', description: '환각 이유 (이력서에 명시된 내용)' },
+            action: { type: 'string', enum: ['remove', 'keep'], description: '삭제 여부' },
+          },
+          required: ['original', 'reason', 'action'],
+        },
+        description: '이력서 명시 내용을 약점으로 지적한 환각들',
+      },
+      generic_phrase_issues: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            original: { type: 'string', description: '원본 강점' },
+            reason: { type: 'string', description: '빈 말 이유 (구체성 없음)' },
+            has_specifics: { type: 'boolean', description: '수치/프로젝트명 포함 여부' },
+          },
+          required: ['original', 'reason', 'has_specifics'],
+        },
+        description: '구체성 없는 빈 말 강점들',
+      },
+      corrected_improvements: {
+        type: 'array',
+        items: { type: 'string' },
+        description: '수정된 개선 포인트 목록 (문제 없으면 원본 그대로)',
+      },
+      corrected_strengths: {
+        type: 'array',
+        items: { type: 'string' },
+        description: '수정된 강점 목록 (문제 없으면 원본 그대로)',
+      },
+      validation_passed: {
+        type: 'boolean',
+        description: '검증 통과 여부 (문제 없으면 true)',
+      },
+    },
+    required: ['career_level_issues', 'hallucination_issues', 'generic_phrase_issues', 'corrected_improvements', 'corrected_strengths', 'validation_passed'],
   },
 }
 
@@ -265,6 +331,53 @@ ${OUTPUT_RULES}
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
 
+      // 하이브리드 하네스 검증 단계
+      try {
+        const validationPrompt = `${VALIDATION_PROMPT}
+
+[1차 분석 결과]
+총 경력: ${basicInput.total_experience_years ?? '미상'}년
+개선 포인트: ${JSON.stringify(basicInput.improvements, null, 2)}
+강점: ${JSON.stringify(basicInput.strengths, null, 2)}
+
+[이력서 원문 (처음 3000자)]
+${maskedText.slice(0, 3000)}
+
+위 1차 분석 결과를 검증하고, 문제가 있으면 수정하십시오.`
+
+        const validationMsg = await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          tool_choice: { type: 'tool', name: 'validate_analysis' },
+          tools: [validationTool],
+          messages: [{ role: 'user', content: validationPrompt }],
+        })
+
+        const validationTU = validationMsg.content.find(c => c.type === 'tool_use')
+        if (validationTU && validationTU.type === 'tool_use') {
+          const validation = validationTU.input as ValidationResult
+          if (!validation.validation_passed) {
+            console.log('[analyze] ⚠️ 검증 실패 - 자동 수정:', {
+              career_level_issues: validation.career_level_issues.length,
+              hallucination_issues: validation.hallucination_issues.length,
+              generic_phrase_issues: validation.generic_phrase_issues.length,
+            })
+            // 문제 발견 시 자동 수정
+            if (validation.corrected_improvements.length > 0) {
+              basicInput.improvements = validation.corrected_improvements
+            }
+            if (validation.corrected_strengths.length > 0) {
+              basicInput.strengths = validation.corrected_strengths
+            }
+          } else {
+            console.log('[analyze] ✅ 검증 통과 - 문제 없음')
+          }
+        }
+      } catch (err) {
+        console.error('[analyze] validation error (non-fatal):', err)
+        // 검증 실패해도 분석은 계속 진행
+      }
+
       // 커리어 경로: 기본 분석 완료 후 순차 실행 (실패 시 [] 반환 — expand 엔드포인트가 재시도 역할)
       let careerPaths: unknown[] = []
       try {
@@ -355,6 +468,54 @@ ${OUTPUT_RULES}`
         console.error('[analyze] missing keywords in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
+
+      // 하이브리드 하네스 검증 단계 (FREE도 동일 적용)
+      try {
+        const validationPrompt = `${VALIDATION_PROMPT}
+
+[1차 분석 결과]
+총 경력: ${freeInput.total_experience_years ?? '미상'}년
+개선 포인트: ${JSON.stringify(freeInput.improvements, null, 2)}
+강점: ${JSON.stringify(freeInput.strengths, null, 2)}
+
+[이력서 원문 (처음 3000자)]
+${maskedText.slice(0, 3000)}
+
+위 1차 분석 결과를 검증하고, 문제가 있으면 수정하십시오.`
+
+        const validationMsg = await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          tool_choice: { type: 'tool', name: 'validate_analysis' },
+          tools: [validationTool],
+          messages: [{ role: 'user', content: validationPrompt }],
+        })
+
+        const validationTU = validationMsg.content.find(c => c.type === 'tool_use')
+        if (validationTU && validationTU.type === 'tool_use') {
+          const validation = validationTU.input as ValidationResult
+          if (!validation.validation_passed) {
+            console.log('[analyze] ⚠️ 검증 실패 - 자동 수정:', {
+              career_level_issues: validation.career_level_issues.length,
+              hallucination_issues: validation.hallucination_issues.length,
+              generic_phrase_issues: validation.generic_phrase_issues.length,
+            })
+            // 문제 발견 시 자동 수정
+            if (validation.corrected_improvements.length > 0) {
+              freeInput.improvements = validation.corrected_improvements
+            }
+            if (validation.corrected_strengths.length > 0) {
+              freeInput.strengths = validation.corrected_strengths
+            }
+          } else {
+            console.log('[analyze] ✅ 검증 통과 - 문제 없음')
+          }
+        }
+      } catch (err) {
+        console.error('[analyze] validation error (non-fatal):', err)
+        // 검증 실패해도 분석은 계속 진행
+      }
+
       resultPayload = {
         ...(toolUse.input as object),
         plan,
