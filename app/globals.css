@@ -3296,6 +3296,28 @@ footer {
   color: #ff4444;
   border-color: rgba(255,107,107,0.6);
 }
+.saved-share-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(232,255,71,0.35);
+  background: rgba(232,255,71,0.1);
+  color: var(--accent);
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  z-index: 1;
+}
+.saved-share-btn:hover {
+  background: rgba(232,255,71,0.25);
+  color: #e8ff47;
+  border-color: rgba(232,255,71,0.6);
+}
+.saved-share-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .jd-saved-score { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
 .jd-saved-date { font-size: 11px; color: var(--muted); }
 .jd-saved-divider {

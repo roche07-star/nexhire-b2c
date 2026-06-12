@@ -552,6 +552,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
   const [modalTemplateFile, setModalTemplateFile] = useState<File | null>(null)
   const templateInputRef = useRef<HTMLInputElement>(null)
+  const [sharingId, setSharingId] = useState<string | null>(null) // 공유 중인 분석 ID
+  const [shareUrl, setShareUrl] = useState<string | null>(null) // 생성된 공유 URL
+  const [searchQuery, setSearchQuery] = useState('') // 분석 목록 검색어
+  const [minScore, setMinScore] = useState(0) // 최소 점수 필터
 
   // ── 면접 가이드
   const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
@@ -644,6 +648,29 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       } finally {
         setDeletingJdId(null)
       }
+    }
+  }
+
+  async function handleShare(id: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    setSharingId(id)
+    setShareUrl(null)
+    try {
+      const res = await fetch(`/api/analyze/${id}/share`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || '공유 URL 생성 실패')
+        return
+      }
+      setShareUrl(data.shareUrl)
+      // 클립보드에 복사
+      await navigator.clipboard.writeText(data.shareUrl)
+      alert('🔗 공유 URL이 클립보드에 복사되었습니다!\n\n' + data.shareUrl + '\n\n30일 후 자동 만료됩니다.')
+    } catch (err) {
+      console.error('[share] Error:', err)
+      alert('공유 URL 생성 중 오류가 발생했습니다.')
+    } finally {
+      setSharingId(null)
     }
   }
 
@@ -1112,13 +1139,55 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 ) : (
                   <>
                     <div className="jd-list-title">분석 결과를 선택하세요</div>
+
+                    {/* 검색/필터 */}
+                    {analysisList && analysisList.length > 0 && (
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="직무명 또는 요약 검색..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          style={{ flex: 1 }}
+                        />
+                        <select
+                          className="form-input"
+                          value={minScore}
+                          onChange={(e) => setMinScore(Number(e.target.value))}
+                          style={{ width: 150 }}
+                        >
+                          <option value={0}>전체 점수</option>
+                          <option value={70}>70점 이상</option>
+                          <option value={80}>80점 이상</option>
+                          <option value={90}>90점 이상</option>
+                        </select>
+                      </div>
+                    )}
+
                     {savedListLoading ? (
                       <div className="jd-list-loading">불러오는 중...</div>
                     ) : !analysisList || analysisList.length === 0 ? (
                       <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
-                    ) : (
-                      <div className="jd-saved-list">
-                        {analysisList.map((item) => (
+                    ) : (() => {
+                        const filteredList = analysisList.filter(item => {
+                          // 검색어 필터
+                          const searchLower = searchQuery.toLowerCase()
+                          const matchesSearch = !searchQuery ||
+                            (item.result.job_title?.toLowerCase().includes(searchLower)) ||
+                            (item.result.summary?.toLowerCase().includes(searchLower))
+
+                          // 점수 필터
+                          const matchesScore = !minScore || (item.result.scores?.job_fit ?? 0) >= minScore
+
+                          return matchesSearch && matchesScore
+                        })
+
+                        return filteredList.length === 0 ? (
+                          <div className="jd-no-analysis">검색 조건에 맞는 분석 결과가 없습니다.</div>
+                        ) : (
+                          <div className="jd-saved-list">
+                            {filteredList.map((item) => (
                           <div key={item.id} className="jd-saved-card" onClick={() => setSavedSelectedItem(item)}>
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
@@ -1131,6 +1200,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                             </div>
                             <button
+                              className="saved-share-btn"
+                              onClick={(e) => handleShare(item.id, e)}
+                              disabled={sharingId === item.id}
+                              title="공유 URL 복사"
+                              style={{ marginRight: 8 }}
+                            >
+                              {sharingId === item.id ? '⏳' : '🔗'}
+                            </button>
+                            <button
                               className="saved-delete-btn"
                               onClick={(e) => handleDeleteAnalysis(item.id, e)}
                               disabled={deletingAnalysisId === item.id}
@@ -1139,9 +1217,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               {deletingAnalysisId === item.id ? '…' : '×'}
                             </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                            ))}
+                          </div>
+                        )
+                      })()
+                    }
                   </>
                 )}
               </div>
