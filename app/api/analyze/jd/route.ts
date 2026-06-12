@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { company, position, jd, analysisResult } = await req.json()
+    const { company, position, jd, analysisResult, client_comment } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })
     }
@@ -192,7 +192,28 @@ ${OUTPUT_RULES}
 [추가 금지사항]
 JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지`
 
-    const userContent = `[채용 회사]
+    const userContent = client_comment
+      ? `[채용 회사]
+${company}
+${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
+${companyInfo}
+
+` : ''}[JD]
+${jd}
+
+[후보자 이력서 분석 결과]
+${candidateProfile}
+
+[클라이언트 코멘트]
+${client_comment}
+
+**⚠️ 클라이언트 코멘트를 반드시 반영:**
+- 요건 완화/강화 사항 확인
+- 우선순위 변경 사항 반영
+- 기피 프로파일 주의
+- 처우 조건 고려
+- gaps, pitch_points에 코멘트 내용 통합`
+      : `[채용 회사]
 ${company}
 ${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
 ${companyInfo}
