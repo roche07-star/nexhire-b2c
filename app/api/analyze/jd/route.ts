@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
+import { BASE_HEADHUNTER_ROLE, OUTPUT_RULES } from '@/lib/prompts/base-headhunter'
 
 export const maxDuration = 60
 
@@ -137,7 +138,9 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
       console.error('[analyze/jd] web search error (non-fatal):', err)
     }
 
-    const systemPrompt = `당신은 한국 시니어 헤드헌터입니다. 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
+    const systemPrompt = `${BASE_HEADHUNTER_ROLE}
+
+목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
 JD를 요약하지 마십시오. 후보자 이력서를 나열하지 마십시오. 판단하고, 근거를 대고, 전략을 내십시오.
 후보자 프로필과 채용공고를 냉정하고 날카롭게 비교 분석하십시오. 좋은 점만 말하지 말고 부족한 점도 직설적으로 지적하십시오.
 
@@ -184,8 +187,10 @@ STEP 4 — 매칭 판정 + 제안 전략
 - gaps: 필수❌/△ + 예상 클라이언트 우려 사항 (2-3개, 솔직하게)
 - pitch_points: ① 클라이언트 제안 포지셔닝 전략 ② 서류/면접 핵심 어필 포인트 ③ 예상 우려 대응 방안 ④ 제안 전 후보자에게 반드시 확인할 사항 (3-4개, 실전적으로)
 
-[금지]
-JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지 / 중간점(·) 사용 금지 → 쉼표(,) 또는 "및" 사용`
+${OUTPUT_RULES}
+
+[추가 금지사항]
+JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지`
 
     const userContent = `[채용 회사]
 ${company}

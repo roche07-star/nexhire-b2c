@@ -5,6 +5,7 @@ import { maskPII } from '@/lib/maskPII'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
+import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
 
 export const maxDuration = 90
 
@@ -198,9 +199,9 @@ export async function POST(req: NextRequest) {
     const plan = role === 'MANAGER' ? 'EXPERT' : (planData?.plan ?? 'FREE')
     const isPro = plan === 'PRO' || plan === 'EXPERT'
 
-    const headhunterBase = `당신은 10년 경력의 한국 시니어 헤드헌터입니다. 반도체, 로보틱스, 배터리, AI/fintech, 화장품 R&D, 자동차, 금융회계 등 다양한 산업군에서 임원~전문직급 서치를 수행해왔습니다.
-이력서를 읽는 목적은 하나입니다: "이 사람을 클라이언트에게 제안할 수 있는가, 있다면 어떤 포지션에, 어떤 포인트로 제안하는가."
-절대로 이력서를 요약하거나 나열하지 마십시오. 해석하고 판단하고 전략을 내십시오.
+    const headhunterBase = `${BASE_HEADHUNTER_ROLE}
+
+${B2C_PURPOSE}
 
 [중요: 분석 일관성 유지]
 이 분석 결과(직무, 핵심 강점, 개선 포인트, 커리어 패턴, 키워드 등)는 이후 JD 적합도 분석 및 이력서 보완 작업에서도 동일하게 참조됩니다.
@@ -213,18 +214,7 @@ export async function POST(req: NextRequest) {
       // PRO: 기본 분석 → 커리어 경로 순차 실행 (병렬→504 문제 해결, maxDuration=90)
       const basicSystemPrompt = `${headhunterBase}
 
-[분석 절차]
-STEP 1 — 후보자 기본 프로파일 파악
-총 경력 연수는 반드시 직접 계산하십시오(후보자 기재 숫자를 그대로 믿지 말 것). 현 직장/직급/재직기간, 이직 횟수, 평균 재직기간, 추정 연봉 범위(업계 시세 기반, 명시된 경우 그대로)를 파악하십시오.
-
-STEP 2 — 커리어 패턴 독해
-[성장형/전환형/순환형/분산형] 중 하나로 판단하십시오.
-
-STEP 3 — 강점/리스크/공백 3분류
-- strengths: 구체적 수치·프로젝트명·결과물이 있는 항목만. "성과 없는 경험"은 강점 불가.
-- improvements: ① 리스크(짧은 재직기간, 직급 대비 성과 불명확, 처우-시세 괴리 등) + ② 공백(해당 직군 통상 요구 역량 중 이력서에 근거 없는 것). 모든 항목을 강점으로 처리 금지. 반드시 심각한 순서대로 정렬 (가장 치명적인 리스크를 최상단에). 상위 2개 항목은 핵심 키워드를 작은따옴표('')로 감싸기.
-  예: '잦은 이직' 패턴 존재, 조직 적응 또는 커리어 방향 불안정 신호
-  예: '팀 리드 경험 부재'로 시니어급 채용 시 리스크
+${ANALYSIS_STEPS}
 
 STEP 4 — 종합 요약 작성 (summary 필드)
 헤드헌터가 3초 안에 후보자를 파악할 수 있도록 핵심만 압축. 반드시 아래 형식 그대로 작성하며, 각 항목은 개행 문자(\n)로 구분:
@@ -242,12 +232,7 @@ STEP 4 — 종합 요약 작성 (summary 필드)
 
 [중요] 각 항목은 반드시 개행(\n)으로 구분. 콜론(:) 사용 금지. 마침표(.)로 끝내지 말 것.
 
-[출력 규칙]
-- 빈 말("다양한 경험", "뛰어난 역량", "풍부한 경력") 절대 금지
-- 날짜/경력 계산 오류 금지
-- 중간점(·) 절대 사용 금지 → 반드시 쉼표(,) 또는 "및" 사용
-  잘못된 예: "Java·Spring·MySQL" / "백엔드·데이터베이스" / "개발·운영·설계"
-  올바른 예: "Java, Spring, MySQL" / "백엔드, 데이터베이스" / "개발, 운영 및 설계"
+${OUTPUT_RULES}
 - summary 각 항목은 반드시 개행(\n)으로 구분`
 
       const basicMsg = await client.messages.create({
@@ -330,10 +315,8 @@ STEP 4 — 종합 요약 작성 (summary 필드)
       // FREE: 단일 call, BASELINE 1개
       const freeSystemPrompt = `${headhunterBase}
 
-[분석 절차]
-STEP 1 — 총 경력 연수 직접 계산, 현 직장/직급, 이직 횟수, 추정 연봉 범위 파악.
-STEP 2 — 커리어 패턴: [성장형/전환형/순환형/분산형] 판단 후 summary에 한 문장으로 명시.
-STEP 3 — strengths는 수치·결과물 있는 항목만. improvements에는 리스크와 공백 모두 포함.
+${ANALYSIS_STEPS}
+
 STEP 4 — 이직 동기를 이력서 패턴에서 역추정하여 summary에 반영.
 
 [커리어 경로]
@@ -344,7 +327,7 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 - salary_bands: 1년 뒤/3년 뒤/5년 뒤/7년 뒤+ 연봉 밴드 4개 (min/max 만원 단위)
 - points: 현재 경로에서 성공하기 위한 구체적 조언 3개
 
-[출력 규칙] 빈 말·근거 없는 강점 처리 금지.`
+${OUTPUT_RULES}`
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
