@@ -39,12 +39,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '회사명과 JD 내용을 입력해 주세요.' }, { status: 400 })
     }
 
+    const trimmedCompany = company.trim()
+    const trimmedPosition = position?.trim() || null
+
+    // 중복 체크: 동일 사용자의 동일 회사+포지션 조합 확인
+    console.log('[jd-templates] Checking duplicates:', {
+      user_email: session.user.email,
+      company: trimmedCompany,
+      position: trimmedPosition
+    })
+
+    const { data: existingTemplate, error: dupCheckError } = await supabase
+      .from('jd_templates')
+      .select('id, company, position')
+      .eq('user_email', session.user.email)
+      .eq('company', trimmedCompany)
+
+    if (dupCheckError) {
+      console.error('[jd-templates] Duplicate check error:', dupCheckError)
+    }
+
+    // 회사명과 포지션이 모두 같으면 중복으로 판단
+    const duplicate = existingTemplate?.find(t =>
+      t.company === trimmedCompany &&
+      (t.position || null) === trimmedPosition
+    )
+
+    console.log('[jd-templates] Duplicate check result:', duplicate ? 'FOUND' : 'NOT FOUND', duplicate)
+
+    if (duplicate) {
+      console.log('[jd-templates] ❌ Duplicate JD template found:', duplicate)
+      return NextResponse.json(
+        {
+          error: `❌ 동일한 JD가 이미 저장되어 있습니다.\n\n회사: ${trimmedCompany}\n포지션: ${trimmedPosition || '(없음)'}\n\n💡 기존 JD를 삭제하거나, 다른 이름으로 저장해주세요.`,
+          existingId: duplicate.id
+        },
+        { status: 409 } // 409 Conflict
+      )
+    }
+
     const { data, error } = await supabase
       .from('jd_templates')
       .insert({
         user_email: session.user.email,
-        company: company.trim(),
-        position: position?.trim() || null,
+        company: trimmedCompany,
+        position: trimmedPosition,
         content: content.trim(),
       })
       .select()
