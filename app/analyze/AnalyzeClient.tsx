@@ -523,6 +523,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
   const [jdClientComment, setJdClientComment] = useState('')
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null) // 선택한 템플릿 ID
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
   const [jdLoadingMsg, setJdLoadingMsg] = useState('')
@@ -1066,6 +1067,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setJdContent(template.content)
     setJdClientComment('')
     setShowJDInput(true)
+    setSelectedTemplateId(template.id) // 선택한 템플릿 ID 저장
   }
 
   async function onJDAnalyze() {
@@ -1717,7 +1719,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         )}
                         <button
                           className="btn-hero"
-                          onClick={() => { setJdCompany(''); setJdPosition(''); setJdContent(''); setShowJDInput(true) }}
+                          onClick={() => {
+                            setJdCompany('');
+                            setJdPosition('');
+                            setJdContent('');
+                            setSelectedTemplateId(null); // 새 입력 시 템플릿 ID 초기화
+                            setShowJDInput(true)
+                          }}
                           style={{ width: '100%', marginTop: savedJDTemplates.length > 0 ? 16 : 0 }}
                         >
                           + 새 JD 입력
@@ -1776,11 +1784,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </button>
                         <button
                           className="btn-hero analyze-btn"
-                          onClick={async () => { await saveJDTemplate(); onJDAnalyze() }}
+                          onClick={async () => {
+                            // 저장된 JD를 선택한 경우 저장 스킵
+                            if (!selectedTemplateId) {
+                              await saveJDTemplate()
+                            }
+                            onJDAnalyze()
+                          }}
                           disabled={!jdCompany.trim() || !jdContent.trim() || jdLoading}
                           style={{ flex: 1 }}
                         >
-                          {jdLoading ? 'AI 분석 중...' : '저장 & 분석하기 →'}
+                          {jdLoading ? 'AI 분석 중...' : selectedTemplateId ? '분석하기 →' : '저장 & 분석하기 →'}
                         </button>
                       </div>
                       {jdLoading && (
