@@ -594,6 +594,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .catch(() => {})
   }, [])
 
+  // 브라우저 알림 권한 요청
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+  }, [])
+
   // Load saved JD templates from database
   useEffect(() => {
     fetch('/api/jd-templates')
@@ -674,6 +681,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       alert('공유 URL 생성 중 오류가 발생했습니다.')
     } finally {
       setSharingId(null)
+    }
+  }
+
+  // 브라우저 알림 표시
+  function showNotification(title: string, body: string) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body,
+        icon: '/icon-192.png', // 알림 아이콘 (없으면 기본)
+        badge: '/icon-192.png',
+        tag: 'analysis-complete', // 중복 알림 방지
+        requireInteraction: false, // 자동으로 사라짐
+      })
+      notification.onclick = () => {
+        window.focus() // 창 포커스
+        notification.close()
+      }
     }
   }
 
@@ -880,6 +904,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setError(data.error || '알 수 없는 오류가 발생했습니다.')
       } else {
         setProgress(100) // 완료!
+
+        // 브라우저 알림 (백그라운드에서도 알림)
+        showNotification(
+          '✅ 이력서 분석 완료!',
+          `${data.job_title || '이력서'} 분석이 완료되었습니다. 직무 적합도 ${data.scores?.job_fit || '-'}%`
+        )
+
         setResult(data)
         setAnalysisId(data._id ?? null)
         setFile(null)
@@ -2000,6 +2031,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     </div>
                     <div className="loading-text">{loadingMsg || '헤드헌터 AI가 이력서를 검토하고 있습니다...'}</div>
                     <div className="loading-time">약 {estimatedTime}초 소요 예상</div>
+                    <div className="loading-background-notice">
+                      💡 <strong>백그라운드로 실행 중</strong> - 다른 탭으로 이동하셔도 됩니다. 완료 시 알림을 보내드립니다.
+                    </div>
                   </div>
                 )}
               </>
