@@ -28,7 +28,7 @@ const baseTool: Anthropic.Tool = {
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
       strengths: { type: 'array', items: { type: 'string' }, description: '핵심 강점 (최대 4개)' },
-      improvements: { type: 'array', items: { type: 'string' }, description: '개선 포인트 (최대 4개)' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선 포인트 (최대 4개). ⚠️ 연차별 현실적 기준 적용: 1-3년차는 실무 숙련, 4-7년차는 프로젝트 리딩, 8년차 이상만 팀 관리 기대. 6년차에게 관리자급 경험 요구 금지!' },
       keywords: { type: 'array', items: { type: 'string' }, description: '핵심 키워드 (최대 8개)' },
       summary: { type: 'string', description: '헤드헌터용 종합 요약. 각 항목은 줄바꿈(\\n)으로 구분. 콜론(:) 없이 작성. 포지셔닝 경력N년차, 직급, 직무\\n핵심 강점 수치/프로젝트명 포함\\n커리어 패턴 성장형/전환형/순환형/분산형, 이직 시그널\\n시장 제안 제안 가능 포지션 또는 리스크' },
       career_paths: {
@@ -81,7 +81,7 @@ const proBasicTool: Anthropic.Tool = {
       },
       summary: { type: 'string', description: '헤드헌터용 종합 요약. 각 항목은 줄바꿈(\\n)으로 구분. 콜론(:) 없이 작성. 포지셔닝 경력N년차, 직급, 직무\\n핵심 강점 수치/프로젝트명 포함\\n커리어 패턴 성장형/전환형/순환형/분산형, 이직 시그널\\n시장 제안 제안 가능 포지션 또는 리스크' },
       strengths: { type: 'array', items: { type: 'string' }, description: '이력서의 핵심 강점 (최대 4개)' },
-      improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (최대 4개)' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (최대 4개). ⚠️ 연차별 현실적 기준: 1-3년차는 실무, 4-7년차는 리딩, 8년차+ 팀 관리. 6년차에게 관리자급 경험 요구 절대 금지!' },
       keywords: { type: 'array', items: { type: 'string' }, description: '이력서에서 발견된 핵심 키워드 (최대 8개)' },
     },
     required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
