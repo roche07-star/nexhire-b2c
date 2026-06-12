@@ -519,6 +519,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdCompany, setJdCompany] = useState('')
   const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
+  const [jdClientComment, setJdClientComment] = useState('')
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
   const [jdLoadingMsg, setJdLoadingMsg] = useState('')
@@ -968,6 +969,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setJdCompany(template.company)
     setJdPosition(template.position || '')
     setJdContent(template.content)
+    setJdClientComment('')
     setShowJDInput(true)
   }
 
@@ -986,7 +988,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const res = await fetch('/api/analyze/jd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company: jdCompany, position: jdPosition, jd: jdContent, analysisResult: jdSelectedAnalysis?.result }),
+        body: JSON.stringify({
+          company: jdCompany,
+          position: jdPosition,
+          jd: jdContent,
+          analysisResult: jdSelectedAnalysis?.result,
+          client_comment: jdClientComment.trim() || undefined
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -1596,7 +1604,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           placeholder={`[담당업무]\n예) 백엔드 서버 개발 및 운영, 대용량 데이터 처리 시스템 설계\n\n[자격요건]\n예) Java/Spring 3년 이상 경력, MSA 환경 경험자\n\n[우대사항]\n예) Kafka, Redis 운영 경험자 우대`}
                           value={jdContent}
                           onChange={(e) => setJdContent(e.target.value)}
-                          rows={12}
+                          rows={10}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">클라이언트 코멘트 <span className="jd-label-optional">(선택)</span></label>
+                        <textarea
+                          className="jd-textarea"
+                          placeholder="예) 개발직군 채용 경험 필수, 스타트업 경험자 우대, 영어 실무 가능자만&#10;요건 완화/강화, 우선순위 변경, 기피 프로파일 등을 입력하세요."
+                          value={jdClientComment}
+                          onChange={(e) => setJdClientComment(e.target.value)}
+                          rows={3}
                         />
                       </div>
                       {jdError && <div className="analyze-error">{jdError}</div>}
