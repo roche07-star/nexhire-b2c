@@ -838,7 +838,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
     // 예상 시간 설정 (PDF는 더 오래 걸림)
     const isPdf = file?.type === 'application/pdf'
-    const estimatedSeconds = isPdf ? 60 : 30 // PDF: 60초, DOCX/텍스트: 30초
+    const estimatedSeconds = isPdf ? 90 : 40 // PDF: 90초, DOCX/텍스트: 40초
     setEstimatedTime(estimatedSeconds)
     setProgress(0)
 
@@ -849,8 +849,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     // 진행률 업데이트 (0.5초마다)
     progressIntervalRef.current = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 95) return 95 // 95%에서 대기 (완료는 API 응답 후)
-        return prev + (100 / (estimatedSeconds * 2)) // 0.5초마다 증가
+        // 2단계 진행률: 0-90%는 정상 속도, 90-99%는 느리게
+        if (prev >= 99) return 99 // 99%에서 대기
+        if (prev >= 90) {
+          // 90-99%: 매우 느리게 (1분에 9% 증가)
+          return prev + 0.15 // 0.5초마다 0.15% 증가
+        }
+        // 0-90%: 정상 속도
+        return prev + (90 / (estimatedSeconds * 2)) // 예상 시간의 90%까지
       })
     }, 500)
 
