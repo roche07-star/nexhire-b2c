@@ -16,7 +16,7 @@ async function extractTextFromImagePDF(buffer: Buffer): Promise<string> {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const response = await (client.messages.create as any)({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-haiku-4-5-20251001', // Haiku: Sonnet보다 3-5배 빠름, 비용 1/10
     max_tokens: 4096,
     messages: [
       {

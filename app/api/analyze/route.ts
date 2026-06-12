@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
 
-export const maxDuration = 90
+export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
