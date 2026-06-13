@@ -846,7 +846,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
 
       // 새 창에서 미리보기 열기 (원본과 비교)
-      openRewritePreview(result.preview, result.plan, originalSummary ?? undefined, result.changes)
+      window.open('/analyze/preview', '_blank')
 
       // PRO+ 자동 다운로드
       if (data.plan === 'PRO' || data.plan === 'EXPERT') {
@@ -1635,7 +1635,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </div>
                         <button
                           className="btn-primary"
-                          onClick={() => openRewritePreview(data.preview, data.plan, data.originalSummary, data.changes)}
+                          onClick={() => window.open('/analyze/preview', '_blank')}
                           style={{ fontSize: '13px', padding: '8px 16px' }}
                         >
                           다시 보기 →
