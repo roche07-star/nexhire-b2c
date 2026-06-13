@@ -7,6 +7,7 @@ interface User {
   name: string | null
   image: string | null
   plan: 'FREE' | 'PRO' | 'EXPERT'
+  user_type: 'INDIVIDUAL' | 'HEADHUNTER' | null
   analyze_count: number
   jd_count: number
   rewrite_count: number
@@ -117,6 +118,26 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     setLoading(null)
   }
 
+  async function changeUserType(email: string, userType: 'INDIVIDUAL' | 'HEADHUNTER') {
+    setLoading(email + userType)
+    const res = await fetch('/api/admin/user-type', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, userType }),
+    })
+    if (res.ok) {
+      setUsers((prev) => prev.map((u) => u.email === email
+        ? { ...u, user_type: userType }
+        : u
+      ))
+      showMsg(`${email} → ${userType === 'INDIVIDUAL' ? '개인' : '헤드헌터'} 변경 완료`)
+    } else {
+      const data = await res.json()
+      alert(data.error || '변경 실패')
+    }
+    setLoading(null)
+  }
+
   async function loadCoupons() {
     if (coupons !== null) return
     setCouponLoading(true)
@@ -189,6 +210,9 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const total = users.length
   const expertCount = users.filter((u) => u.plan === 'EXPERT').length
   const proCount = users.filter((u) => u.plan === 'PRO').length
+  const individualCount = users.filter((u) => u.user_type === 'INDIVIDUAL').length
+  const headhunterCount = users.filter((u) => u.user_type === 'HEADHUNTER').length
+  const noTypeCount = users.filter((u) => !u.user_type).length
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
   const totalJd = users.reduce((s, u) => s + (u.jd_count ?? 0), 0)
   const totalRewrite = users.reduce((s, u) => s + (u.rewrite_count ?? 0), 0)
@@ -218,6 +242,18 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
               <div className="admin-stat-card">
                 <div className="admin-stat-label">전체 가입자</div>
                 <div className="admin-stat-value">{total}<span>명</span></div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">🎯 개인 구직자</div>
+                <div className="admin-stat-value">{individualCount}<span>명</span></div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">💼 헤드헌터</div>
+                <div className="admin-stat-value">{headhunterCount}<span>명</span></div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">⚠️ 미선택</div>
+                <div className="admin-stat-value">{noTypeCount}<span>명</span></div>
               </div>
               <div className="admin-stat-card">
                 <div className="admin-stat-label">EXPERT 플랜</div>
@@ -260,6 +296,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                   <tr>
                     <th>유저</th>
                     <th>플랜</th>
+                    <th>유형</th>
                     <th>이력서 분석</th>
                     <th>JD 분석</th>
                     <th>이력서 생성</th>
@@ -267,6 +304,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                     <th>다음 초기화</th>
                     <th>가입일</th>
                     <th>플랜 변경</th>
+                    <th>유형 변경</th>
                     <th>초기화</th>
                   </tr>
                 </thead>
@@ -285,6 +323,17 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       <td>
                         <span className={`admin-plan-badge ${u.plan === 'EXPERT' ? 'expert' : u.plan === 'PRO' ? 'pro' : 'free'}`}>
                           {u.plan}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`admin-plan-badge ${
+                          u.user_type === 'INDIVIDUAL' ? 'pro' :
+                          u.user_type === 'HEADHUNTER' ? 'expert' :
+                          'free'
+                        }`}>
+                          {u.user_type === 'INDIVIDUAL' ? '🎯 개인' :
+                           u.user_type === 'HEADHUNTER' ? '💼 헤드헌터' :
+                           '⚠️ 미선택'}
                         </span>
                       </td>
                       <td>{usageCell(u.analyze_count ?? 0, u.plan, 'analyze')}</td>
@@ -313,6 +362,22 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                         </div>
                       </td>
                       <td>
+                        <div className="admin-actions">
+                          <button
+                            className="admin-btn pro"
+                            disabled={u.user_type === 'INDIVIDUAL' || loading === u.email + 'INDIVIDUAL'}
+                            onClick={() => changeUserType(u.email, 'INDIVIDUAL')}
+                            title="개인 구직자로 변경"
+                          >🎯 개인</button>
+                          <button
+                            className="admin-btn expert"
+                            disabled={u.user_type === 'HEADHUNTER' || loading === u.email + 'HEADHUNTER'}
+                            onClick={() => changeUserType(u.email, 'HEADHUNTER')}
+                            title="헤드헌터로 변경"
+                          >💼 헤드헌터</button>
+                        </div>
+                      </td>
+                      <td>
                         <button
                           className="admin-btn reset"
                           disabled={
@@ -325,7 +390,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={10} className="admin-empty">가입한 유저가 없습니다.</td></tr>
+                    <tr><td colSpan={12} className="admin-empty">가입한 유저가 없습니다.</td></tr>
                   )}
                 </tbody>
               </table>
