@@ -818,7 +818,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       // 결과 저장 (미리보기용)
       const result: RewriteResult = {
         preview: data.preview ?? '미리보기를 사용할 수 없습니다.',
-        docx: data.docx,
+        docx: data.docx ?? '',  // FREE: docx 없음
         filename: data.filename ?? 'rewrite.docx',
         changes: Array.isArray(data.changes) ? data.changes : [],
         plan: data.plan ?? 'FREE',
@@ -850,7 +850,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   }
 
   function downloadRewriteResult() {
-    if (!rewriteResult) return
+    if (!rewriteResult || !rewriteResult.docx) return
     const bytes = Uint8Array.from(atob(rewriteResult.docx), c => c.charCodeAt(0))
     const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
     const url = URL.createObjectURL(blob)

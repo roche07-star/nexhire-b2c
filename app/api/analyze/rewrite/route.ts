@@ -501,11 +501,22 @@ export async function POST(req: NextRequest) {
         return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
 
+      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
+
+      // FREE 플랜: HTML만 생성 (DOCX 생성 안함)
+      if (plan === 'FREE') {
+        return NextResponse.json({
+          preview: generatePreviewHTML(undefined, allRewrites),
+          changes: tplChanges ?? [],
+          plan: 'FREE',
+        })
+      }
+
+      // PRO+ 플랜: DOCX + HTML 생성
       const docxBuffer = await applyDocxRewrites(templateBuffer, allRewrites)
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_updated_${candidateName}${suffix}_${dateStr}.docx`
 
-      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
       return NextResponse.json({
         docx: (docxBuffer as Buffer).toString('base64'),
         filename: downloadName,
@@ -640,11 +651,22 @@ export async function POST(req: NextRequest) {
         ...(clContent ? ['[자기소개서/지원사유] 전용 헤드헌터 프롬프트로 완전 재작성'] : []),
       ]
 
+      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
+
+      // FREE 플랜: HTML만 생성 (DOCX 생성 안함)
+      if (plan === 'FREE') {
+        return NextResponse.json({
+          preview: generatePreviewHTML(undefined, allRewrites),
+          changes: allChanges,
+          plan: 'FREE',
+        })
+      }
+
+      // PRO+ 플랜: DOCX + HTML 생성
       const docxBuffer = await applyDocxRewrites(buffer, allRewrites)
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
 
-      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
       return NextResponse.json({
         docx: (docxBuffer as Buffer).toString('base64'),
         filename: downloadName,
@@ -769,11 +791,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
+
+    // FREE 플랜: HTML만 생성 (DOCX 생성 안함)
+    if (plan === 'FREE') {
+      return NextResponse.json({
+        preview: generatePreviewHTML(rewriteData.sections),
+        changes: sectionChanges,
+        plan: 'FREE',
+      })
+    }
+
+    // PRO+ 플랜: DOCX + HTML 생성
     const docxBuffer = await generateResumeDocx(rewriteData)
     const suffix = jdContext ? `_${jdContext.company}` : ''
     const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
 
-    if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
     return NextResponse.json({
       docx: (docxBuffer as Buffer).toString('base64'),
       filename: downloadName,
