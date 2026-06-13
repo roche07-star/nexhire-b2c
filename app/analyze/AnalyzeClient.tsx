@@ -1159,9 +1159,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         <div className="analyze-main">
           <div className="analyze-container">
 
-            {/* 상단 탭 — PRO 이상만 표시 */}
-            {isPro && (
-              <div className="analyze-tab-bar">
+            {/* 상단 탭 */}
+            <div className="analyze-tab-bar">
                 <button
                   className={`analyze-tab-btn${activeMenu === 'upload' ? ' active' : ''}`}
                   onClick={() => onMenuClick('upload')}
@@ -1200,7 +1199,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </button>
                 )}
               </div>
-            )}
             <div className={`analyze-header${activeMenu === 'saved' && result ? ' analyze-header--saved' : ''}`}>
               {activeMenu === 'saved' && result?.candidate_name ? (
                 <div className="analyze-candidate-header">
