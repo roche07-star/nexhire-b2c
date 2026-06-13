@@ -184,7 +184,7 @@ export default function RewritePreviewPage() {
               color: '#999',
               marginBottom: '20px',
               letterSpacing: '0.05em',
-            }}>+ 강점</h2>
+            }}>✨ 주요 변경사항</h2>
 
             <div style={{
               display: 'flex',
@@ -214,63 +214,96 @@ export default function RewritePreviewPage() {
           </div>
         )}
 
-        {/* 섹션별 내용 */}
-        {sections.map((section, idx) => (
-          <div
-            key={idx}
-            style={{
-              background: 'rgba(20,20,25,0.6)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '16px',
-              padding: '32px',
-              marginBottom: '24px',
-            }}
-          >
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#e8ff47',
-              marginBottom: '20px',
-            }}>{section.title}</h2>
-
-            <div style={{
-              fontSize: '14px',
-              lineHeight: '1.8',
-              color: '#d0d0d0',
-              whiteSpace: 'pre-wrap',
-            }}>
-              {section.content}
-            </div>
-          </div>
-        ))}
-
-        {/* 원본 비교 (있는 경우) */}
-        {originalSummary && (
+        {/* 좌우 비교 레이아웃 */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '24px',
+          marginBottom: '24px',
+        }}>
+          {/* 왼쪽: 수정 전 (원본) */}
           <div style={{
             background: 'rgba(20,20,25,0.6)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
             padding: '32px',
-            marginBottom: '24px',
+            minHeight: '500px',
           }}>
             <h2 style={{
               fontSize: '16px',
               fontWeight: 700,
               color: '#999',
               marginBottom: '20px',
-            }}>📄 이전 이력서 (원본)</h2>
+              paddingBottom: '16px',
+              borderBottom: '2px solid rgba(153,153,153,0.3)',
+            }}>📄 수정 전 이력서 (원본)</h2>
 
-            <div
-              style={{
+            {originalSummary ? (
+              <div
+                style={{
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  color: '#999',
+                  whiteSpace: 'pre-wrap',
+                }}
+                dangerouslySetInnerHTML={{ __html: originalSummary }}
+              />
+            ) : (
+              <div style={{
                 fontSize: '14px',
-                lineHeight: '1.8',
-                color: '#999',
-                whiteSpace: 'pre-wrap',
-              }}
-              dangerouslySetInnerHTML={{ __html: originalSummary }}
-            />
+                color: '#666',
+                textAlign: 'center',
+                paddingTop: '40px',
+              }}>
+                원본 이력서 정보가 없습니다.
+              </div>
+            )}
           </div>
-        )}
+
+          {/* 오른쪽: 수정 후 (생성) */}
+          <div style={{
+            background: 'rgba(20,20,25,0.6)',
+            border: '1px solid rgba(232,255,71,0.3)',
+            borderRadius: '16px',
+            padding: '32px',
+            minHeight: '500px',
+          }}>
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: '#e8ff47',
+              marginBottom: '20px',
+              paddingBottom: '16px',
+              borderBottom: '2px solid rgba(232,255,71,0.3)',
+            }}>✨ 수정 후 이력서 (AI 생성)</h2>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+            }}>
+              {sections.map((section, idx) => (
+                <div key={idx}>
+                  <h3 style={{
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    color: '#e8ff47',
+                    marginBottom: '12px',
+                  }}>{section.title}</h3>
+
+                  <div style={{
+                    fontSize: '14px',
+                    lineHeight: '1.8',
+                    color: '#d0d0d0',
+                    whiteSpace: 'pre-wrap',
+                  }}>
+                    {section.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* 푸터 */}
         <div style={{
