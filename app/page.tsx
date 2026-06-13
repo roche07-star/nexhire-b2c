@@ -9,7 +9,6 @@ import Pricing from '@/components/Pricing'
 import Faq from '@/components/Faq'
 import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
-import CustomCursor from '@/components/CustomCursor'
 import ScrollReveal from '@/components/ScrollReveal'
 import type { UserType } from '@/types/user'
 
@@ -19,7 +18,6 @@ export default async function Home() {
 
   return (
     <>
-      <CustomCursor />
       <ScrollReveal />
       <Nav />
       <Hero userType={userType} />
