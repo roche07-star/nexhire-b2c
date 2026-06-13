@@ -1611,14 +1611,36 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {(() => {
                   try {
                     const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
-                    const saved = localStorage.getItem(storageKey)
+                    let saved = localStorage.getItem(storageKey)
+
+                    // 마이그레이션: 이전 키에서 데이터 가져오기
+                    if (!saved) {
+                      const oldKey = 'jobizic_last_rewrite'
+                      const oldSaved = localStorage.getItem(oldKey)
+                      if (oldSaved) {
+                        try {
+                          const oldData = JSON.parse(oldSaved)
+                          // 새 키로 저장 (userEmail 추가)
+                          localStorage.setItem(storageKey, JSON.stringify({
+                            ...oldData,
+                            userEmail: userEmail
+                          }))
+                          // 이전 키 삭제
+                          localStorage.removeItem(oldKey)
+                          saved = localStorage.getItem(storageKey)
+                        } catch (e) {
+                          console.error('마이그레이션 실패:', e)
+                        }
+                      }
+                    }
+
                     if (!saved) return null
                     const data = JSON.parse(saved)
                     const ageMinutes = Math.floor((Date.now() - data.timestamp) / 60000)
                     if (ageMinutes > 60) return null // 1시간 이상 지나면 숨김
 
-                    // 사용자 검증
-                    if (data.userEmail !== userEmail) return null
+                    // 사용자 검증 (마이그레이션된 데이터는 userEmail이 없을 수 있음)
+                    if (data.userEmail && data.userEmail !== userEmail) return null
 
                     return (
                       <div style={{

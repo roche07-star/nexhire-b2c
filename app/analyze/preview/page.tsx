@@ -27,7 +27,29 @@ function PreviewContent() {
       }
 
       const storageKey = `jobizic_last_rewrite_${userEmail}`
-      const saved = localStorage.getItem(storageKey)
+      let saved = localStorage.getItem(storageKey)
+
+      // 마이그레이션: 이전 키에서 데이터 가져오기
+      if (!saved) {
+        const oldKey = 'jobizic_last_rewrite'
+        const oldSaved = localStorage.getItem(oldKey)
+        if (oldSaved) {
+          try {
+            const oldData = JSON.parse(oldSaved)
+            // 새 키로 저장 (userEmail 추가)
+            localStorage.setItem(storageKey, JSON.stringify({
+              ...oldData,
+              userEmail: userEmail
+            }))
+            // 이전 키 삭제
+            localStorage.removeItem(oldKey)
+            saved = localStorage.getItem(storageKey)
+          } catch (e) {
+            console.error('마이그레이션 실패:', e)
+          }
+        }
+      }
+
       if (!saved) {
         alert('미리보기 데이터가 없습니다.')
         router.push('/analyze')
@@ -36,8 +58,8 @@ function PreviewContent() {
 
       const data = JSON.parse(saved)
 
-      // 사용자 검증
-      if (data.userEmail !== userEmail) {
+      // 사용자 검증 (마이그레이션된 데이터는 userEmail이 없을 수 있음)
+      if (data.userEmail && data.userEmail !== userEmail) {
         alert('권한이 없습니다.')
         router.push('/analyze')
         return
