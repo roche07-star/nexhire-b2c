@@ -14,6 +14,7 @@ export default function RewritePreviewPage() {
   const [originalPreview, setOriginalPreview] = useState<string>('')
   const [changes, setChanges] = useState<string[]>([])
   const [sections, setSections] = useState<Section[]>([])
+  const [originalSections, setOriginalSections] = useState<Section[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,6 +41,10 @@ export default function RewritePreviewPage() {
       // HTML을 섹션별로 파싱
       const parsedSections = parseHTMLToSections(data.preview ?? '')
       setSections(parsedSections)
+
+      // 원본도 섹션별로 파싱 (플레인 텍스트를 섹션별로 분리)
+      const parsedOriginalSections = parseOriginalTextToSections(data.originalPreview ?? '')
+      setOriginalSections(parsedOriginalSections)
 
       setLoading(false)
     } catch (e) {
@@ -75,6 +80,71 @@ export default function RewritePreviewPage() {
       const content = Array.from(paragraphs).map(p => p.textContent?.trim() || '').join('\n\n')
       return content ? [{ title: '이력서 내용', content }] : []
     }
+  }
+
+  function parseOriginalTextToSections(htmlString: string): Section[] {
+    if (!htmlString) return []
+
+    // HTML에서 텍스트 추출
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(htmlString, 'text/html')
+    const text = doc.body.textContent || ''
+
+    // 줄바꿈으로 분리
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+
+    // 섹션 키워드
+    const sectionKeywords = [
+      '경력사항', '학력', '학교', '자격증', '외국어', '개인', '프로젝트', '수상', '자기소개',
+      '경력', '교육', '자격', '어학', '기술', '기타', '활동', '포트폴리오', '직무',
+      '업무', '보유', '능력', '특기', '수료', '교육사항'
+    ]
+
+    const sections: Section[] = []
+    let currentSection: Section | null = null
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      // 섹션 제목 감지 (짧고, 키워드 포함)
+      const isLikelyTitle = line.length < 30 &&
+        sectionKeywords.some(kw => line.includes(kw) || line.replace(/\s+/g, '').includes(kw))
+
+      if (isLikelyTitle) {
+        // 이전 섹션 저장
+        if (currentSection && currentSection.content) {
+          sections.push(currentSection)
+        }
+        // 새 섹션 시작
+        currentSection = {
+          title: line,
+          content: ''
+        }
+      } else if (currentSection) {
+        // 현재 섹션에 내용 추가
+        currentSection.content += (currentSection.content ? '\n' : '') + line
+      } else {
+        // 첫 섹션 전의 내용은 "기본 정보"로
+        if (!sections.length) {
+          currentSection = {
+            title: '기본 정보',
+            content: line
+          }
+        }
+      }
+    }
+
+    // 마지막 섹션 저장
+    if (currentSection && currentSection.content) {
+      sections.push(currentSection)
+    }
+
+    // 섹션이 없으면 전체를 하나의 섹션으로
+    if (sections.length === 0 && text.trim()) {
+      return [{ title: '이력서 내용', content: text.trim() }]
+    }
+
+    return sections
   }
 
   if (loading) {
@@ -214,96 +284,92 @@ export default function RewritePreviewPage() {
           </div>
         )}
 
-        {/* 좌우 비교 레이아웃 */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '24px',
-          marginBottom: '24px',
-        }}>
-          {/* 왼쪽: 수정 전 (원본) */}
-          <div style={{
-            background: 'rgba(20,20,25,0.6)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '16px',
-            padding: '32px',
-            minHeight: '500px',
-          }}>
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#999',
-              marginBottom: '20px',
-              paddingBottom: '16px',
-              borderBottom: '2px solid rgba(153,153,153,0.3)',
-            }}>📄 수정 전 이력서 (원본)</h2>
+        {/* 섹션별 좌우 비교 */}
+        {sections.map((section, idx) => {
+          const originalSection = originalSections[idx] || { title: section.title, content: '(원본 정보 없음)' }
 
-            {originalPreview ? (
-              <div
-                style={{
+          return (
+            <div
+              key={idx}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '24px',
+                marginBottom: '24px',
+              }}
+            >
+              {/* 왼쪽: 수정 전 (원본) */}
+              <div style={{
+                background: 'rgba(20,20,25,0.6)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '16px',
+                padding: '32px',
+              }}>
+                <h2 style={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: '#999',
+                  marginBottom: '20px',
+                  paddingBottom: '16px',
+                  borderBottom: '2px solid rgba(153,153,153,0.3)',
+                }}>
+                  {idx === 0 ? '📄 수정 전 이력서 (원본)' : ''}
+                </h2>
+
+                <h3 style={{
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  color: '#999',
+                  marginBottom: '12px',
+                }}>{originalSection.title}</h3>
+
+                <div style={{
                   fontSize: '14px',
                   lineHeight: '1.8',
                   color: '#999',
                   whiteSpace: 'pre-wrap',
-                }}
-                dangerouslySetInnerHTML={{ __html: originalPreview }}
-              />
-            ) : (
-              <div style={{
-                fontSize: '14px',
-                color: '#666',
-                textAlign: 'center',
-                paddingTop: '40px',
-              }}>
-                원본 이력서 정보가 없습니다.
-              </div>
-            )}
-          </div>
-
-          {/* 오른쪽: 수정 후 (생성) */}
-          <div style={{
-            background: 'rgba(20,20,25,0.6)',
-            border: '1px solid rgba(232,255,71,0.3)',
-            borderRadius: '16px',
-            padding: '32px',
-            minHeight: '500px',
-          }}>
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#e8ff47',
-              marginBottom: '20px',
-              paddingBottom: '16px',
-              borderBottom: '2px solid rgba(232,255,71,0.3)',
-            }}>✨ 수정 후 이력서 (AI 생성)</h2>
-
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-            }}>
-              {sections.map((section, idx) => (
-                <div key={idx}>
-                  <h3 style={{
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    color: '#e8ff47',
-                    marginBottom: '12px',
-                  }}>{section.title}</h3>
-
-                  <div style={{
-                    fontSize: '14px',
-                    lineHeight: '1.8',
-                    color: '#d0d0d0',
-                    whiteSpace: 'pre-wrap',
-                  }}>
-                    {section.content}
-                  </div>
+                }}>
+                  {originalSection.content}
                 </div>
-              ))}
+              </div>
+
+              {/* 오른쪽: 수정 후 (생성) */}
+              <div style={{
+                background: 'rgba(20,20,25,0.6)',
+                border: '1px solid rgba(232,255,71,0.3)',
+                borderRadius: '16px',
+                padding: '32px',
+              }}>
+                <h2 style={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: '#e8ff47',
+                  marginBottom: '20px',
+                  paddingBottom: '16px',
+                  borderBottom: '2px solid rgba(232,255,71,0.3)',
+                }}>
+                  {idx === 0 ? '✨ 수정 후 이력서 (AI 생성)' : ''}
+                </h2>
+
+                <h3 style={{
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  color: '#e8ff47',
+                  marginBottom: '12px',
+                }}>{section.title}</h3>
+
+                <div style={{
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  color: '#d0d0d0',
+                  whiteSpace: 'pre-wrap',
+                }}>
+                  {section.content.replace(/·/g, '/')}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )
+        })}
 
         {/* 푸터 */}
         <div style={{
