@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { auth, signOut } from '@/auth'
+import { auth } from '@/auth'
 import MyInfoButton from './MyInfoModal'
+import LogoutButton from './LogoutButton'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,12 +54,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
             {user.role === 'MANAGER' && (
               <Link href="/admin"><button className="btn-ghost">관리자</button></Link>
             )}
-            <form action={async () => {
-              'use server'
-              await signOut({ redirectTo: '/login' })
-            }}>
-              <button className="btn-ghost" type="submit">로그아웃</button>
-            </form>
+            <LogoutButton />
           </div>
         ) : (
           <>
