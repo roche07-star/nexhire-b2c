@@ -2779,12 +2779,30 @@ function AnalysisResults({
       )}
 
       <div className="analyze-download-wrap">
-        <button
-          className="analyze-download-btn"
-          onClick={() => downloadReport(result)}
-        >
-          ↓ HTML 리포트 다운로드
-        </button>
+        {result.plan === 'FREE' ? (
+          <>
+            <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--muted)' }}>
+              <p style={{ marginBottom: '8px', fontSize: '14px' }}>
+                📄 분석 결과는 화면에서 확인 가능하지만,<br />
+                <strong>HTML 다운로드는 PRO 플랜 이상</strong>에서 제공됩니다.
+              </p>
+            </div>
+            <button
+              className="analyze-download-btn"
+              onClick={() => window.location.href = '/store'}
+              style={{ background: 'var(--accent)' }}
+            >
+              ✨ PRO 플랜으로 업그레이드 →
+            </button>
+          </>
+        ) : (
+          <button
+            className="analyze-download-btn"
+            onClick={() => downloadReport(result)}
+          >
+            ↓ HTML 리포트 다운로드
+          </button>
+        )}
       </div>
     </div>
   )
@@ -2907,9 +2925,20 @@ function JDResults({
           {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
         </button>
         {analysisItem && (
-          <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
-            ↓ HTML 리포트 다운로드
-          </button>
+          analysisItem.result.plan === 'FREE' ? (
+            <button
+              className="analyze-download-btn"
+              onClick={() => window.location.href = '/store'}
+              style={{ background: 'var(--accent)' }}
+              title="PRO 플랜으로 업그레이드하여 HTML 다운로드 기능을 이용하세요"
+            >
+              ✨ PRO 업그레이드 (다운로드 잠금)
+            </button>
+          ) : (
+            <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
+              ↓ HTML 리포트 다운로드
+            </button>
+          )
         )}
       </div>
     </div>
