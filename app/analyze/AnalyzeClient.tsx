@@ -828,13 +828,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
       setRewriteResult(result)
 
-      // localStorage에 저장 (재접속 시 표시용)
+      // localStorage에 저장 (재접속 시 표시용) - 사용자별로 구분
       try {
-        localStorage.setItem('jobizic_last_rewrite', JSON.stringify({
+        const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
+        localStorage.setItem(storageKey, JSON.stringify({
           preview: result.preview,
           plan: result.plan,
           originalPreview: data.originalPreview ?? originalSummary ?? '',
           changes: result.changes,
+          userEmail: userEmail,
           timestamp: Date.now(),
         }))
       } catch (e) {
@@ -846,7 +848,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
 
       // 새 창에서 미리보기 열기 (원본과 비교)
-      window.open('/analyze/preview', '_blank')
+      window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')
 
       // PRO+ 자동 다운로드
       if (data.plan === 'PRO' || data.plan === 'EXPERT') {
@@ -1608,11 +1610,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {/* 최근 생성된 이력서 다시 보기 */}
                 {(() => {
                   try {
-                    const saved = localStorage.getItem('jobizic_last_rewrite')
+                    const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
+                    const saved = localStorage.getItem(storageKey)
                     if (!saved) return null
                     const data = JSON.parse(saved)
                     const ageMinutes = Math.floor((Date.now() - data.timestamp) / 60000)
                     if (ageMinutes > 60) return null // 1시간 이상 지나면 숨김
+
+                    // 사용자 검증
+                    if (data.userEmail !== userEmail) return null
 
                     return (
                       <div style={{
@@ -1635,7 +1641,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </div>
                         <button
                           className="btn-primary"
-                          onClick={() => window.open('/analyze/preview', '_blank')}
+                          onClick={() => window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')}
                           style={{ fontSize: '13px', padding: '8px 16px' }}
                         >
                           다시 보기 →

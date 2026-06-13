@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Section {
   title: string
@@ -10,6 +10,7 @@ interface Section {
 
 export default function RewritePreviewPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [plan, setPlan] = useState<string>('FREE')
   const [originalPreview, setOriginalPreview] = useState<string>('')
   const [changes, setChanges] = useState<string[]>([])
@@ -18,7 +19,15 @@ export default function RewritePreviewPage() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('jobizic_last_rewrite')
+      const userEmail = searchParams.get('email')
+      if (!userEmail) {
+        alert('사용자 정보가 없습니다.')
+        router.push('/analyze')
+        return
+      }
+
+      const storageKey = `jobizic_last_rewrite_${userEmail}`
+      const saved = localStorage.getItem(storageKey)
       if (!saved) {
         alert('미리보기 데이터가 없습니다.')
         router.push('/analyze')
@@ -26,6 +35,14 @@ export default function RewritePreviewPage() {
       }
 
       const data = JSON.parse(saved)
+
+      // 사용자 검증
+      if (data.userEmail !== userEmail) {
+        alert('권한이 없습니다.')
+        router.push('/analyze')
+        return
+      }
+
       const ageMinutes = Math.floor((Date.now() - data.timestamp) / 60000)
       if (ageMinutes > 60) {
         alert('미리보기 데이터가 만료되었습니다. (1시간 제한)')
@@ -47,7 +64,7 @@ export default function RewritePreviewPage() {
       alert('미리보기를 불러올 수 없습니다.')
       router.push('/analyze')
     }
-  }, [router])
+  }, [router, searchParams])
 
   function parseHTMLToSections(htmlString: string): Section[] {
     if (!htmlString) return []
