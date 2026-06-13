@@ -373,7 +373,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-export default function Hero() {
+export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNTER' | null }) {
   const [showDemo, setShowDemo] = useState(false)
   const [heroTab, setHeroTab] = useState(0)
 
@@ -382,6 +382,57 @@ export default function Hero() {
     return () => clearInterval(t)
   }, [])
 
+  // 개인/헤드헌터 맞춤 콘텐츠
+  const content = {
+    INDIVIDUAL: {
+      badge: '재직 중 이직 준비 직장인을 위한 AI 커리어 코치',
+      headline: (
+        <>
+          이력서 하나로,<br />
+          <span className="line2">다음 커리어를 설계하세요</span>
+        </>
+      ),
+      sub: (
+        <>
+          현직에 있으면서 조용히 이직을 준비 중이라면.<br />
+          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
+        </>
+      ),
+    },
+    HEADHUNTER: {
+      badge: '헤드헌터를 위한 AI 후보자 분석 플랫폼',
+      headline: (
+        <>
+          후보자 이력서를,<br />
+          <span className="line2">클라이언트 제안서로</span>
+        </>
+      ),
+      sub: (
+        <>
+          후보자 강점 분석부터 JD 적합도, 클라이언트 제안 전략까지.<br />
+          AI가 2분 만에 완성합니다. 헤드헌터의 시간은 관계 구축에 집중하세요.
+        </>
+      ),
+    },
+    DEFAULT: {
+      badge: '개인 구직자 & 헤드헌터를 위한 AI 이력서 분석',
+      headline: (
+        <>
+          이력서 하나로,<br />
+          <span className="line2">커리어의 다음 단계를 설계하세요</span>
+        </>
+      ),
+      sub: (
+        <>
+          개인 구직자는 취업 전략을, 헤드헌터는 후보자 제안서를.<br />
+          AI가 이력서를 분석하고 맞춤형 인사이트를 2분 만에 제공합니다.
+        </>
+      ),
+    },
+  }
+
+  const selected = userType ? content[userType] : content.DEFAULT
+
   return (
     <section className="hero">
       <div className="hero-bg" />
@@ -389,18 +440,12 @@ export default function Hero() {
 
       <div className="hero-badge">
         <div className="badge-dot" />
-        재직 중 이직 준비 직장인을 위한 AI 커리어 코치
+        {selected.badge}
       </div>
 
-      <h1>
-        이력서 하나로,<br />
-        <span className="line2">다음 커리어를 설계하세요</span>
-      </h1>
+      <h1>{selected.headline}</h1>
 
-      <p className="hero-sub">
-        현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-        AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
-      </p>
+      <p className="hero-sub">{selected.sub}</p>
 
       <div className="hero-actions">
         <Link href="/analyze"><button className="btn-hero">이력서 분석 시작하기 →</button></Link>

@@ -1,3 +1,6 @@
+'use client'
+
+import { useSession } from 'next-auth/react'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import Stats from '@/components/Stats'
@@ -10,21 +13,25 @@ import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
 import CustomCursor from '@/components/CustomCursor'
 import ScrollReveal from '@/components/ScrollReveal'
+import type { UserType } from '@/types/user'
 
 export default function Home() {
+  const { data: session } = useSession()
+  const userType: UserType | null | undefined = session?.user?.userType
+
   return (
     <>
       <CustomCursor />
       <ScrollReveal />
       <Nav />
-      <Hero />
+      <Hero userType={userType} />
       <Stats />
-      <HowItWorks />
-      <Features />
+      <HowItWorks userType={userType} />
+      <Features userType={userType} />
       <Persona />
-      <Pricing />
+      <Pricing userType={userType} />
       <Faq />
-      <Cta />
+      <Cta userType={userType} />
       <Footer />
     </>
   )

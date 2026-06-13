@@ -1,10 +1,11 @@
 import Link from 'next/link'
+import type { UserType } from '@/types/user'
 
-const plans = [
+const individualPlans = [
   {
     name: 'Free',
     price: '₩0',
-    desc: '이직 방향이 궁금한 직장인을 위해',
+    desc: '🎯 이직 방향이 궁금한 직장인을 위해',
     features: ['이력서 분석 3회/월', '기본 점수 리포트', '커리어 방향 1가지 제안'],
     disabled: ['JD 적합도 분석', '이력서 생성', '면접 가이드', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
@@ -13,9 +14,9 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: '₩19,900',
-    desc: '본격적으로 이직을 준비 중인 재직자',
-    features: ['이력서 분석 10회/월', 'JD 적합도 분석 15회/월', '이력서 생성 3회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
+    price: '₩9,900',
+    desc: '🎯 본격적으로 이직을 준비 중인 재직자',
+    features: ['이력서 분석 30회/월', 'JD 적합도 분석 30회/월', '이력서 생성 10회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
     disabled: ['면접 가이드'],
     btnClass: 'btn-plan-fill',
     btnText: 'Pro 시작하기',
@@ -23,9 +24,9 @@ const plans = [
   },
   {
     name: 'Expert',
-    price: '₩49,900',
-    desc: '최종 합격까지 끝내고 싶은 진지한 이직자',
-    features: ['이력서 분석 30회/월', 'JD 적합도 분석 30회/월', '이력서 생성 15회/월', '면접 가이드 15회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
+    price: '₩29,900',
+    desc: '🎯 최종 합격까지 끝내고 싶은 진지한 이직자',
+    features: ['이력서 분석 무제한', 'JD 적합도 분석 무제한', '이력서 생성 무제한', '면접 가이드 30회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
     disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: 'Expert 신청',
@@ -33,13 +34,65 @@ const plans = [
   },
 ]
 
-export default function Pricing() {
+const headhunterPlans = [
+  {
+    name: 'Free',
+    price: '₩0',
+    desc: '💼 후보자 분석이 처음인 헤드헌터',
+    features: ['후보자 분석 3회/월', '기본 매칭 리포트', 'JD 적합도 분석'],
+    disabled: ['클라이언트 제안서 생성', '대량 분석', 'Eve (B2B) 연동', '프리미엄 템플릿'],
+    btnClass: 'btn-plan-outline',
+    btnText: '무료로 시작',
+    featured: false,
+  },
+  {
+    name: 'Pro',
+    price: '₩19,900',
+    desc: '💼 월 10-30건 매칭하는 헤드헌터',
+    features: ['후보자 분석 100회/월', 'JD 적합도 분석 100회/월', '클라이언트 제안서 자동 생성', '심층 매칭 리포트', '분석 결과 영구 저장', 'HTML/PDF 리포트 다운로드', '후보자 관리 대시보드'],
+    disabled: ['Eve (B2B) 연동', '프리미엄 템플릿'],
+    btnClass: 'btn-plan-fill',
+    btnText: 'Pro 시작하기',
+    featured: true,
+  },
+  {
+    name: 'Expert',
+    price: '₩49,900',
+    desc: '💼 대형 헤드헌팅펌 / 리크루팅 에이전시',
+    features: ['후보자 분석 무제한', 'JD 적합도 분석 무제한', '클라이언트 제안서 무제한', 'Eve (B2B 플랫폼) 연동', '프리미엄 템플릿', '대량 분석 (엑셀 업로드)', '팀 협업 기능', 'API 접근 (상담)'],
+    disabled: [],
+    btnClass: 'btn-plan-outline',
+    btnText: 'Expert 신청',
+    featured: false,
+  },
+]
+
+export default function Pricing({ userType }: { userType?: UserType | null }) {
+  const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
+
+  const content = {
+    INDIVIDUAL: {
+      title: '합리적인 가격으로\n커리어를 설계하세요',
+      sub: '첫 분석은 무료. 부담 없이 시작해보세요.',
+    },
+    HEADHUNTER: {
+      title: '후보자 분석 시간을\n1/10로 단축하세요',
+      sub: '월 정액제로 무제한 분석. 헤드헌터의 시간은 더 가치 있는 곳에.',
+    },
+    DEFAULT: {
+      title: '합리적인 가격으로\n커리어를 설계하세요',
+      sub: '개인 구직자는 월 9,900원부터, 헤드헌터는 월 19,900원부터.',
+    },
+  }
+
+  const selected = userType ? content[userType] : content.DEFAULT
+
   return (
     <section id="pricing">
       <div className="reveal" style={{ textAlign: 'center' }}>
         <div className="section-label">Pricing</div>
-        <div className="section-title">합리적인 가격으로<br />커리어를 설계하세요</div>
-        <p className="section-sub" style={{ margin: '0 auto' }}>첫 분석은 무료. 부담 없이 시작해보세요.</p>
+        <div className="section-title">{selected.title}</div>
+        <p className="section-sub" style={{ margin: '0 auto' }}>{selected.sub}</p>
       </div>
       <div className="pricing-grid reveal">
         {plans.map((plan) => (

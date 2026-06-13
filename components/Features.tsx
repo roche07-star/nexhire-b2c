@@ -33,13 +33,32 @@ const features = [
   },
 ]
 
-export default function Features() {
+import type { UserType } from '@/types/user'
+
+export default function Features({ userType }: { userType?: UserType | null }) {
+  const content = {
+    INDIVIDUAL: {
+      title: '단순 분석이 아닌\n실행 가능한 인사이트',
+      sub: '🎯 헤드헌터의 시각으로 이력서를 읽고, AI의 속도로 전략을 제시합니다.',
+    },
+    HEADHUNTER: {
+      title: '후보자 분석부터\n클라이언트 제안까지 자동화',
+      sub: '💼 시간은 후보자 소싱과 관계 구축에 집중하세요. 분석은 AI가 대신합니다.',
+    },
+    DEFAULT: {
+      title: '단순 분석이 아닌\n실행 가능한 인사이트',
+      sub: '헤드헌터의 시각으로 이력서를 읽고, AI의 속도로 전략을 제시합니다.',
+    },
+  }
+
+  const selected = userType ? content[userType] : content.DEFAULT
+
   return (
     <section id="features">
       <div className="reveal">
         <div className="section-label">Features</div>
-        <div className="section-title">단순 분석이 아닌<br />실행 가능한 인사이트</div>
-        <p className="section-sub">헤드헌터의 시각으로 이력서를 읽고, AI의 속도로 전략을 제시합니다.</p>
+        <div className="section-title">{selected.title}</div>
+        <p className="section-sub">{selected.sub}</p>
       </div>
       <div className="features-grid reveal">
         {features.map((f) => (
