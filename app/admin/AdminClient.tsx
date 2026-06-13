@@ -30,7 +30,7 @@ interface Coupon {
 }
 
 const PLAN_LIMITS: Record<string, Record<string, number>> = {
-  FREE:   { analyze: 3,  jd: 3,  rewrite: 0,  interview: 0 },
+  FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
   PRO:    { analyze: 30, jd: 30, rewrite: 10, interview: 0 },
   EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
 }
@@ -202,9 +202,19 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   function usageCell(count: number, plan: string, feature: 'analyze' | 'jd' | 'rewrite' | 'interview') {
     const limit = PLAN_LIMITS[plan]?.[feature] ?? 0
     if (limit === 0) return <span className="admin-count muted">—</span>
+    const remaining = Math.max(0, limit - count)
     const pct = Math.min(100, Math.round((count / limit) * 100))
     const cls = pct >= 100 ? 'full' : pct >= 70 ? 'warn' : ''
-    return <span className={`admin-count ${cls}`}>{count}<span className="admin-count-limit">/{limit}</span></span>
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+        <span className={`admin-count ${cls}`}>
+          {count}<span className="admin-count-limit">/{limit}</span>
+        </span>
+        <span style={{ fontSize: '11px', color: remaining === 0 ? '#ff4444' : '#999' }}>
+          {remaining}회 남음
+        </span>
+      </div>
+    )
   }
 
   const total = users.length
