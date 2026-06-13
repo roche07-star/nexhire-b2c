@@ -3,12 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface Section {
+  title: string
+  content: string
+}
+
 export default function RewritePreviewPage() {
   const router = useRouter()
-  const [html, setHtml] = useState<string>('')
   const [plan, setPlan] = useState<string>('FREE')
   const [originalSummary, setOriginalSummary] = useState<string>('')
   const [changes, setChanges] = useState<string[]>([])
+  const [sections, setSections] = useState<Section[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -28,10 +33,14 @@ export default function RewritePreviewPage() {
         return
       }
 
-      setHtml(data.preview ?? '')
       setPlan(data.plan ?? 'FREE')
       setOriginalSummary(data.originalSummary ?? '')
       setChanges(data.changes ?? [])
+
+      // HTML을 섹션별로 파싱
+      const parsedSections = parseHTMLToSections(data.preview ?? '')
+      setSections(parsedSections)
+
       setLoading(false)
     } catch (e) {
       console.error('미리보기 로드 실패:', e)
@@ -40,6 +49,34 @@ export default function RewritePreviewPage() {
     }
   }, [router])
 
+  function parseHTMLToSections(htmlString: string): Section[] {
+    if (!htmlString) return []
+
+    // HTML에서 섹션 추출 (h3 태그 기준)
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(htmlString, 'text/html')
+    const h3Elements = doc.querySelectorAll('h3')
+
+    if (h3Elements.length > 0) {
+      // h3 태그가 있는 경우 (PDF/text 경로)
+      const sectionList: Section[] = []
+      h3Elements.forEach((h3) => {
+        const title = h3.textContent?.trim() || ''
+        const nextDiv = h3.nextElementSibling
+        const content = nextDiv?.textContent?.trim() || ''
+        if (title || content) {
+          sectionList.push({ title, content })
+        }
+      })
+      return sectionList
+    } else {
+      // p 태그가 있는 경우 (DOCX 경로) - 하나의 섹션으로 통합
+      const paragraphs = doc.querySelectorAll('p')
+      const content = Array.from(paragraphs).map(p => p.textContent?.trim() || '').join('\n\n')
+      return content ? [{ title: '이력서 내용', content }] : []
+    }
+  }
+
   if (loading) {
     return (
       <div style={{
@@ -47,12 +84,12 @@ export default function RewritePreviewPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f5f5f5',
+        background: '#0a0a0a',
         fontFamily: 'Noto Sans KR, sans-serif',
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>로딩 중...</div>
-          <div style={{ fontSize: 14, color: '#666' }}>미리보기를 준비하고 있습니다.</div>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#fff' }}>로딩 중...</div>
+          <div style={{ fontSize: 14, color: '#999' }}>미리보기를 준비하고 있습니다.</div>
         </div>
       </div>
     )
@@ -61,211 +98,221 @@ export default function RewritePreviewPage() {
   return (
     <div style={{
       fontFamily: 'Noto Sans KR, -apple-system, BlinkMacSystemFont, sans-serif',
-      lineHeight: 1.8,
-      color: '#1a1a1a',
-      background: '#f5f5f5',
-      padding: '40px 20px',
+      background: '#0a0a0a',
       minHeight: '100vh',
+      padding: '40px 20px',
     }}>
       <div style={{
-        maxWidth: originalSummary ? '1600px' : '900px',
+        maxWidth: '1200px',
         margin: '0 auto',
-        background: 'white',
-        padding: '60px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        borderRadius: '8px',
       }}>
         {/* 헤더 */}
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '30px',
-          paddingBottom: '20px',
-          borderBottom: '1px solid #e0e0e0',
+          marginBottom: '32px',
         }}>
-          <div>
-            <h1 style={{
-              fontSize: '24px',
-              fontWeight: 700,
-              marginBottom: '8px',
-            }}>✨ 생성된 이력서</h1>
-            <p style={{
+          <button
+            onClick={() => router.push('/analyze')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#999',
               fontSize: '14px',
-              color: '#666',
-              margin: 0,
-            }}>
-              {plan === 'FREE' && '🆓 FREE 플랜 - HTML 미리보기'}
-              {plan === 'PRO' && '⭐ PRO 플랜 - DOCX 다운로드 완료'}
-              {plan === 'EXPERT' && '💎 EXPERT 플랜 - DOCX 다운로드 완료'}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => window.print()}
-              style={{
-                padding: '10px 20px',
-                background: '#f0f0f0',
-                border: '1px solid #ddd',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e0e0e0'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f0f0f0'
-              }}
-            >
-              🖨️ 인쇄하기
-            </button>
-            <button
-              onClick={() => router.push('/analyze')}
-              style={{
-                padding: '10px 20px',
-                background: '#e8ff47',
-                border: '1px solid #e8ff47',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#d4e83e'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#e8ff47'
-              }}
-            >
-              ← 돌아가기
-            </button>
+              cursor: 'pointer',
+              padding: '8px 0',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#fff'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#999'
+            }}
+          >
+            ← 목록으로
+          </button>
+
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 700,
+            color: '#fff',
+            marginBottom: '8px',
+          }}>생성 Report</h1>
+
+          <div style={{
+            background: 'rgba(30,30,30,0.8)',
+            border: '1px solid rgba(232,255,71,0.2)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '20px' }}>📁</span>
+              <div>
+                <div style={{ fontSize: '14px', color: '#e8ff47', fontWeight: 600 }}>
+                  저장된 분석 결과
+                </div>
+                <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
+                  {plan === 'FREE' && '🆓 FREE 플랜 - HTML 미리보기'}
+                  {plan === 'PRO' && '⭐ PRO 플랜'}
+                  {plan === 'EXPERT' && '💎 EXPERT 플랜'}
+                </div>
+              </div>
+            </div>
+            <span style={{ fontSize: '13px', color: '#999' }}>
+              분석일: {new Date().toLocaleDateString('ko-KR')}
+            </span>
           </div>
         </div>
 
-        {/* 변경사항 박스 */}
+        {/* 변경사항 섹션 */}
         {changes.length > 0 && (
           <div style={{
-            background: '#fff9e6',
-            border: '1px solid #e8ff47',
-            borderRadius: '8px',
-            padding: '20px',
-            marginBottom: '30px',
+            background: 'rgba(20,20,25,0.6)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px',
+            padding: '32px',
+            marginBottom: '24px',
           }}>
-            <h3 style={{
-              fontSize: '15px',
+            <h2 style={{
+              fontSize: '16px',
               fontWeight: 700,
-              color: '#1a1a1a',
-              marginBottom: '12px',
-            }}>✨ 주요 변경사항</h3>
-            <ul style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
+              color: '#999',
+              marginBottom: '20px',
+              letterSpacing: '0.05em',
+            }}>+ 강점</h2>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
             }}>
               {changes.map((change, i) => (
-                <li key={i} style={{
-                  fontSize: '14px',
-                  color: '#333',
-                  marginBottom: '6px',
-                  paddingLeft: '20px',
-                  position: 'relative',
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
                 }}>
                   <span style={{
-                    position: 'absolute',
-                    left: 0,
-                  }}>✏️</span>
-                  {change}
-                </li>
+                    fontSize: '16px',
+                    color: '#e8ff47',
+                    flexShrink: 0,
+                  }}>✓</span>
+                  <p style={{
+                    fontSize: '14px',
+                    lineHeight: '1.7',
+                    color: '#e0e0e0',
+                    margin: 0,
+                  }}>{change}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
-        {/* 비교 레이아웃 또는 단일 미리보기 */}
-        {originalSummary ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '40px',
-            marginTop: '30px',
-          }}>
-            {/* 원본 이력서 */}
-            <div style={{
-              border: '1px solid #e0e0e0',
-              borderRadius: '8px',
-              padding: '24px',
-              background: '#fafafa',
-            }}>
-              <h2 style={{
-                fontSize: '16px',
-                fontWeight: 700,
-                marginBottom: '16px',
-                paddingBottom: '12px',
-                borderBottom: '2px solid #999',
-                color: '#999',
-              }}>📄 이전 이력서 (원본)</h2>
-              <div
-                style={{
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  color: '#333',
-                  whiteSpace: 'pre-wrap',
-                }}
-                dangerouslySetInnerHTML={{ __html: originalSummary }}
-              />
-            </div>
-
-            {/* 수정된 이력서 */}
-            <div style={{
-              border: '1px solid #e0e0e0',
-              borderRadius: '8px',
-              padding: '24px',
-              background: '#fafafa',
-            }}>
-              <h2 style={{
-                fontSize: '16px',
-                fontWeight: 700,
-                marginBottom: '16px',
-                paddingBottom: '12px',
-                borderBottom: '2px solid #e8ff47',
-                color: '#1a1a1a',
-              }}>✨ 수정된 이력서 (AI 생성)</h2>
-              <div
-                style={{
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  color: '#333',
-                }}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            </div>
-          </div>
-        ) : (
+        {/* 섹션별 내용 */}
+        {sections.map((section, idx) => (
           <div
+            key={idx}
             style={{
+              background: 'rgba(20,20,25,0.6)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '16px',
+              padding: '32px',
+              marginBottom: '24px',
+            }}
+          >
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: '#e8ff47',
+              marginBottom: '20px',
+            }}>{section.title}</h2>
+
+            <div style={{
               fontSize: '14px',
               lineHeight: '1.8',
-              color: '#333',
-            }}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+              color: '#d0d0d0',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {section.content}
+            </div>
+          </div>
+        ))}
+
+        {/* 원본 비교 (있는 경우) */}
+        {originalSummary && (
+          <div style={{
+            background: 'rgba(20,20,25,0.6)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px',
+            padding: '32px',
+            marginBottom: '24px',
+          }}>
+            <h2 style={{
+              fontSize: '16px',
+              fontWeight: 700,
+              color: '#999',
+              marginBottom: '20px',
+            }}>📄 이전 이력서 (원본)</h2>
+
+            <div
+              style={{
+                fontSize: '14px',
+                lineHeight: '1.8',
+                color: '#999',
+                whiteSpace: 'pre-wrap',
+              }}
+              dangerouslySetInnerHTML={{ __html: originalSummary }}
+            />
+          </div>
         )}
 
         {/* 푸터 */}
         <div style={{
-          marginTop: '60px',
-          paddingTop: '20px',
-          borderTop: '1px solid #e0e0e0',
+          marginTop: '48px',
+          paddingTop: '24px',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
           textAlign: 'center',
           fontSize: '13px',
-          color: '#999',
+          color: '#666',
         }}>
-          Generated by <strong>Jobizic</strong> · AI Resume Generator
+          Generated by <strong style={{ color: '#e8ff47' }}>Jobizic</strong> · AI Resume Generator
         </div>
+
+        {/* 인쇄 버튼 (고정 위치) */}
+        <button
+          onClick={() => window.print()}
+          style={{
+            position: 'fixed',
+            bottom: '40px',
+            right: '40px',
+            background: '#e8ff47',
+            border: 'none',
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            fontSize: '24px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(232,255,71,0.3)',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)'
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(232,255,71,0.4)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(232,255,71,0.3)'
+          }}
+          title="인쇄하기"
+        >
+          🖨️
+        </button>
       </div>
 
       {/* 인쇄 스타일 */}
@@ -273,7 +320,6 @@ export default function RewritePreviewPage() {
         @media print {
           body {
             background: white !important;
-            padding: 0 !important;
           }
           button {
             display: none !important;
