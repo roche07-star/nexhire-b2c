@@ -833,7 +833,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         localStorage.setItem('jobizic_last_rewrite', JSON.stringify({
           preview: result.preview,
           plan: result.plan,
-          originalSummary,
+          originalPreview: data.originalPreview ?? originalSummary ?? '',
           changes: result.changes,
           timestamp: Date.now(),
         }))

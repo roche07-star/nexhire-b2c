@@ -259,6 +259,17 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
   return '<p>미리보기를 생성할 수 없습니다.</p>'
 }
 
+function generateOriginalPreviewHTML(text: string): string {
+  // 원본 텍스트를 HTML로 변환 (줄바꿈 유지)
+  const escapedText = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
+  return `<div style="white-space: pre-wrap; line-height: 1.8; font-family: 'Noto Sans KR', sans-serif; color: #666;">${escapedText}</div>`
+}
+
 function buildCoverLetterPrompts(resumeText: string, jd: JDContext): { system: string; user: string } {
   const pos = jd.position?.trim() || '채용공고 포지션'
   const matchStr = toArr(jd.matching_points).join(' / ')
@@ -450,6 +461,7 @@ export async function POST(req: NextRequest) {
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
 
       const resumeText = await extractText(buffer, originalFilename)
+      const originalPreview = generateOriginalPreviewHTML(resumeText)
       const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext)
 
       const message = await client.messages.create({
@@ -507,6 +519,7 @@ export async function POST(req: NextRequest) {
       if (plan === 'FREE') {
         return NextResponse.json({
           preview: generatePreviewHTML(undefined, allRewrites),
+          originalPreview,
           changes: tplChanges ?? [],
           plan: 'FREE',
         })
@@ -522,12 +535,16 @@ export async function POST(req: NextRequest) {
         filename: downloadName,
         changes: tplChanges ?? [],
         preview: generatePreviewHTML(undefined, rewrites),
+        originalPreview,
         plan,
       })
     }
 
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx' && formatMode !== 'updated') {
+      const resumeText = await extractText(buffer, originalFilename)
+      const originalPreview = generateOriginalPreviewHTML(resumeText)
+
       const paras = await extractDocxParagraphs(buffer)
       const piiIndexes = new Set(paras.filter(p => hasPII(p.text)).map(p => p.index))
 
@@ -657,6 +674,7 @@ export async function POST(req: NextRequest) {
       if (plan === 'FREE') {
         return NextResponse.json({
           preview: generatePreviewHTML(undefined, allRewrites),
+          originalPreview,
           changes: allChanges,
           plan: 'FREE',
         })
@@ -672,12 +690,14 @@ export async function POST(req: NextRequest) {
         filename: downloadName,
         changes: allChanges,
         preview: generatePreviewHTML(undefined, rewrites),
+        originalPreview,
         plan,
       })
     }
 
     // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX
     const resumeText = await extractText(buffer, originalFilename)
+    const originalPreview = generateOriginalPreviewHTML(resumeText)
     // PII 마스킹 후 Claude에 전송, 응답에서 원본값으로 복원
     const piiValues = extractPIIValues(resumeText)
     const maskedResumeText = maskPIILocal(resumeText)
@@ -797,6 +817,7 @@ export async function POST(req: NextRequest) {
     if (plan === 'FREE') {
       return NextResponse.json({
         preview: generatePreviewHTML(rewriteData.sections),
+        originalPreview,
         changes: sectionChanges,
         plan: 'FREE',
       })
@@ -812,6 +833,7 @@ export async function POST(req: NextRequest) {
       filename: downloadName,
       changes: sectionChanges,
       preview: generatePreviewHTML(rewriteData.sections),
+      originalPreview,
       plan,
     })
   } catch (e) {

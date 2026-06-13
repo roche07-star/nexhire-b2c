@@ -11,7 +11,7 @@ interface Section {
 export default function RewritePreviewPage() {
   const router = useRouter()
   const [plan, setPlan] = useState<string>('FREE')
-  const [originalSummary, setOriginalSummary] = useState<string>('')
+  const [originalPreview, setOriginalPreview] = useState<string>('')
   const [changes, setChanges] = useState<string[]>([])
   const [sections, setSections] = useState<Section[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,7 +34,7 @@ export default function RewritePreviewPage() {
       }
 
       setPlan(data.plan ?? 'FREE')
-      setOriginalSummary(data.originalSummary ?? '')
+      setOriginalPreview(data.originalPreview ?? '')
       setChanges(data.changes ?? [])
 
       // HTML을 섹션별로 파싱
@@ -238,7 +238,7 @@ export default function RewritePreviewPage() {
               borderBottom: '2px solid rgba(153,153,153,0.3)',
             }}>📄 수정 전 이력서 (원본)</h2>
 
-            {originalSummary ? (
+            {originalPreview ? (
               <div
                 style={{
                   fontSize: '14px',
@@ -246,7 +246,7 @@ export default function RewritePreviewPage() {
                   color: '#999',
                   whiteSpace: 'pre-wrap',
                 }}
-                dangerouslySetInnerHTML={{ __html: originalSummary }}
+                dangerouslySetInnerHTML={{ __html: originalPreview }}
               />
             ) : (
               <div style={{
