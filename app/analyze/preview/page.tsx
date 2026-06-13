@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Section {
@@ -8,7 +8,7 @@ interface Section {
   content: string
 }
 
-export default function RewritePreviewPage() {
+function PreviewContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [plan, setPlan] = useState<string>('FREE')
@@ -377,5 +377,27 @@ export default function RewritePreviewPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function RewritePreviewPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#0a0a0a',
+        fontFamily: 'Noto Sans KR, sans-serif',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#fff' }}>로딩 중...</div>
+          <div style={{ fontSize: 14, color: '#999' }}>미리보기를 준비하고 있습니다.</div>
+        </div>
+      </div>
+    }>
+      <PreviewContent />
+    </Suspense>
   )
 }
