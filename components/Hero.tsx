@@ -415,17 +415,17 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
       ),
     },
     DEFAULT: {
-      badge: '개인 구직자 & 헤드헌터를 위한 AI 이력서 분석',
+      badge: '재직 중 이직 준비 직장인을 위한 AI 커리어 코치',
       headline: (
         <>
           이력서 하나로,<br />
-          <span className="line2">커리어의 다음 단계를 설계하세요</span>
+          <span className="line2">다음 커리어를 설계하세요</span>
         </>
       ),
       sub: (
         <>
-          개인 구직자는 취업 전략을, 헤드헌터는 후보자 제안서를.<br />
-          AI가 이력서를 분석하고 맞춤형 인사이트를 2분 만에 제공합니다.
+          현직에 있으면서 조용히 이직을 준비 중이라면.<br />
+          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
         </>
       ),
     },

@@ -29,8 +29,8 @@ export default function HowItWorks({ userType }: { userType?: UserType | null })
       sub: '이력서 업로드 하나로 제안서까지 자동 완성됩니다.',
     },
     DEFAULT: {
-      title: '5단계로\nAI가 커리어를 설계합니다',
-      sub: '이력서 하나로 개인 취업 준비부터 헤드헌팅 제안까지.',
+      title: '5단계로\n서류부터 면접까지 준비됩니다',
+      sub: '복잡한 설정 없이, 이력서 하나만 있으면 됩니다.',
     },
   }
 

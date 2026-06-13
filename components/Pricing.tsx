@@ -68,6 +68,7 @@ const headhunterPlans = [
 ]
 
 export default function Pricing({ userType }: { userType?: UserType | null }) {
+  // 헤드헌터만 headhunterPlans, 나머지(비로그인, 개인, 미선택)는 individualPlans
   const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
   const content = {
@@ -81,7 +82,7 @@ export default function Pricing({ userType }: { userType?: UserType | null }) {
     },
     DEFAULT: {
       title: '합리적인 가격으로\n커리어를 설계하세요',
-      sub: '개인 구직자는 월 9,900원부터, 헤드헌터는 월 19,900원부터.',
+      sub: '첫 분석은 무료. 부담 없이 시작해보세요.', // 비로그인 = 개인 요금제 표시
     },
   }
 
