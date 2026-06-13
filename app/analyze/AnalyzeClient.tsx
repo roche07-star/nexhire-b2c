@@ -883,16 +883,27 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setError(null)
     setResult(null)
 
-    // PRO/Expert: 체크박스 값으로 보존 모드 결정 (파일/텍스트 공통)
+    // 파일 보존 모드 결정 (모든 플랜)
     let preserveMode = 'skip'
-    if ((isPro || isExpert) && preserveChecked) {
-      const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
-      if (preserveAddWithCoupon && preservedCount > 0) {
-        preserveMode = 'add'
-      } else if (preservedCount > 0) {
-        preserveMode = 'replace'
+    const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
+
+    if (isPro || isExpert) {
+      // PRO/EXPERT: 체크박스 값으로 결정
+      if (preserveChecked) {
+        if (preserveAddWithCoupon && preservedCount > 0) {
+          preserveMode = 'add'
+        } else if (preservedCount > 0) {
+          preserveMode = 'replace'
+        } else {
+          preserveMode = 'auto'
+        }
+      }
+    } else {
+      // FREE: 항상 보존 (1개 제한, 교체 방식)
+      if (preservedCount > 0) {
+        preserveMode = 'replace'  // 기존 이력서 교체
       } else {
-        preserveMode = 'auto'
+        preserveMode = 'auto'  // 첫 보존
       }
     }
 
@@ -2057,6 +2068,30 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 )}
 
+                {/* FREE 플랜: 자동 보존 안내 */}
+                {!isPro && !isExpert && (
+                  <div className="preserve-checkbox-section">
+                    <div className="preserve-checkbox-wrap" style={{ cursor: 'default', background: 'rgba(232,255,71,0.05)' }}>
+                      <div className="preserve-checkbox-body">
+                        <div className="preserve-checkbox-label">
+                          📂 이력서 파일 자동 저장
+                          <span className="preserve-option-badge free">무료 1개</span>
+                        </div>
+                        <div className="preserve-checkbox-desc">
+                          FREE 플랜은 이력서 1개가 자동으로 저장됩니다. 저장된 이력서로 <strong>이력서 생성</strong> 기능을 사용할 수 있습니다.
+                          {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
+                          {analysisList && analysisList.filter(item => item.result?._file_path).length > 0 && (
+                            <span className="preserve-checkbox-replace">
+                              {' '}새 분석 시 기존 이력서가 교체됩니다.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* PRO/EXPERT: 체크박스로 선택 */}
                 {(isPro || isExpert) && (() => {
                   const preserved = (analysisList ?? []).filter(item => item.result?._file_path)
                   const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
