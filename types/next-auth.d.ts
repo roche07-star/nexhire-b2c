@@ -5,6 +5,7 @@ declare module 'next-auth' {
     user: {
       role: 'MANAGER' | 'USER'
       plan: 'FREE' | 'PRO' | 'EXPERT'
+      userType?: 'INDIVIDUAL' | 'HEADHUNTER' | null
     } & DefaultSession['user']
   }
 }

@@ -36,25 +36,4 @@ export interface User {
   userType?: UserType | null  // NULL = 아직 선택 안 함 → 팝업 표시
 }
 
-/**
- * NextAuth Session 확장
- */
-declare module 'next-auth' {
-  interface Session {
-    user: User
-  }
-
-  interface User {
-    role?: Role
-    plan?: Plan
-    userType?: UserType | null
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    role?: Role
-    plan?: Plan
-    userType?: UserType | null
-  }
-}
+// NextAuth Session 타입 확장은 types/next-auth.d.ts에서 처리
