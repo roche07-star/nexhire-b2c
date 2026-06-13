@@ -1,6 +1,4 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
+import { auth } from '@/auth'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import Stats from '@/components/Stats'
@@ -15,8 +13,8 @@ import CustomCursor from '@/components/CustomCursor'
 import ScrollReveal from '@/components/ScrollReveal'
 import type { UserType } from '@/types/user'
 
-export default function Home() {
-  const { data: session } = useSession()
+export default async function Home() {
+  const session = await auth()
   const userType: UserType | null | undefined = session?.user?.userType
 
   return (
