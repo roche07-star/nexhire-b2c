@@ -2466,7 +2466,7 @@ function AnalysisResults({
         <div className="result-summary">
           {(() => {
             const labels = ['포지셔닝', '핵심 강점', '커리어 패턴', '시장 제안']
-            const lines = result.summary.split(/\n/).map(s => s.trim()).filter(Boolean)
+            const lines = (result.summary ?? '').split(/\n/).map(s => s.trim()).filter(Boolean)
 
             return lines.map((line, idx) => {
               // 레이블로 시작하는지 확인
