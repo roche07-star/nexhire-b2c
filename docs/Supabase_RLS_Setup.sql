@@ -46,73 +46,119 @@ ON analyses FOR DELETE
 USING (auth.jwt() ->> 'email' = user_email);
 
 -- ========================================
--- 2. usage_logs 테이블 - 사용량 기록
+-- 2. users 테이블 - 사용자 정보 및 사용량
 -- ========================================
 
 -- RLS 활성화
-ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- 기존 정책 삭제 (있을 경우)
-DROP POLICY IF EXISTS "사용자는 본인 사용량만 조회" ON usage_logs;
-DROP POLICY IF EXISTS "사용자는 본인 사용량만 삽입" ON usage_logs;
+DROP POLICY IF EXISTS "사용자는 본인 정보만 조회" ON users;
+DROP POLICY IF EXISTS "사용자는 본인 정보만 수정" ON users;
 
--- SELECT 정책: 본인 사용량만 조회
-CREATE POLICY "사용자는 본인 사용량만 조회"
-ON usage_logs FOR SELECT
-USING (auth.jwt() ->> 'email' = user_email);
+-- SELECT 정책: 본인 정보만 조회
+CREATE POLICY "사용자는 본인 정보만 조회"
+ON users FOR SELECT
+USING (auth.jwt() ->> 'email' = email);
 
--- INSERT 정책: 본인 이메일로만 삽입
-CREATE POLICY "사용자는 본인 사용량만 삽입"
-ON usage_logs FOR INSERT
-WITH CHECK (auth.jwt() ->> 'email' = user_email);
+-- UPDATE 정책: 본인 정보만 수정 (사용량 카운트 업데이트용)
+CREATE POLICY "사용자는 본인 정보만 수정"
+ON users FOR UPDATE
+USING (auth.jwt() ->> 'email' = email);
 
 -- ========================================
--- 3. 관리자 정책 (선택 사항)
+-- 3. 추가 테이블 RLS 정책
+-- ========================================
+
+-- jd_analyses 테이블 - JD 분석 결과
+ALTER TABLE jd_analyses ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "사용자는 본인 JD 분석만 조회" ON jd_analyses;
+DROP POLICY IF EXISTS "사용자는 본인 JD 분석만 삽입" ON jd_analyses;
+DROP POLICY IF EXISTS "사용자는 본인 JD 분석만 삭제" ON jd_analyses;
+
+CREATE POLICY "사용자는 본인 JD 분석만 조회"
+ON jd_analyses FOR SELECT
+USING (auth.jwt() ->> 'email' = user_email);
+
+CREATE POLICY "사용자는 본인 JD 분석만 삽입"
+ON jd_analyses FOR INSERT
+WITH CHECK (auth.jwt() ->> 'email' = user_email);
+
+CREATE POLICY "사용자는 본인 JD 분석만 삭제"
+ON jd_analyses FOR DELETE
+USING (auth.jwt() ->> 'email' = user_email);
+
+-- interview_guides 테이블 - 면접 가이드
+ALTER TABLE interview_guides ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "사용자는 본인 면접 가이드만 조회" ON interview_guides;
+DROP POLICY IF EXISTS "사용자는 본인 면접 가이드만 삽입" ON interview_guides;
+DROP POLICY IF EXISTS "사용자는 본인 면접 가이드만 삭제" ON interview_guides;
+
+CREATE POLICY "사용자는 본인 면접 가이드만 조회"
+ON interview_guides FOR SELECT
+USING (auth.jwt() ->> 'email' = user_email);
+
+CREATE POLICY "사용자는 본인 면접 가이드만 삽입"
+ON interview_guides FOR INSERT
+WITH CHECK (auth.jwt() ->> 'email' = user_email);
+
+CREATE POLICY "사용자는 본인 면접 가이드만 삭제"
+ON interview_guides FOR DELETE
+USING (auth.jwt() ->> 'email' = user_email);
+
+-- ========================================
+-- 4. 관리자 정책 (선택 사항)
 -- ========================================
 -- 관리자가 모든 데이터를 볼 수 있도록 허용
 -- CTO 이메일: roche07he@gmail.com
 
 -- analyses 테이블 - 관리자 조회
-CREATE POLICY "관리자는 모든 데이터 조회 가능"
+CREATE POLICY "관리자는 모든 이력서 분석 조회 가능"
 ON analyses FOR SELECT
 USING (auth.jwt() ->> 'email' = 'roche07he@gmail.com');
 
--- usage_logs 테이블 - 관리자 조회
-CREATE POLICY "관리자는 모든 사용량 조회 가능"
-ON usage_logs FOR SELECT
+-- jd_analyses 테이블 - 관리자 조회
+CREATE POLICY "관리자는 모든 JD 분석 조회 가능"
+ON jd_analyses FOR SELECT
+USING (auth.jwt() ->> 'email' = 'roche07he@gmail.com');
+
+-- interview_guides 테이블 - 관리자 조회
+CREATE POLICY "관리자는 모든 면접 가이드 조회 가능"
+ON interview_guides FOR SELECT
+USING (auth.jwt() ->> 'email' = 'roche07he@gmail.com');
+
+-- users 테이블 - 관리자 조회
+CREATE POLICY "관리자는 모든 사용자 정보 조회 가능"
+ON users FOR SELECT
 USING (auth.jwt() ->> 'email' = 'roche07he@gmail.com');
 
 -- ========================================
--- 4. 확인 쿼리
+-- 5. 확인 쿼리
 -- ========================================
 -- 실행 후 아래 쿼리로 정책이 정상적으로 적용되었는지 확인
 
 /*
--- analyses 테이블의 RLS 정책 확인
+-- 모든 테이블의 RLS 정책 확인
 SELECT
   schemaname,
   tablename,
   policyname,
   permissive,
   roles,
-  cmd,
-  qual,
-  with_check
+  cmd
 FROM pg_policies
-WHERE tablename = 'analyses';
+WHERE tablename IN ('analyses', 'users', 'jd_analyses', 'interview_guides')
+ORDER BY tablename, policyname;
 
--- usage_logs 테이블의 RLS 정책 확인
+-- RLS가 활성화된 테이블 확인
 SELECT
   schemaname,
   tablename,
-  policyname,
-  permissive,
-  roles,
-  cmd,
-  qual,
-  with_check
-FROM pg_policies
-WHERE tablename = 'usage_logs';
+  rowsecurity
+FROM pg_tables
+WHERE tablename IN ('analyses', 'users', 'jd_analyses', 'interview_guides');
 */
 
 -- ========================================
