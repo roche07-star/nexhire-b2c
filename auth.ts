@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
 import { supabase } from '@/lib/supabase'
+import type { UserType } from '@/types/user'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -21,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image,
-          ...(isManager ? { plan: 'EXPERT' } : {}),
+          ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
         },
         { onConflict: 'email', ignoreDuplicates: !isManager }
       )
@@ -35,10 +36,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { data } = await supabase
           .from('users')
-          .select('plan')
+          .select('plan, user_type')
           .eq('email', user.email)
           .single()
         token.plan = data?.plan ?? 'FREE'
+        token.userType = data?.user_type ?? null
       }
       return token
     },
@@ -46,6 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.role = token.role as 'MANAGER' | 'USER'
         session.user.plan = token.plan as 'FREE' | 'PRO' | 'EXPERT'
+        session.user.userType = token.userType as UserType | null
       }
       return session
     },
