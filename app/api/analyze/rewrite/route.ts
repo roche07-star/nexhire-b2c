@@ -239,6 +239,26 @@ ${paraList}`
   return { system, user }
 }
 
+function generatePreviewHTML(sections?: Array<{ title: string; content: string }>, rewrites?: string[]): string {
+  if (sections && sections.length > 0) {
+    // Section-based preview (PDF/text path)
+    const sectionsHTML = sections.map(sec => `
+      <div style="margin-bottom: 24px;">
+        <h3 style="color: var(--accent); font-size: 16px; font-weight: 700; margin-bottom: 8px;">${sec.title}</h3>
+        <div style="white-space: pre-wrap; line-height: 1.8;">${sec.content}</div>
+      </div>
+    `).join('')
+    return `<div style="font-family: 'Noto Sans KR', sans-serif;">${sectionsHTML}</div>`
+  } else if (rewrites && rewrites.length > 0) {
+    // Paragraph-based preview (DOCX path)
+    const parasHTML = rewrites.slice(0, 30).map(text => `
+      <p style="margin-bottom: 12px; line-height: 1.8;">${text}</p>
+    `).join('')
+    return `<div style="font-family: 'Noto Sans KR', sans-serif;">${parasHTML}</div>`
+  }
+  return '<p>미리보기를 생성할 수 없습니다.</p>'
+}
+
 function buildCoverLetterPrompts(resumeText: string, jd: JDContext): { system: string; user: string } {
   const pos = jd.position?.trim() || '채용공고 포지션'
   const matchStr = toArr(jd.matching_points).join(' / ')
@@ -355,9 +375,7 @@ export async function POST(req: NextRequest) {
 
     const { data: userData } = await supabase.from('users').select('plan').eq('email', email).single()
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
-    if (plan === 'FREE') {
-      return NextResponse.json({ error: '이력서 생성은 PRO 이상 플랜에서 이용 가능합니다.' }, { status: 403 })
-    }
+
     if (role !== 'MANAGER') {
       const { allowed, limit } = await checkUsage(email, 'rewrite')
       if (!allowed) {
@@ -492,6 +510,8 @@ export async function POST(req: NextRequest) {
         docx: (docxBuffer as Buffer).toString('base64'),
         filename: downloadName,
         changes: tplChanges ?? [],
+        preview: generatePreviewHTML(undefined, rewrites),
+        plan,
       })
     }
 
@@ -629,6 +649,8 @@ export async function POST(req: NextRequest) {
         docx: (docxBuffer as Buffer).toString('base64'),
         filename: downloadName,
         changes: allChanges,
+        preview: generatePreviewHTML(undefined, rewrites),
+        plan,
       })
     }
 
@@ -756,6 +778,8 @@ export async function POST(req: NextRequest) {
       docx: (docxBuffer as Buffer).toString('base64'),
       filename: downloadName,
       changes: sectionChanges,
+      preview: generatePreviewHTML(rewriteData.sections),
+      plan,
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
