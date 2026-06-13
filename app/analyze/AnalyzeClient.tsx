@@ -623,14 +623,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .catch(() => {})
   }, [])
 
-  // PRO/Expert 유저는 마운트 시 분석 목록 미리 로드 (보존 모달용)
+  // 마운트 시 분석 목록 미리 로드 (모든 플랜 - 파일 보존 체크용)
   useEffect(() => {
-    if (!initialIsPro) return
     fetch('/api/analyze/list')
       .then((r) => r.json())
       .then(({ analyses }) => setAnalysisList(analyses ?? []))
       .catch(() => setAnalysisList([]))
-  }, [initialIsPro])
+  }, [])
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
