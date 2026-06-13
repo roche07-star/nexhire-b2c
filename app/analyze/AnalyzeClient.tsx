@@ -1146,16 +1146,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 >
                   <span>📋</span> JD기반 분석
                 </button>
-                {isExpert ? (
+                {isPro || isExpert ? (
                   <button
                     className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
                     onClick={() => onMenuClick('rewrite')}
                   >
-                    <span>✏️</span> 이력서 생성 <span className="tab-expert-badge">EXPERT</span>
+                    <span>✏️</span> 이력서 생성 <span className="tab-expert-badge">PRO+</span>
                   </button>
                 ) : (
                   <button className="analyze-tab-btn disabled" disabled>
-                    <span>✏️</span> 이력서 생성 <span className="tab-soon">준비중</span>
+                    <span>✏️</span> 이력서 생성 <span className="tab-soon">PRO+</span>
                   </button>
                 )}
                 {isExpert ? (
@@ -1167,7 +1167,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </button>
                 ) : (
                   <button className="analyze-tab-btn disabled" disabled>
-                    <span>🎤</span> 면접 가이드 <span className="tab-soon">준비중</span>
+                    <span>🎤</span> 면접 가이드 <span className="tab-soon">EXPERT</span>
                   </button>
                 )}
               </div>
