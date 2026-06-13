@@ -99,6 +99,14 @@ interface SavedJDAnalysis {
   expires_at?: string | null
 }
 
+interface RewriteResult {
+  preview: string // HTML or text preview
+  docx: string // base64 encoded DOCX
+  filename: string
+  changes: string[]
+  plan: 'FREE' | 'PRO' | 'EXPERT'
+}
+
 interface JDTemplate {
   id: string
   company: string
@@ -507,6 +515,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [rewriteLoadingMsg, setRewriteLoadingMsg] = useState<string>('')
   const [rewriteError, setRewriteError] = useState<string | null>(null)
   const [rewriteChanges, setRewriteChanges] = useState<string[]>([])
+  const [rewriteResult, setRewriteResult] = useState<RewriteResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   const [inputMode, setInputMode] = useState<'file' | 'text'>('file')
@@ -805,17 +814,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setRewriteError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      // base64 DOCX 디코드 후 다운로드
-      const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
-      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.download = data.filename ?? 'rewrite.docx'
-      a.href = url
-      a.click()
-      URL.revokeObjectURL(url)
+
+      // 결과 저장 (미리보기용)
+      const result: RewriteResult = {
+        preview: data.preview ?? '미리보기를 사용할 수 없습니다.',
+        docx: data.docx,
+        filename: data.filename ?? 'rewrite.docx',
+        changes: Array.isArray(data.changes) ? data.changes : [],
+        plan: data.plan ?? 'FREE',
+      }
+      setRewriteResult(result)
+
       if (Array.isArray(data.changes) && data.changes.length > 0) {
         setRewriteChanges(data.changes)
+      }
+
+      // PRO 이상만 자동 다운로드
+      if (data.plan === 'PRO' || data.plan === 'EXPERT') {
+        const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.download = data.filename ?? 'rewrite.docx'
+        a.href = url
+        a.click()
+        URL.revokeObjectURL(url)
       }
     } catch {
       setRewriteError('서버 오류가 발생했습니다.')
@@ -824,6 +847,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       setRewritingId(null)
       setRewriteLoadingMsg('')
     }
+  }
+
+  function downloadRewriteResult() {
+    if (!rewriteResult) return
+    const bytes = Uint8Array.from(atob(rewriteResult.docx), c => c.charCodeAt(0))
+    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.download = rewriteResult.filename
+    a.href = url
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   function handleFile(f: File) {
@@ -1146,18 +1181,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 >
                   <span>📋</span> JD기반 분석
                 </button>
-                {isPro || isExpert ? (
-                  <button
-                    className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
-                    onClick={() => onMenuClick('rewrite')}
-                  >
-                    <span>✏️</span> 이력서 생성 <span className="tab-expert-badge">PRO+</span>
-                  </button>
-                ) : (
-                  <button className="analyze-tab-btn disabled" disabled>
-                    <span>✏️</span> 이력서 생성 <span className="tab-soon">PRO+</span>
-                  </button>
-                )}
+                <button
+                  className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
+                  onClick={() => onMenuClick('rewrite')}
+                >
+                  <span>✏️</span> 이력서 생성
+                </button>
                 {isExpert ? (
                   <button
                     className={`analyze-tab-btn${activeMenu === 'interview' ? ' active' : ''}`}
@@ -1385,7 +1414,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               disabled={rewritingId === item.id || noFile || !hasValidJd}
                               title={disabledTitle}
                             >
-                              {rewritingId === item.id ? '생성 중...' : '✏️ 생성 이력서 다운로드'}
+                              {rewritingId === item.id ? '생성 중...' : '✏️ 이력서 생성'}
                             </button>
                             {rewritingId === item.id && rewriteLoadingMsg && (
                               <div className="rewrite-loading-msg">{rewriteLoadingMsg}</div>
@@ -1393,6 +1422,72 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           </div>
                         )
                       })}
+                  </div>
+                )}
+
+                {/* 생성된 이력서 미리보기 */}
+                {rewriteResult && (
+                  <div className="rewrite-result-section">
+                    <div className="jd-list-title" style={{ marginTop: 32 }}>✨ 생성된 이력서</div>
+
+                    <div className="analyze-download-wrap">
+                      {rewriteResult.plan === 'FREE' ? (
+                        <>
+                          <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--muted)' }}>
+                            <p>✏️ 이력서가 생성되었습니다!<br />
+                            아래에서 내용을 확인하실 수 있지만,<br />
+                            <strong>DOCX 다운로드는 PRO 플랜 이상</strong>에서 제공됩니다.</p>
+                          </div>
+                          <button
+                            onClick={() => window.location.href = '/store'}
+                            style={{
+                              background: 'var(--accent)',
+                              color: '#000',
+                              width: '100%',
+                              marginBottom: '16px'
+                            }}
+                          >
+                            ✨ PRO 플랜으로 업그레이드 →
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={downloadRewriteResult}
+                          style={{
+                            background: 'var(--accent)',
+                            color: '#000',
+                            width: '100%',
+                            marginBottom: '16px'
+                          }}
+                        >
+                          ↓ DOCX 파일 다운로드
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="rewrite-preview" style={{
+                      background: 'var(--bg2)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '12px',
+                      padding: '24px',
+                      marginTop: '16px',
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: '1.8',
+                      fontSize: '14px'
+                    }}>
+                      <div dangerouslySetInnerHTML={{ __html: rewriteResult.preview }} />
+                    </div>
+
+                    <button
+                      onClick={() => setRewriteResult(null)}
+                      style={{
+                        marginTop: '16px',
+                        width: '100%'
+                      }}
+                      className="btn-ghost"
+                    >
+                      ← 목록으로 돌아가기
+                    </button>
                   </div>
                 )}
               </div>
