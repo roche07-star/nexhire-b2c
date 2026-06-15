@@ -864,7 +864,7 @@ function CandidateCard({
         {/* 점수 & 액션 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>적합도</div>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>직무 적합도</div>
             <div
               style={{
                 fontSize: 24,
