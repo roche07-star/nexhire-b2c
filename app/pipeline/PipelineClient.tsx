@@ -707,11 +707,18 @@ function CandidateCard({
             ) : (
               <>
                 <h3
-                  style={{ fontSize: 18, fontWeight: 600, margin: 0, cursor: 'pointer' }}
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 600,
+                    margin: 0,
+                    cursor: 'pointer',
+                    color: '#1a1a1a',
+                    minWidth: 100,
+                  }}
                   onClick={() => onStartEditName(candidate.id, candidate.name)}
                   title="클릭하여 이름 수정"
                 >
-                  {candidate.name}
+                  {candidate.name || '이름 없음'}
                 </h3>
                 <button
                   onClick={() => onStartEditName(candidate.id, candidate.name)}

@@ -75,7 +75,7 @@ export async function GET(request: Request) {
 
     // 데이터 가공
     let candidates = (data || []).map((item: any) => {
-      let name = '익명'
+      let name = '미정'
       let position = '미정'
       let score = 0
       let phone = ''
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 
       try {
         const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-        name = result?.name || result?.candidateName || '미정'
+        name = result?.candidate_name || result?.name || result?.candidateName || '미정'
         position = result?.position || result?.targetPosition || result?.job_title || '미정'
         score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
         phone = result?.phone || result?.contact?.phone || ''
