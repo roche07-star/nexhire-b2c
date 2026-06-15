@@ -316,15 +316,23 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   // JD 분석 함수들
   const startJdAnalysis = () => {
-    setState((prev) => ({
-      ...prev,
-      jd: {
-        isAnalyzing: true,
-        isCompleted: false,
-        resultId: null,
-        startedAt: Date.now(),
-      },
-    }))
+    setState((prev) => {
+      // 이력서 분석 큐가 있거나 진행 중이면 대기
+      if (prev.resume.isAnalyzing || prev.resume.queue.length > 0) {
+        console.log('[AnalysisContext] JD 분석 대기: 이력서 분석 큐 완료 후 실행')
+        return prev
+      }
+
+      return {
+        ...prev,
+        jd: {
+          isAnalyzing: true,
+          isCompleted: false,
+          resultId: null,
+          startedAt: Date.now(),
+        },
+      }
+    })
   }
 
   const completeJdAnalysis = (resultId: string) => {
@@ -353,15 +361,23 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   // 이력서 생성 함수들
   const startRewrite = () => {
-    setState((prev) => ({
-      ...prev,
-      rewrite: {
-        isAnalyzing: true,
-        isCompleted: false,
-        resultId: null,
-        startedAt: Date.now(),
-      },
-    }))
+    setState((prev) => {
+      // 이력서 분석 큐가 있거나 진행 중이거나, JD 분석이 진행 중이면 대기
+      if (prev.resume.isAnalyzing || prev.resume.queue.length > 0 || prev.jd.isAnalyzing) {
+        console.log('[AnalysisContext] 이력서 생성 대기: 이력서 분석 & JD 분석 완료 후 실행')
+        return prev
+      }
+
+      return {
+        ...prev,
+        rewrite: {
+          isAnalyzing: true,
+          isCompleted: false,
+          resultId: null,
+          startedAt: Date.now(),
+        },
+      }
+    })
   }
 
   const completeRewrite = (resultId: string) => {
