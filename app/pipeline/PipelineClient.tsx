@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface Candidate {
   id: string
@@ -13,7 +14,6 @@ interface Candidate {
   stage: string
   createdAt: string
   notes: Array<{ id: string; note: string; created_at: string }>
-  tags: string[]
 }
 
 interface PipelineClientProps {
@@ -30,10 +30,11 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
   const [selectedStage, setSelectedStage] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showNoteModal, setShowNoteModal] = useState(false)
-  const [showTagModal, setShowTagModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
   const [noteText, setNoteText] = useState('')
-  const [tagText, setTagText] = useState('')
+  const [editingNameId, setEditingNameId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState('')
 
   const stages = [
     { value: 'all', label: '전체', color: '#64748b' },
@@ -118,6 +119,59 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
     }
   }
 
+  const deleteCandidate = async (candidateId: string) => {
+    if (!confirm('이 후보자를 삭제하시겠습니까?\n분석 결과와 모든 메모가 함께 삭제됩니다.')) return
+
+    try {
+      const res = await fetch(`/api/pipeline/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysisId: candidateId }),
+      })
+
+      if (!res.ok) {
+        throw new Error('삭제에 실패했습니다.')
+      }
+
+      // 로컬 상태 업데이트
+      setCandidates((prev) => prev.filter((c) => c.id !== candidateId))
+      setShowDetailModal(false)
+      setSelectedCandidate(null)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '삭제 실패')
+    }
+  }
+
+  const updateName = async (candidateId: string, newName: string) => {
+    if (!newName.trim()) return
+
+    try {
+      const res = await fetch('/api/pipeline/update-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          analysisId: candidateId,
+          name: newName.trim(),
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('이름 변경에 실패했습니다.')
+      }
+
+      // 로컬 상태 업데이트
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === candidateId ? { ...c, name: newName.trim() } : c
+        )
+      )
+      setEditingNameId(null)
+      setEditingName('')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '이름 변경 실패')
+    }
+  }
+
   const addNote = async () => {
     if (!selectedCandidate || !noteText.trim()) return
 
@@ -178,75 +232,6 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
     }
   }
 
-  const addTag = async () => {
-    if (!selectedCandidate || !tagText.trim()) return
-
-    // 태그 길이 체크
-    if (tagText.trim().length > 20) {
-      alert('태그는 최대 20자까지 입니다.')
-      return
-    }
-
-    // 태그 개수 체크
-    if (selectedCandidate.tags.length >= 5) {
-      alert('태그는 최대 5개까지 추가할 수 있습니다.')
-      return
-    }
-
-    try {
-      const res = await fetch('/api/tags/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          analysisId: selectedCandidate.id,
-          tag: tagText.trim(),
-        }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || '태그 추가에 실패했습니다.')
-      }
-
-      const data = await res.json()
-
-      // 로컬 상태 업데이트
-      setCandidates((prev) =>
-        prev.map((c) =>
-          c.id === selectedCandidate.id
-            ? { ...c, tags: [...c.tags, data.tag.tag] }
-            : c
-        )
-      )
-
-      setTagText('')
-      setShowTagModal(false)
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '태그 추가 실패')
-    }
-  }
-
-  const deleteTag = async (candidateId: string, tagId: string) => {
-    if (!confirm('태그를 삭제하시겠습니까?')) return
-
-    try {
-      const res = await fetch(`/api/tags/${tagId}`, {
-        method: 'DELETE',
-      })
-
-      if (!res.ok) {
-        throw new Error('태그 삭제에 실패했습니다.')
-      }
-
-      // 로컬 상태 업데이트 - tags는 문자열 배열이므로 tagId가 아닌 인덱스로 삭제
-      // API 응답에서 tagId를 받아서 처리해야 하는데, 현재는 문자열 배열만 있음
-      // 임시로 fetchCandidates 재호출
-      await fetchCandidates()
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '태그 삭제 실패')
-    }
-  }
-
   if (loading) {
     return (
       <main style={{ padding: '80px 20px', textAlign: 'center', background: '#fafafa', minHeight: '100vh' }}>
@@ -286,11 +271,32 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
       minHeight: '100vh'
     }}>
       {/* 헤더 */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>파이프라인 관리</h1>
-        <p style={{ color: '#666', fontSize: 16 }}>
-          총 {filteredCandidates.length}명의 후보자
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+        <div>
+          <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>파이프라인 관리</h1>
+          <p style={{ color: '#666', fontSize: 16 }}>
+            총 {filteredCandidates.length}명의 후보자
+          </p>
+        </div>
+        <Link href="/dashboard">
+          <button style={{
+            width: 40,
+            height: 40,
+            background: '#fff',
+            color: '#666',
+            border: '1px solid #e5e7eb',
+            borderRadius: 8,
+            fontSize: 24,
+            fontWeight: 400,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            ✕
+          </button>
+        </Link>
       </div>
 
       {/* 검색 & 필터 */}
@@ -368,16 +374,28 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
               key={candidate.id}
               candidate={candidate}
               onUpdateStage={updateStage}
-              onViewDetail={() => router.push(`/result/${candidate.id}`)}
+              onViewDetail={() => {
+                setSelectedCandidate(candidate)
+                setShowDetailModal(true)
+              }}
               onAddNote={() => {
                 setSelectedCandidate(candidate)
                 setShowNoteModal(true)
               }}
-              onAddTag={() => {
-                setSelectedCandidate(candidate)
-                setShowTagModal(true)
-              }}
               onDeleteNote={deleteNote}
+              onDelete={deleteCandidate}
+              editingNameId={editingNameId}
+              editingName={editingName}
+              onStartEditName={(id, name) => {
+                setEditingNameId(id)
+                setEditingName(name)
+              }}
+              onUpdateName={updateName}
+              onCancelEditName={() => {
+                setEditingNameId(null)
+                setEditingName('')
+              }}
+              setEditingName={setEditingName}
             />
           ))}
         </div>
@@ -473,8 +491,8 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
         </div>
       )}
 
-      {/* 태그 추가 모달 */}
-      {showTagModal && selectedCandidate && (
+      {/* 상세보기 모달 */}
+      {showDetailModal && selectedCandidate && (
         <div
           style={{
             position: 'fixed',
@@ -487,81 +505,81 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
+            padding: 20,
           }}
-          onClick={() => setShowTagModal(false)}
+          onClick={() => setShowDetailModal(false)}
         >
           <div
             style={{
               background: '#fff',
               borderRadius: 12,
-              padding: 24,
-              maxWidth: 400,
-              width: '90%',
+              padding: 32,
+              maxWidth: 800,
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ fontSize: 20, marginBottom: 16, color: '#1a1a1a' }}>
-              태그 추가 - {selectedCandidate.name}
-            </h2>
-            <p style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>
-              현재 태그: {selectedCandidate.tags.length} / 5개
-            </p>
-            <input
-              type="text"
-              value={tagText}
-              onChange={(e) => setTagText(e.target.value)}
-              placeholder="태그 입력 (최대 20자)"
-              maxLength={20}
-              style={{
-                width: '100%',
-                padding: 12,
-                border: '1px solid #e5e7eb',
-                borderRadius: 8,
-                fontSize: 14,
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addTag()
-                }
-              }}
-            />
-            <div style={{ fontSize: 12, color: '#999', marginTop: 8 }}>
-              {tagText.length} / 20자
-            </div>
-            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <h2 style={{ fontSize: 24, margin: 0, color: '#1a1a1a' }}>분석 결과 상세</h2>
               <button
-                onClick={addTag}
-                disabled={!tagText.trim() || selectedCandidate.tags.length >= 5}
+                onClick={() => setShowDetailModal(false)}
                 style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: (tagText.trim() && selectedCandidate.tags.length < 5) ? '#1a1a14' : '#e5e7eb',
-                  color: (tagText.trim() && selectedCandidate.tags.length < 5) ? '#e8ff47' : '#999',
+                  background: 'none',
                   border: 'none',
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: (tagText.trim() && selectedCandidate.tags.length < 5) ? 'pointer' : 'not-allowed',
+                  fontSize: 24,
+                  cursor: 'pointer',
+                  color: '#999',
                 }}
               >
-                추가
+                ×
               </button>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>후보자 정보</div>
+              <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8 }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>이름:</strong> {selectedCandidate.name}</p>
+                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>직무:</strong> {selectedCandidate.position}</p>
+                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>적합도:</strong> {selectedCandidate.score}점</p>
+                {selectedCandidate.email && <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>이메일:</strong> {selectedCandidate.email}</p>}
+                {selectedCandidate.phone && <p style={{ margin: '0', fontSize: 15 }}><strong>전화:</strong> {selectedCandidate.phone}</p>}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={() => {
-                  setShowTagModal(false)
-                  setTagText('')
+                  setShowDetailModal(false)
+                  router.push(`/result/${selectedCandidate.id}`)
                 }}
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: '#fff',
-                  color: '#666',
-                  border: '1px solid #e5e7eb',
+                  background: '#1a1a14',
+                  color: '#e8ff47',
+                  border: 'none',
                   borderRadius: 8,
                   fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
-                취소
+                전체 분석 보기
+              </button>
+              <button
+                onClick={() => deleteCandidate(selectedCandidate.id)}
+                style={{
+                  padding: '12px 24px',
+                  background: '#fff',
+                  color: '#ef4444',
+                  border: '1px solid #ef4444',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                삭제
               </button>
             </div>
           </div>
@@ -576,15 +594,27 @@ function CandidateCard({
   onUpdateStage,
   onViewDetail,
   onAddNote,
-  onAddTag,
   onDeleteNote,
+  onDelete,
+  editingNameId,
+  editingName,
+  onStartEditName,
+  onUpdateName,
+  onCancelEditName,
+  setEditingName,
 }: {
   candidate: Candidate
   onUpdateStage: (id: string, stage: string) => void
   onViewDetail: () => void
   onAddNote: () => void
-  onAddTag: () => void
   onDeleteNote: (candidateId: string, noteId: string) => void
+  onDelete: (candidateId: string) => void
+  editingNameId: string | null
+  editingName: string
+  onStartEditName: (id: string, name: string) => void
+  onUpdateName: (id: string, name: string) => void
+  onCancelEditName: () => void
+  setEditingName: (name: string) => void
 }) {
   const stageColors: Record<string, string> = {
     pending: '#64748b',
@@ -625,7 +655,80 @@ function CandidateCard({
         {/* 후보자 정보 */}
         <div style={{ flex: '1 1 300px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{candidate.name}</h3>
+            {editingNameId === candidate.id ? (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 600,
+                    padding: '4px 8px',
+                    border: '2px solid #3b82f6',
+                    borderRadius: 4,
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      onUpdateName(candidate.id, editingName)
+                    }
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={() => onUpdateName(candidate.id, editingName)}
+                  style={{
+                    padding: '4px 12px',
+                    background: '#3b82f6',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 4,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  저장
+                </button>
+                <button
+                  onClick={onCancelEditName}
+                  style={{
+                    padding: '4px 12px',
+                    background: '#e5e7eb',
+                    color: '#666',
+                    border: 'none',
+                    borderRadius: 4,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3
+                  style={{ fontSize: 18, fontWeight: 600, margin: 0, cursor: 'pointer' }}
+                  onClick={() => onStartEditName(candidate.id, candidate.name)}
+                  title="클릭하여 이름 수정"
+                >
+                  {candidate.name}
+                </h3>
+                <button
+                  onClick={() => onStartEditName(candidate.id, candidate.name)}
+                  style={{
+                    padding: '2px 8px',
+                    background: '#f0f0f0',
+                    border: 'none',
+                    borderRadius: 4,
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    color: '#666',
+                  }}
+                >
+                  ✏️
+                </button>
+              </>
+            )}
             <span
               style={{
                 padding: '4px 10px',
@@ -654,14 +757,14 @@ function CandidateCard({
               style={{
                 fontSize: 24,
                 fontWeight: 700,
-                color: candidate.score >= 70 ? '#22c55e' : '#f97316',
+                color: candidate.score >= 70 ? '#22c55e' : candidate.score >= 50 ? '#f97316' : '#ef4444',
               }}
             >
               {candidate.score}점
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {nextStages[candidate.stage]?.map((nextStage) => (
               <button
                 key={nextStage}
@@ -684,7 +787,7 @@ function CandidateCard({
                   e.currentTarget.style.opacity = '1'
                 }}
               >
-                {stageLabels[nextStage]}로
+                {stageLabels[nextStage]}
               </button>
             ))}
             <button
@@ -700,7 +803,7 @@ function CandidateCard({
                 cursor: 'pointer',
               }}
             >
-              상세보기
+              📄 상세
             </button>
             <button
               onClick={onAddNote}
@@ -718,56 +821,26 @@ function CandidateCard({
               📝 메모
             </button>
             <button
-              onClick={onAddTag}
+              onClick={() => onDelete(candidate.id)}
               style={{
-                padding: '8px 16px',
+                padding: '8px 12px',
                 background: '#fff',
-                color: '#8b5cf6',
-                border: '1px solid #8b5cf6',
+                color: '#ef4444',
+                border: '1px solid #ef4444',
                 borderRadius: 6,
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
-              🏷️ 태그
+              ✕
             </button>
           </div>
         </div>
       </div>
 
-      {/* 태그 & 메모 */}
+      {/* 메모 */}
       <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
-        {/* 태그 */}
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>
-            태그 ({candidate.tags.length}/5)
-          </div>
-          {candidate.tags.length > 0 ? (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {candidate.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    padding: '4px 10px',
-                    background: '#8b5cf615',
-                    color: '#8b5cf6',
-                    border: '1px solid #8b5cf6',
-                    borderRadius: 4,
-                    fontSize: 12,
-                    fontWeight: 500,
-                  }}
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p style={{ fontSize: 12, color: '#999', margin: 0 }}>태그가 없습니다</p>
-          )}
-        </div>
-
-        {/* 메모 */}
         <div>
           <div style={{ fontSize: 13, color: '#666', marginBottom: 8, fontWeight: 500 }}>
             메모 ({candidate.notes.length})
@@ -804,7 +877,7 @@ function CandidateCard({
                         cursor: 'pointer',
                       }}
                     >
-                      삭제
+                      ✕
                     </button>
                   </div>
                 </div>

@@ -83,9 +83,9 @@ export async function GET(request: Request) {
 
       try {
         const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-        name = result?.name || result?.candidateName || '익명'
-        position = result?.position || result?.targetPosition || '미정'
-        score = result?.score || result?.totalScore || 0
+        name = result?.name || result?.candidateName || '미정'
+        position = result?.position || result?.targetPosition || result?.job_title || '미정'
+        score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
         phone = result?.phone || result?.contact?.phone || ''
         email = result?.email || result?.contact?.email || ''
       } catch {
