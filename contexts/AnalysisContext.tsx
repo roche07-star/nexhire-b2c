@@ -19,24 +19,64 @@ interface AnalysisContextType {
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined)
 
-export function AnalysisProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AnalysisState>({
+const STORAGE_KEY = 'jobizic_analysis_state'
+
+// localStorage에서 초기 상태 읽기
+const getInitialState = (): AnalysisState => {
+  if (typeof window === 'undefined') {
+    return {
+      isAnalyzing: false,
+      isCompleted: false,
+      resultId: null,
+      startedAt: null,
+    }
+  }
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (error) {
+    console.error('Failed to load analysis state:', error)
+  }
+
+  return {
     isAnalyzing: false,
     isCompleted: false,
     resultId: null,
     startedAt: null,
-  })
+  }
+}
+
+export function AnalysisProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AnalysisState>(getInitialState)
+
+  // 상태가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      } catch (error) {
+        console.error('Failed to save analysis state:', error)
+      }
+    }
+  }, [state])
 
   // 완료 후 5초 뒤 자동으로 사라지게
   useEffect(() => {
     if (state.isCompleted) {
       const timer = setTimeout(() => {
-        setState({
+        const clearedState = {
           isAnalyzing: false,
           isCompleted: false,
           resultId: null,
           startedAt: null,
-        })
+        }
+        setState(clearedState)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(STORAGE_KEY)
+        }
       }, 5000) // 5초
 
       return () => clearTimeout(timer)
@@ -68,6 +108,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       resultId: null,
       startedAt: null,
     })
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY)
+    }
   }
 
   const goToAnalysis = () => {
