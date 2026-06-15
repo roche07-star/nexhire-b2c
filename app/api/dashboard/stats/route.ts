@@ -107,15 +107,15 @@ export async function GET() {
       .limit(5)
 
     const activities = recentActivity?.map((item: any) => {
-      let name = '익명'
+      let name = '미정'
       let position = '미정'
       let score = 0
 
       try {
         const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-        name = result?.name || result?.candidateName || '익명'
-        position = result?.position || result?.targetPosition || '미정'
-        score = result?.score || result?.totalScore || 0
+        name = result?.candidate_name || result?.name || result?.candidateName || '미정'
+        position = result?.job_title || result?.position || result?.targetPosition || '미정'
+        score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
       } catch {
         // 파싱 실패 시 기본값 사용
       }

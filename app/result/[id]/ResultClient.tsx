@@ -207,16 +207,16 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
       )}
 
       {/* 커리어 경로 */}
-      {result.career_paths && result.career_paths.length > 0 && (
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 20,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}>
-          <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>🚀 커리어 경로</h2>
+      <div style={{
+        background: '#fff',
+        border: '1px solid #e5e7eb',
+        borderRadius: 12,
+        padding: 24,
+        marginBottom: 20,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>🚀 커리어 경로</h2>
+        {result.career_paths && result.career_paths.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {result.career_paths.map((path: any, idx: number) => (
               <div
@@ -249,8 +249,25 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div style={{
+            padding: 40,
+            textAlign: 'center',
+            background: '#fef3c7',
+            borderRadius: 8,
+            border: '1px solid #fde68a',
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#92400e', fontWeight: 600 }}>
+              커리어 경로는 PRO 플랜에서 제공됩니다
+            </p>
+            <p style={{ margin: 0, fontSize: 14, color: '#b45309' }}>
+              {result.plan === 'FREE'
+                ? 'PRO 플랜으로 업그레이드하여 3가지 커리어 경로를 확인하세요!'
+                : '커리어 경로 정보가 없습니다. 다시 분석해주세요.'}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* 하단 버튼 */}
       <div style={{ display: 'flex', gap: 12, marginTop: 32 }}>
