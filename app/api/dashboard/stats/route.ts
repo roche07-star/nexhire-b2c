@@ -98,15 +98,22 @@ export async function GET() {
       })
     }
 
-    // 5. 최근 활동 (최근 5개 분석)
-    const { data: recentActivity } = await supabase
+    // 5. 최근 활동 (이력서 분석 + JD 분석 합쳐서 최근 10개)
+    const { data: recentResumeActivity } = await supabase
       .from('analyses')
       .select('id, result, created_at, pipeline_stage')
       .eq('user_email', email)
       .order('created_at', { ascending: false })
-      .limit(5)
+      .limit(10)
 
-    const activities = recentActivity?.map((item: any) => {
+    const { data: recentJdActivity } = await supabase
+      .from('jd_analyses')
+      .select('id, result, created_at')
+      .eq('user_email', email)
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    const resumeActivities = recentResumeActivity?.map((item: any) => {
       let name = '미정'
       let position = '미정'
       let score = 0
@@ -122,6 +129,7 @@ export async function GET() {
 
       return {
         id: item.id,
+        type: 'resume',
         name,
         position,
         score,
@@ -130,12 +138,44 @@ export async function GET() {
       }
     }) || []
 
+    const jdActivities = recentJdActivity?.map((item: any) => {
+      let name = '미정'
+      let company = '미정'
+      let position = '미정'
+      let score = 0
+
+      try {
+        const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
+        company = result?.company || '미정'
+        position = result?.position || result?.resume_job_title || '미정'
+        score = result?.fit_score || 0
+        name = `${company} - ${position}`
+      } catch {
+        // 파싱 실패 시 기본값 사용
+      }
+
+      return {
+        id: item.id,
+        type: 'jd',
+        name,
+        position,
+        score,
+        stage: 'jd',
+        createdAt: item.created_at,
+      }
+    }) || []
+
+    // 두 활동을 합쳐서 최신순으로 정렬하고 상위 10개만 반환
+    const allActivities = [...resumeActivities, ...jdActivities]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10)
+
     return NextResponse.json({
       totalCandidates: totalCandidates || 0,
       thisMonthAnalyses: thisMonthAnalyses || 0,
       avgScore,
       pipelineCounts,
-      recentActivity: activities,
+      recentActivity: allActivities,
     })
   } catch (error) {
     console.error('Dashboard stats error:', error)

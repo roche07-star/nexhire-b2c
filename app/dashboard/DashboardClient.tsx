@@ -17,6 +17,7 @@ interface DashboardStats {
   }
   recentActivity: Array<{
     id: string
+    type: 'resume' | 'jd'
     name: string
     position: string
     score: number
@@ -246,6 +247,9 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {stats.recentActivity.map((activity) => {
               const isJustCompleted = analysisState.completedIds?.includes(activity.id) || false
+              const isJdAnalysis = activity.type === 'jd'
+              const icon = isJdAnalysis ? '📋' : '📄'
+              const typeLabel = isJdAnalysis ? 'JD 분석' : '이력서 분석'
 
               return (
               <div
@@ -258,25 +262,43 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                   background: isJustCompleted ? '#f0fdf4' : '#fafafa',
                   border: isJustCompleted ? '2px solid #22c55e' : '1px solid #f0f0f0',
                   borderRadius: 8,
-                  cursor: 'pointer',
+                  cursor: isJdAnalysis ? 'default' : 'pointer',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isJustCompleted ? '#dcfce7' : '#f5f5f5'
-                  e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#e5e7eb'
-                  e.currentTarget.style.transform = 'translateX(4px)'
+                  if (!isJdAnalysis) {
+                    e.currentTarget.style.background = isJustCompleted ? '#dcfce7' : '#f5f5f5'
+                    e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#e5e7eb'
+                    e.currentTarget.style.transform = 'translateX(4px)'
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = isJustCompleted ? '#f0fdf4' : '#fafafa'
-                  e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#f0f0f0'
-                  e.currentTarget.style.transform = 'translateX(0)'
+                  if (!isJdAnalysis) {
+                    e.currentTarget.style.background = isJustCompleted ? '#f0fdf4' : '#fafafa'
+                    e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#f0f0f0'
+                    e.currentTarget.style.transform = 'translateX(0)'
+                  }
                 }}
-                onClick={() => router.push(`/result/${activity.id}`)}
+                onClick={() => {
+                  if (!isJdAnalysis) {
+                    router.push(`/result/${activity.id}`)
+                  }
+                }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>📄</span>
+                  <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span>{icon}</span>
                     {activity.name}
+                    <span style={{
+                      padding: '2px 8px',
+                      background: isJdAnalysis ? '#8b5cf6' : '#3b82f6',
+                      color: '#fff',
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}>
+                      {typeLabel}
+                    </span>
                     {isJustCompleted && (
                       <span style={{
                         padding: '2px 8px',
@@ -301,18 +323,20 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                     gap: 12,
                   }}
                 >
-                  <div
-                    style={{
-                      padding: '4px 12px',
-                      background: stageColors[activity.stage] + '20',
-                      color: stageColors[activity.stage],
-                      borderRadius: 6,
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {stageLabels[activity.stage]}
-                  </div>
+                  {!isJdAnalysis && (
+                    <div
+                      style={{
+                        padding: '4px 12px',
+                        background: stageColors[activity.stage] + '20',
+                        color: stageColors[activity.stage],
+                        borderRadius: 6,
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {stageLabels[activity.stage]}
+                    </div>
+                  )}
                   <div
                     style={{
                       fontSize: 18,
