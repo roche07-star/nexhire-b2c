@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
 import Link from 'next/link'
+import { useAnalysis } from '@/contexts/AnalysisContext'
 
 interface CareerPath {
   type: 'BASELINE' | 'RECOMMENDED' | 'STRETCH'
@@ -503,6 +504,7 @@ const REWRITE_LOADING_STEPS = [
 ]
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
+  const { startAnalysis, completeAnalysis, clearAnalysis } = useAnalysis()
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -1142,6 +1144,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setProgress(0)
 
     setLoading(true)
+    startAnalysis() // 백그라운드 분석 뱃지 표시
     loadingStepRef.current = 0
     setLoadingMsg(LOADING_STEPS[0])
 
@@ -1177,6 +1180,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || '알 수 없는 오류가 발생했습니다.')
+        clearAnalysis() // 에러 시 뱃지 제거
       } else {
         setProgress(100) // 완료!
 
@@ -1188,6 +1192,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
         setResult(data)
         setAnalysisId(data._id ?? null)
+        if (data._id) {
+          completeAnalysis(data._id) // 백그라운드 분석 완료 표시
+        }
         setFile(null)
         setResumeText('')
         setAgreed(false)
@@ -1204,6 +1211,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
     } catch {
       setError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
+      clearAnalysis() // 에러 시 뱃지 제거
     } finally {
       if (loadingIntervalRef.current) {
         clearInterval(loadingIntervalRef.current)
