@@ -8,23 +8,41 @@ export default function AnalysisBadge() {
   const router = useRouter()
   const pathname = usePathname()
 
-  if (!state.isAnalyzing && !state.isCompleted) {
+  // 진행 중인 작업 확인
+  const isAnyAnalyzing = state.resume.isAnalyzing || state.jd.isAnalyzing || state.rewrite.isAnalyzing
+  const isAnyCompleted = state.resume.isCompleted || state.jd.isCompleted || state.rewrite.isCompleted
+
+  if (!isAnyAnalyzing && !isAnyCompleted) {
     return null
   }
 
-  const handleClick = () => {
-    if (state.isAnalyzing) {
-      // 분석 중일 때: 이미 /analyze에 있다면 아무것도 안 함
-      if (pathname !== '/analyze') {
-        router.push('/analyze')
-      }
-    } else if (state.resultId) {
-      // 완료되었을 때: 결과 페이지로 이동
-      router.push(`/result/${state.resultId}`)
-    }
+  // 우선순위: 이력서 분석 > 이력서 생성 > JD 분석
+  let currentTask = ''
+  let currentColor = '#3b82f6'
+  let queueCount = 0
+
+  if (state.resume.isAnalyzing || state.resume.isCompleted) {
+    currentTask = state.resume.isAnalyzing ? '이력서 분석 중' : '이력서 분석 완료!'
+    currentColor = state.resume.isCompleted ? '#22c55e' : '#3b82f6'
+    queueCount = state.resume.queue.length
+  } else if (state.rewrite.isAnalyzing || state.rewrite.isCompleted) {
+    currentTask = state.rewrite.isAnalyzing ? '이력서 생성 중' : '이력서 생성 완료!'
+    currentColor = state.rewrite.isCompleted ? '#22c55e' : '#8b5cf6'
+  } else if (state.jd.isAnalyzing || state.jd.isCompleted) {
+    currentTask = state.jd.isAnalyzing ? 'JD 분석 중' : 'JD 분석 완료!'
+    currentColor = state.jd.isCompleted ? '#22c55e' : '#f97316'
   }
 
-  const queueCount = state.queue?.length || 0
+  const handleClick = () => {
+    // 분석 중이면 /analyze로 이동
+    if (isAnyAnalyzing && pathname !== '/analyze') {
+      router.push('/analyze')
+    }
+    // 완료되었으면 결과 페이지로 이동
+    else if (state.resume.isCompleted && state.resume.resultId) {
+      router.push(`/result/${state.resume.resultId}`)
+    }
+  }
 
   return (
     <div
@@ -32,7 +50,7 @@ export default function AnalysisBadge() {
       style={{
         position: 'relative',
         padding: '8px 16px',
-        background: state.isCompleted ? '#22c55e' : '#3b82f6',
+        background: currentColor,
         color: '#fff',
         borderRadius: 20,
         fontSize: 13,
@@ -51,7 +69,7 @@ export default function AnalysisBadge() {
         e.currentTarget.style.transform = 'scale(1)'
       }}
     >
-      {state.isAnalyzing && (
+      {isAnyAnalyzing && (
         <>
           <div
             style={{
@@ -63,13 +81,13 @@ export default function AnalysisBadge() {
               animation: 'spin 1s linear infinite',
             }}
           />
-          <span>분석 중{queueCount > 0 ? `(+${queueCount})` : '...'}</span>
+          <span>{currentTask}{queueCount > 0 ? ` (+${queueCount})` : '...'}</span>
         </>
       )}
-      {state.isCompleted && (
+      {!isAnyAnalyzing && isAnyCompleted && (
         <>
           <span>✓</span>
-          <span>분석 완료!{queueCount > 0 ? ` (+${queueCount}개 대기)` : ''}</span>
+          <span>{currentTask}{queueCount > 0 ? ` (+${queueCount}개 대기)` : ''}</span>
         </>
       )}
       <style jsx>{`
