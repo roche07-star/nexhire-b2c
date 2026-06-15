@@ -103,6 +103,7 @@ export async function GET(request: Request) {
         createdAt: item.created_at,
         notes: item.candidate_notes || [],
         tags: (item.candidate_tags || []).map((t: any) => t.tag),
+        result: typeof item.result === 'string' ? JSON.parse(item.result) : item.result,
       }
     })
 

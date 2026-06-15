@@ -14,6 +14,7 @@ interface Candidate {
   stage: string
   createdAt: string
   notes: Array<{ id: string; note: string; created_at: string }>
+  result?: any
 }
 
 interface PipelineClientProps {
@@ -537,8 +538,9 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
               </button>
             </div>
 
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>후보자 정보</div>
+            {/* 후보자 정보 */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>기본 정보</div>
               <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8 }}>
                 <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
                   <strong style={{ color: '#1a1a1a' }}>이름:</strong> {selectedCandidate.name || '미정'}
@@ -547,7 +549,13 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
                   <strong style={{ color: '#1a1a1a' }}>직무:</strong> {selectedCandidate.position || '미정'}
                 </p>
                 <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
-                  <strong style={{ color: '#1a1a1a' }}>적합도:</strong> {selectedCandidate.score || 0}점
+                  <strong style={{ color: '#1a1a1a' }}>적합도:</strong>{' '}
+                  <span style={{
+                    fontWeight: 700,
+                    color: selectedCandidate.score >= 70 ? '#22c55e' : selectedCandidate.score >= 50 ? '#f97316' : '#ef4444'
+                  }}>
+                    {selectedCandidate.score || 0}점
+                  </span>
                 </p>
                 {selectedCandidate.email && (
                   <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
@@ -561,6 +569,85 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
                 )}
               </div>
             </div>
+
+            {/* 분석 요약 */}
+            {selectedCandidate.result?.summary && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>📝 분석 요약</div>
+                <div style={{ background: '#f0f9ff', padding: 16, borderRadius: 8, border: '1px solid #bfdbfe' }}>
+                  <p style={{ margin: 0, fontSize: 14, color: '#1e40af', lineHeight: 1.6 }}>
+                    {selectedCandidate.result.summary}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* 강점 (상위 3개) */}
+            {selectedCandidate.result?.strengths && selectedCandidate.result.strengths.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>✅ 주요 강점</div>
+                <div style={{ background: '#f0fdf4', padding: 16, borderRadius: 8, border: '1px solid #bbf7d0' }}>
+                  <ul style={{ margin: 0, paddingLeft: 20, color: '#15803d' }}>
+                    {selectedCandidate.result.strengths.slice(0, 3).map((item: string, idx: number) => (
+                      <li key={idx} style={{ marginBottom: idx < 2 ? 8 : 0, fontSize: 14 }}>{item}</li>
+                    ))}
+                  </ul>
+                  {selectedCandidate.result.strengths.length > 3 && (
+                    <p style={{ margin: '12px 0 0 0', fontSize: 13, color: '#16a34a', fontStyle: 'italic' }}>
+                      + {selectedCandidate.result.strengths.length - 3}개 더...
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 개선점 (상위 3개) */}
+            {selectedCandidate.result?.improvements && selectedCandidate.result.improvements.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>⚠️ 개선 필요</div>
+                <div style={{ background: '#fef2f2', padding: 16, borderRadius: 8, border: '1px solid #fecaca' }}>
+                  <ul style={{ margin: 0, paddingLeft: 20, color: '#b91c1c' }}>
+                    {selectedCandidate.result.improvements.slice(0, 3).map((item: string, idx: number) => (
+                      <li key={idx} style={{ marginBottom: idx < 2 ? 8 : 0, fontSize: 14 }}>{item}</li>
+                    ))}
+                  </ul>
+                  {selectedCandidate.result.improvements.length > 3 && (
+                    <p style={{ margin: '12px 0 0 0', fontSize: 13, color: '#dc2626', fontStyle: 'italic' }}>
+                      + {selectedCandidate.result.improvements.length - 3}개 더...
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 키워드 (상위 5개) */}
+            {selectedCandidate.result?.keywords && selectedCandidate.result.keywords.length > 0 && (
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>🏷️ 핵심 키워드</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {selectedCandidate.result.keywords.slice(0, 5).map((keyword: string, idx: number) => (
+                    <span
+                      key={idx}
+                      style={{
+                        padding: '6px 12px',
+                        background: '#f3f4f6',
+                        border: '1px solid #d1d5db',
+                        borderRadius: 6,
+                        fontSize: 13,
+                        color: '#374151',
+                      }}
+                    >
+                      {keyword}
+                    </span>
+                  ))}
+                  {selectedCandidate.result.keywords.length > 5 && (
+                    <span style={{ padding: '6px 12px', fontSize: 13, color: '#9ca3af' }}>
+                      +{selectedCandidate.result.keywords.length - 5}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: 12 }}>
               <button
