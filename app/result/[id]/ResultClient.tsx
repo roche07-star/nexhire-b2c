@@ -215,7 +215,7 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
         marginBottom: 20,
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
       }}>
-        <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>🚀 커리어 경로</h2>
+        <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>📊 커리어 경로</h2>
         {result.career_paths && result.career_paths.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {result.career_paths.map((path: any, idx: number) => (
@@ -231,7 +231,7 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
                 <h3 style={{ fontSize: 16, marginBottom: 8, color: '#1a1a1a' }}>
                   {path.type === 'BASELINE' && '🔵 기본 경로'}
                   {path.type === 'RECOMMENDED' && '⭐ 추천 경로'}
-                  {path.type === 'STRETCH' && '🚀 도전 경로'}
+                  {path.type === 'STRETCH' && '📈 도전 경로'}
                 </h3>
                 <p style={{ color: '#666', fontSize: 14, marginBottom: 12 }}>{path.description}</p>
                 {path.milestones && path.milestones.length > 0 && (
