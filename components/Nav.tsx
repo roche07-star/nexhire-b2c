@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import MyInfoButton from './MyInfoModal'
 import LogoutButton from './LogoutButton'
 import AnalysisBadge from './AnalysisBadge'
+import NavLinks from './NavLinks'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,22 +28,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
       </Link>
       {!minimal && (
         <ul className="nav-links">
-          {user && (user.plan === 'PRO' || user.plan === 'EXPERT') ? (
-            <>
-              <li><Link href="/dashboard" style={{ color: '#e8ff47', fontWeight: 600 }}>대시보드</Link></li>
-              <li><Link href="/analyze">분석</Link></li>
-              <li><a href="/#faq">FAQ</a></li>
-              <li><Link href="/store">Store</Link></li>
-            </>
-          ) : (
-            <>
-              <li><a href="/#how">사용법</a></li>
-              <li><a href="/#features">기능</a></li>
-              <li><a href="/#pricing">가격</a></li>
-              <li><a href="/#faq">FAQ</a></li>
-              <li><Link href="/store">Store</Link></li>
-            </>
-          )}
+          <NavLinks isPro={!!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))} />
         </ul>
       )}
       <div className="nav-cta">
