@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { auth } from '@/auth'
 import MyInfoButton from './MyInfoModal'
 import LogoutButton from './LogoutButton'
+import AnalysisBadge from './AnalysisBadge'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,6 +38,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
         </ul>
       )}
       <div className="nav-cta">
+        <AnalysisBadge />
         {user ? (
           <div className="nav-user">
             {user.image && (
