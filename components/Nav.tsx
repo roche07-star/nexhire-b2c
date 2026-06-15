@@ -27,13 +27,20 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
       </Link>
       {!minimal && (
         <ul className="nav-links">
-          <li><a href="/#how">사용법</a></li>
-          <li><a href="/#features">기능</a></li>
-          <li><a href="/#pricing">가격</a></li>
-          <li><a href="/#faq">FAQ</a></li>
-          <li><Link href="/store">Store</Link></li>
-          {user && (user.plan === 'PRO' || user.plan === 'EXPERT') && (
-            <li><Link href="/dashboard" style={{ color: '#e8ff47', fontWeight: 600 }}>대시보드</Link></li>
+          {user && (user.plan === 'PRO' || user.plan === 'EXPERT') ? (
+            <>
+              <li><Link href="/dashboard" style={{ color: '#e8ff47', fontWeight: 600 }}>대시보드</Link></li>
+              <li><Link href="/analyze">분석</Link></li>
+              <li><Link href="/store">Store</Link></li>
+            </>
+          ) : (
+            <>
+              <li><a href="/#how">사용법</a></li>
+              <li><a href="/#features">기능</a></li>
+              <li><a href="/#pricing">가격</a></li>
+              <li><a href="/#faq">FAQ</a></li>
+              <li><Link href="/store">Store</Link></li>
+            </>
           )}
         </ul>
       )}
