@@ -66,11 +66,11 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
   }
 
   const stageColors: Record<string, string> = {
-    pending: '#94a3b8',
-    screening: '#60a5fa',
-    interview: '#a78bfa',
-    final: '#f59e0b',
-    completed: '#10b981',
+    pending: '#64748b',
+    screening: '#3b82f6',
+    interview: '#8b5cf6',
+    final: '#f97316',
+    completed: '#22c55e',
   }
 
   if (loading) {
@@ -107,10 +107,16 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
   }
 
   return (
-    <main style={{ padding: '80px 20px 40px', maxWidth: 1200, margin: '0 auto' }}>
+    <main style={{
+      padding: '80px 20px 40px',
+      maxWidth: 1200,
+      margin: '0 auto',
+      background: '#fafafa',
+      minHeight: '100vh'
+    }}>
       {/* 헤더 */}
       <div style={{ marginBottom: 40 }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8 }}>PRO 대시보드</h1>
+        <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>PRO 대시보드</h1>
         <p style={{ color: '#666', fontSize: 16 }}>
           {userEmail} · {userPlan} 플랜
         </p>
@@ -129,19 +135,19 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           title="총 후보자"
           value={stats.totalCandidates}
           suffix="명"
-          color="#60a5fa"
+          color="#3b82f6"
         />
         <StatCard
           title="이번 달 분석"
           value={stats.thisMonthAnalyses}
           suffix="건"
-          color="#a78bfa"
+          color="#8b5cf6"
         />
         <StatCard
           title="평균 적합도"
           value={stats.avgScore}
           suffix="점"
-          color="#f59e0b"
+          color="#f97316"
         />
       </div>
 
@@ -153,16 +159,17 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           borderRadius: 12,
           padding: 24,
           marginBottom: 40,
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <h2 style={{ fontSize: 20, marginBottom: 20 }}>파이프라인 현황</h2>
+        <h2 style={{ fontSize: 20, marginBottom: 20, color: '#1a1a1a', fontWeight: 600 }}>파이프라인 현황</h2>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {Object.entries(stats.pipelineCounts).map(([stage, count]) => (
             <div
               key={stage}
               style={{
                 flex: '1 1 140px',
-                background: stageColors[stage] + '15',
+                background: stageColors[stage] + '10',
                 border: `2px solid ${stageColors[stage]}`,
                 borderRadius: 8,
                 padding: '16px 12px',
@@ -171,9 +178,10 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
             >
               <div
                 style={{
-                  fontSize: 14,
+                  fontSize: 13,
                   color: '#666',
                   marginBottom: 8,
+                  fontWeight: 500,
                 }}
               >
                 {stageLabels[stage]}
@@ -194,12 +202,23 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           onClick={() => router.push('/pipeline')}
           style={{
             marginTop: 20,
-            padding: '10px 20px',
-            background: '#e8ff47',
+            padding: '12px 24px',
+            background: '#1a1a14',
+            color: '#e8ff47',
             border: 'none',
-            borderRadius: 6,
+            borderRadius: 8,
             fontWeight: 600,
             cursor: 'pointer',
+            fontSize: 15,
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#2a2a24'
+            e.currentTarget.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#1a1a14'
+            e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
           파이프라인 관리 →
@@ -213,9 +232,10 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           border: '1px solid #e5e7eb',
           borderRadius: 12,
           padding: 24,
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <h2 style={{ fontSize: 20, marginBottom: 20 }}>최근 활동</h2>
+        <h2 style={{ fontSize: 20, marginBottom: 20, color: '#1a1a1a', fontWeight: 600 }}>최근 활동</h2>
         {stats.recentActivity.length === 0 ? (
           <p style={{ color: '#666', textAlign: 'center', padding: 40 }}>
             아직 분석한 이력서가 없습니다.
@@ -230,9 +250,21 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: 16,
-                  background: '#f9fafb',
+                  background: '#fafafa',
+                  border: '1px solid #f0f0f0',
                   borderRadius: 8,
                   cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f5f5f5'
+                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.transform = 'translateX(4px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#fafafa'
+                  e.currentTarget.style.borderColor = '#f0f0f0'
+                  e.currentTarget.style.transform = 'translateX(0)'
                 }}
                 onClick={() => router.push(`/result/${activity.id}`)}
               >
@@ -300,14 +332,24 @@ function StatCard({
         border: '1px solid #e5e7eb',
         borderRadius: 12,
         padding: 24,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}
     >
-      <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>
+      <div style={{ fontSize: 14, color: '#666', marginBottom: 8, fontWeight: 500 }}>
         {title}
       </div>
       <div style={{ fontSize: 36, fontWeight: 700, color }}>
         {value}
-        <span style={{ fontSize: 18, marginLeft: 4 }}>{suffix}</span>
+        <span style={{ fontSize: 18, marginLeft: 4, color: '#666' }}>{suffix}</span>
       </div>
     </div>
   )
