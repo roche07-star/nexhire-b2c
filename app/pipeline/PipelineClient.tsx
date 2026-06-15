@@ -540,11 +540,25 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>후보자 정보</div>
               <div style={{ background: '#f9fafb', padding: 16, borderRadius: 8 }}>
-                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>이름:</strong> {selectedCandidate.name}</p>
-                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>직무:</strong> {selectedCandidate.position}</p>
-                <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>적합도:</strong> {selectedCandidate.score}점</p>
-                {selectedCandidate.email && <p style={{ margin: '0 0 8px 0', fontSize: 15 }}><strong>이메일:</strong> {selectedCandidate.email}</p>}
-                {selectedCandidate.phone && <p style={{ margin: '0', fontSize: 15 }}><strong>전화:</strong> {selectedCandidate.phone}</p>}
+                <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
+                  <strong style={{ color: '#1a1a1a' }}>이름:</strong> {selectedCandidate.name || '미정'}
+                </p>
+                <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
+                  <strong style={{ color: '#1a1a1a' }}>직무:</strong> {selectedCandidate.position || '미정'}
+                </p>
+                <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
+                  <strong style={{ color: '#1a1a1a' }}>적합도:</strong> {selectedCandidate.score || 0}점
+                </p>
+                {selectedCandidate.email && (
+                  <p style={{ margin: '0 0 8px 0', fontSize: 15, color: '#333' }}>
+                    <strong style={{ color: '#1a1a1a' }}>이메일:</strong> {selectedCandidate.email}
+                  </p>
+                )}
+                {selectedCandidate.phone && (
+                  <p style={{ margin: '0', fontSize: 15, color: '#333' }}>
+                    <strong style={{ color: '#1a1a1a' }}>전화:</strong> {selectedCandidate.phone}
+                  </p>
+                )}
               </div>
             </div>
 
