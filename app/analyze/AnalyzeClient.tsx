@@ -571,6 +571,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [shareUrl, setShareUrl] = useState<string | null>(null) // 생성된 공유 URL
   const [searchQuery, setSearchQuery] = useState('') // 분석 목록 검색어
   const [minScore, setMinScore] = useState(0) // 최소 점수 필터
+  const [fileQueue, setFileQueue] = useState<File[]>([]) // 파일 큐
 
   // ── 면접 가이드
   const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
@@ -1112,8 +1113,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     win.document.write(html)
     win.document.close()
   }
-
-  const [fileQueue, setFileQueue] = useState<File[]>([])
 
   function handleFile(f: File) {
     setFile(f)

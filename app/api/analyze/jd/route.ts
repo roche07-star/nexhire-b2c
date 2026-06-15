@@ -95,6 +95,11 @@ export async function POST(req: NextRequest) {
     }
 
     const a = analysisResult as Record<string, unknown>
+
+    // 안전한 배열 변환
+    const toArr = (v: unknown): string[] =>
+      Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
+
     const careerSummary = Array.isArray(a.career_paths)
       ? (a.career_paths as Array<{ type: string; title: string; salary_range: string }>)
           .map((p) => `${p.type}: ${p.title} (${p.salary_range})`)
@@ -104,9 +109,9 @@ export async function POST(req: NextRequest) {
     const candidateProfile = `
 직무: ${(a.job_title as string) ?? '미상'}
 종합 요약: ${(a.summary as string) ?? ''}
-핵심 강점: ${((a.strengths as string[]) ?? []).join(' / ')}
-개선 필요: ${((a.improvements as string[]) ?? []).join(' / ')}
-핵심 키워드: ${((a.keywords as string[]) ?? []).join(', ')}
+핵심 강점: ${toArr(a.strengths).join(' / ')}
+개선 필요: ${toArr(a.improvements).join(' / ')}
+핵심 키워드: ${toArr(a.keywords).join(', ')}
 ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
 `.trim()
 
