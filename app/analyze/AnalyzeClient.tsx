@@ -606,6 +606,28 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .catch(() => {})
   }, [])
 
+  // 자동 큐 처리: 분석 완료 후 다음 파일 자동 분석
+  useEffect(() => {
+    // 조건: 분석 중이 아니고, 큐에 파일이 있고, 현재 파일이 없을 때
+    if (!loading && fileQueue.length > 0 && !file && !result) {
+      const timer = setTimeout(() => {
+        const [nextFile, ...remainingQueue] = fileQueue
+        setFileQueue(remainingQueue)
+        setFile(nextFile)
+        setAgreed(true)
+
+        // 다음 분석 자동 시작
+        setTimeout(() => {
+          if (!loading) { // 다시 한 번 체크
+            onAnalyze()
+          }
+        }, 1000)
+      }, 2000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [loading, fileQueue, file, result])
+
   // 브라우저 알림 권한 요청
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -1226,23 +1248,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           completeAnalysis(data._id) // 백그라운드 분석 완료 표시
         }
 
-        // 큐에 다음 파일이 있으면 자동으로 분석 시작
-        if (fileQueue.length > 0) {
-          setTimeout(() => {
-            const [nextFile, ...remainingQueue] = fileQueue
-            setFileQueue(remainingQueue)
-            setFile(nextFile)
-            setAgreed(true) // 자동으로 동의
-            // 1초 후 자동 분석 시작
-            setTimeout(() => {
-              onAnalyze()
-            }, 1000)
-          }, 2000) // 2초 대기 후 다음 파일 처리
-        } else {
-          setFile(null)
-          setResumeText('')
-          setAgreed(false)
-        }
+        // 파일 초기화 (큐 처리는 useEffect에서)
+        setFile(null)
+        setResumeText('')
+        setAgreed(false)
         fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
         fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
