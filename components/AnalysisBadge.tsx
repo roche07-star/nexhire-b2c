@@ -1,17 +1,32 @@
 'use client'
 
 import { useAnalysis } from '@/contexts/AnalysisContext'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function AnalysisBadge() {
-  const { state, goToAnalysis } = useAnalysis()
+  const { state } = useAnalysis()
+  const router = useRouter()
+  const pathname = usePathname()
 
   if (!state.isAnalyzing && !state.isCompleted) {
     return null
   }
 
+  const handleClick = () => {
+    if (state.isAnalyzing) {
+      // 분석 중일 때: 이미 /analyze에 있다면 아무것도 안 함
+      if (pathname !== '/analyze') {
+        router.push('/analyze')
+      }
+    } else if (state.resultId) {
+      // 완료되었을 때: 결과 페이지로 이동
+      router.push(`/result/${state.resultId}`)
+    }
+  }
+
   return (
     <div
-      onClick={goToAnalysis}
+      onClick={handleClick}
       style={{
         position: 'relative',
         padding: '8px 16px',
