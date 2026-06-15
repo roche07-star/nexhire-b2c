@@ -146,10 +146,10 @@ export async function GET() {
 
       try {
         const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
+        name = result?.candidate_name || '미정'
         company = result?.company || '미정'
         position = result?.position || result?.resume_job_title || '미정'
         score = result?.fit_score || 0
-        name = `${company} - ${position}`
       } catch {
         // 파싱 실패 시 기본값 사용
       }
@@ -158,7 +158,7 @@ export async function GET() {
         id: item.id,
         type: 'jd',
         name,
-        position,
+        position: `${company} - ${position}`,
         score,
         stage: 'jd',
         createdAt: item.created_at,

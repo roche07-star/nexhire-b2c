@@ -259,6 +259,7 @@ ${candidateProfile}`
       ...(toolUse.input as object),
       company,
       position: position?.trim() || null,
+      candidate_name: (a.candidate_name as string) ?? (a.name as string) ?? '미정',
       resume_job_title: (a.job_title as string) ?? null,
       resume_analyzed_at: new Date().toISOString(),
     }

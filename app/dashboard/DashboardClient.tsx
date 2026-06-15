@@ -337,14 +337,19 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                       {stageLabels[activity.stage]}
                     </div>
                   )}
-                  <div
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: activity.score >= 70 ? '#10b981' : '#f59e0b',
-                    }}
-                  >
-                    {activity.score}점
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>
+                      {isJdAnalysis ? 'JD 적합도' : '직무 적합도'}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: activity.score >= 70 ? '#10b981' : '#f59e0b',
+                      }}
+                    >
+                      {activity.score}점
+                    </div>
                   </div>
                 </div>
               </div>
