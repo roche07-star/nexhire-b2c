@@ -244,116 +244,176 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
             아직 분석한 이력서가 없습니다.
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {stats.recentActivity.map((activity) => {
-              const isJustCompleted = analysisState.completedIds?.includes(activity.id) || false
-              const isJdAnalysis = activity.type === 'jd'
-              const icon = isJdAnalysis ? '📋' : '📄'
-              const typeLabel = isJdAnalysis ? 'JD 분석' : '이력서 분석'
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {(() => {
+              // 동일인 그룹화
+              const grouped = stats.recentActivity.reduce((acc: any, activity) => {
+                if (!acc[activity.name]) {
+                  acc[activity.name] = {
+                    name: activity.name,
+                    resume: null,
+                    jdAnalyses: [],
+                    latestDate: activity.createdAt
+                  }
+                }
+                if (activity.type === 'resume') {
+                  acc[activity.name].resume = activity
+                } else {
+                  acc[activity.name].jdAnalyses.push(activity)
+                }
+                if (new Date(activity.createdAt) > new Date(acc[activity.name].latestDate)) {
+                  acc[activity.name].latestDate = activity.createdAt
+                }
+                return acc
+              }, {})
 
-              return (
-              <div
-                key={activity.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: 16,
-                  background: isJustCompleted ? '#f0fdf4' : '#fafafa',
-                  border: isJustCompleted ? '2px solid #22c55e' : '1px solid #f0f0f0',
-                  borderRadius: 8,
-                  cursor: isJdAnalysis ? 'default' : 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isJdAnalysis) {
-                    e.currentTarget.style.background = isJustCompleted ? '#dcfce7' : '#f5f5f5'
-                    e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#e5e7eb'
-                    e.currentTarget.style.transform = 'translateX(4px)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isJdAnalysis) {
-                    e.currentTarget.style.background = isJustCompleted ? '#f0fdf4' : '#fafafa'
-                    e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#f0f0f0'
-                    e.currentTarget.style.transform = 'translateX(0)'
-                  }
-                }}
-                onClick={() => {
-                  if (!isJdAnalysis) {
-                    router.push(`/result/${activity.id}`)
-                  }
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span>{icon}</span>
-                    {activity.name}
-                    <span style={{
-                      padding: '2px 8px',
-                      background: isJdAnalysis ? '#8b5cf6' : '#3b82f6',
-                      color: '#fff',
-                      borderRadius: 4,
-                      fontSize: 11,
-                      fontWeight: 700,
-                    }}>
-                      {typeLabel}
-                    </span>
-                    {isJustCompleted && (
-                      <span style={{
-                        padding: '2px 8px',
-                        background: '#22c55e',
-                        color: '#fff',
-                        borderRadius: 4,
-                        fontSize: 11,
-                        fontWeight: 700,
-                      }}>
-                        완료!
-                      </span>
+              const sortedGroups = Object.values(grouped).sort((a: any, b: any) =>
+                new Date(b.latestDate).getTime() - new Date(a.latestDate).getTime()
+              )
+
+              return sortedGroups.map((group: any, idx: number) => {
+                const isJustCompleted = group.resume && analysisState.completedIds?.includes(group.resume.id)
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: 16,
+                      background: isJustCompleted ? '#f0fdf4' : '#fafafa',
+                      border: isJustCompleted ? '2px solid #22c55e' : '1px solid #f0f0f0',
+                      borderRadius: 8,
+                    }}
+                  >
+                    {/* 이름 */}
+                    <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 12, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {group.name}
+                      {isJustCompleted && (
+                        <span style={{
+                          padding: '2px 8px',
+                          background: '#22c55e',
+                          color: '#fff',
+                          borderRadius: 4,
+                          fontSize: 11,
+                          fontWeight: 700,
+                        }}>
+                          완료!
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 이력서 분석 */}
+                    {group.resume && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: 12,
+                          background: '#fff',
+                          borderRadius: 6,
+                          marginBottom: group.jdAnalyses.length > 0 ? 8 : 0,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                        onClick={() => router.push(`/result/${group.resume.id}`)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#f5f5f5'
+                          e.currentTarget.style.transform = 'translateX(2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#fff'
+                          e.currentTarget.style.transform = 'translateX(0)'
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <span>📄</span>
+                            <span style={{
+                              padding: '2px 8px',
+                              background: '#3b82f6',
+                              color: '#fff',
+                              borderRadius: 4,
+                              fontSize: 11,
+                              fontWeight: 700,
+                            }}>
+                              이력서 분석
+                            </span>
+                            <span style={{
+                              padding: '2px 8px',
+                              background: stageColors[group.resume.stage] + '20',
+                              color: stageColors[group.resume.stage],
+                              borderRadius: 4,
+                              fontSize: 11,
+                              fontWeight: 600,
+                            }}>
+                              {stageLabels[group.resume.stage]}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 14, color: '#666' }}>
+                            {group.resume.position}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>직무 적합도</div>
+                          <div style={{
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: group.resume.score >= 70 ? '#10b981' : '#f59e0b',
+                          }}>
+                            {group.resume.score}점
+                          </div>
+                        </div>
+                      </div>
                     )}
+
+                    {/* JD 분석들 */}
+                    {group.jdAnalyses.map((jd: any, jdIdx: number) => (
+                      <div
+                        key={jdIdx}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: 12,
+                          background: '#fff',
+                          borderRadius: 6,
+                          marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 8 : 0,
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <span>📋</span>
+                            <span style={{
+                              padding: '2px 8px',
+                              background: '#8b5cf6',
+                              color: '#fff',
+                              borderRadius: 4,
+                              fontSize: 11,
+                              fontWeight: 700,
+                            }}>
+                              JD 분석
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 14, color: '#666' }}>
+                            {jd.position}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>JD 적합도</div>
+                          <div style={{
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: jd.score >= 70 ? '#10b981' : '#f59e0b',
+                          }}>
+                            {jd.score}점
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div style={{ fontSize: 14, color: '#666' }}>
-                    {activity.position}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
-                  {!isJdAnalysis && (
-                    <div
-                      style={{
-                        padding: '4px 12px',
-                        background: stageColors[activity.stage] + '20',
-                        color: stageColors[activity.stage],
-                        borderRadius: 6,
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {stageLabels[activity.stage]}
-                    </div>
-                  )}
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>
-                      {isJdAnalysis ? 'JD 적합도' : '직무 적합도'}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: activity.score >= 70 ? '#10b981' : '#f59e0b',
-                      }}
-                    >
-                      {activity.score}점
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )})}
+                )
+              })
+            })()}
           </div>
         )}
       </div>
