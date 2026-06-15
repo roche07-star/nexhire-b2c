@@ -815,10 +815,14 @@ function CandidateCard({
                     cursor: 'pointer',
                     color: '#1a1a1a',
                     minWidth: 100,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
                   }}
                   onClick={() => onStartEditName(candidate.id, candidate.name)}
                   title="클릭하여 이름 수정"
                 >
+                  <span>📄</span>
                   {candidate.name || '이름 없음'}
                 </h3>
                 <button

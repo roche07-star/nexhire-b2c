@@ -275,6 +275,7 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>📄</span>
                     {activity.name}
                     {isJustCompleted && (
                       <span style={{
@@ -285,7 +286,7 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                         fontSize: 11,
                         fontWeight: 700,
                       }}>
-                        분석 완료!
+                        완료!
                       </span>
                     )}
                   </div>
