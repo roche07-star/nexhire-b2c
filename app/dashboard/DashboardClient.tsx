@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAnalysis } from '@/contexts/AnalysisContext'
 
 interface DashboardStats {
   totalCandidates: number
@@ -31,6 +32,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ userEmail, userPlan }: DashboardClientProps) {
   const router = useRouter()
+  const { state: analysisState } = useAnalysis()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -242,7 +244,10 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {stats.recentActivity.map((activity) => (
+            {stats.recentActivity.map((activity) => {
+              const isJustCompleted = analysisState.completedIds?.includes(activity.id) || false
+
+              return (
               <div
                 key={activity.id}
                 style={{
@@ -250,27 +255,39 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: 16,
-                  background: '#fafafa',
-                  border: '1px solid #f0f0f0',
+                  background: isJustCompleted ? '#f0fdf4' : '#fafafa',
+                  border: isJustCompleted ? '2px solid #22c55e' : '1px solid #f0f0f0',
                   borderRadius: 8,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f5f5f5'
-                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.background = isJustCompleted ? '#dcfce7' : '#f5f5f5'
+                  e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#e5e7eb'
                   e.currentTarget.style.transform = 'translateX(4px)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#fafafa'
-                  e.currentTarget.style.borderColor = '#f0f0f0'
+                  e.currentTarget.style.background = isJustCompleted ? '#f0fdf4' : '#fafafa'
+                  e.currentTarget.style.borderColor = isJustCompleted ? '#22c55e' : '#f0f0f0'
                   e.currentTarget.style.transform = 'translateX(0)'
                 }}
                 onClick={() => router.push(`/result/${activity.id}`)}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                     {activity.name}
+                    {isJustCompleted && (
+                      <span style={{
+                        padding: '2px 8px',
+                        background: '#22c55e',
+                        color: '#fff',
+                        borderRadius: 4,
+                        fontSize: 11,
+                        fontWeight: 700,
+                      }}>
+                        분석 완료!
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: 14, color: '#666' }}>
                     {activity.position}
@@ -306,7 +323,7 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>
