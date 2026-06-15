@@ -24,7 +24,7 @@ export default function AnalysisBadge() {
     }
   }
 
-  const queueCount = state.queue.length
+  const queueCount = state.queue?.length || 0
 
   return (
     <div

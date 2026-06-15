@@ -35,28 +35,7 @@ const STORAGE_KEY = 'jobizic_analysis_state'
 
 // localStorage에서 초기 상태 읽기
 const getInitialState = (): AnalysisState => {
-  if (typeof window === 'undefined') {
-    return {
-      isAnalyzing: false,
-      isCompleted: false,
-      resultId: null,
-      startedAt: null,
-      queue: [],
-      currentFileName: null,
-      completedIds: [],
-    }
-  }
-
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      return JSON.parse(saved)
-    }
-  } catch (error) {
-    console.error('Failed to load analysis state:', error)
-  }
-
-  return {
+  const defaultState: AnalysisState = {
     isAnalyzing: false,
     isCompleted: false,
     resultId: null,
@@ -65,6 +44,32 @@ const getInitialState = (): AnalysisState => {
     currentFileName: null,
     completedIds: [],
   }
+
+  if (typeof window === 'undefined') {
+    return defaultState
+  }
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // 이전 버전 호환성: 필수 필드가 없으면 기본값 사용
+      return {
+        ...defaultState,
+        ...parsed,
+        queue: Array.isArray(parsed.queue) ? parsed.queue : [],
+        completedIds: Array.isArray(parsed.completedIds) ? parsed.completedIds : [],
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load analysis state:', error)
+    // 에러 발생 시 localStorage 초기화
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }
+
+  return defaultState
 }
 
 export function AnalysisProvider({ children }: { children: ReactNode }) {
@@ -83,7 +88,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   // 완료 후 5초 뒤 자동으로 사라지게 (큐가 비어있을 때만)
   useEffect(() => {
-    if (state.isCompleted && state.queue.length === 0) {
+    if (state.isCompleted && (!state.queue || state.queue.length === 0)) {
       const timer = setTimeout(() => {
         const clearedState: AnalysisState = {
           isAnalyzing: false,
@@ -106,7 +111,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   // 분석 완료 시 자동으로 다음 큐 처리
   useEffect(() => {
-    if (state.isCompleted && state.queue.length > 0) {
+    if (state.isCompleted && state.queue && state.queue.length > 0) {
       // 잠시 후 다음 분석 시작
       const timer = setTimeout(() => {
         processQueue()
