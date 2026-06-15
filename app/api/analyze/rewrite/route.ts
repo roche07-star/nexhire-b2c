@@ -466,7 +466,7 @@ export async function POST(req: NextRequest) {
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 6000,
+        max_tokens: 5000,
         system: [{
           type: 'text',
           text: prompts.system,
@@ -605,7 +605,7 @@ export async function POST(req: NextRequest) {
       const [message, clContent] = await Promise.all([
         client.messages.create({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 6000,
+          max_tokens: 5000,
           system: [{
             type: 'text',
             text: prompts.system,

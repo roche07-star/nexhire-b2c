@@ -26,7 +26,7 @@ const jdTool: Anthropic.Tool = {
       },
       company_insight: {
         type: 'string',
-        description: '회사 특성 요약 — 규모·업종·조직 문화·최근 이슈 등 (웹 검색 결과 또는 JD 문맥 기반, 2-3문장)',
+        description: '회사 특성 요약 — 규모·업종·조직 문화 등 (JD 문맥 및 회사명에서 추론, 2-3문장)',
       },
       jd_interpretation: {
         type: 'string',
@@ -117,32 +117,6 @@ ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}
 
     const positionLine = position?.trim() ? `포지션: ${position.trim()}\n` : ''
 
-    // 웹 검색으로 회사 실시간 정보 수집
-    let companyInfo = ''
-    try {
-      const searchMsg = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 600,
-        tools: [{ type: 'web_search_20250305' as const, name: 'web_search', max_uses: 2 }],
-        messages: [{
-          role: 'user',
-          content: `"${company}" 회사 정보를 웹에서 검색해줘.${position?.trim() ? ` 채용 포지션: "${position}"` : ''} 다음을 한국어로 간결하게 요약해줘:
-- 회사 규모, 업종, 주요 사업 영역
-- 최근 주요 뉴스·이슈 (1~2개)
-- 조직 문화, 직원 평판 (Glassdoor·블라인드 등 참고)
-- 해당 포지션에서 실제로 요구되는 것으로 보이는 역량/환경 특이사항
-없는 정보는 생략하고 확인된 내용만 써줘.`,
-        }],
-      })
-      const text = searchMsg.content
-        .filter((c): c is Anthropic.TextBlock => c.type === 'text')
-        .map(c => c.text)
-        .join('\n')
-      if (text.trim()) companyInfo = text.trim()
-    } catch (err) {
-      console.error('[analyze/jd] web search error (non-fatal):', err)
-    }
-
     const systemPrompt = `${BASE_HEADHUNTER_ROLE}
 
 목적은 단 하나입니다: "이 후보자를 이 JD에 넣을 수 있는가?"
@@ -199,7 +173,7 @@ STEP 4 — 매칭 판정 + 제안 전략
 - fit_score: STEP 3 결과 종합 점수 (위 점수 기준 적용)
 - recommendation: APPLY / CONSIDER / SKIP
 - verdict: "이 후보자는 [강점]이 강점이나, [리스크] 부분이 리스크입니다. [제안 포지셔닝]으로 제안합니다." — 한 문장, 날카롭게
-- company_insight: 회사 규모·업종·조직 문화·최근 이슈 등 핵심 정보를 2-3문장으로 요약. 웹 검색 결과가 있으면 반드시 반영하고, 없으면 JD 문맥에서 추론
+- company_insight: 회사 규모·업종·조직 문화 등 핵심 정보를 2-3문장으로 요약. JD 문맥 및 회사명에서 추론
 - jd_interpretation: JD 문서에 명시되지 않은 숨은 요구역량과 이 포지션의 실제 맥락을 2-3문장으로 해석. STEP 1의 숨은 요구 역량 분석 결과를 활용
 - matching_points: 필수✅ + 우대✅ + 숨은요구✅ 항목 (구체적 근거 포함, 3개)
 - gaps: 필수❌/△ + 예상 클라이언트 우려 사항 (2-3개, 솔직하게)
@@ -213,10 +187,8 @@ JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 
     const userContent = client_comment
       ? `[채용 회사]
 ${company}
-${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
-${companyInfo}
-
-` : ''}[JD]
+${positionLine}
+[JD]
 ${jd}
 
 [후보자 이력서 분석 결과]
@@ -233,10 +205,8 @@ ${client_comment}
 - gaps, pitch_points에 코멘트 내용 통합`
       : `[채용 회사]
 ${company}
-${positionLine}${companyInfo ? `[웹 검색 — 회사 실제 정보]
-${companyInfo}
-
-` : ''}[JD]
+${positionLine}
+[JD]
 ${jd}
 
 [후보자 이력서 분석 결과]
