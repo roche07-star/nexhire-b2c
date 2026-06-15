@@ -24,6 +24,8 @@ export default function AnalysisBadge() {
     }
   }
 
+  const queueCount = state.queue.length
+
   return (
     <div
       onClick={handleClick}
@@ -61,13 +63,13 @@ export default function AnalysisBadge() {
               animation: 'spin 1s linear infinite',
             }}
           />
-          <span>분석 중...</span>
+          <span>분석 중{queueCount > 0 ? `(+${queueCount})` : '...'}</span>
         </>
       )}
       {state.isCompleted && (
         <>
           <span>✓</span>
-          <span>분석 완료!</span>
+          <span>분석 완료!{queueCount > 0 ? ` (+${queueCount}개 대기)` : ''}</span>
         </>
       )}
       <style jsx>{`

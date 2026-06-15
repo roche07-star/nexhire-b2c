@@ -2,19 +2,31 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
+interface QueueItem {
+  id: string
+  fileName: string
+  addedAt: number
+}
+
 interface AnalysisState {
   isAnalyzing: boolean
   isCompleted: boolean
   resultId: string | null
   startedAt: number | null
+  queue: QueueItem[]
+  currentFileName: string | null
+  completedIds: string[]
 }
 
 interface AnalysisContextType {
   state: AnalysisState
-  startAnalysis: () => void
+  startAnalysis: (fileName?: string) => void
   completeAnalysis: (resultId: string) => void
   clearAnalysis: () => void
   goToAnalysis: () => void
+  addToQueue: (fileName: string) => string
+  removeFromQueue: (id: string) => void
+  processQueue: () => void
 }
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined)
@@ -29,6 +41,9 @@ const getInitialState = (): AnalysisState => {
       isCompleted: false,
       resultId: null,
       startedAt: null,
+      queue: [],
+      currentFileName: null,
+      completedIds: [],
     }
   }
 
@@ -46,6 +61,9 @@ const getInitialState = (): AnalysisState => {
     isCompleted: false,
     resultId: null,
     startedAt: null,
+    queue: [],
+    currentFileName: null,
+    completedIds: [],
   }
 }
 
@@ -63,15 +81,18 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     }
   }, [state])
 
-  // 완료 후 5초 뒤 자동으로 사라지게
+  // 완료 후 5초 뒤 자동으로 사라지게 (큐가 비어있을 때만)
   useEffect(() => {
-    if (state.isCompleted) {
+    if (state.isCompleted && state.queue.length === 0) {
       const timer = setTimeout(() => {
-        const clearedState = {
+        const clearedState: AnalysisState = {
           isAnalyzing: false,
           isCompleted: false,
           resultId: null,
           startedAt: null,
+          queue: [],
+          currentFileName: null,
+          completedIds: [],
         }
         setState(clearedState)
         if (typeof window !== 'undefined') {
@@ -81,15 +102,70 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
       return () => clearTimeout(timer)
     }
-  }, [state.isCompleted])
+  }, [state.isCompleted, state.queue.length])
 
-  const startAnalysis = () => {
-    setState({
+  // 분석 완료 시 자동으로 다음 큐 처리
+  useEffect(() => {
+    if (state.isCompleted && state.queue.length > 0) {
+      // 잠시 후 다음 분석 시작
+      const timer = setTimeout(() => {
+        processQueue()
+      }, 1000) // 1초 대기 후 다음 분석
+
+      return () => clearTimeout(timer)
+    }
+  }, [state.isCompleted, state.queue.length])
+
+  const addToQueue = (fileName: string): string => {
+    const id = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const newItem: QueueItem = {
+      id,
+      fileName,
+      addedAt: Date.now(),
+    }
+
+    setState((prev) => ({
+      ...prev,
+      queue: [...prev.queue, newItem],
+    }))
+
+    return id
+  }
+
+  const removeFromQueue = (id: string) => {
+    setState((prev) => ({
+      ...prev,
+      queue: prev.queue.filter((item) => item.id !== id),
+    }))
+  }
+
+  const processQueue = () => {
+    setState((prev) => {
+      if (prev.queue.length === 0) return prev
+
+      const [nextItem, ...remainingQueue] = prev.queue
+
+      return {
+        ...prev,
+        isAnalyzing: true,
+        isCompleted: false,
+        resultId: null,
+        startedAt: Date.now(),
+        queue: remainingQueue,
+        currentFileName: nextItem.fileName,
+      }
+    })
+  }
+
+  const startAnalysis = (fileName?: string) => {
+    setState((prev) => ({
+      ...prev,
       isAnalyzing: true,
       isCompleted: false,
       resultId: null,
       startedAt: Date.now(),
-    })
+      currentFileName: fileName || null,
+    }))
   }
 
   const completeAnalysis = (resultId: string) => {
@@ -98,6 +174,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       isAnalyzing: false,
       isCompleted: true,
       resultId,
+      completedIds: [...prev.completedIds, resultId],
     }))
   }
 
@@ -107,6 +184,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       isCompleted: false,
       resultId: null,
       startedAt: null,
+      queue: [],
+      currentFileName: null,
+      completedIds: [],
     })
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY)
@@ -129,6 +209,9 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         completeAnalysis,
         clearAnalysis,
         goToAnalysis,
+        addToQueue,
+        removeFromQueue,
+        processQueue,
       }}
     >
       {children}

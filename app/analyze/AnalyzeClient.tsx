@@ -504,7 +504,7 @@ const REWRITE_LOADING_STEPS = [
 ]
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
-  const { startAnalysis, completeAnalysis, clearAnalysis } = useAnalysis()
+  const { state: analysisState, startAnalysis, completeAnalysis, clearAnalysis, addToQueue, processQueue } = useAnalysis()
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -1091,21 +1091,51 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     win.document.close()
   }
 
+  const [fileQueue, setFileQueue] = useState<File[]>([])
+
   function handleFile(f: File) {
     setFile(f)
     setError(null)
   }
 
+  function handleMultipleFiles(files: FileList) {
+    const filesArray = Array.from(files)
+
+    if (filesArray.length === 0) return
+
+    // 첫 번째 파일은 바로 설정
+    setFile(filesArray[0])
+    setError(null)
+
+    // 나머지 파일들은 큐에 추가
+    if (filesArray.length > 1) {
+      const remainingFiles = filesArray.slice(1)
+      setFileQueue(prev => [...prev, ...remainingFiles])
+
+      // AnalysisContext 큐에도 추가
+      remainingFiles.forEach(file => {
+        addToQueue(file.name)
+      })
+
+      // 알림
+      alert(`${filesArray[0].name} 외 ${remainingFiles.length}개 파일이 큐에 추가되었습니다.\n순차적으로 자동 분석됩니다.`)
+    }
+  }
+
   function onDrop(e: DragEvent<HTMLDivElement>) {
     e.preventDefault()
     setDragging(false)
-    const f = e.dataTransfer.files[0]
-    if (f) handleFile(f)
+    const files = e.dataTransfer.files
+    if (files && files.length > 0) {
+      handleMultipleFiles(files)
+    }
   }
 
   function onFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0]
-    if (f) handleFile(f)
+    const files = e.target.files
+    if (files && files.length > 0) {
+      handleMultipleFiles(files)
+    }
   }
 
   async function onAnalyze() {
@@ -1195,9 +1225,24 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         if (data._id) {
           completeAnalysis(data._id) // 백그라운드 분석 완료 표시
         }
-        setFile(null)
-        setResumeText('')
-        setAgreed(false)
+
+        // 큐에 다음 파일이 있으면 자동으로 분석 시작
+        if (fileQueue.length > 0) {
+          setTimeout(() => {
+            const [nextFile, ...remainingQueue] = fileQueue
+            setFileQueue(remainingQueue)
+            setFile(nextFile)
+            setAgreed(true) // 자동으로 동의
+            // 1초 후 자동 분석 시작
+            setTimeout(() => {
+              onAnalyze()
+            }, 1000)
+          }, 2000) // 2초 대기 후 다음 파일 처리
+        } else {
+          setFile(null)
+          setResumeText('')
+          setAgreed(false)
+        }
         fetch('/api/coupons/mine').then(r => r.json()).then(({ coupons }) => { if (coupons) setMyCoupons(coupons) }).catch(() => {})
         fetch('/api/analyze/list').then(r => r.json()).then(({ analyses }) => setAnalysisList(analyses ?? [])).catch(() => {})
         if (data.plan === 'PRO' || data.plan === 'EXPERT') {
@@ -2277,6 +2322,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       ref={inputRef}
                       type="file"
                       accept=".pdf,.docx"
+                      multiple
                       style={{ display: 'none' }}
                       onChange={onFileChange}
                     />
