@@ -272,7 +272,7 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
               )
 
               return sortedGroups.map((group: any, idx: number) => {
-                const isJustCompleted = group.resume && analysisState.completedIds?.includes(group.resume.id)
+                const isJustCompleted = group.resume && analysisState.resume.completedIds?.includes(group.resume.id)
 
                 return (
                   <div
