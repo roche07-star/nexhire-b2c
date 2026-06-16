@@ -814,6 +814,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     if (jdChoice === 'cancel') return
     const jdAnalysisId = validJds.length > 0 ? (jdChoice as string) : null
 
+    // 백그라운드 분석 시작
+    startRewrite()
+
     setRewritingId(analysisId)
     setRewriteChanges([])
     setRewriteError(null)
@@ -840,6 +843,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setRewriteError(data.error ?? '오류가 발생했습니다.')
+        clearRewrite() // 에러 시 백그라운드 분석 취소
         return
       }
 
@@ -852,6 +856,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         plan: data.plan ?? 'FREE',
       }
       setRewriteResult(result)
+
+      // 백그라운드 분석 완료
+      completeRewrite('rewrite-temp') // 이력서 생성은 별도 저장 없으므로 임시 ID
 
       // localStorage에 저장 (재접속 시 표시용) - 사용자별로 구분
       try {
@@ -888,6 +895,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
     } catch {
       setRewriteError('서버 오류가 발생했습니다.')
+      clearRewrite() // 에러 시 백그라운드 분석 취소
     } finally {
       clearInterval(rewriteInterval)
       setRewritingId(null)
@@ -1407,6 +1415,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
   async function onJDAnalyze() {
     if (!jdCompany.trim() || !jdContent.trim()) return
+
+    // 백그라운드 분석 시작
+    startJdAnalysis()
+
     setJdLoading(true)
     setJdError(null)
     setJdResult(null)
@@ -1431,8 +1443,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const data = await res.json()
       if (!res.ok) {
         setJdError(data.error || '알 수 없는 오류가 발생했습니다.')
+        clearJdAnalysis() // 에러 시 백그라운드 분석 취소
       } else {
         setJdResult(data)
+        // 백그라운드 분석 완료
+        completeJdAnalysis('jd-temp') // JD 분석은 별도 저장 없으므로 임시 ID
         setTimeout(() => jdTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
         // 저장 목록 갱신
         fetch('/api/analyze/jd/list')
@@ -1442,6 +1457,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
     } catch {
       setJdError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.')
+      clearJdAnalysis() // 에러 시 백그라운드 분석 취소
     } finally {
       if (jdLoadingIntervalRef.current) {
         clearInterval(jdLoadingIntervalRef.current)
