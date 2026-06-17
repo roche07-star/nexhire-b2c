@@ -57,10 +57,10 @@ export async function GET() {
         .eq('user_email', email)
         .gte('created_at', firstDayOfMonth.toISOString()),
 
-      // 3. 평균 적합도 계산용 (최근 50개만)
+      // 3. 평균 적합도 계산용 (정규화된 score 컬럼 사용 - 최근 50개만)
       supabase
         .from('analyses')
-        .select('result')
+        .select('score, result')
         .eq('user_email', email)
         .order('created_at', { ascending: false })
         .limit(50),
@@ -71,10 +71,10 @@ export async function GET() {
         .select('pipeline_stage')
         .eq('user_email', email),
 
-      // 5. 최근 이력서 분석 활동
+      // 5. 최근 이력서 분석 활동 (정규화된 필드 사용)
       supabase
         .from('analyses')
-        .select('id, result, created_at, pipeline_stage')
+        .select('id, candidate_name, position, score, result, created_at, pipeline_stage')
         .eq('user_email', email)
         .order('created_at', { ascending: false })
         .limit(10),
@@ -91,12 +91,17 @@ export async function GET() {
     const totalCandidates = totalCandidatesResult.count
     const thisMonthAnalyses = thisMonthAnalysesResult.count
 
-    // 평균 적합도 계산
+    // 평균 적합도 계산 (정규화된 score 컬럼 직접 사용)
     let avgScore = 0
     const recentAnalyses = recentAnalysesResult.data
     if (recentAnalyses && recentAnalyses.length > 0) {
       const scores = recentAnalyses
         .map((a: any) => {
+          // 정규화된 score 컬럼 우선 사용
+          if (a.score !== null && a.score !== undefined && a.score > 0) {
+            return a.score
+          }
+          // Fallback: 마이그레이션 전 또는 score가 0인 경우
           try {
             const result = typeof a.result === 'string' ? JSON.parse(a.result) : a.result
             return result?.score || result?.totalScore || 0
@@ -134,17 +139,27 @@ export async function GET() {
     const recentJdActivity = recentJdActivityResult.data
 
     const resumeActivities = recentResumeActivity?.map((item: any) => {
-      let name = '미정'
-      let position = '미정'
-      let score = 0
+      // 정규화된 컬럼 직접 사용 (JSON 파싱 불필요!)
+      let name = item.candidate_name || '미정'
+      let position = item.position || '미정'
+      let score = item.score || 0
 
-      try {
-        const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-        name = result?.candidate_name || result?.name || result?.candidateName || '미정'
-        position = result?.job_title || result?.position || result?.targetPosition || '미정'
-        score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
-      } catch {
-        // 파싱 실패 시 기본값 사용
+      // Fallback: 마이그레이션 전 또는 컬럼이 null인 경우만 파싱
+      if (name === '미정' || position === '미정' || score === 0) {
+        try {
+          const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
+          if (name === '미정') {
+            name = result?.candidate_name || result?.name || result?.candidateName || '미정'
+          }
+          if (position === '미정') {
+            position = result?.job_title || result?.position || result?.targetPosition || '미정'
+          }
+          if (score === 0) {
+            score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
+          }
+        } catch {
+          // 파싱 실패 시 기본값 유지
+        }
       }
 
       return {

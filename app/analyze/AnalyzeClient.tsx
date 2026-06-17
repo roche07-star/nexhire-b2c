@@ -504,7 +504,20 @@ const REWRITE_LOADING_STEPS = [
 ]
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
-  const { state: analysisState, startAnalysis, completeAnalysis, clearAnalysis, addToQueue, processQueue } = useAnalysis()
+  const {
+    state: analysisState,
+    startAnalysis,
+    completeAnalysis,
+    clearAnalysis,
+    addToQueue,
+    processQueue,
+    startJdAnalysis,
+    completeJdAnalysis,
+    clearJdAnalysis,
+    startRewrite,
+    completeRewrite,
+    clearRewrite
+  } = useAnalysis()
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
