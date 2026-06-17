@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, OUTPUT_RULES } from '@/lib/prompts/base-headhunter'
+import { invalidateCache } from '@/lib/cache'
 
 export const maxDuration = 60
 
@@ -257,6 +258,9 @@ ${candidateProfile}`
       console.error('[analyze/jd] DB insert error:', insertError)
       return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
     }
+
+    // 캐시 무효화 (Dashboard 통계 갱신)
+    await invalidateCache(`dashboard:stats:${session.user.email}`)
 
     return NextResponse.json(resultPayload)
   } catch (e) {

@@ -1,0 +1,39 @@
+
+> jobizic_next@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.219.102:3000
+- Environments: .env.local
+✓ Ready in 1924ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (c:\project\nexhire_b2c\.next\dev\server\edge\chunks\node_modules_@auth_core_13co38r._.js:513:16)
+    at Auth (c:\project\nexhire_b2c\.next\dev\server\edge\chunks\node_modules_@auth_core_13co38r._.js:5345:210)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (c:\project\nexhire_b2c\.next\dev\server\chunks\node_modules_@auth_core_0mqqeto._.js:513:16)
+    at Auth (c:\project\nexhire_b2c\.next\dev\server\chunks\node_modules_@auth_core_0mqqeto._.js:5344:204)
+ GET /api/dashboard/stats 401 in 4.1s (next.js: 3.9s, proxy.ts: 165ms, application-code: 54ms)
+
+<--- Last few GCs --->
+
+[7880:00000197FEE2A000]  2097402 ms: Scavenge (interleaved) 7822.3 (7976.6) -> 7815.2 (7981.4) MB, pooled: 0 MB, 263.69 / 0.00 ms  (average mu = 0.140, current mu = 0.076) allocation failure; 
+[7880:00000197FEE2A000]  2107978 ms: Mark-Compact 7830.9 (7984.9) -> 7806.8 (7977.8) MB, pooled: 2 MB, 10416.62 / 28.46 ms  (average mu = 0.098, current mu = 0.066) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 00007FF6DF8633D7 node::SetCppgcReference+21127
+ 2: 00007FF6DF7C38AB v8::base::CPU::num_virtual_address_bits+102331
+ 3: 00007FF6E03CC281 v8::Isolate::ReportExternalAllocationLimitReached+65
+ 4: 00007FF6E03B8D46 v8::Function::Experimental_IsNopFunction+3302
+ 5: 00007FF6E02154A0 v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+33904
+ 6: 00007FF6E020E8EA v8::internal::StrongRootAllocatorBase::StrongRootAllocatorBase+6330
+ 7: 00007FF6E020A125 v8::CpuProfileNode::GetScriptResourceNameStr+190613
+ 8: 00007FF6DFB93DCD BIO_ssl_shutdown+189
+[?25h

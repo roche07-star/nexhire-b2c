@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
 import { VALIDATION_PROMPT, ValidationResult } from '@/lib/prompts/validation'
+import { invalidateCache } from '@/lib/cache'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
@@ -539,6 +540,9 @@ ${maskedText.slice(0, 3000)}
       console.error('[analyze] insert error:', insertError)
       return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
     }
+
+    // 캐시 무효화 (Dashboard 통계 갱신)
+    await invalidateCache(`dashboard:stats:${email}`)
 
     // 원본 파일 보존 (Re-Writing용)
     let rewriteSaved = false
