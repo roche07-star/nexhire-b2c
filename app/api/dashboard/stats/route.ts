@@ -31,187 +31,38 @@ export async function GET() {
       )
     }
 
-    // 통계 데이터 조회 (병렬 실행으로 최적화)
+    // 통계 데이터 조회 (Supabase Function 사용 - 단일 RPC 호출!)
     const now = new Date()
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    // 모든 쿼리를 병렬로 실행 (6개 쿼리 → 동시 실행)
-    const [
-      totalCandidatesResult,
-      thisMonthAnalysesResult,
-      recentAnalysesResult,
-      pipelineDataResult,
-      recentResumeActivityResult,
-      recentJdActivityResult,
-    ] = await Promise.all([
-      // 1. 전체 후보자 수
-      supabase
-        .from('analyses')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_email', email),
+    // 단일 RPC 호출로 모든 통계 조회 (6개 쿼리 → 1개 RPC)
+    const { data: stats, error: statsError } = await supabase.rpc('get_dashboard_stats', {
+      p_user_email: email,
+      p_first_day_of_month: firstDayOfMonth.toISOString(),
+    })
 
-      // 2. 이번 달 분석 건수
-      supabase
-        .from('analyses')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_email', email)
-        .gte('created_at', firstDayOfMonth.toISOString()),
-
-      // 3. 평균 적합도 계산용 (정규화된 score 컬럼 사용 - 최근 50개만)
-      supabase
-        .from('analyses')
-        .select('score, result')
-        .eq('user_email', email)
-        .order('created_at', { ascending: false })
-        .limit(50),
-
-      // 4. 파이프라인 단계별 카운트 (pipeline_stage만 조회)
-      supabase
-        .from('analyses')
-        .select('pipeline_stage')
-        .eq('user_email', email),
-
-      // 5. 최근 이력서 분석 활동 (정규화된 필드 사용)
-      supabase
-        .from('analyses')
-        .select('id, candidate_name, position, score, result, created_at, pipeline_stage')
-        .eq('user_email', email)
-        .order('created_at', { ascending: false })
-        .limit(10),
-
-      // 6. 최근 JD 분석 활동
-      supabase
-        .from('jd_analyses')
-        .select('id, result, created_at')
-        .eq('user_email', email)
-        .order('created_at', { ascending: false })
-        .limit(10),
-    ])
-
-    const totalCandidates = totalCandidatesResult.count
-    const thisMonthAnalyses = thisMonthAnalysesResult.count
-
-    // 평균 적합도 계산 (정규화된 score 컬럼 직접 사용)
-    let avgScore = 0
-    const recentAnalyses = recentAnalysesResult.data
-    if (recentAnalyses && recentAnalyses.length > 0) {
-      const scores = recentAnalyses
-        .map((a: any) => {
-          // 정규화된 score 컬럼 우선 사용
-          if (a.score !== null && a.score !== undefined && a.score > 0) {
-            return a.score
-          }
-          // Fallback: 마이그레이션 전 또는 score가 0인 경우
-          try {
-            const result = typeof a.result === 'string' ? JSON.parse(a.result) : a.result
-            return result?.score || result?.totalScore || 0
-          } catch {
-            return 0
-          }
-        })
-        .filter((s: number) => s > 0)
-
-      if (scores.length > 0) {
-        avgScore = Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length)
-      }
+    if (statsError) {
+      console.error('Dashboard stats RPC error:', statsError)
+      return NextResponse.json(
+        { error: 'Failed to fetch dashboard stats' },
+        { status: 500 }
+      )
     }
-
-    // 파이프라인 단계별 카운트
-    const pipelineCounts = {
-      pending: 0,
-      screening: 0,
-      interview: 0,
-      final: 0,
-      completed: 0,
-    }
-
-    const pipelineData = pipelineDataResult.data
-    if (pipelineData) {
-      pipelineData.forEach((item: any) => {
-        const stage = item.pipeline_stage || 'pending'
-        if (stage in pipelineCounts) {
-          pipelineCounts[stage as keyof typeof pipelineCounts]++
-        }
-      })
-    }
-
-    const recentResumeActivity = recentResumeActivityResult.data
-    const recentJdActivity = recentJdActivityResult.data
-
-    const resumeActivities = recentResumeActivity?.map((item: any) => {
-      // 정규화된 컬럼 직접 사용 (JSON 파싱 불필요!)
-      let name = item.candidate_name || '미정'
-      let position = item.position || '미정'
-      let score = item.score || 0
-
-      // Fallback: 마이그레이션 전 또는 컬럼이 null인 경우만 파싱
-      if (name === '미정' || position === '미정' || score === 0) {
-        try {
-          const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-          if (name === '미정') {
-            name = result?.candidate_name || result?.name || result?.candidateName || '미정'
-          }
-          if (position === '미정') {
-            position = result?.job_title || result?.position || result?.targetPosition || '미정'
-          }
-          if (score === 0) {
-            score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
-          }
-        } catch {
-          // 파싱 실패 시 기본값 유지
-        }
-      }
-
-      return {
-        id: item.id,
-        type: 'resume',
-        name,
-        position,
-        score,
-        stage: item.pipeline_stage || 'pending',
-        createdAt: item.created_at,
-      }
-    }) || []
-
-    const jdActivities = recentJdActivity?.map((item: any) => {
-      let name = '미정'
-      let company = '미정'
-      let position = '미정'
-      let score = 0
-
-      try {
-        const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
-        name = result?.candidate_name || '미정'
-        company = result?.company || '미정'
-        position = result?.position || result?.resume_job_title || '미정'
-        score = result?.fit_score || 0
-      } catch {
-        // 파싱 실패 시 기본값 사용
-      }
-
-      return {
-        id: item.id,
-        type: 'jd',
-        name,
-        position: `${company} - ${position}`,
-        score,
-        stage: 'jd',
-        createdAt: item.created_at,
-      }
-    }) || []
-
-    // 두 활동을 합쳐서 최신순으로 정렬하고 상위 10개만 반환
-    const allActivities = [...resumeActivities, ...jdActivities]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10)
 
     return NextResponse.json({
-      totalCandidates: totalCandidates || 0,
-      thisMonthAnalyses: thisMonthAnalyses || 0,
-      avgScore,
-      pipelineCounts,
-      recentActivity: allActivities,
+      totalCandidates: stats.totalCandidates || 0,
+      thisMonthAnalyses: stats.thisMonthAnalyses || 0,
+      avgScore: stats.avgScore || 0,
+      pipelineCounts: stats.pipelineCounts || {
+        pending: 0,
+        screening: 0,
+        interview: 0,
+        final: 0,
+        completed: 0,
+      },
+      recentActivity: stats.recentActivity || [],
     })
+
   } catch (error) {
     console.error('Dashboard stats error:', error)
     return NextResponse.json(
