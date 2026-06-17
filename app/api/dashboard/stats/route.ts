@@ -61,8 +61,8 @@ export async function GET() {
     // Fallback: Function이 없으면 기존 방식 사용 (마이그레이션 전)
     console.log('📌 Supabase Function not found, using fallback queries')
 
-    // 기존 병렬 쿼리 방식
-    const [totalCount, monthCount, avgScoreData, pipelineData] = await Promise.all([
+    // 기존 병렬 쿼리 방식 (JD 활동 포함)
+    const [totalCount, monthCount, avgScoreData, pipelineData, resumeActivity, jdActivity] = await Promise.all([
       supabase
         .from('analyses')
         .select('*', { count: 'exact', head: true })
@@ -74,25 +74,34 @@ export async function GET() {
         .gte('created_at', firstDayOfMonth.toISOString()),
       supabase
         .from('analyses')
-        .select('score, candidate_name, position, created_at, pipeline_stage')
+        .select('score')
         .eq('user_email', email)
+        .gt('score', 0)
         .order('created_at', { ascending: false })
-        .limit(10),
+        .limit(50),
       supabase
         .from('analyses')
         .select('pipeline_stage')
         .eq('user_email', email),
+      supabase
+        .from('analyses')
+        .select('id, candidate_name, position, score, created_at, pipeline_stage')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('jd_analyses')
+        .select('id, result, created_at')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(10),
     ])
 
     // 평균 점수 계산
     let avgScore = 0
     if (avgScoreData.data && avgScoreData.data.length > 0) {
-      const scores = avgScoreData.data
-        .map((a: any) => a.score || 0)
-        .filter((s: number) => s > 0)
-      if (scores.length > 0) {
-        avgScore = Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length)
-      }
+      const scores = avgScoreData.data.map((a: any) => a.score || 0)
+      avgScore = Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length)
     }
 
     // 파이프라인 카운트
@@ -112,10 +121,10 @@ export async function GET() {
       })
     }
 
-    // 최근 활동
-    const recentActivity = avgScoreData.data?.map((item: any) => ({
+    // 최근 이력서 활동
+    const resumeActivities = resumeActivity.data?.map((item: any) => ({
       id: item.id,
-      type: 'resume',
+      type: 'resume' as const,
       name: item.candidate_name || '미정',
       position: item.position || '미정',
       score: item.score || 0,
@@ -123,12 +132,39 @@ export async function GET() {
       createdAt: item.created_at,
     })) || []
 
+    // 최근 JD 활동
+    const jdActivities = (jdActivity.data?.map((item: any) => {
+      try {
+        const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
+        return {
+          id: item.id,
+          type: 'jd' as const,
+          name: result?.candidate_name || '미정',
+          position: `${result?.company || '미정'} - ${result?.position || '미정'}`,
+          score: result?.fit_score || 0,
+          stage: 'jd',
+          createdAt: item.created_at,
+        }
+      } catch {
+        return null
+      }
+    }) || []).filter((item): item is NonNullable<typeof item> => item !== null)
+
+    // 두 활동 합치고 최신순 정렬
+    const allActivities = [...resumeActivities, ...jdActivities]
+      .sort((a, b) => {
+        const dateB = new Date(b.createdAt).getTime()
+        const dateA = new Date(a.createdAt).getTime()
+        return dateB - dateA
+      })
+      .slice(0, 10)
+
     return NextResponse.json({
       totalCandidates: totalCount.count || 0,
       thisMonthAnalyses: monthCount.count || 0,
       avgScore,
       pipelineCounts,
-      recentActivity,
+      recentActivity: allActivities,
     })
 
   } catch (error) {
