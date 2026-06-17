@@ -31,38 +31,74 @@ export async function GET() {
       )
     }
 
-    // 통계 데이터 조회
+    // 통계 데이터 조회 (병렬 실행으로 최적화)
     const now = new Date()
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    // 1. 전체 후보자 수 (전체 분석 기록)
-    const { count: totalCandidates } = await supabase
-      .from('analyses')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_email', email)
+    // 모든 쿼리를 병렬로 실행 (6개 쿼리 → 동시 실행)
+    const [
+      totalCandidatesResult,
+      thisMonthAnalysesResult,
+      recentAnalysesResult,
+      pipelineDataResult,
+      recentResumeActivityResult,
+      recentJdActivityResult,
+    ] = await Promise.all([
+      // 1. 전체 후보자 수
+      supabase
+        .from('analyses')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_email', email),
 
-    // 2. 이번 달 분석 건수
-    const { count: thisMonthAnalyses } = await supabase
-      .from('analyses')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_email', email)
-      .gte('created_at', firstDayOfMonth.toISOString())
+      // 2. 이번 달 분석 건수
+      supabase
+        .from('analyses')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_email', email)
+        .gte('created_at', firstDayOfMonth.toISOString()),
 
-    // 3. 평균 적합도 계산 (최근 분석 기준)
-    const { data: recentAnalyses } = await supabase
-      .from('analyses')
-      .select('result')
-      .eq('user_email', email)
-      .order('created_at', { ascending: false })
-      .limit(50)
+      // 3. 평균 적합도 계산용 (최근 50개만)
+      supabase
+        .from('analyses')
+        .select('result')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(50),
 
+      // 4. 파이프라인 단계별 카운트 (pipeline_stage만 조회)
+      supabase
+        .from('analyses')
+        .select('pipeline_stage')
+        .eq('user_email', email),
+
+      // 5. 최근 이력서 분석 활동
+      supabase
+        .from('analyses')
+        .select('id, result, created_at, pipeline_stage')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(10),
+
+      // 6. 최근 JD 분석 활동
+      supabase
+        .from('jd_analyses')
+        .select('id, result, created_at')
+        .eq('user_email', email)
+        .order('created_at', { ascending: false })
+        .limit(10),
+    ])
+
+    const totalCandidates = totalCandidatesResult.count
+    const thisMonthAnalyses = thisMonthAnalysesResult.count
+
+    // 평균 적합도 계산
     let avgScore = 0
+    const recentAnalyses = recentAnalysesResult.data
     if (recentAnalyses && recentAnalyses.length > 0) {
       const scores = recentAnalyses
         .map((a: any) => {
           try {
             const result = typeof a.result === 'string' ? JSON.parse(a.result) : a.result
-            // score 또는 totalScore 필드에서 점수 추출
             return result?.score || result?.totalScore || 0
           } catch {
             return 0
@@ -75,12 +111,7 @@ export async function GET() {
       }
     }
 
-    // 4. 파이프라인 단계별 카운트
-    const { data: pipelineData } = await supabase
-      .from('analyses')
-      .select('pipeline_stage')
-      .eq('user_email', email)
-
+    // 파이프라인 단계별 카운트
     const pipelineCounts = {
       pending: 0,
       screening: 0,
@@ -89,6 +120,7 @@ export async function GET() {
       completed: 0,
     }
 
+    const pipelineData = pipelineDataResult.data
     if (pipelineData) {
       pipelineData.forEach((item: any) => {
         const stage = item.pipeline_stage || 'pending'
@@ -98,20 +130,8 @@ export async function GET() {
       })
     }
 
-    // 5. 최근 활동 (이력서 분석 + JD 분석 합쳐서 최근 10개)
-    const { data: recentResumeActivity } = await supabase
-      .from('analyses')
-      .select('id, result, created_at, pipeline_stage')
-      .eq('user_email', email)
-      .order('created_at', { ascending: false })
-      .limit(10)
-
-    const { data: recentJdActivity } = await supabase
-      .from('jd_analyses')
-      .select('id, result, created_at')
-      .eq('user_email', email)
-      .order('created_at', { ascending: false })
-      .limit(10)
+    const recentResumeActivity = recentResumeActivityResult.data
+    const recentJdActivity = recentJdActivityResult.data
 
     const resumeActivities = recentResumeActivity?.map((item: any) => {
       let name = '미정'

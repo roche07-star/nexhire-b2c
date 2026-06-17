@@ -25,8 +25,8 @@ interface PipelineClientProps {
 export default function PipelineClient({ userEmail, userPlan }: PipelineClientProps) {
   const router = useRouter()
   const [candidates, setCandidates] = useState<Candidate[]>([])
-  const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedStage, setSelectedStage] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -36,6 +36,8 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
   const [noteText, setNoteText] = useState('')
   const [editingNameId, setEditingNameId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState(0)
 
   const stages = [
     { value: 'all', label: '전체', color: '#64748b' },
@@ -47,51 +49,59 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
   ]
 
   useEffect(() => {
-    fetchCandidates()
-  }, [])
+    fetchCandidates(true) // 초기 로딩
+  }, [selectedStage, searchQuery])
 
-  useEffect(() => {
-    filterCandidates()
-  }, [candidates, selectedStage, searchQuery])
-
-  const fetchCandidates = async () => {
+  const fetchCandidates = async (reset = false) => {
     try {
-      setLoading(true)
-      const res = await fetch('/api/pipeline/list')
+      if (reset) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
+
+      const offset = reset ? 0 : candidates.length
+      const params = new URLSearchParams({
+        limit: '50',
+        offset: offset.toString(),
+      })
+
+      if (selectedStage !== 'all') {
+        params.append('stage', selectedStage)
+      }
+
+      if (searchQuery) {
+        params.append('search', searchQuery)
+      }
+
+      const res = await fetch(`/api/pipeline/list?${params}`)
 
       if (!res.ok) {
         throw new Error('후보자 목록 조회에 실패했습니다.')
       }
 
       const data = await res.json()
-      setCandidates(data.candidates || [])
+
+      if (reset) {
+        setCandidates(data.candidates || [])
+      } else {
+        setCandidates((prev) => [...prev, ...(data.candidates || [])])
+      }
+
+      setHasMore(data.hasMore || false)
+      setTotal(data.total || 0)
     } catch (err) {
       setError(err instanceof Error ? err.message : '알 수 없는 오류')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
 
-  const filterCandidates = () => {
-    let filtered = candidates
-
-    // 단계 필터
-    if (selectedStage !== 'all') {
-      filtered = filtered.filter((c) => c.stage === selectedStage)
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchCandidates(false)
     }
-
-    // 검색 필터
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query) ||
-          c.position.toLowerCase().includes(query) ||
-          c.email.toLowerCase().includes(query)
-      )
-    }
-
-    setFilteredCandidates(filtered)
   }
 
   const updateStage = async (candidateId: string, newStage: string) => {
@@ -246,7 +256,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
       <main style={{ padding: '80px 20px', textAlign: 'center', background: '#fafafa', minHeight: '100vh' }}>
         <p style={{ color: '#ef4444' }}>{error}</p>
         <button
-          onClick={fetchCandidates}
+          onClick={() => fetchCandidates(true)}
           style={{
             marginTop: 20,
             padding: '8px 16px',
@@ -276,7 +286,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
         <div>
           <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>파이프라인 관리</h1>
           <p style={{ color: '#666', fontSize: 16 }}>
-            총 {filteredCandidates.length}명의 후보자
+            총 {total}명의 후보자 (현재 {candidates.length}명 표시)
           </p>
         </div>
         <Link href="/dashboard">
@@ -353,7 +363,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
       </div>
 
       {/* 후보자 리스트 */}
-      {filteredCandidates.length === 0 ? (
+      {candidates.length === 0 ? (
         <div style={{
           background: '#fff',
           border: '1px solid #e5e7eb',
@@ -370,7 +380,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {filteredCandidates.map((candidate) => (
+          {candidates.map((candidate) => (
             <CandidateCard
               key={candidate.id}
               candidate={candidate}
@@ -399,6 +409,28 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
               setEditingName={setEditingName}
             />
           ))}
+
+          {/* 더 보기 버튼 */}
+          {hasMore && (
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                style={{
+                  padding: '12px 32px',
+                  background: loadingMore ? '#e5e7eb' : '#1a1a14',
+                  color: loadingMore ? '#999' : '#e8ff47',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  cursor: loadingMore ? 'not-allowed' : 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                {loadingMore ? '로딩 중...' : '더 보기'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
