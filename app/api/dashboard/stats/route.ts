@@ -43,6 +43,7 @@ export async function GET() {
 
     // Function이 존재하면 바로 반환 (최적화 경로)
     if (!statsError && stats) {
+      console.log('✅ Using Supabase Function (optimized)')
       return NextResponse.json({
         totalCandidates: stats.totalCandidates || 0,
         thisMonthAnalyses: stats.thisMonthAnalyses || 0,
@@ -54,7 +55,7 @@ export async function GET() {
           final: 0,
           completed: 0,
         },
-        recentActivity: stats.recentActivity || [],
+        recentActivity: Array.isArray(stats.recentActivity) ? stats.recentActivity : [],
       })
     }
 
@@ -159,12 +160,17 @@ export async function GET() {
       })
       .slice(0, 10)
 
+    console.log('📊 Fallback stats:', {
+      totalCandidates: totalCount.count || 0,
+      recentActivityCount: allActivities.length,
+    })
+
     return NextResponse.json({
       totalCandidates: totalCount.count || 0,
       thisMonthAnalyses: monthCount.count || 0,
       avgScore,
       pipelineCounts,
-      recentActivity: allActivities,
+      recentActivity: Array.isArray(allActivities) ? allActivities : [],
     })
 
   } catch (error) {

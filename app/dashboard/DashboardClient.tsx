@@ -52,7 +52,23 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
       }
 
       const data = await res.json()
-      setStats(data)
+
+      // 방어적 코드: recentActivity가 없으면 빈 배열로 초기화
+      const safeData: DashboardStats = {
+        totalCandidates: data.totalCandidates || 0,
+        thisMonthAnalyses: data.thisMonthAnalyses || 0,
+        avgScore: data.avgScore || 0,
+        pipelineCounts: data.pipelineCounts || {
+          pending: 0,
+          screening: 0,
+          interview: 0,
+          final: 0,
+          completed: 0,
+        },
+        recentActivity: Array.isArray(data.recentActivity) ? data.recentActivity : [],
+      }
+
+      setStats(safeData)
     } catch (err) {
       setError(err instanceof Error ? err.message : '알 수 없는 오류')
     } finally {
