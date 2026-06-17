@@ -615,7 +615,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             )}
 
             {/* 강점 (상위 3개) */}
-            {selectedCandidate.result?.strengths && selectedCandidate.result.strengths.length > 0 && (
+            {Array.isArray(selectedCandidate.result?.strengths) && selectedCandidate.result.strengths.length > 0 && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>✅ 주요 강점</div>
                 <div style={{ background: '#f0fdf4', padding: 16, borderRadius: 8, border: '1px solid #bbf7d0' }}>
@@ -634,7 +634,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             )}
 
             {/* 개선점 (상위 3개) */}
-            {selectedCandidate.result?.improvements && selectedCandidate.result.improvements.length > 0 && (
+            {Array.isArray(selectedCandidate.result?.improvements) && selectedCandidate.result.improvements.length > 0 && (
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>⚠️ 개선 필요</div>
                 <div style={{ background: '#fef2f2', padding: 16, borderRadius: 8, border: '1px solid #fecaca' }}>
@@ -653,7 +653,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             )}
 
             {/* 키워드 (상위 5개) */}
-            {selectedCandidate.result?.keywords && selectedCandidate.result.keywords.length > 0 && (
+            {Array.isArray(selectedCandidate.result?.keywords) && selectedCandidate.result.keywords.length > 0 && (
               <div style={{ marginBottom: 24 }}>
                 <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>🏷️ 핵심 키워드</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
