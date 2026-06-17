@@ -73,7 +73,12 @@ export async function GET(request: Request) {
             phone,
             candidate_email,
             created_at,
-            pipeline_stage
+            pipeline_stage,
+            candidate_notes (
+              id,
+              note,
+              created_at
+            )
           `,
         { count: 'exact' }
       )
@@ -155,11 +160,11 @@ export async function GET(request: Request) {
         email: candidateEmail,
         stage: item.pipeline_stage || 'pending',
         createdAt: item.created_at,
+        notes: item.candidate_notes || [], // 항상 포함 (빈 배열이라도)
       }
 
       // 상세 정보는 요청 시에만 포함
       if (includeDetails) {
-        candidate.notes = item.candidate_notes || []
         candidate.tags = (item.candidate_tags || []).map((t: any) => t.tag)
         candidate.result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
       }
