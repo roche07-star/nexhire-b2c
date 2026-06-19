@@ -63,6 +63,18 @@ const toArr = (v: unknown): string[] =>
 interface InterviewGuideResult {
   id?: string | null
   expires_at?: string | null
+  // 회사/산업 분석 (NEW)
+  company_analysis?: {
+    industry_structure: string
+    company_background: string
+    position_context: string
+  }
+  // 매칭 점수 (NEW)
+  matching_scores?: Array<{
+    category: string
+    score: number
+    grade: string
+  }>
   positioning_message: string
   self_intro: string
   qa_resign_reason: string
@@ -138,10 +150,48 @@ const CAREER_COLORS_HEX: Record<string, string> = {
 function generateInterviewHTML(guide: InterviewGuideResult): string {
   const dateStr = new Date().toLocaleDateString('ko-KR')
   const title = [guide.candidate_name, guide.company, guide.position].filter(Boolean).join(' · ')
+  const userEmail = typeof window !== 'undefined' ? (window as { __USER_EMAIL__?: string }).__USER_EMAIL__ : ''
 
   const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   const lines = (s: string) => esc(s).split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('')
   const listItems = (arr: string[]) => arr.map(s => `<li>${esc(s)}</li>`).join('')
+
+  // 매칭 점수 바 차트 HTML
+  const matchingScoresHTML = guide.matching_scores?.length ? `
+    <div class="score-grid">
+      ${guide.matching_scores.map(item => `
+        <div class="score-item">
+          <div class="score-header">
+            <span class="score-category">${esc(item.category)}</span>
+            <span class="score-grade grade-${item.grade.replace('+', 'plus')}">${esc(item.grade)}</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar" style="width:${item.score}%"></div>
+            <span class="score-val">${item.score}점</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : ''
+
+  // 회사/산업 분석 HTML
+  const companyAnalysisHTML = guide.company_analysis ? `
+    <div class="section">
+      <div class="sec-title">📊 포지션 브리핑</div>
+      <div class="brief-item">
+        <div class="brief-label">산업 구조</div>
+        <p>${esc(guide.company_analysis.industry_structure)}</p>
+      </div>
+      <div class="brief-item">
+        <div class="brief-label">회사 배경</div>
+        <p>${esc(guide.company_analysis.company_background)}</p>
+      </div>
+      <div class="brief-item">
+        <div class="brief-label">포지션 핵심</div>
+        <p>${esc(guide.company_analysis.position_context)}</p>
+      </div>
+    </div>
+  ` : ''
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -151,44 +201,66 @@ function generateInterviewHTML(guide: InterviewGuideResult): string {
 <title>면접 가이드 — ${esc(title || '후보자')}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a0f;color:#e0e0f0;font-family:'Malgun Gothic','맑은 고딕',sans-serif;padding:40px 24px;max-width:820px;margin:0 auto;line-height:1.7}
-h1{font-size:22px;font-weight:700;color:#e8ff47;margin-bottom:4px}
+body{background:#0a0a0f;color:#e0e0f0;font-family:'Malgun Gothic','맑은 고딕',sans-serif;padding:40px 24px;max-width:900px;margin:0 auto;line-height:1.7;position:relative}
+body::before{content:'${userEmail ? esc(userEmail) : 'Jobizic'}';position:fixed;bottom:20px;right:30px;font-size:10px;color:rgba(255,255,255,0.08);font-weight:600;letter-spacing:1px;transform:rotate(-45deg);pointer-events:none;z-index:9999}
+h1{font-size:24px;font-weight:700;color:#e8ff47;margin-bottom:4px}
 .sub{font-size:13px;color:#888;margin-bottom:32px}
-.section{background:#12121a;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px 26px;margin-bottom:20px}
-.sec-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#e8ff47;border-bottom:1px solid rgba(232,255,71,0.12);padding-bottom:10px;margin-bottom:14px}
-.positioning{font-size:15px;font-weight:600;color:#fff;background:rgba(232,255,71,0.06);border-left:3px solid #e8ff47;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:4px}
-.qa-label{font-size:12px;font-weight:700;color:#e0e0f0;margin:14px 0 6px}
-p{font-size:14px;color:#b0b0c8;margin-bottom:5px}
-ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:7px;margin-top:4px}
-li{font-size:14px;color:#b0b0c8;padding-left:16px;position:relative}
+.section{background:#12121a;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:24px 28px;margin-bottom:20px}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#e8ff47;border-bottom:1px solid rgba(232,255,71,0.12);padding-bottom:10px;margin-bottom:16px}
+.positioning{font-size:16px;font-weight:600;color:#fff;background:rgba(232,255,71,0.06);border-left:3px solid #e8ff47;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:4px}
+.brief-item{margin-bottom:16px}
+.brief-item:last-child{margin-bottom:0}
+.brief-label{font-size:12px;font-weight:700;color:#e8ff47;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:4px}
+.score-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px 14px}
+.score-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.score-category{font-size:13px;font-weight:600;color:#e0e0f0}
+.score-grade{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.5px}
+.grade-Aplus{background:rgba(76,175,134,0.15);color:#4caf86}
+.grade-A{background:rgba(76,175,134,0.12);color:#5bc798}
+.grade-Bplus{background:rgba(255,193,7,0.12);color:#ffc107}
+.grade-B{background:rgba(255,152,0,0.12);color:#ff9800}
+.grade-Cplus{background:rgba(255,107,107,0.12);color:#ff9a9a}
+.score-bar-wrap{position:relative;background:rgba(255,255,255,0.05);border-radius:6px;height:8px;overflow:hidden}
+.score-bar{height:100%;background:linear-gradient(90deg,#e8ff47,#4caf86);border-radius:6px;transition:width 0.3s ease}
+.score-val{position:absolute;right:8px;top:-20px;font-size:11px;color:#888;font-weight:600}
+.qa-label{font-size:12px;font-weight:700;color:#e0e0f0;margin:16px 0 8px}
+p{font-size:14px;color:#b0b0c8;margin-bottom:6px}
+ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+li{font-size:14px;color:#b0b0c8;padding-left:18px;position:relative}
 li::before{content:'›';position:absolute;left:0;color:#e8ff47;font-weight:700}
-.strength{background:rgba(76,175,134,0.08);border:1px solid rgba(76,175,134,0.2);border-radius:8px;padding:8px 14px;font-size:14px;color:#4caf86;margin-bottom:7px}
-.risk{background:rgba(255,107,107,0.05);border:1px solid rgba(255,107,107,0.15);border-radius:8px;padding:10px 14px;margin-bottom:10px}
-.risk-label{font-size:13px;font-weight:600;color:#ff9a9a;margin-bottom:4px}
+.strength{background:rgba(76,175,134,0.08);border:1px solid rgba(76,175,134,0.2);border-radius:8px;padding:10px 16px;font-size:14px;color:#4caf86;margin-bottom:8px}
+.risk{background:rgba(255,107,107,0.05);border:1px solid rgba(255,107,107,0.15);border-radius:8px;padding:12px 16px;margin-bottom:12px}
+.risk-label{font-size:13px;font-weight:600;color:#ff9a9a;margin-bottom:6px}
 .risk-resp{font-size:13px;color:#b0b0c8}
-.checklist{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px}
-.checklist li{display:flex;align-items:flex-start;gap:8px;padding-left:0}
+.checklist{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding-left:0}
 .checklist li::before{content:none}
-.chk{color:#e8ff47;flex-shrink:0}
-.footer{text-align:center;font-size:11px;color:#444;margin-top:36px}
+.chk{color:#e8ff47;flex-shrink:0;font-size:16px}
+.footer{text-align:center;font-size:11px;color:#444;margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.03)}
+@media print{body{background:#fff;color:#000}body::before{display:none}.section{border:1px solid #ddd}}
 </style>
 </head>
 <body>
-<h1>${esc(guide.candidate_name ?? '후보자')} 면접 가이드</h1>
+<h1>🎯 ${esc(guide.candidate_name ?? '후보자')} 면접 가이드</h1>
 <div class="sub">${guide.company ? esc(guide.company) + (guide.position ? ` — ${esc(guide.position)}` : '') + ' &nbsp;·&nbsp; ' : ''}생성일: ${dateStr}</div>
 
+${companyAnalysisHTML}
+
+${matchingScoresHTML ? `<div class="section"><div class="sec-title">📈 JD 매칭 분석</div>${matchingScoresHTML}</div>` : ''}
+
 <div class="section">
-  <div class="sec-title">SECTION 1 — 핵심 포지셔닝 메시지</div>
+  <div class="sec-title">💡 핵심 포지셔닝 메시지</div>
   <div class="positioning">"${esc(guide.positioning_message)}"</div>
 </div>
 
 <div class="section">
-  <div class="sec-title">SECTION 2 — 자기소개 설계</div>
+  <div class="sec-title">👤 자기소개 설계</div>
   ${lines(guide.self_intro)}
 </div>
 
 <div class="section">
-  <div class="sec-title">SECTION 3 — 예상 질문 & 답변 가이드</div>
+  <div class="sec-title">❓ 예상 질문 & 답변 가이드</div>
   <div class="qa-label">A. 이직 사유</div>${lines(guide.qa_resign_reason)}
   ${guide.qa_domain_gap && guide.qa_domain_gap !== '해당없음' ? `<div class="qa-label">B. 도메인 갭 대응</div>${lines(guide.qa_domain_gap)}` : ''}
   <div class="qa-label">C. 역량 검증 (STAR)</div>${lines(guide.qa_competency)}
@@ -197,22 +269,22 @@ li::before{content:'›';position:absolute;left:0;color:#e8ff47;font-weight:700}
 </div>
 
 <div class="section">
-  <div class="sec-title">SECTION 4 — 강점 & 리스크</div>
+  <div class="sec-title">⚡ 강점 & 리스크</div>
   ${toArr(guide.strengths).map(s => `<div class="strength">✅ ${esc(s)}</div>`).join('')}
   ${(guide.risks ?? []).map(r => `<div class="risk"><div class="risk-label">⚠️ ${esc(r.risk)}</div><div class="risk-resp">→ ${esc(r.response)}</div></div>`).join('')}
 </div>
 
 <div class="section">
-  <div class="sec-title">SECTION 5 — 역질문 추천</div>
+  <div class="sec-title">🙋 역질문 추천</div>
   <ul>${listItems(toArr(guide.reverse_questions))}</ul>
 </div>
 
 <div class="section">
-  <div class="sec-title">SECTION 6 — 면접 전 체크리스트</div>
+  <div class="sec-title">✅ 면접 전 체크리스트</div>
   <ul class="checklist">${toArr(guide.checklist).map(c => `<li><span class="chk">☑</span>${esc(c)}</li>`).join('')}</ul>
 </div>
 
-<div class="footer">Generated by Jobizic · AI 면접 가이드</div>
+<div class="footer">Generated by Jobizic · AI 면접 가이드 · ${dateStr}</div>
 </body>
 </html>`
 }
