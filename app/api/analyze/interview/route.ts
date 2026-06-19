@@ -20,17 +20,8 @@ const interviewTool: Anthropic.Tool = {
   input_schema: {
     type: 'object' as const,
     properties: {
-      // ===== 포지션 브리핑 =====
-      company_analysis: {
-        type: 'object',
-        description: 'SECTION 0 — 회사/산업 구조 분석',
-        properties: {
-          industry_structure: { type: 'string', description: '산업 구조 및 특성 (2-3문장)' },
-          company_background: { type: 'string', description: '회사 배경 및 사업 방향 (2-3문장)' },
-          position_context: { type: 'string', description: '포지션 맥락 및 핵심 과제 (2-3문장)' },
-        },
-        required: ['industry_structure', 'company_background', 'position_context'],
-      },
+      // ===== 포지션 브리핑 (JD 선택 시 자동 제공됨) =====
+      // company_analysis는 JD 분석 결과에서 자동으로 가져오므로 생성하지 않음
       matching_scores: {
         type: 'array',
         description: 'SECTION 0 — JD 요구사항별 매칭 점수 (바 차트용)',
@@ -101,7 +92,7 @@ const interviewTool: Anthropic.Tool = {
       },
     },
     required: [
-      'company_analysis', 'matching_scores',
+      'matching_scores',  // company_analysis는 JD에서 가져오므로 제외
       'positioning_message', 'self_intro',
       'qa_resign_reason', 'qa_domain_gap', 'qa_competency', 'qa_post_join', 'qa_salary',
       'strengths', 'risks', 'reverse_questions', 'checklist',
@@ -172,8 +163,19 @@ export async function POST(req: NextRequest) {
 핵심 키워드: ${toArr(a.keywords).join(', ')}
 ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}`
 
+    // 회사 분석 정보 추출 (JD 분석에서 가져옴)
+    const companyAnalysisSection = jdContext?.company_analysis
+      ? `[회사 상세 분석] (JD 분석에서 확보한 정보):
+- 회사 소개: ${(jdContext.company_analysis as Record<string, unknown>).introduction}
+- 매출/규모: ${(jdContext.company_analysis as Record<string, unknown>).revenue}
+- 현재 사업: ${(jdContext.company_analysis as Record<string, unknown>).current_business}
+- 최근 동향: ${(jdContext.company_analysis as Record<string, unknown>).recent_trends}
+- 미래 가치: ${(jdContext.company_analysis as Record<string, unknown>).future_value}`
+      : ''
+
     const jdSection = jdContext
       ? `[채용 회사]: ${jdContext.company}${jdContext.position ? ` — ${jdContext.position}` : ''}
+${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
 [JD 적합도 분석]:
 - 적합도: ${jdContext.fit_score}% / ${jdContext.verdict}
 - 매칭 강점: ${toArr(jdContext.matching_points).join(' / ')}
@@ -230,6 +232,8 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
       company: jdContext?.company ?? null,
       position: jdContext?.position ?? null,
       candidate_name: (a.candidate_name as string | undefined) ?? null,
+      // JD 분석의 회사 분석을 그대로 활용
+      company_analysis: jdContext?.company_analysis ?? null,
     }
 
     const expiresAt = new Date()
