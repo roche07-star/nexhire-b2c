@@ -131,6 +131,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '분석할 이력서를 선택해 주세요.' }, { status: 400 })
     }
 
+    // 중복 방지: 동일한 회사/포지션 조합으로 최근 1시간 내 생성된 것이 있는지 확인
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const normalizeStr = (s: string) => s.toLowerCase().replace(/\s+/g, '')
+    const { data: recentAnalyses } = await supabase
+      .from('jd_analyses')
+      .select('id, result, created_at')
+      .eq('user_email', session.user.email)
+      .gte('created_at', oneHourAgo)
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    // 동일한 회사/포지션 조합 찾기
+    const normalizedCompany = normalizeStr(company.trim())
+    const normalizedPosition = position?.trim() ? normalizeStr(position.trim()) : null
+    const duplicate = (recentAnalyses ?? []).find(item => {
+      const r = item.result as Record<string, unknown>
+      const rCompany = normalizeStr((r.company as string) ?? '')
+      const rPosition = r.position ? normalizeStr((r.position as string)) : null
+      return rCompany === normalizedCompany && rPosition === normalizedPosition
+    })
+
+    // 중복이 있으면 기존 것 반환
+    if (duplicate) {
+      return NextResponse.json({
+        ...duplicate.result,
+        id: duplicate.id,
+        created_at: duplicate.created_at,
+        isDuplicate: true,
+        message: '이미 분석된 결과가 있어 기존 결과를 반환합니다.',
+      })
+    }
+
     const a = analysisResult as Record<string, unknown>
 
     // 안전한 배열 변환
