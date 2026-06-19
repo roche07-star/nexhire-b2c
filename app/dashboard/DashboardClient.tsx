@@ -137,7 +137,7 @@ export default function DashboardClient({ userEmail, userPlan }: DashboardClient
       <div style={{ marginBottom: 40 }}>
         <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>PRO 대시보드</h1>
         <p style={{ color: '#666', fontSize: 16 }}>
-          {userEmail} · {userPlan} 플랜
+          {userEmail}, {userPlan} 플랜
         </p>
       </div>
 

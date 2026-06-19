@@ -526,7 +526,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                 <>
                   {u && (
                     <div className="admin-detail-section">
-                      <div className="admin-detail-label">플랜 · 사용량</div>
+                      <div className="admin-detail-label">플랜, 사용량</div>
                       <div className="admin-detail-row">
                         <span className={`plan-badge ${String(u.plan).toLowerCase()}`}>{String(u.plan)}</span>
                         <span>이력서 분석 {String(u.analyze_count)}회</span>

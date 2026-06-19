@@ -36,7 +36,7 @@ export default function PrivacyPage() {
 
           <div className="privacy-section">
             <h2>2. 개인정보의 처리 및 보유 기간</h2>
-            <p>회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.</p>
+            <p>회사는 법령에 따른 개인정보 보유/이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유/이용기간 내에서 개인정보를 처리/보유합니다.</p>
             <ul>
               <li><strong>회원 정보:</strong> 회원 탈퇴 시까지</li>
               <li><strong>이력서 정보:</strong> 회원 탈퇴 시까지</li>
@@ -100,11 +100,11 @@ export default function PrivacyPage() {
           </div>
 
           <div className="privacy-section">
-            <h2>6. 정보주체의 권리·의무 및 행사방법</h2>
+            <h2>6. 정보주체의 권리/의무 및 행사방법</h2>
             <p>정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다.</p>
             <ul>
               <li>개인정보 열람 요구</li>
-              <li>개인정보 정정·삭제 요구</li>
+              <li>개인정보 정정/삭제 요구</li>
               <li>개인정보 처리정지 요구</li>
             </ul>
             <p className="privacy-contact">
@@ -127,9 +127,9 @@ export default function PrivacyPage() {
             <ul>
               <li>개인정보 취급 직원의 최소화 및 교육</li>
               <li>개인정보에 대한 접근 제한</li>
-              <li>개인정보를 저장하는 데이터베이스 시스템에 대한 접근권한의 부여·변경·말소</li>
+              <li>개인정보를 저장하는 데이터베이스 시스템에 대한 접근권한의 부여/변경/말소</li>
               <li>개인정보의 암호화 (TLS/SSL 적용)</li>
-              <li>접속기록의 보관 및 위·변조 방지</li>
+              <li>접속기록의 보관 및 위/변조 방지</li>
             </ul>
           </div>
 

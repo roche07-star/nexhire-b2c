@@ -10,7 +10,7 @@ const careerPaths = [
     title: 'B2B 마케팅 팀장',
     salary: '4,200만원~5,500만원',
     salaryColor: 'var(--muted2)',
-    desc: 'GTM·마케팅 전문성 심화',
+    desc: 'GTM/마케팅 전문성 심화',
     bands: [
       { label: '현재(3년차)', min: 0, max: 0, pct: 0 },
       { label: '1년 뒤', min: 4200, max: 4800, pct: 45 },
@@ -20,7 +20,7 @@ const careerPaths = [
     ],
     points: [
       'GTM 전략 전문가로 SaaS 기업 마케팅 리더 성장',
-      'B2B 세일즈·마케팅 경력 심화로 안정적 처우 향상',
+      'B2B 세일즈/마케팅 경력 심화로 안정적 처우 향상',
       '대형 SaaS 기업 마케팅 팀장 이직으로 연봉 점프 가능',
     ],
   },
@@ -40,8 +40,8 @@ const careerPaths = [
     ],
     points: [
       'B2B GTM 경험은 SaaS PM 전환 시 핵심 강점으로 작용',
-      'SQL·데이터 분석 역량이 데이터 기반 PM으로 차별화',
-      'AI 스타트업 시리즈A·B 기업에서 즉시 전력 가능',
+      'SQL/데이터 분석 역량이 데이터 기반 PM으로 차별화',
+      'AI 스타트업 시리즈A/B 기업에서 즉시 전력 가능',
       '3년 내 Senior PM → 4~5년차에 Head of Product 도약 경로',
     ],
   },
@@ -72,10 +72,10 @@ const jdDemo = {
   position: 'Product Manager (AI Growth)',
   fit_score: 82,
   recommendation: 'APPLY' as const,
-  verdict: 'GTM·SQL 이중 강점이 토스 PM 핵심 요구와 80% 일치 — PRD 작성 이력 부재가 유일한 리스크, 포트폴리오 1건 추가 시 서류 통과 가능',
+  verdict: 'GTM/SQL 이중 강점이 토스 PM 핵심 요구와 80% 일치 — PRD 작성 이력 부재가 유일한 리스크, 포트폴리오 1건 추가 시 서류 통과 가능',
   matching_points: [
     'B2B SaaS GTM 전 과정 실행 경험 — 그로스 PM 핵심 역량 직접 보유',
-    'SQL 퍼널 분석·성과 측정 — 토스 데이터 드리븐 문화 즉시 적응 가능',
+    'SQL 퍼널 분석/성과 측정 — 토스 데이터 드리븐 문화 즉시 적응 가능',
     '스타트업 0→1 실행력 + 영어 소통 — 글로벌 파트너 협업 대응',
     'OKR 기반 성과 관리 경험 — PM 프로세스 빠른 적응 가능',
   ],
@@ -94,7 +94,7 @@ const jdDemo = {
 
 const interviewQuestions = [
   {
-    q: 'B2B SaaS GTM 전략을 수립·실행한 경험을 숫자로 설명해주세요.',
+    q: 'B2B SaaS GTM 전략을 수립/실행한 경험을 숫자로 설명해주세요.',
     a: '전 직장에서 SMB 타깃 GTM 전략을 처음부터 설계했습니다. ICP를 정의하고 LinkedIn + 콜드 이메일 시퀀스를 구축해 6개월 만에 MQL 220건, SQL 전환율 28%를 달성했습니다. SQL로 퍼널 병목을 직접 추적하며 ABM 캠페인으로 전환율을 기존 대비 40% 향상시켰습니다.',
   },
   { q: '기능 우선순위를 결정할 때 어떤 프레임워크를 사용하시나요?', a: '' },
@@ -128,7 +128,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
           <div className="section-label">SAMPLE ANALYSIS — EXPERT</div>
           <h2 className="demo-modal-title">
             3년차 B2B SaaS 마케터{' '}
-            <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>· 연봉 3,800만원</span>
+            <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>, 연봉 3,800만원</span>
           </h2>
           <p className="demo-modal-sub">실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.</p>
         </div>
@@ -176,7 +176,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
               <div className="demo-summary-block">
                 <div className="results-label">종합 요약</div>
                 <p className="result-summary">
-                  B2B SaaS 기업에서 GTM 전략 수립과 실행을 주도한 3년차 마케터로, 데이터 기반 의사결정과 SQL 분석 역량이 강점입니다. PM 전환 시 즉시 전력이 가능하며, AI·SaaS 분야 Product Manager로의 커리어 전환을 강력히 추천합니다.
+                  B2B SaaS 기업에서 GTM 전략 수립과 실행을 주도한 3년차 마케터로, 데이터 기반 의사결정과 SQL 분석 역량이 강점입니다. PM 전환 시 즉시 전력이 가능하며, AI/SaaS 분야 Product Manager로의 커리어 전환을 강력히 추천합니다.
                 </p>
               </div>
 
@@ -193,7 +193,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   <div className="results-label">✦ 강점</div>
                   <ul className="result-list">
                     <li>B2B GTM 전 과정 실행 경험 (리드 발굴~클로징)</li>
-                    <li>SQL로 퍼널 분석·성과 측정 직접 수행</li>
+                    <li>SQL로 퍼널 분석/성과 측정 직접 수행</li>
                     <li>스타트업 초기 멤버로 0→1 성장 경험 보유</li>
                     <li>영어 비즈니스 커뮤니케이션 능숙</li>
                   </ul>
@@ -202,7 +202,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   <div className="results-label">개선 포인트</div>
                   <ul className="result-list improvement-list">
                     <li>PM 전환을 위한 프로덕트 스펙 작성 경험 부족</li>
-                    <li>리더십·팀 관리 경험 이력서에 명시 필요</li>
+                    <li>리더십/팀 관리 경험 이력서에 명시 필요</li>
                     <li>사이드 프로젝트 또는 PM 부트캠프 이수 권장</li>
                   </ul>
                 </div>
@@ -237,7 +237,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
               </div>
 
               <div className="salary-band-wrap">
-                <div className="salary-band-title">연봉 밴드 — {active.label} · 현재 기준: 3년차 (단위: 만원)</div>
+                <div className="salary-band-title">연봉 밴드 — {active.label}, 현재 기준: 3년차 (단위: 만원)</div>
                 {active.bands.map((b) => (
                   <div key={b.label} className="salary-band-row">
                     <span className="salary-band-year">{b.label}</span>
@@ -395,7 +395,7 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
       sub: (
         <>
           현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
+          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
         </>
       ),
     },
@@ -425,7 +425,7 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
       sub: (
         <>
           현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사·직무·연봉 전략까지 설계합니다.
+          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
         </>
       ),
     },
@@ -481,7 +481,7 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
                 <div className="upload-icon">📄</div>
                 <div className="upload-label">
                   <strong>이력서를 드래그하거나 클릭</strong><br />
-                  PDF, DOCX · 최대 10MB
+                  PDF, DOCX / 최대 10MB
                 </div>
                 <div className="typewriter">AI 분석 중...</div>
               </div>
@@ -519,7 +519,7 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
                 <span className="mini-jd-badge" style={{ background: '#22c55e20', color: '#22c55e', borderColor: '#22c55e50' }}>✅ APPLY</span>
               </div>
               <div className="mini-jd-bar-wrap"><div className="mini-jd-bar" style={{ width: '82%' }} /></div>
-              <div className="mini-jd-verdict">"GTM·SQL 강점이 토스 PM 요구와 80% 일치"</div>
+              <div className="mini-jd-verdict">"GTM/SQL 강점이 토스 PM 요구와 80% 일치"</div>
               <div className="mini-jd-list">
                 <div className="mini-jd-row ok">✅ B2B GTM 전 과정 실행 경험 보유</div>
                 <div className="mini-jd-row ok">✅ SQL 퍼널 분석 — 데이터 드리븐 문화 적응</div>
@@ -533,11 +533,11 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
             <div className="demo-body demo-body-interview">
               <div className="mini-jd-header">
                 <span className="mini-jd-co">🎤 면접 가이드</span>
-                <span className="mini-jd-pos">토스 · PM (AI Growth)</span>
+                <span className="mini-jd-pos">토스 / PM (AI Growth)</span>
               </div>
               <div className="mini-interview-list">
                 <div className="mini-q-item expanded">
-                  <div className="mini-q-row"><span className="mini-q-num">Q1</span><span className="mini-q-text">B2B SaaS GTM 전략 수립·실행 경험?</span></div>
+                  <div className="mini-q-row"><span className="mini-q-num">Q1</span><span className="mini-q-text">B2B SaaS GTM 전략 수립/실행 경험?</span></div>
                   <div className="mini-q-answer">→ MQL 220건, SQL 전환율 28% 달성. ABM으로 전환율 40% 향상…</div>
                 </div>
                 <div className="mini-q-item"><span className="mini-q-num">Q2</span><span className="mini-q-text">기능 우선순위 결정 프레임워크?</span></div>
@@ -545,8 +545,8 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
                 <div className="mini-q-item"><span className="mini-q-num">Q4</span><span className="mini-q-text">SQL 기반 비즈니스 인사이트 도출 사례?</span></div>
               </div>
               <div className="mini-reverse-bar">
-                💬 역질문 3가지 &nbsp;·&nbsp;
-                <span style={{ color: 'var(--muted2)' }}>역할 · 도전 · 기대</span>
+                💬 역질문 3가지 &nbsp;/&nbsp;
+                <span style={{ color: 'var(--muted2)' }}>역할 / 도전 / 기대</span>
               </div>
             </div>
           )}

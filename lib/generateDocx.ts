@@ -30,7 +30,7 @@ function sectionHeading(text: string): Paragraph {
 
 function bulletLine(text: string): Paragraph {
   return new Paragraph({
-    children: [new TextRun({ text: `· ${text}`, size: 20, color: '333344' })],
+    children: [new TextRun({ text: `/ ${text}`, size: 20, color: '333344' })],
     indent: { left: 200 },
     spacing: { after: 60 },
   })

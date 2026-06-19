@@ -86,7 +86,7 @@ export default function MyInfoButton() {
               <>
                 {/* 플랜 + 잔여 횟수 */}
                 <div className="my-info-section">
-                  <div className="my-info-label">플랜 · 이번 달 사용량</div>
+                  <div className="my-info-label">플랜, 이번 달 사용량</div>
                   <div className="my-info-plan-row">
                     <span className={`nav-plan-badge plan-${info.plan.toLowerCase()}`}>{info.plan}</span>
                     {info.resetAt && <span className="my-info-reset">다음 초기화: {info.resetAt}</span>}

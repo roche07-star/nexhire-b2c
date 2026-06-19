@@ -98,7 +98,7 @@ export default function SharedAnalysisPage() {
             <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>공유된 이력서 분석 결과</h1>
             <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
               분석일: {new Date(created_at).toLocaleDateString('ko-KR')}
-              {expires_at && ` · 공유 만료: ${new Date(expires_at).toLocaleDateString('ko-KR')}`}
+              {expires_at && `, 공유 만료: ${new Date(expires_at).toLocaleDateString('ko-KR')}`}
             </p>
           </div>
         </div>

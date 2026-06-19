@@ -27,7 +27,7 @@ const jdTool: Anthropic.Tool = {
       },
       company_insight: {
         type: 'string',
-        description: '회사 특성 요약 — 규모·업종·조직 문화 등 (JD 문맥 및 회사명에서 추론, 2-3문장)',
+        description: '회사 특성 요약 — 규모/업종/조직 문화 등 (JD 문맥 및 회사명에서 추론, 2-3문장)',
       },
       // ===== 상세 회사 분석 (NEW) =====
       company_analysis: {
@@ -210,7 +210,7 @@ STEP 4 — 매칭 판정 + 제안 전략
 - fit_score: STEP 3 결과 종합 점수 (위 점수 기준 적용)
 - recommendation: APPLY / CONSIDER / SKIP
 - verdict: "이 후보자는 [강점]이 강점이나, [리스크] 부분이 리스크입니다. [제안 포지셔닝]으로 제안합니다." — 한 문장, 날카롭게
-- company_insight: 회사 규모·업종·조직 문화 등 핵심 정보를 2-3문장으로 요약. JD 문맥 및 회사명에서 추론
+- company_insight: 회사 규모/업종/조직 문화 등 핵심 정보를 2-3문장으로 요약. JD 문맥 및 회사명에서 추론
 - company_analysis: 상세 회사 분석
   * introduction: 회사 소개 (업종, 주요 사업, 설립 배경 등). JD와 회사명에서 알 수 있는 정보 기반. 정보가 없으면 "정보 부족"
   * revenue: 매출액 또는 규모 추정. 알려진 경우만 작성, 모르면 "정보 부족"
@@ -227,7 +227,7 @@ STEP 4 — 매칭 판정 + 제안 전략
 ${OUTPUT_RULES}
 
 [추가 금지사항]
-JD·이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지`
+JD/이력서 내용 그대로 복사 금지 / 강점만 나열 금지 / 숨은 요구 생략 금지 / "좋은 후보자입니다" 류 빈 말 금지`
 
     const userContent = client_comment
       ? `[채용 회사]
