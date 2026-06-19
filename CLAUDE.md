@@ -22,16 +22,42 @@ npm run lint            # Run ESLint
 
 ## Architecture
 
-### Core Data Flow
+### Background Job System (NEW - 2026-06-19)
 
-1. **Resume Upload** → `app/api/analyze/route.ts`
+**All analysis features now use background Jobs for better UX:**
+
+1. **User Request** → API creates Job (0.5s)
+2. **Job ID returned** → Frontend starts polling
+3. **Backend processes** → Updates progress (60-120s)
+4. **Completion** → Result auto-displayed
+
+**Architecture:**
+```
+POST /api/analyze/[feature] → Job creation
+POST /api/jobs/[id]/process → Actual processing
+GET  /api/jobs/[id]         → Status polling (every 2s)
+```
+
+**Database:** `jobs` table in Supabase stores job state, progress, and results.
+
+**Status:** 
+- ✅ Interview Guide: 100% complete
+- ⏸️ JD/Resume/Rewrite: Pattern set (process.ts needs completion)
+
+**See**: `docs/BACKGROUND_JOB_SYSTEM.md` for implementation details
+
+### Core Data Flow (Updated)
+
+1. **Resume Upload** → `app/api/analyze/route.ts` (Job-based)
+   - Creates Job → returns Job ID immediately
    - User uploads resume (PDF/DOCX/HWP) or pastes text
    - Extract text via `lib/extractText.ts` (mammoth for DOCX, Claude Vision for image PDFs)
    - **PII masking** via `lib/maskPII.ts` (emails, phones, names → placeholders)
    - Masked text sent to Claude API for analysis
    - Original PII + analysis result saved to Supabase `analyses` table
 
-2. **JD Matching** → `app/api/analyze/jd/route.ts`
+2. **JD Matching** → `app/api/analyze/jd/route.ts` (Job-based)
+   - Creates Job → returns Job ID immediately
    - Takes analysis result + job description text
    - Claude compares and generates:
      - Fit score (0-100)
@@ -40,8 +66,10 @@ npm run lint            # Run ESLint
      - Recommendation (APPLY/CONSIDER/SKIP)
    - Saved to `jd_analyses` table
 
-3. **Interview Guide** → `app/api/analyze/interview/route.ts`
+3. **Interview Guide** → `app/api/analyze/interview/route.ts` (✅ Job-based, fully working)
    - EXPERT plan only
+   - Creates Job → returns Job ID immediately
+   - Backend processes with real-time progress updates
    - Combines resume analysis + JD analysis
    - Claude generates structured interview prep guide
    - Saved to `interview_guides` table with 10-day expiry
