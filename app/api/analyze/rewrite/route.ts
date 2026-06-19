@@ -19,6 +19,16 @@ interface JDContext {
   matching_points: string[]
   gaps: string[]
   pitch_points: string[]
+  // 상세 회사 분석 (NEW)
+  company_analysis?: {
+    introduction: string
+    revenue: string
+    current_business: string
+    recent_trends: string
+    future_value: string
+    needs_more_info: boolean
+    info_request_message?: string
+  }
 }
 
 function toArr(v: unknown): string[] {
@@ -79,9 +89,19 @@ function coverLetterSectionType(title: string): 'application' | 'selfintro' | 'c
 }
 
 function buildJDSection(jd: JDContext): string {
+  // 회사 분석 정보 (JD 분석에서 생성된 정보)
+  const companyAnalysisSection = jd.company_analysis ? `
+[회사 상세 정보] (이력서 작성 시 참고):
+- 회사 소개: ${jd.company_analysis.introduction !== '정보 부족' ? jd.company_analysis.introduction : '정보 없음'}
+- 매출/규모: ${jd.company_analysis.revenue !== '정보 부족' ? jd.company_analysis.revenue : '정보 없음'}
+- 현재 사업: ${jd.company_analysis.current_business !== '정보 부족' ? jd.company_analysis.current_business : '정보 없음'}
+- 최근 동향: ${jd.company_analysis.recent_trends !== '정보 부족' ? jd.company_analysis.recent_trends : '정보 없음'}
+- 미래 가치: ${jd.company_analysis.future_value !== '정보 부족' ? jd.company_analysis.future_value : '정보 없음'}
+` : ''
+
   return `
 [JD 분석 정보 — 이 이력서를 ${jd.company} 포지션에 추천하기 위한 전략 정보]
-채용사: ${jd.company}
+채용사: ${jd.company}${companyAnalysisSection}
 적합도 판단: ${jd.fit_score}% / ${jd.verdict}
 강점 포인트 (이력서에서 더 부각할 것):
 ${toArr(jd.matching_points).map(p => `  - ${p}`).join('\n')}
