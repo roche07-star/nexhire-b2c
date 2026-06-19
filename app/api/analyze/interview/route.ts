@@ -3,8 +3,9 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage } from '@/lib/usageLimits'
 import { createJob } from '@/lib/jobs'
+import { processInterviewJob } from './process'
 
-export const maxDuration = 10  // Job 생성만 하므로 짧게
+export const maxDuration = 120  // 실제 처리까지 포함 (Vercel Pro 필요)
 
 /**
  * POST /api/analyze/interview
@@ -47,13 +48,13 @@ export async function POST(req: NextRequest) {
     const { id: jobId, error: jobError } = await createJob(
       email,
       'interview',
-      { 
-        analysisId, 
-        jdAnalysisId, 
-        interviewFormat, 
-        interviewerInfo, 
+      {
+        analysisId,
+        jdAnalysisId,
+        interviewFormat,
+        interviewerInfo,
         specialNotes,
-        role,  // processInterviewJob에서 필요
+        role,
       },
       6  // 6단계
     )
@@ -62,12 +63,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Job 생성 실패' }, { status: 500 })
     }
 
-    // Job ID 즉시 반환
-    return NextResponse.json({
-      jobId,
-      status: 'pending',
-      message: '면접 가이드 생성을 준비했습니다.',
+    // 즉시 처리 시작 (동기 - Vercel 제약)
+    await processInterviewJob(jobId, email, role, {
+      analysisId,
+      jdAnalysisId,
+      interviewFormat,
+      interviewerInfo,
+      specialNotes,
     })
+
+    // Job 상태 조회하여 결과 반환
+    const { getJobStatus } = await import('@/lib/jobs')
+    const job = await getJobStatus(jobId, email)
+
+    if (!job || job.status === 'failed') {
+      return NextResponse.json({
+        error: job?.error ?? '면접 가이드 생성 실패'
+      }, { status: 500 })
+    }
+
+    // 성공 시 결과 반환 (기존 API 호환)
+    return NextResponse.json(job.result)
 
   } catch (e) {
     console.error('[POST /api/analyze/interview]', e)
