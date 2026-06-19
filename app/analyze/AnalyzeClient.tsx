@@ -2064,17 +2064,55 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <button className="jd-back-btn" onClick={() => setInterviewSelectedAnalysis(null)}>
                           ← 이력서 다시 선택
                         </button>
+
+                        <div style={{
+                          background: 'rgba(232, 255, 71, 0.05)',
+                          border: '1px solid rgba(232, 255, 71, 0.2)',
+                          borderRadius: '12px',
+                          padding: '20px 24px',
+                          marginBottom: '24px',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{
+                            fontSize: '24px',
+                            fontWeight: 700,
+                            color: '#e8ff47',
+                            marginBottom: '8px'
+                          }}>
+                            🎤 면접 가이드 생성
+                          </div>
+                          <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
+                            선택한 이력서를 기반으로 맞춤형 면접 준비 가이드를 AI가 생성합니다
+                          </div>
+                        </div>
+
                         <div className="jd-selected-summary">
-                          <div className="jd-selected-label">선택된 이력서</div>
+                          <div className="jd-selected-label">✅ STEP 1. 선택된 이력서</div>
                           <div className="jd-selected-title">
                             {interviewSelectedAnalysis.result.job_title ?? '이력서 분석'}
                             <span className="jd-selected-date">{new Date(interviewSelectedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                           </div>
                           <p className="jd-selected-summary-text">{interviewSelectedAnalysis.result.summary?.slice(0, 100)}…</p>
                         </div>
+
+                        <div style={{
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          color: 'var(--muted2)',
+                          marginBottom: '16px',
+                          marginTop: '24px',
+                          paddingBottom: '8px',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}>
+                          📝 STEP 2. 면접 정보 입력 (선택사항)
+                        </div>
+
                         <div className="jd-form">
                           <div className="jd-field">
-                            <label className="jd-label">JD 기반 분석 연결 <span className="jd-label-optional">(선택)</span></label>
+                            <label className="jd-label">
+                              💼 JD 기반 분석 연결
+                              <span className="jd-label-optional">(선택)</span>
+                            </label>
                             <select className="jd-input" value={interviewJdId ?? ''} onChange={(e) => setInterviewJdId(e.target.value || null)}>
                               <option value="">선택 안 함 (일반 관점으로 생성)</option>
                               {(jdSavedList ?? []).map((jd) => (
@@ -2085,22 +2123,54 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             </select>
                           </div>
                           <div className="jd-field">
-                            <label className="jd-label">면접 형식 <span className="jd-label-optional">(선택)</span></label>
+                            <label className="jd-label">
+                              📋 면접 형식
+                              <span className="jd-label-optional">(선택)</span>
+                            </label>
                             <input className="jd-input" type="text" placeholder="예) 1차 실무 → 2차 임원, PT 발표 포함" value={interviewFormat} onChange={(e) => setInterviewFormat(e.target.value)} />
                           </div>
                           <div className="jd-field">
-                            <label className="jd-label">면접관 정보 <span className="jd-label-optional">(선택)</span></label>
+                            <label className="jd-label">
+                              👥 면접관 정보
+                              <span className="jd-label-optional">(선택)</span>
+                            </label>
                             <input className="jd-input" type="text" placeholder="예) 인사팀 + 현업 팀장, C-level" value={interviewerInfo} onChange={(e) => setInterviewerInfo(e.target.value)} />
                           </div>
                           <div className="jd-field">
-                            <label className="jd-label">특이사항 <span className="jd-label-optional">(선택)</span></label>
+                            <label className="jd-label">
+                              ⚠️ 특이사항
+                              <span className="jd-label-optional">(선택)</span>
+                            </label>
                             <input className="jd-input" type="text" placeholder="예) 단기 재직 이력, 도메인 갭, 연봉 Gap" value={interviewNotes} onChange={(e) => setInterviewNotes(e.target.value)} />
                           </div>
                         </div>
                         {interviewError && <div className="analyze-error">{interviewError}</div>}
-                        <button
-                          className="jd-analyze-btn"
-                          disabled={interviewLoading}
+
+                        <div style={{
+                          marginTop: '32px',
+                          paddingTop: '24px',
+                          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{
+                            fontSize: '12px',
+                            color: 'var(--muted)',
+                            marginBottom: '16px'
+                          }}>
+                            💡 AI가 약 60-90초 동안 맞춤형 면접 가이드를 생성합니다
+                          </div>
+                          <button
+                            className="jd-analyze-btn"
+                            style={{
+                              background: interviewLoading ? 'var(--muted)' : 'linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%)',
+                              color: '#000',
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              padding: '16px 32px',
+                              width: '100%',
+                              maxWidth: '400px'
+                            }}
+                            disabled={interviewLoading}
                           onClick={async () => {
                             setInterviewLoading(true)
                             setInterviewError(null)
@@ -2140,7 +2210,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           }}
                         >
                           {interviewLoading ? '생성 중...' : '🎤 면접 가이드 생성'}
-                        </button>
+                          </button>
+                        </div>
+
                         {interviewLoading && (
                           <div className="jd-loading-indicator">
                             <div className="loading-spinner"></div>
