@@ -527,7 +527,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [isTextPasteRewrite, setIsTextPasteRewrite] = useState(false)
   const [savedJDTemplates, setSavedJDTemplates] = useState<JDTemplate[]>([])
   const [showJDInput, setShowJDInput] = useState(false)
-  const formatSelectResolveRef = useRef<((choice: 'original' | 'updated' | 'cancel') => void) | null>(null)
+  const formatSelectResolveRef = useRef<((choice: 'original' | 'standard' | 'cancel') => void) | null>(null)
   const [templateUploadModal, setTemplateUploadModal] = useState(false)
   const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
   const [modalTemplateFile, setModalTemplateFile] = useState<File | null>(null)
@@ -716,14 +716,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     jdSelectResolveRef.current = null
   }
 
-  function openFormatSelectModal(): Promise<'original' | 'updated' | 'cancel'> {
+  function openFormatSelectModal(): Promise<'original' | 'standard' | 'cancel'> {
     return new Promise(resolve => {
       formatSelectResolveRef.current = resolve
       setFormatSelectModal(true)
     })
   }
 
-  function resolveFormatSelect(choice: 'original' | 'updated' | 'cancel') {
+  function resolveFormatSelect(choice: 'original' | 'standard' | 'cancel') {
     setFormatSelectModal(false)
     formatSelectResolveRef.current?.(choice)
     formatSelectResolveRef.current = null
@@ -756,13 +756,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     const formatChoice = await openFormatSelectModal()
     if (formatChoice === 'cancel') return
 
-    // 업데이트 이력서: 템플릿 DOCX 업로드
-    let templateFile: File | null = null
-    if (formatChoice === 'updated') {
-      const fileChoice = await openTemplateUploadModal()
-      if (fileChoice === 'cancel') return
-      templateFile = fileChoice
-    }
+    // 기본 이력서는 템플릿 없이 생성
+    const templateFile: File | null = null
 
     // JD 목록 로드 (없으면)
     let jdList = jdSavedList
@@ -1641,8 +1636,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
                   <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식/서식을 거의 비슷하게 유지하며 JD 기반으로 내용을 보완합니다.<br />
-                  <strong>자율 포맷 생성</strong>: 텍스트 붙여넣기로 분석한 경우, AI가 섹션별로 구성하여 새 DOCX로 생성합니다.<br />
-                  <strong>양식 업로드</strong>: 원하는 DOCX 양식을 업로드하면 원본 내용을 해당 양식에 맞게 채워 생성합니다.<br />
+                  <strong>기본 이력서</strong>: Claude AI가 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조입니다.<br />
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
@@ -2774,16 +2768,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               </div>
             </button>
 
-            <button className="preserve-option-card" onClick={() => resolveFormatSelect('updated')}>
+            <button className="preserve-option-card" onClick={() => resolveFormatSelect('standard')}>
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">✨</span>
-                <span className="preserve-option-label">{isTextPasteRewrite ? '이력서 양식 업로드' : '업데이트 이력서'}</span>
-                <span className="preserve-option-badge coupon">양식 업로드</span>
+                <span className="preserve-option-label">기본 이력서</span>
+                <span className="preserve-option-badge coupon">Claude 추천</span>
               </div>
               <div className="preserve-option-desc">
-                {isTextPasteRewrite
-                  ? '원하는 DOCX 이력서 양식을 업로드하면 분석된 내용을 해당 양식에 맞게 채워 생성합니다.'
-                  : '원하는 DOCX 양식을 업로드하면 원본 이력서 내용을 해당 양식에 맞게 채워 생성합니다.'}
+                Claude AI가 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조로 작성됩니다.
               </div>
             </button>
 

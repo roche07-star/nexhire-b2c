@@ -471,7 +471,9 @@ export async function POST(req: NextRequest) {
     const candidateName = (row.result?.candidate_name as string | undefined) ?? '이력서'
     const dateStr = new Date().toISOString().slice(0, 10)
 
-    // ── 업데이트 이력서: 사용자 업로드 템플릿에 원본 내용 채우기
+    // ── 업데이트 이력서 기능 제거됨 (2026-06-19)
+    // standard 모드는 original과 동일하게 처리
+    /* formatMode === 'updated' 제거됨
     if (formatMode === 'updated' && templateFileEntry) {
       const templateBuffer = Buffer.from(await templateFileEntry.arrayBuffer())
       const templateParas = await extractDocxParagraphs(templateBuffer)
@@ -559,6 +561,7 @@ export async function POST(req: NextRequest) {
         plan,
       })
     }
+    */
 
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx' && formatMode !== 'updated') {
