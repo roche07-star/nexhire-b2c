@@ -585,6 +585,16 @@ const REWRITE_LOADING_STEPS = [
   'DOCX 파일을 생성하는 중...',
 ]
 
+const INTERVIEW_LOADING_STEPS = [
+  '면접 가이드 생성을 준비하는 중...',
+  '회사 정보를 확인하는 중...',
+  '포지션 브리핑을 작성하는 중...',
+  '예상 질문을 생성하는 중...',
+  '답변 전략을 수립하는 중...',
+  '역질문을 준비하는 중...',
+  '최종 검토 중...',
+]
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null }) {
   const {
     state: analysisState,
@@ -676,6 +686,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewNotes, setInterviewNotes] = useState('')
   const [interviewResult, setInterviewResult] = useState<InterviewGuideResult | null>(null)
   const [interviewLoading, setInterviewLoading] = useState(false)
+  const [interviewLoadingMsg, setInterviewLoadingMsg] = useState('')
+  const interviewLoadingStepRef = useRef(0)
+  const interviewLoadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [interviewError, setInterviewError] = useState<string | null>(null)
   const [interviewSavedList, setInterviewSavedList] = useState<SavedInterviewGuide[] | null>(null)
   const [interviewSavedListLoading, setInterviewSavedListLoading] = useState(false)
@@ -2071,6 +2084,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           onClick={async () => {
                             setInterviewLoading(true)
                             setInterviewError(null)
+                            // 진행 상황 표시 시작
+                            interviewLoadingStepRef.current = 0
+                            setInterviewLoadingMsg(INTERVIEW_LOADING_STEPS[0])
+                            interviewLoadingIntervalRef.current = setInterval(() => {
+                              interviewLoadingStepRef.current = Math.min(interviewLoadingStepRef.current + 1, INTERVIEW_LOADING_STEPS.length - 1)
+                              setInterviewLoadingMsg(INTERVIEW_LOADING_STEPS[interviewLoadingStepRef.current])
+                            }, 12000) // 약 84초 (7단계 × 12초)
                             try {
                               const res = await fetch('/api/analyze/interview', {
                                 method: 'POST',
@@ -2090,12 +2110,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             } catch {
                               setInterviewError('네트워크 오류가 발생했습니다.')
                             } finally {
+                              // 진행 상황 표시 종료
+                              if (interviewLoadingIntervalRef.current) {
+                                clearInterval(interviewLoadingIntervalRef.current)
+                                interviewLoadingIntervalRef.current = null
+                              }
                               setInterviewLoading(false)
                             }
                           }}
                         >
                           {interviewLoading ? '생성 중...' : '🎤 면접 가이드 생성'}
                         </button>
+                        {interviewLoading && (
+                          <div className="jd-loading-indicator">
+                            <div className="loading-spinner"></div>
+                            <div className="loading-text">{interviewLoadingMsg}</div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <>
