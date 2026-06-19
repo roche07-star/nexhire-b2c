@@ -993,6 +993,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           changes: result.changes,
           userEmail: userEmail,
           timestamp: Date.now(),
+          // PRO/EXPERT: DOCX 데이터도 저장 (다운로드 버튼용)
+          docx: result.docx || null,
+          filename: result.filename || null,
         }))
       } catch (e) {
         console.error('localStorage 저장 실패:', e)

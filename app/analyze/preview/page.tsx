@@ -16,6 +16,8 @@ function PreviewContent() {
   const [changes, setChanges] = useState<string[]>([])
   const [sections, setSections] = useState<Section[]>([])
   const [loading, setLoading] = useState(true)
+  const [docx, setDocx] = useState<string | null>(null)
+  const [filename, setFilename] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -75,6 +77,8 @@ function PreviewContent() {
       setPlan(data.plan ?? 'FREE')
       setOriginalPreview(data.originalPreview ?? '')
       setChanges(data.changes ?? [])
+      setDocx(data.docx ?? null)
+      setFilename(data.filename ?? null)
 
       // HTML을 섹션별로 파싱
       const parsedSections = parseHTMLToSections(data.preview ?? '')
@@ -87,6 +91,26 @@ function PreviewContent() {
       router.push('/analyze')
     }
   }, [router, searchParams])
+
+  function downloadDocx() {
+    if (!docx || !filename) {
+      alert('다운로드할 파일이 없습니다.')
+      return
+    }
+    try {
+      const bytes = Uint8Array.from(atob(docx), c => c.charCodeAt(0))
+      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.download = filename
+      a.href = url
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('다운로드 실패:', e)
+      alert('다운로드에 실패했습니다.')
+    }
+  }
 
   function parseHTMLToSections(htmlString: string): Section[] {
     if (!htmlString) return []
@@ -101,6 +125,12 @@ function PreviewContent() {
       const sectionList: Section[] = []
       h3Elements.forEach((h3) => {
         const title = h3.textContent?.trim() || ''
+
+        // "개인정보 수집 동의서" 섹션 제외 (고정 섹션이므로 표시 불필요)
+        if (title.includes('개인정보') || title.includes('동의서') || title.includes('수집')) {
+          return
+        }
+
         const nextDiv = h3.nextElementSibling
         const content = nextDiv?.textContent?.trim() || ''
         if (title || content) {
@@ -202,9 +232,36 @@ function PreviewContent() {
                 </div>
               </div>
             </div>
-            <span style={{ fontSize: '13px', color: '#999' }}>
-              분석일: {new Date().toLocaleDateString('ko-KR')}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '13px', color: '#999' }}>
+                분석일: {new Date().toLocaleDateString('ko-KR')}
+              </span>
+              {/* PRO/EXPERT: DOCX 다운로드 버튼 */}
+              {(plan === 'PRO' || plan === 'EXPERT') && docx && (
+                <button
+                  onClick={downloadDocx}
+                  style={{
+                    background: 'linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 20px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
+                >
+                  📥 DOCX 다운로드
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
