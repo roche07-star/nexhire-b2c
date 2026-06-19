@@ -2084,15 +2084,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           onClick={async () => {
                             setInterviewLoading(true)
                             setInterviewError(null)
-                            // 진행 상황 표시 시작
-                            interviewLoadingStepRef.current = 0
-                            setInterviewLoadingMsg(INTERVIEW_LOADING_STEPS[0])
-                            interviewLoadingIntervalRef.current = setInterval(() => {
-                              interviewLoadingStepRef.current = Math.min(interviewLoadingStepRef.current + 1, INTERVIEW_LOADING_STEPS.length - 1)
-                              setInterviewLoadingMsg(INTERVIEW_LOADING_STEPS[interviewLoadingStepRef.current])
-                            }, 12000) // 약 84초 (7단계 × 12초)
+                            setInterviewLoadingMsg('Job을 생성하는 중...')
+
                             try {
-                              const res = await fetch('/api/analyze/interview', {
+                              // Step 1: Job 생성
+                              const createRes = await fetch('/api/analyze/interview', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -2103,18 +2099,60 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   specialNotes: interviewNotes,
                                 }),
                               })
-                              const data = await res.json()
-                              if (!res.ok) { setInterviewError(data.error ?? '오류가 발생했습니다.'); return }
-                              setInterviewResult(data)
-                              setInterviewSavedList(null) // 목록 갱신 트리거
+                              const createData = await createRes.json()
+                              if (!createRes.ok) {
+                                setInterviewError(createData.error ?? 'Job 생성 실패')
+                                return
+                              }
+
+                              const jobId = createData.jobId
+
+                              // Step 2: Process 시작 (백그라운드)
+                              fetch(`/api/jobs/${jobId}/process`, { method: 'POST' }).catch(err => {
+                                console.error('Process API error:', err)
+                              })
+
+                              // Step 3: Polling 시작
+                              const pollInterval = setInterval(async () => {
+                                try {
+                                  const statusRes = await fetch(`/api/jobs/${jobId}`)
+                                  const statusData = await statusRes.json()
+
+                                  if (!statusRes.ok) {
+                                    clearInterval(pollInterval)
+                                    setInterviewError('Job 상태 확인 실패')
+                                    setInterviewLoading(false)
+                                    return
+                                  }
+
+                                  // 진행 상황 업데이트
+                                  if (statusData.progress_message) {
+                                    setInterviewLoadingMsg(statusData.progress_message)
+                                  }
+
+                                  // 완료 시
+                                  if (statusData.status === 'completed') {
+                                    clearInterval(pollInterval)
+                                    setInterviewResult(statusData.result)
+                                    setInterviewSavedList(null)
+                                    setInterviewLoading(false)
+                                  }
+
+                                  // 실패 시
+                                  if (statusData.status === 'failed') {
+                                    clearInterval(pollInterval)
+                                    setInterviewError(statusData.error ?? '면접 가이드 생성 실패')
+                                    setInterviewLoading(false)
+                                  }
+                                } catch {
+                                  clearInterval(pollInterval)
+                                  setInterviewError('네트워크 오류')
+                                  setInterviewLoading(false)
+                                }
+                              }, 2000) // 2초마다 polling
+
                             } catch {
                               setInterviewError('네트워크 오류가 발생했습니다.')
-                            } finally {
-                              // 진행 상황 표시 종료
-                              if (interviewLoadingIntervalRef.current) {
-                                clearInterval(interviewLoadingIntervalRef.current)
-                                interviewLoadingIntervalRef.current = null
-                              }
                               setInterviewLoading(false)
                             }
                           }}
