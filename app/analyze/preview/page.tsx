@@ -18,6 +18,7 @@ function PreviewContent() {
   const [loading, setLoading] = useState(true)
   const [docx, setDocx] = useState<string | null>(null)
   const [filename, setFilename] = useState<string | null>(null)
+  const [showFullComparison, setShowFullComparison] = useState(false)
 
   useEffect(() => {
     try {
@@ -310,8 +311,37 @@ function PreviewContent() {
           </div>
         )}
 
-        {/* 좌우 비교 레이아웃 */}
-        <div style={{
+        {/* 전체 비교 토글 버튼 */}
+        {changes.length > 0 && (
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <button
+              onClick={() => setShowFullComparison(!showFullComparison)}
+              style={{
+                background: 'rgba(232, 255, 71, 0.1)',
+                border: '1px solid rgba(232, 255, 71, 0.3)',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                color: '#e8ff47',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(232, 255, 71, 0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(232, 255, 71, 0.1)'
+              }}
+            >
+              {showFullComparison ? '📋 전체 비교 숨기기' : '📋 전체 비교 보기 (수정 전/후)'}
+            </button>
+          </div>
+        )}
+
+        {/* 좌우 비교 레이아웃 (토글) */}
+        {showFullComparison && (
+          <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '24px',
@@ -400,6 +430,7 @@ function PreviewContent() {
             </div>
           </div>
         </div>
+        )}
 
         {/* 푸터 */}
         <div style={{

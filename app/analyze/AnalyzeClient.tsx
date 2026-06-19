@@ -1699,6 +1699,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
+                        position: 'relative',
                       }}>
                         <div>
                           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
@@ -1708,13 +1709,53 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             {ageMinutes < 1 ? '방금 전' : `${ageMinutes}분 전`}, {data.plan} 플랜
                           </div>
                         </div>
-                        <button
-                          className="btn-primary"
-                          onClick={() => window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')}
-                          style={{ fontSize: '13px', padding: '8px 16px' }}
-                        >
-                          다시 보기 →
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <button
+                            className="btn-primary"
+                            onClick={() => window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')}
+                            style={{ fontSize: '13px', padding: '8px 16px' }}
+                          >
+                            다시 보기 →
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (confirm('생성된 이력서를 삭제하시겠습니까?')) {
+                                const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
+                                localStorage.removeItem(storageKey)
+                                // 강제 리렌더링
+                                window.location.reload()
+                              }
+                            }}
+                            style={{
+                              background: 'transparent',
+                              border: '1px solid rgba(255,255,255,0.2)',
+                              color: 'var(--muted)',
+                              fontSize: '18px',
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(255,0,0,0.1)'
+                              e.currentTarget.style.borderColor = 'rgba(255,0,0,0.3)'
+                              e.currentTarget.style.color = '#ff5555'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent'
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                              e.currentTarget.style.color = 'var(--muted)'
+                            }}
+                            title="삭제"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
                     )
                   } catch {
