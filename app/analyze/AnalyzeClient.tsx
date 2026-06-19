@@ -162,7 +162,22 @@ function generateInterviewHTML(guide: InterviewGuideResult): string {
   const title = [guide.candidate_name, guide.company, guide.position].filter(Boolean).join(', ')
   const userEmail = typeof window !== 'undefined' ? (window as { __USER_EMAIL__?: string }).__USER_EMAIL__ : ''
 
-  const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  // 마크다운 제거 후 HTML 이스케이프
+  const esc = (s: string) => {
+    // 1. 마크다운 제거
+    let clean = s
+      .replace(/\*\*/g, '')  // ** 제거
+      .replace(/\*/g, '')    // * 제거
+      .replace(/~~(.+?)~~/g, '$1')  // ~~취소선~~ → 취소선
+      .replace(/`(.+?)`/g, '$1')    // `코드` → 코드
+
+    // 2. HTML 이스케이프
+    return clean
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+  }
+
   const lines = (s: string) => esc(s).split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('')
   const listItems = (arr: string[]) => arr.map(s => `<li>${esc(s)}</li>`).join('')
 
@@ -2192,6 +2207,25 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 <div className="jd-saved-card-right">
                                   <span className="jd-saved-date">{new Date(saved.created_at).toLocaleDateString('ko-KR')}</span>
                                 </div>
+                                <button
+                                  className="saved-delete-btn"
+                                  onClick={async (e) => {
+                                    e.stopPropagation()
+                                    if (!confirm('면접 가이드를 삭제하시겠습니까?')) return
+                                    try {
+                                      const res = await fetch(`/api/analyze/interview/${saved.id}`, { method: 'DELETE' })
+                                      if (res.ok) {
+                                        setInterviewSavedList(prev => prev ? prev.filter(g => g.id !== saved.id) : prev)
+                                        if (interviewViewingSaved?.id === saved.id) setInterviewViewingSaved(null)
+                                      }
+                                    } catch (err) {
+                                      console.error('Delete error:', err)
+                                    }
+                                  }}
+                                  title="삭제"
+                                >
+                                  ×
+                                </button>
                               </div>
                             )
                           })}
