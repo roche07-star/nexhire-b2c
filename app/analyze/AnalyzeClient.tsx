@@ -1969,7 +1969,21 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 </button>
               )
 
-              const renderGuide = (g: InterviewGuideResult) => (
+              const renderGuide = (g: InterviewGuideResult) => {
+                // 디버깅: 데이터 확인
+                console.log('🎤 Interview Guide Data:', {
+                  candidate_name: g.candidate_name,
+                  company: g.company,
+                  position: g.position,
+                  strengths: g.strengths,
+                  reverse_questions: g.reverse_questions,
+                  checklist: g.checklist,
+                  qa_salary: g.qa_salary,
+                  risks: g.risks,
+                  fullData: g
+                })
+
+                return (
                 <div className="interview-guide-wrap">
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                     <button className="jd-back-btn" onClick={() => { setInterviewResult(null); setInterviewViewingSaved(null); setInterviewSelectedAnalysis(null); setShowNewInterview(false) }}>
@@ -2053,7 +2067,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     </ul>
                   </div>
                 </div>
-              )
+                )
+              }
 
               return (
                 <div className="jd-section">
