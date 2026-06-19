@@ -1936,11 +1936,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
                     const url = URL.createObjectURL(blob)
                     const a = document.createElement('a')
-                    const name = g.candidate_name ?? '후보자'
-                    const company = g.company ? `_${g.company}` : ''
-                    const date = new Date().toISOString().slice(0, 10)
+
+                    // 파일명: {이름}_{회사}_{포지션}_면접가이드.html
+                    const parts = [
+                      g.candidate_name ?? '후보자',
+                      g.company,
+                      g.position,
+                    ].filter(Boolean)
+
                     a.href = url
-                    a.download = `jobizic_interview_${name}${company}_${date}.html`
+                    a.download = `${parts.join('_')}_면접가이드.html`
                     a.click()
                     URL.revokeObjectURL(url)
                   }}
