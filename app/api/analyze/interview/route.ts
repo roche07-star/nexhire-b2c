@@ -16,10 +16,34 @@ function toArr(v: unknown): string[] {
 
 const interviewTool: Anthropic.Tool = {
   name: 'generate_interview_guide',
-  description: '후보자 맞춤형 면접 가이드를 6개 섹션으로 생성합니다.',
+  description: '후보자 맞춤형 면접 가이드를 HTML 출력용 상세 섹션으로 생성합니다.',
   input_schema: {
     type: 'object' as const,
     properties: {
+      // ===== 포지션 브리핑 =====
+      company_analysis: {
+        type: 'object',
+        description: 'SECTION 0 — 회사/산업 구조 분석',
+        properties: {
+          industry_structure: { type: 'string', description: '산업 구조 및 특성 (2-3문장)' },
+          company_background: { type: 'string', description: '회사 배경 및 사업 방향 (2-3문장)' },
+          position_context: { type: 'string', description: '포지션 맥락 및 핵심 과제 (2-3문장)' },
+        },
+        required: ['industry_structure', 'company_background', 'position_context'],
+      },
+      matching_scores: {
+        type: 'array',
+        description: 'SECTION 0 — JD 요구사항별 매칭 점수 (바 차트용)',
+        items: {
+          type: 'object',
+          properties: {
+            category: { type: 'string', description: '역량 카테고리' },
+            score: { type: 'number', description: '점수 (0-100)' },
+            grade: { type: 'string', description: '등급 (A+/A/B+/B/C+)' },
+          },
+          required: ['category', 'score', 'grade'],
+        },
+      },
       positioning_message: {
         type: 'string',
         description: 'SECTION 1 — 후보자 핵심 포지셔닝 메시지 (한 문장, 구체적으로)',
@@ -77,6 +101,7 @@ const interviewTool: Anthropic.Tool = {
       },
     },
     required: [
+      'company_analysis', 'matching_scores',
       'positioning_message', 'self_intro',
       'qa_resign_reason', 'qa_domain_gap', 'qa_competency', 'qa_post_join', 'qa_salary',
       'strengths', 'risks', 'reverse_questions', 'checklist',
