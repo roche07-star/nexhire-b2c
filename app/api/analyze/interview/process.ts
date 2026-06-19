@@ -210,6 +210,7 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
       company: jdContext?.company ?? null,
       position: jdContext?.position ?? null,
       candidate_name: (a.candidate_name as string | undefined) ?? null,
+      job_title: (a.job_title as string | undefined) ?? null,
       company_analysis: jdContext?.company_analysis ?? null,
     }
 

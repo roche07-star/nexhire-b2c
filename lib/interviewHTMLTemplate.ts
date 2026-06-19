@@ -7,6 +7,7 @@ interface InterviewGuideResult {
   candidate_name?: string | null
   company?: string | null
   position?: string | null
+  job_title?: string | null
   matching_scores?: Array<{ category: string; score: number; grade: string }>
   positioning_message: string
   self_intro: string
@@ -48,7 +49,7 @@ export function generateInterviewHTML(guide: InterviewGuideResult): string {
     return esc(s).split('\n').filter(l => l.trim()).map(l => `<p class="body">${l}</p>`).join('')
   }
 
-  const candidateName = guide.candidate_name ?? '후보자'
+  const candidateName = guide.job_title || guide.candidate_name || '후보자'
   const company = guide.company ?? '회사명'
   const position = guide.position ?? '포지션'
 
