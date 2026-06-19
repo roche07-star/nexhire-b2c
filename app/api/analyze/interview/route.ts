@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
-export const maxDuration = 60
+export const maxDuration = 90  // 회사 분석 추가로 프롬프트 증가 → 타임아웃 증가
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
