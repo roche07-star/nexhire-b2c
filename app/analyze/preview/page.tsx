@@ -311,126 +311,33 @@ function PreviewContent() {
           </div>
         )}
 
-        {/* 전체 비교 토글 버튼 */}
-        {changes.length > 0 && (
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <button
-              onClick={() => setShowFullComparison(!showFullComparison)}
-              style={{
-                background: 'rgba(232, 255, 71, 0.1)',
-                border: '1px solid rgba(232, 255, 71, 0.3)',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                color: '#e8ff47',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(232, 255, 71, 0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(232, 255, 71, 0.1)'
-              }}
-            >
-              {showFullComparison ? '📋 전체 비교 숨기기' : '📋 전체 비교 보기 (수정 전/후)'}
-            </button>
-          </div>
-        )}
-
-        {/* 좌우 비교 레이아웃 (토글) */}
-        {showFullComparison && (
-          <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '24px',
+        {/* 안내 메시지 */}
+        <div style={{
+          background: 'rgba(232,255,71,0.05)',
+          border: '1px solid rgba(232,255,71,0.2)',
+          borderRadius: '12px',
+          padding: '24px',
+          textAlign: 'center',
           marginBottom: '24px',
         }}>
-          {/* 왼쪽: 수정 전 (원본) */}
-          <div style={{
-            background: 'rgba(20,20,25,0.6)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '16px',
-            padding: '32px',
-            minHeight: '500px',
+          <p style={{
+            fontSize: '15px',
+            color: '#e8ff47',
+            fontWeight: 600,
+            marginBottom: '12px',
           }}>
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#999',
-              marginBottom: '20px',
-              paddingBottom: '16px',
-              borderBottom: '2px solid rgba(153,153,153,0.3)',
-            }}>📄 수정 전 이력서 (원본)</h2>
-
-            {originalPreview ? (
-              <div
-                style={{
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  color: '#999',
-                  whiteSpace: 'pre-wrap',
-                }}
-                dangerouslySetInnerHTML={{ __html: originalPreview }}
-              />
-            ) : (
-              <div style={{
-                fontSize: '14px',
-                color: '#666',
-                textAlign: 'center',
-                paddingTop: '40px',
-              }}>
-                원본 이력서 정보가 없습니다.
-              </div>
-            )}
-          </div>
-
-          {/* 오른쪽: 수정 후 (생성) */}
-          <div style={{
-            background: 'rgba(20,20,25,0.6)',
-            border: '1px solid rgba(232,255,71,0.3)',
-            borderRadius: '16px',
-            padding: '32px',
-            minHeight: '500px',
+            📥 생성된 이력서는 DOCX 파일로 다운로드하여 확인하세요
+          </p>
+          <p style={{
+            fontSize: '13px',
+            color: '#999',
+            lineHeight: '1.7',
           }}>
-            <h2 style={{
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#e8ff47',
-              marginBottom: '20px',
-              paddingBottom: '16px',
-              borderBottom: '2px solid rgba(232,255,71,0.3)',
-            }}>✨ 수정 후 이력서 (AI 생성)</h2>
-
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-            }}>
-              {sections.map((section, idx) => (
-                <div key={idx}>
-                  <h3 style={{
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    color: '#e8ff47',
-                    marginBottom: '12px',
-                  }}>{section.title}</h3>
-
-                  <div style={{
-                    fontSize: '14px',
-                    lineHeight: '1.8',
-                    color: '#d0d0d0',
-                    whiteSpace: 'pre-wrap',
-                  }}>
-                    {section.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            {plan === 'PRO' || plan === 'EXPERT'
+              ? '상단의 "DOCX 다운로드" 버튼을 클릭하여 완성된 이력서를 받으세요.'
+              : 'PRO 플랜 이상에서 DOCX 다운로드가 가능합니다.'}
+          </p>
         </div>
-        )}
 
         {/* 푸터 */}
         <div style={{
