@@ -1,0 +1,61 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
+import { getJobStatus } from '@/lib/jobs'
+import { processInterviewJob } from '@/app/api/analyze/interview/process'
+
+export const maxDuration = 120  // 실제 처리는 최대 120초
+
+/**
+ * POST /api/jobs/[id]/process
+ * Job 처리 시작 (Frontend에서 호출)
+ */
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth()
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
+    const { id: jobId } = await params
+    const job = await getJobStatus(jobId, session.user.email)
+
+    if (!job) {
+      return NextResponse.json({ error: 'Job을 찾을 수 없습니다.' }, { status: 404 })
+    }
+
+    if (job.status !== 'pending') {
+      return NextResponse.json({ error: '이미 처리 중이거나 완료된 Job입니다.' }, { status: 400 })
+    }
+
+    // Job 타입에 따라 처리 함수 호출
+    switch (job.job_type) {
+      case 'interview':
+        await processInterviewJob(
+          jobId,
+          session.user.email,
+          job.input_data.role as string ?? 'USER',
+          {
+            analysisId: job.input_data.analysisId as string,
+            jdAnalysisId: job.input_data.jdAnalysisId as string | null | undefined,
+            interviewFormat: job.input_data.interviewFormat as string | undefined,
+            interviewerInfo: job.input_data.interviewerInfo as string | undefined,
+            specialNotes: job.input_data.specialNotes as string | undefined,
+          }
+        )
+        break
+
+      // 다른 job_type은 나중에 추가
+      default:
+        return NextResponse.json({ error: '지원하지 않는 Job 타입입니다.' }, { status: 400 })
+    }
+
+    return NextResponse.json({ success: true, message: 'Job 처리 완료' })
+
+  } catch (e) {
+    console.error('[POST /api/jobs/[id]/process]', e)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+  }
+}

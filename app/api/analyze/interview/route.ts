@@ -1,105 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
-import { checkUsage, incrementUsage } from '@/lib/usageLimits'
+import { checkUsage } from '@/lib/usageLimits'
+import { createJob } from '@/lib/jobs'
 
-export const maxDuration = 90  // 회사 분석 추가로 프롬프트 증가 → 타임아웃 증가
+export const maxDuration = 10  // Job 생성만 하므로 짧게
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
-function toArr(v: unknown): string[] {
-  if (Array.isArray(v)) return v
-  if (typeof v === 'string') return v.split('\n').filter(Boolean)
-  return []
-}
-
-const interviewTool: Anthropic.Tool = {
-  name: 'generate_interview_guide',
-  description: '후보자 맞춤형 면접 가이드를 HTML 출력용 상세 섹션으로 생성합니다.',
-  input_schema: {
-    type: 'object' as const,
-    properties: {
-      // ===== 포지션 브리핑 (JD 선택 시 자동 제공됨) =====
-      // company_analysis는 JD 분석 결과에서 자동으로 가져오므로 생성하지 않음
-      matching_scores: {
-        type: 'array',
-        description: 'SECTION 0 — JD 요구사항별 매칭 점수 (바 차트용)',
-        items: {
-          type: 'object',
-          properties: {
-            category: { type: 'string', description: '역량 카테고리' },
-            score: { type: 'number', description: '점수 (0-100)' },
-            grade: { type: 'string', description: '등급 (A+/A/B+/B/C+)' },
-          },
-          required: ['category', 'score', 'grade'],
-        },
-      },
-      positioning_message: {
-        type: 'string',
-        description: 'SECTION 1 — 후보자 핵심 포지셔닝 메시지 (한 문장, 구체적으로)',
-      },
-      self_intro: {
-        type: 'string',
-        description: 'SECTION 2 — 자기소개 설계. 커리어 흐름(30초), 핵심 역량 3가지(수치 포함), 포지션 연결(30초) 포함. 줄바꿈으로 구분.',
-      },
-      qa_resign_reason: {
-        type: 'string',
-        description: 'SECTION 3A — 이직 사유 답변 가이드. 전 직장 비판 없이, 구조: 환경 변화 → 방향 불일치 → 이 포지션 선택 이유.',
-      },
-      qa_domain_gap: {
-        type: 'string',
-        description: 'SECTION 3B — 도메인 갭 대응 (갭이 없으면 "해당없음"). 갭을 회피하지 말고 방법론 전이 가능성 중심으로.',
-      },
-      qa_competency: {
-        type: 'string',
-        description: 'SECTION 3C — JD 핵심 역량별 STAR 답변 가이드. Situation/Task/Action/Result 구조. 주요 2~3개 역량.',
-      },
-      qa_post_join: {
-        type: 'string',
-        description: 'SECTION 3D — 입사 후 계획 답변 (JD 과제 역으로 언급, 기여 가능 영역 1~2개).',
-      },
-      qa_salary: {
-        type: 'string',
-        description: 'SECTION 3E — 희망 연봉 답변 가이드 (회사 밴드 먼저 유도, 현재 연봉 기준).',
-      },
-      strengths: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'SECTION 4 — 면접에서 반드시 어필할 강점 (JD 필수 요건 매칭, 수치 포함, 3개).',
-      },
-      risks: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            risk: { type: 'string' },
-            response: { type: 'string' },
-          },
-          required: ['risk', 'response'],
-        },
-        description: 'SECTION 4 — 면접관이 우려할 리스크와 대응 전략 (2~3개).',
-      },
-      reverse_questions: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'SECTION 5 — 면접 말미 역질문 추천. 반드시 정확히 3개. 각 질문은 이 후보자·이 포지션에 맞춤화된 구체적 문장으로 작성. 유형: ① 조직 구조/보고 체계 ② 현재 팀의 핵심 과제 ③ 입사 후 6개월 내 기대 성과.',
-      },
-      checklist: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'SECTION 6 — 면접 전 체크리스트 (7~8개, 이 후보자에게 맞춤화).',
-      },
-    },
-    required: [
-      'matching_scores',  // company_analysis는 JD에서 가져오므로 제외
-      'positioning_message', 'self_intro',
-      'qa_resign_reason', 'qa_domain_gap', 'qa_competency', 'qa_post_join', 'qa_salary',
-      'strengths', 'risks', 'reverse_questions', 'checklist',
-    ],
-  },
-}
-
+/**
+ * POST /api/analyze/interview
+ * 면접 가이드 생성 Job 생성 (즉시 반환)
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -110,12 +20,14 @@ export async function POST(req: NextRequest) {
     const email = session.user.email
     const role = (session.user as { role?: string }).role ?? 'USER'
 
+    // EXPERT 플랜 체크
     const { data: userData } = await supabase.from('users').select('plan').eq('email', email).single()
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
     if (plan !== 'EXPERT') {
       return NextResponse.json({ error: 'EXPERT 플랜에서만 사용 가능합니다.' }, { status: 403 })
     }
 
+    // Usage 체크
     if (role !== 'MANAGER') {
       const { allowed, limit } = await checkUsage(email, 'interview')
       if (!allowed) {
@@ -127,141 +39,38 @@ export async function POST(req: NextRequest) {
     }
 
     const { analysisId, jdAnalysisId, interviewFormat, interviewerInfo, specialNotes } = await req.json()
-    if (!analysisId) return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
-
-    const { data: row } = await supabase
-      .from('analyses')
-      .select('id, result')
-      .eq('id', analysisId)
-      .eq('user_email', email)
-      .single()
-
-    if (!row) return NextResponse.json({ error: '분석을 찾을 수 없습니다.' }, { status: 404 })
-
-    let jdContext: Record<string, unknown> | null = null
-    if (jdAnalysisId) {
-      const { data: jdRow } = await supabase
-        .from('jd_analyses')
-        .select('result')
-        .eq('id', jdAnalysisId)
-        .eq('user_email', email)
-        .single()
-      if (jdRow?.result) jdContext = jdRow.result as Record<string, unknown>
+    if (!analysisId) {
+      return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
     }
 
-    const a = row.result as Record<string, unknown>
-    const careerSummary = Array.isArray(a.career_paths)
-      ? (a.career_paths as Array<{ type: string; title: string; salary_range: string }>)
-          .map(p => `${p.type}: ${p.title} (${p.salary_range})`)
-          .join(' | ')
-      : ''
+    // Job 생성
+    const { id: jobId, error: jobError } = await createJob(
+      email,
+      'interview',
+      { 
+        analysisId, 
+        jdAnalysisId, 
+        interviewFormat, 
+        interviewerInfo, 
+        specialNotes,
+        role,  // processInterviewJob에서 필요
+      },
+      6  // 6단계
+    )
 
-    const candidateProfile = `직무: ${(a.job_title as string) ?? '미상'}
-종합 요약: ${(a.summary as string) ?? ''}
-핵심 강점: ${toArr(a.strengths).join(' / ')}
-개선 필요: ${toArr(a.improvements).join(' / ')}
-핵심 키워드: ${toArr(a.keywords).join(', ')}
-${careerSummary ? `커리어 경로: ${careerSummary}` : ''}`
-
-    // 회사 분석 정보 추출 (JD 분석에서 가져옴)
-    const companyAnalysisSection = jdContext?.company_analysis
-      ? `[회사 상세 분석] (JD 분석에서 확보한 정보):
-- 회사 소개: ${(jdContext.company_analysis as Record<string, unknown>).introduction}
-- 매출/규모: ${(jdContext.company_analysis as Record<string, unknown>).revenue}
-- 현재 사업: ${(jdContext.company_analysis as Record<string, unknown>).current_business}
-- 최근 동향: ${(jdContext.company_analysis as Record<string, unknown>).recent_trends}
-- 미래 가치: ${(jdContext.company_analysis as Record<string, unknown>).future_value}`
-      : ''
-
-    const jdSection = jdContext
-      ? `[채용 회사]: ${jdContext.company}${jdContext.position ? ` — ${jdContext.position}` : ''}
-${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
-[JD 적합도 분석]:
-- 적합도: ${jdContext.fit_score}% / ${jdContext.verdict}
-- 매칭 강점: ${toArr(jdContext.matching_points).join(' / ')}
-- 보완 필요: ${toArr(jdContext.gaps).join(' / ')}
-- 피치 포인트: ${toArr(jdContext.pitch_points).join(' / ')}`
-      : '[JD 미선택 — 일반 헤드헌터 관점으로 작성]'
-
-    const additionalLines = [
-      interviewFormat && `면접 형식: ${interviewFormat}`,
-      interviewerInfo && `면접관: ${interviewerInfo}`,
-      specialNotes && `특이사항: ${specialNotes}`,
-    ].filter(Boolean).join('\n')
-
-    const systemPrompt = `🎯 역할 정의
-당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-후보자가 면접에서 최상의 퍼포먼스를 낼 수 있도록 JD와 후보자 프로파일을 기반으로 맞춤형 면접 가이드를 작성합니다.
-일반적인 면접 팁을 나열하지 마십시오.
-이 후보자가, 이 회사의, 이 포지션 면접에서 구체적으로 무엇을 어떻게 말해야 하는지를 설계하십시오.
-
-🚫 절대 하지 말 것
-❌ 일반적인 면접 팁 나열 (이 후보자에게 맞춤화되지 않은 내용)
-❌ 없는 경험이나 성과를 답변에 포함하도록 유도
-❌ 전 직장 비판, 인간관계 갈등, 연봉 불만을 이직 사유로 언급
-❌ STAR 답변에서 팀 성과를 개인 성과로 포장
-❌ 도메인 갭을 답변에서 회피하거나 축소`
-
-    const userContent = `[후보자 이력서 분석 결과]
-${candidateProfile}
-
-[채용 정보]
-${jdSection}
-${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
-
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 8192,
-      system: [{
-        type: 'text',
-        text: systemPrompt,
-        cache_control: { type: 'ephemeral' }
-      }],
-      tool_choice: { type: 'tool', name: 'generate_interview_guide' },
-      tools: [interviewTool],
-      messages: [{ role: 'user', content: userContent }],
-    })
-
-    const toolUse = message.content.find(c => c.type === 'tool_use')
-    if (!toolUse || toolUse.type !== 'tool_use') {
-      return NextResponse.json({ error: '면접 가이드를 생성하지 못했습니다.' }, { status: 500 })
+    if (jobError || !jobId) {
+      return NextResponse.json({ error: 'Job 생성 실패' }, { status: 500 })
     }
 
-    const resultPayload = {
-      ...(toolUse.input as object),
-      company: jdContext?.company ?? null,
-      position: jdContext?.position ?? null,
-      candidate_name: (a.candidate_name as string | undefined) ?? null,
-      // JD 분석의 회사 분석을 그대로 활용
-      company_analysis: jdContext?.company_analysis ?? null,
-    }
-
-    const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 10)
-
-    const { data: inserted, error: insertError } = await supabase
-      .from('interview_guides')
-      .insert({ user_email: email, result: resultPayload, expires_at: expiresAt.toISOString() })
-      .select('id, expires_at')
-      .single()
-
-    if (insertError) {
-      console.error('[analyze/interview] DB insert error:', insertError)
-      return NextResponse.json(
-        { error: `면접 가이드 저장 실패: ${insertError.message}` },
-        { status: 500 }
-      )
-    }
-
-    if (role !== 'MANAGER') await incrementUsage(email, 'interview')
-
+    // Job ID 즉시 반환
     return NextResponse.json({
-      ...resultPayload,
-      id: inserted!.id,
-      expires_at: inserted!.expires_at,
+      jobId,
+      status: 'pending',
+      message: '면접 가이드 생성을 준비했습니다.',
     })
+
   } catch (e) {
-    console.error('[analyze/interview]', e)
+    console.error('[POST /api/analyze/interview]', e)
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
   }
 }
