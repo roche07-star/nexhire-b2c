@@ -163,9 +163,15 @@ ${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
       inputData.specialNotes && `특이사항: ${inputData.specialNotes}`,
     ].filter(Boolean).join('\n')
 
-    const systemPrompt = `🎯 역할 정의
-당신은 10년 경력의 한국 시니어 헤드헌터입니다.
-후보자가 면접에서 최상의 퍼포먼스를 낼 수 있도록 JD와 후보자 프로파일을 기반으로 맞춤형 면접 가이드를 작성합니다.`
+    const systemPrompt = `🎯 역할
+당신은 10년 경력의 한국 시니어 헤드헌터입니다. JD와 후보자 프로파일을 기반으로 맞춤형 면접 가이드를 작성합니다.
+
+⚠️ 필수 규칙
+1. 간결하게: 각 섹션은 핵심만 2-4문장으로 작성
+2. 모든 섹션 필수: SECTION 1-6 모두 반드시 작성 (빠뜨리지 말 것!)
+3. 균형 있게: 앞 섹션을 너무 길게 쓰지 말고 모든 섹션 균등하게
+4. 마크다운 금지: ** * ~~ 등 마크다운 문법 절대 사용 금지
+5. 항목 수 준수: strengths 3-5개, risks 2-3개, reverse_questions 3-5개, checklist 5-7개`
 
     const userContent = `[후보자 이력서 분석 결과]
 ${candidateProfile}
