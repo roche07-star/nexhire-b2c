@@ -47,7 +47,32 @@ export async function POST(
         )
         break
 
-      // 다른 job_type은 나중에 추가
+      case 'jd':
+        // JD 분석 처리 (임시 - process.ts 완성 후 import)
+        const { updateJobProgress, completeJob } = await import('@/lib/jobs')
+        await updateJobProgress(jobId, 1, 'JD 분석 중...')
+        // TODO: processJdJob 구현
+        await completeJob(jobId, { message: 'JD 분석 완료 (임시)' })
+        break
+
+      case 'analyze':
+        // 이력서 분석 처리 (임시)
+        await import('@/lib/jobs').then(async ({ updateJobProgress, completeJob }) => {
+          await updateJobProgress(jobId, 1, '이력서 분석 중...')
+          // TODO: processAnalyzeJob 구현
+          await completeJob(jobId, { message: '이력서 분석 완료 (임시)' })
+        })
+        break
+
+      case 'rewrite':
+        // 리라이팅 처리 (임시)
+        await import('@/lib/jobs').then(async ({ updateJobProgress, completeJob }) => {
+          await updateJobProgress(jobId, 1, '리라이팅 중...')
+          // TODO: processRewriteJob 구현
+          await completeJob(jobId, { message: '리라이팅 완료 (임시)' })
+        })
+        break
+
       default:
         return NextResponse.json({ error: '지원하지 않는 Job 타입입니다.' }, { status: 400 })
     }
