@@ -48,6 +48,16 @@ interface JDResult {
   recommendation: 'APPLY' | 'CONSIDER' | 'SKIP'
   verdict: string
   company_insight?: string
+  // 상세 회사 분석 (NEW)
+  company_analysis?: {
+    introduction: string
+    revenue: string
+    current_business: string
+    recent_trends: string
+    future_value: string
+    needs_more_info: boolean
+    info_request_message?: string
+  }
   jd_interpretation?: string
   matching_points: string[]
   gaps: string[]
@@ -3375,7 +3385,7 @@ function JDResults({
         {resumeDate && <span className="jd-ref-date">{resumeDate}</span>}
       </div>
 
-      {(result.company_insight || result.jd_interpretation) && (
+      {(result.company_insight || result.company_analysis || result.jd_interpretation) && (
         <div className="jd-context-section">
           {result.company_insight && (
             <div className="jd-context-block">
@@ -3383,6 +3393,58 @@ function JDResults({
               <p className="jd-context-text">{result.company_insight}</p>
             </div>
           )}
+
+          {/* 상세 회사 분석 (NEW) */}
+          {result.company_analysis && (
+            <div className="jd-context-block company-analysis-section">
+              <div className="jd-context-label">🏭 상세 회사 분석</div>
+
+              {result.company_analysis.needs_more_info && result.company_analysis.info_request_message && (
+                <div className="info-request-banner">
+                  <span className="info-request-icon">💡</span>
+                  <p className="info-request-text">{result.company_analysis.info_request_message}</p>
+                </div>
+              )}
+
+              <div className="company-analysis-grid">
+                {result.company_analysis.introduction !== '정보 부족' && (
+                  <div className="company-item">
+                    <div className="company-item-label">회사 소개</div>
+                    <p className="company-item-text">{result.company_analysis.introduction}</p>
+                  </div>
+                )}
+
+                {result.company_analysis.revenue !== '정보 부족' && (
+                  <div className="company-item">
+                    <div className="company-item-label">매출/규모</div>
+                    <p className="company-item-text">{result.company_analysis.revenue}</p>
+                  </div>
+                )}
+
+                {result.company_analysis.current_business !== '정보 부족' && (
+                  <div className="company-item">
+                    <div className="company-item-label">현재 사업</div>
+                    <p className="company-item-text">{result.company_analysis.current_business}</p>
+                  </div>
+                )}
+
+                {result.company_analysis.recent_trends !== '정보 부족' && (
+                  <div className="company-item">
+                    <div className="company-item-label">최근 동향</div>
+                    <p className="company-item-text">{result.company_analysis.recent_trends}</p>
+                  </div>
+                )}
+
+                {result.company_analysis.future_value !== '정보 부족' && (
+                  <div className="company-item">
+                    <div className="company-item-label">미래 가치</div>
+                    <p className="company-item-text">{result.company_analysis.future_value}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {result.jd_interpretation && (
             <div className="jd-context-block">
               <div className="jd-context-label">📋 JD 해석</div>

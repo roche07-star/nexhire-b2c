@@ -29,6 +29,42 @@ const jdTool: Anthropic.Tool = {
         type: 'string',
         description: '회사 특성 요약 — 규모·업종·조직 문화 등 (JD 문맥 및 회사명에서 추론, 2-3문장)',
       },
+      // ===== 상세 회사 분석 (NEW) =====
+      company_analysis: {
+        type: 'object',
+        description: '회사 상세 분석 — JD와 회사명에서 알 수 있는 정보 기반. 정보가 불충분하면 needs_more_info를 true로 설정',
+        properties: {
+          introduction: {
+            type: 'string',
+            description: '회사 소개 (업종, 주요 사업, 설립 배경 등). 정보가 없으면 "정보 부족"'
+          },
+          revenue: {
+            type: 'string',
+            description: '매출액 또는 규모 추정 (알려진 경우). 정보가 없으면 "정보 부족"'
+          },
+          current_business: {
+            type: 'string',
+            description: '현재 진행 중인 주요 사업/프로젝트 (JD에서 추론 가능한 경우). 정보가 없으면 "정보 부족"'
+          },
+          recent_trends: {
+            type: 'string',
+            description: '최근 동향 (채용 배경, 사업 확장 등 JD에서 유추). 정보가 없으면 "정보 부족"'
+          },
+          future_value: {
+            type: 'string',
+            description: '회사 미래 가치 및 성장 가능성 (산업 전망, 경쟁력, 투자 가치 등). JD와 회사명에서 유추. 정보가 없으면 "정보 부족"'
+          },
+          needs_more_info: {
+            type: 'boolean',
+            description: '위 정보 중 2개 이상이 "정보 부족"이면 true로 설정'
+          },
+          info_request_message: {
+            type: 'string',
+            description: 'needs_more_info가 true일 때만 작성. "회사에 대해 더 정확한 분석을 위해 다음 정보가 필요합니다: [구체적 항목]" 형식'
+          },
+        },
+        required: ['introduction', 'revenue', 'current_business', 'recent_trends', 'future_value', 'needs_more_info'],
+      },
       jd_interpretation: {
         type: 'string',
         description: 'JD 실제 해석 — 명시된 요건 너머의 숨은 요구역량, 이 포지션이 진짜 필요로 하는 것 (2-3문장)',
@@ -49,7 +85,7 @@ const jdTool: Anthropic.Tool = {
         description: '이 JD에 지원할 때 서류/면접에서 적극 어필해야 할 전략 (3-4개, 구체적으로)',
       },
     },
-    required: ['fit_score', 'recommendation', 'verdict', 'company_insight', 'jd_interpretation', 'matching_points', 'gaps', 'pitch_points'],
+    required: ['fit_score', 'recommendation', 'verdict', 'company_insight', 'company_analysis', 'jd_interpretation', 'matching_points', 'gaps', 'pitch_points'],
   },
 }
 
@@ -175,6 +211,14 @@ STEP 4 — 매칭 판정 + 제안 전략
 - recommendation: APPLY / CONSIDER / SKIP
 - verdict: "이 후보자는 [강점]이 강점이나, [리스크] 부분이 리스크입니다. [제안 포지셔닝]으로 제안합니다." — 한 문장, 날카롭게
 - company_insight: 회사 규모·업종·조직 문화 등 핵심 정보를 2-3문장으로 요약. JD 문맥 및 회사명에서 추론
+- company_analysis: 상세 회사 분석
+  * introduction: 회사 소개 (업종, 주요 사업, 설립 배경 등). JD와 회사명에서 알 수 있는 정보 기반. 정보가 없으면 "정보 부족"
+  * revenue: 매출액 또는 규모 추정. 알려진 경우만 작성, 모르면 "정보 부족"
+  * current_business: 현재 진행 중인 주요 사업/프로젝트. JD에서 추론 가능한 경우만 작성
+  * recent_trends: 최근 동향 (채용 배경, 사업 확장, 시장 변화 등). JD에서 유추 가능한 경우만 작성
+  * future_value: 회사 미래 가치 및 성장 가능성. 산업 전망, 경쟁력, 투자 가치 등을 JD와 회사명에서 유추
+  * needs_more_info: 위 정보 중 2개 이상이 "정보 부족"이면 true로 설정
+  * info_request_message: needs_more_info가 true일 때만 작성. "회사에 대해 더 정확한 분석을 위해 다음 정보가 필요합니다: [구체적 항목]" 형식
 - jd_interpretation: JD 문서에 명시되지 않은 숨은 요구역량과 이 포지션의 실제 맥락을 2-3문장으로 해석. STEP 1의 숨은 요구 역량 분석 결과를 활용
 - matching_points: 필수✅ + 우대✅ + 숨은요구✅ 항목 (구체적 근거 포함, 3개)
 - gaps: 필수❌/△ + 예상 클라이언트 우려 사항 (2-3개, 솔직하게)
