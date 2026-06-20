@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { UserType } from '@/types/user'
 
 /**
@@ -22,6 +23,12 @@ interface Props {
 export default function UserTypeSelectionModal({ onSelect }: Props) {
   const [loading, setLoading] = useState(false)
   const [selectedType, setSelectedType] = useState<UserType | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
 
   async function handleConfirm() {
     if (!selectedType) return
@@ -36,10 +43,12 @@ export default function UserTypeSelectionModal({ onSelect }: Props) {
     }
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <>
       {/* Backdrop - 클릭해도 닫히지 않음 */}
-      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
         {/* Modal */}
         <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative">
           {/* 닫기 버튼 없음 (선택 강제) */}
@@ -191,6 +200,7 @@ export default function UserTypeSelectionModal({ onSelect }: Props) {
           </p>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
