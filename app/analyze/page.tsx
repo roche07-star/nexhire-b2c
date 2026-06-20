@@ -1,6 +1,7 @@
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import AnalyzeClient from './AnalyzeClient'
+import ConsentGuard from '@/components/ConsentGuard'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
@@ -30,10 +31,10 @@ export default async function AnalyzePage() {
   }
 
   return (
-    <>
+    <ConsentGuard>
       <Nav />
       <AnalyzeClient initialIsPro={isPro} initialIsExpert={isExpert} userEmail={userEmail} />
       <Footer />
-    </>
+    </ConsentGuard>
   )
 }
