@@ -3,7 +3,41 @@
 -- 생성일: 2026-06-20
 -- =============================================
 
--- 1. consents 테이블에 오프라인 동의 관련 컬럼 추가
+-- 1. consents 테이블 생성 (없는 경우)
+CREATE TABLE IF NOT EXISTS consents (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_email TEXT NOT NULL,
+  consent_type TEXT NOT NULL,
+  consent_version TEXT NOT NULL,
+  is_agreed BOOLEAN DEFAULT TRUE,
+  agreed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  withdrawn_at TIMESTAMP WITH TIME ZONE,
+
+  -- 제3자 제공 동의 관련 (consent_type = 'third_party_provision')
+  recipient_company TEXT,
+  provision_purpose TEXT,
+  provided_items TEXT[],
+  provision_period TEXT,
+
+  -- 메타데이터
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+COMMENT ON TABLE consents IS '개인정보 수집·이용 및 제3자 제공 동의 기록';
+COMMENT ON COLUMN consents.consent_type IS 'privacy_required, privacy_optional, third_party_provision, marketing 등';
+COMMENT ON COLUMN consents.withdrawn_at IS '동의 철회 일시';
+
+CREATE INDEX IF NOT EXISTS idx_consents_user_email
+  ON consents(user_email);
+CREATE INDEX IF NOT EXISTS idx_consents_type
+  ON consents(consent_type);
+CREATE INDEX IF NOT EXISTS idx_consents_recipient
+  ON consents(recipient_company);
+
+-- 2. consents 테이블에 오프라인 동의 관련 컬럼 추가
 ALTER TABLE consents
 ADD COLUMN IF NOT EXISTS consent_method TEXT,
 ADD COLUMN IF NOT EXISTS consent_document_url TEXT,
