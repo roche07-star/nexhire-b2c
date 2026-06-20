@@ -150,6 +150,8 @@
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 
 .info-value {
