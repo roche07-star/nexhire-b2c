@@ -35,31 +35,19 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     }
   }
 
-  // 헤드헌터는 플랜과 관계없이 대시보드 표시
-  if (isHeadhunter) {
-    return (
-      <>
-        <li><Link href="/dashboard" style={getLinkStyle('/dashboard')}>대시보드</Link></li>
-        <li><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
-        <li><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
-      </>
-    )
-  }
-
-  // PRO 개인 구직자
-  if (isPro) {
-    return (
-      <>
-        <li><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
-        <li><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
-        <li><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
-      </>
-    )
-  }
-
-  // FREE 또는 비로그인
   return (
     <>
+      {/* 헤드헌터면 대시보드 추가 */}
+      {isHeadhunter && (
+        <li><Link href="/dashboard" style={getLinkStyle('/dashboard')}>대시보드</Link></li>
+      )}
+
+      {/* PRO 개인 구직자면 이력서 분석 추가 */}
+      {isPro && !isHeadhunter && (
+        <li><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
+      )}
+
+      {/* 기본 메뉴 (모두에게 표시) */}
       <li><a href="/#how" onClick={handleHashLink('#how')}>사용법</a></li>
       <li><a href="/#features" onClick={handleHashLink('#features')}>기능</a></li>
       <li><a href="/#pricing" onClick={handleHashLink('#pricing')}>가격</a></li>
