@@ -1636,7 +1636,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <div className="jd-list-title">생성할 이력서를 선택하세요</div>
                 <p className="rewrite-desc">
                   <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식/서식을 거의 비슷하게 유지하며 JD 기반으로 내용을 보완합니다.<br />
-                  <strong>기본 이력서</strong>: Claude AI가 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조입니다.<br />
+                  <strong>기본 이력서</strong>: JOBIZIC이 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조입니다.<br />
                   JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
@@ -2772,10 +2772,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">✨</span>
                 <span className="preserve-option-label">기본 이력서</span>
-                <span className="preserve-option-badge coupon">Claude 추천</span>
+                <span className="preserve-option-badge coupon">JOBIZIC 추천</span>
               </div>
               <div className="preserve-option-desc">
-                Claude AI가 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조로 작성됩니다.
+                JOBIZIC이 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조로 작성됩니다.
               </div>
             </button>
 
