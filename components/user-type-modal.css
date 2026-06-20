@@ -1,0 +1,211 @@
+/* =============================================
+   사용자 유형 선택 모달 (개인정보 동의 페이지 스타일)
+   ============================================= */
+
+.user-type-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  padding: 40px 20px;
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  z-index: 9999;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-type-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Header (동의 페이지와 동일) */
+.user-type-header {
+  background: linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.user-type-header .logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.user-type-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.user-type-header .subtitle {
+  font-size: 15px;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Loading */
+.user-type-loading {
+  padding: 60px 32px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Form */
+.user-type-form {
+  padding: 32px;
+}
+
+/* Notice */
+.user-type-notice {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.notice-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.notice-text strong {
+  color: #ff4444;
+  font-weight: 700;
+}
+
+/* Cards */
+.user-type-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.user-type-card {
+  background: #ffffff;
+  border: 2px solid #e8ff47;
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.user-type-card:hover {
+  background: #fffef5;
+  border-color: #d4eb33;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(232, 255, 71, 0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.card-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.card-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.card-features li {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.8;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-footer {
+  font-size: 13px;
+  color: #666;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.card-footer strong {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+/* Help */
+.user-type-help {
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin: 24px 0 0 0;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .user-type-page {
+    padding: 20px 16px;
+  }
+
+  .user-type-header {
+    padding: 32px 24px;
+  }
+
+  .user-type-header h1 {
+    font-size: 24px;
+  }
+
+  .user-type-form {
+    padding: 24px;
+  }
+
+  .user-type-cards {
+    grid-template-columns: 1fr;
+  }
+}
