@@ -184,7 +184,7 @@ CREATE POLICY "Headhunters can view provision logs" ON third_party_provision_log
     )
   );
 
-DROP POLICY IF NOT EXISTS "Headhunters can create provision logs" ON third_party_provision_logs;
+DROP POLICY IF EXISTS "Headhunters can create provision logs" ON third_party_provision_logs;
 CREATE POLICY "Headhunters can create provision logs" ON third_party_provision_logs
   FOR INSERT WITH CHECK (
     EXISTS (
