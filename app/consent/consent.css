@@ -1,5 +1,5 @@
 /* =============================================
-   개인정보 동의 페이지 (수정됨)
+   개인정보 동의 페이지 - 완전 재작성
    ============================================= */
 
 .consent-page {
@@ -11,6 +11,7 @@
 
 .consent-container {
   max-width: 800px;
+  width: 100%;
   margin: 0 auto;
   background: #ffffff;
   border-radius: 20px;
@@ -69,6 +70,8 @@
 /* Form */
 .consent-form {
   padding: 32px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Section */
@@ -77,11 +80,8 @@
   border: 2px solid #f0f0f0;
   border-radius: 16px;
   padding: 24px;
-}
-
-.consent-section.optional {
-  border-color: #e8e8e8;
-  background: #fafafa;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .section-header {
@@ -90,11 +90,7 @@
   justify-content: space-between;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.section-header.required {
-  border-bottom-color: #e8ff47;
+  border-bottom: 2px solid #e8ff47;
 }
 
 .section-header h2 {
@@ -105,24 +101,13 @@
   flex: 1;
 }
 
-.required-badge,
-.optional-badge {
+.required-badge {
   padding: 4px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.required-badge {
   background: #ff4444;
   color: white;
-}
-
-.optional-badge {
-  background: #e0e0e0;
-  color: #666;
 }
 
 /* Content */
@@ -155,7 +140,6 @@
   color: #333;
   line-height: 1.7;
   display: block;
-  word-break: keep-all;
 }
 
 .info-value strong {
@@ -165,10 +149,6 @@
 
 .info-value p {
   margin: 0 0 8px 0;
-}
-
-.info-value p:last-child {
-  margin-bottom: 0;
 }
 
 .info-sub {
@@ -207,9 +187,10 @@
   font-weight: 700;
 }
 
-/* Checkbox */
+/* Checkbox - 완전 재작성 */
 .consent-checkbox {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
@@ -217,6 +198,8 @@
   border: 2px solid #e0e0e0;
   border-radius: 10px;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .consent-checkbox:hover {
@@ -227,6 +210,7 @@
 .consent-checkbox input[type="checkbox"] {
   width: 20px;
   height: 20px;
+  min-width: 20px;
   margin-top: 2px;
   cursor: pointer;
   accent-color: #e8ff47;
@@ -237,64 +221,24 @@
   font-weight: 600;
 }
 
+/* 체크박스 텍스트 - 핵심 수정 */
 .checkbox-text {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
   font-size: 15px;
   font-weight: 400;
   color: #333;
   line-height: 1.7;
   word-wrap: break-word;
+  word-break: keep-all;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .required-mark {
   color: #ff4444;
   font-weight: 700;
-}
-
-.optional-mark {
-  color: #999;
-  font-weight: 500;
-}
-
-/* Address Input */
-.address-input-group {
-  margin-top: 16px;
-  padding: 16px;
-  background: white;
-  border-radius: 10px;
-}
-
-.address-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 8px;
-}
-
-.address-input {
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.address-input:focus {
-  outline: none;
-  border-color: #e8ff47;
-  box-shadow: 0 0 0 3px rgba(232, 255, 71, 0.1);
-}
-
-.address-help {
-  font-size: 12px;
-  color: #888;
-  margin: 6px 0 0 0;
 }
 
 /* Actions */
@@ -305,6 +249,7 @@
   margin-top: 32px;
   padding-top: 32px;
   border-top: 2px solid #f0f0f0;
+  width: 100%;
 }
 
 .btn-consent-submit,
@@ -317,6 +262,7 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .btn-consent-submit {
@@ -365,10 +311,6 @@
   color: #1a1a1a;
   font-weight: 600;
   text-decoration: underline;
-}
-
-.consent-footer a:hover {
-  color: #e8ff47;
 }
 
 /* Responsive */
