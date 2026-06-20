@@ -49,11 +49,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // user_type 설정
+    // user_type 및 service_type 설정
     const { error } = await supabase
       .from('users')
       .update({
         user_type: userType,
+        service_type: userType === 'INDIVIDUAL' ? 'B2C' : 'B2B',
         user_type_selected_at: new Date().toISOString(),
       })
       .eq('email', session.user.email)
