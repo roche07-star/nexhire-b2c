@@ -1,5 +1,5 @@
 /* =============================================
-   Adam (B2C) 개인정보 수집·이용 동의 페이지
+   개인정보 동의 페이지 (수정됨)
    ============================================= */
 
 .consent-page {
@@ -25,7 +25,7 @@
   text-align: center;
 }
 
-.logo {
+.consent-header .logo {
   font-size: 28px;
   font-weight: 800;
   color: #1a1a1a;
@@ -40,7 +40,7 @@
   margin: 0 0 12px 0;
 }
 
-.subtitle {
+.consent-header .subtitle {
   font-size: 15px;
   color: #333;
   margin: 0;
@@ -77,7 +77,6 @@
   border: 2px solid #f0f0f0;
   border-radius: 16px;
   padding: 24px;
-  transition: all 0.3s;
 }
 
 .consent-section.optional {
@@ -94,16 +93,16 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
+.section-header.required {
+  border-bottom-color: #e8ff47;
+}
+
 .section-header h2 {
   font-size: 18px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
   flex: 1;
-}
-
-.section-header.required {
-  border-bottom-color: #e8ff47;
 }
 
 .required-badge,
@@ -148,16 +147,15 @@
   font-weight: 600;
   color: #666;
   margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  word-break: keep-all;
-  white-space: nowrap;
+  display: block;
 }
 
 .info-value {
   font-size: 14px;
   color: #333;
   line-height: 1.7;
+  display: block;
+  word-break: keep-all;
 }
 
 .info-value strong {
@@ -178,6 +176,7 @@
   color: #888;
   margin-top: 8px;
   line-height: 1.6;
+  display: block;
 }
 
 /* Notice */
@@ -218,7 +217,6 @@
   border: 2px solid #e0e0e0;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .consent-checkbox:hover {
@@ -278,8 +276,8 @@
   font-size: 14px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  transition: all 0.2s;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .address-input:focus {
