@@ -38,6 +38,25 @@ export default function ConsentGuard({ children }: { children: React.ReactNode }
       // 로그인 상태에서 동의 여부 확인
       if (session?.user?.email) {
         try {
+          // user_type 확인 (헤드헌터는 동의 체크 스킵)
+          const userType = (session.user as any).userType
+
+          // user_type이 없거나 INDIVIDUAL인 경우만 동의 체크
+          if (!userType) {
+            // user_type이 아직 설정되지 않음 - UserTypeGuard가 먼저 처리하도록 통과
+            setHasConsent(true)
+            setChecking(false)
+            return
+          }
+
+          if (userType === 'HEADHUNTER') {
+            // 헤드헌터는 개인정보 동의 불필요
+            setHasConsent(true)
+            setChecking(false)
+            return
+          }
+
+          // INDIVIDUAL인 경우 동의 체크
           const res = await fetch('/api/consents/check')
 
           if (res.ok) {
