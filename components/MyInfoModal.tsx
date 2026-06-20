@@ -183,22 +183,12 @@ export default function MyInfoButton() {
                   <div className="my-info-section">
                     <div className="my-info-label">개인정보 동의 현황</div>
                     <div className="my-info-row">
-                      <span className="my-info-key">필수 동의</span>
+                      <span className="my-info-key">개인정보 동의</span>
                       <span className={`my-info-value ${info.consents.required.agreed ? 'text-green' : 'text-red'}`}>
                         {info.consents.required.agreed ? (
                           <>✅ 동의함 ({info.consents.required.agreedAt})</>
                         ) : (
                           <>❌ 미동의</>
-                        )}
-                      </span>
-                    </div>
-                    <div className="my-info-row">
-                      <span className="my-info-key">선택 동의 (주소)</span>
-                      <span className={`my-info-value ${info.consents.optional.agreed ? 'text-green' : 'text-gray'}`}>
-                        {info.consents.optional.agreed ? (
-                          <>✅ 동의함 ({info.consents.optional.agreedAt})</>
-                        ) : (
-                          <>— 미동의</>
                         )}
                       </span>
                     </div>
