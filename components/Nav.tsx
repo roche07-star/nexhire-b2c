@@ -19,6 +19,8 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
   const session = await auth()
   const user = session?.user
 
+  const isPro = !!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))
+  const isHeadhunter = user?.userType === 'HEADHUNTER'
 
   return (
     <nav>
@@ -28,7 +30,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
       </Link>
       {!minimal && (
         <ul className="nav-links">
-          <NavLinks isPro={!!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))} />
+          <NavLinks isPro={isPro} isHeadhunter={isHeadhunter} />
         </ul>
       )}
       <div className="nav-cta">
