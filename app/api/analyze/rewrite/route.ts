@@ -3,7 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
-import { generateResumeDocx, RewriteResult } from '@/lib/generateDocx'
+import { generateResumeDocx, generateStandardDocx, RewriteResult } from '@/lib/generateDocx'
 import { extractDocxParagraphs, applyDocxRewrites, DocxParagraph } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
@@ -563,8 +563,124 @@ export async function POST(req: NextRequest) {
     }
     */
 
+    // ── 기본 이력서 (standard): Claude 추천 포맷으로 적극 재구성
+    if (formatMode === 'standard') {
+      const resumeText = await extractText(buffer, originalFilename)
+      const originalPreview = generateOriginalPreviewHTML(resumeText)
+
+      // 기본 이력서는 섹션별로 완전히 재구성
+      const piiVals = extractPIIValues(resumeText)
+      const maskedText = maskPIILocal(resumeText)
+
+      const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jdContext ? ` ${jdContext.company} 포지션 지원을 위해` : ''} 이력서를 깔끔하고 전문적인 포맷으로 재구성합니다.
+
+[Claude 추천 포맷 원칙]
+1. 채용 담당자가 선호하는 깔끔하고 읽기 쉬운 구조로 재구성
+2. 핵심 강점을 최상단에 배치 (요약 → 경력 → 역량 → 학력 순서)
+3. 수치와 성과를 명확하게 부각
+4. 불필요한 수식어 제거, 간결하고 임팩트 있게
+5. ATS(지원자 추적 시스템) 친화적인 구조
+
+${jdContext ? `[JD 연동 최적화]
+• matching_points: ${toArr(jdContext.matching_points).join(' / ')} → 이 강점들을 전면 부각
+• gaps: ${toArr(jdContext.gaps).join(' / ')} → 긍정적으로 재프레이밍
+• pitch_points: ${toArr(jdContext.pitch_points).join(' / ')} → 자연스럽게 녹이기
+• ${jdContext.company} 맞춤 어필 강화` : ''}
+
+[작성 규칙]
+• 수치/회사명/기간/기술명은 정확히 유지 (없는 내용 추가 금지)
+• 약한 표현 → 강한 표현: "담당"→"주도", "참여"→"기여", "수행"→"완수"
+• 구분자는 "/" 또는 "," 사용 (가운데점 금지)
+• 전문적이고 깔끔한 어감 유지`
+
+      const userPrompt = `${jdContext ? buildJDSection(jdContext) : '[JD 미선택 — 일반 관점으로 작성]'}
+
+[원본 이력서]
+${maskedText}
+[/원본 이력서]
+
+위 이력서를 Claude 추천 포맷으로 깔끔하게 재구성하세요.`
+
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 6000,
+        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+        tool_choice: { type: 'tool', name: 'rewrite_resume' },
+        tools: [{
+          name: 'rewrite_resume',
+          description: '이력서 재구성 결과',
+          input_schema: {
+            type: 'object' as const,
+            properties: {
+              sections: {
+                type: 'array',
+                description: '재구성된 이력서 섹션 목록',
+                items: {
+                  type: 'object',
+                  properties: {
+                    title: { type: 'string', description: '섹션 제목' },
+                    content: { type: 'string', description: '섹션 내용 (줄바꿈은 \\n 사용)' },
+                  },
+                  required: ['title', 'content'],
+                },
+              },
+              changes: {
+                type: 'array',
+                description: '주요 변경사항 요약 (5-10개)',
+                items: { type: 'string' },
+              },
+            },
+            required: ['sections', 'changes'],
+          },
+        }],
+        messages: [{ role: 'user', content: userPrompt }],
+      })
+
+      const toolUse = message.content.find(c => c.type === 'tool_use')
+      if (!toolUse || toolUse.type !== 'tool_use') {
+        return NextResponse.json({ error: '이력서 생성 실패' }, { status: 500 })
+      }
+
+      const { sections, changes } = toolUse.input as {
+        sections: Array<{ title: string; content: string }>
+        changes: string[]
+      }
+
+      // PII 복원
+      const restoredSections = sections.map(s => ({
+        title: restorePIIValues(s.title, piiVals),
+        content: restorePIIValues(s.content, piiVals),
+      }))
+
+      if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
+
+      // FREE: HTML만
+      if (plan === 'FREE') {
+        return NextResponse.json({
+          preview: generatePreviewHTML(restoredSections, undefined),
+          originalPreview,
+          changes: changes ?? [],
+          plan: 'FREE',
+        })
+      }
+
+      // PRO+: DOCX 생성 (섹션 기반)
+      const docxBuffer = await generateStandardDocx(restoredSections, candidateName)
+      const suffix = jdContext ? `_${jdContext.company}` : ''
+      const downloadName = `jobizic_standard_${candidateName}${suffix}_${dateStr}.docx`
+
+      return NextResponse.json({
+        docx: (docxBuffer as Buffer).toString('base64'),
+        filename: downloadName,
+        changes: changes ?? [],
+        preview: generatePreviewHTML(restoredSections, undefined),
+        originalPreview,
+        plan,
+      })
+    }
+
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
-    if (ext === 'docx' && formatMode !== 'updated') {
+    if (ext === 'docx') {
       const resumeText = await extractText(buffer, originalFilename)
       const originalPreview = generateOriginalPreviewHTML(resumeText)
 

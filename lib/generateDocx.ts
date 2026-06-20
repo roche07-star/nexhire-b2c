@@ -103,3 +103,57 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
 
   return Packer.toBuffer(doc)
 }
+
+// Claude 추천 기본 이력서 포맷용 DOCX 생성
+export async function generateStandardDocx(
+  sections: Array<{ title: string; content: string }>,
+  candidateName?: string
+): Promise<Buffer> {
+  const children: Paragraph[] = []
+
+  // 이름 헤더
+  if (candidateName) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: candidateName, bold: true, size: 56, color: '0a0a1f' }),
+        ],
+        alignment: AlignmentType.LEFT,
+        spacing: { after: 240 },
+      })
+    )
+  }
+
+  // 섹션 순서 그대로
+  for (const section of sections) {
+    children.push(sectionHeading(section.title))
+    children.push(...contentLines(section.content))
+  }
+
+  const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: { font: '맑은 고딕', size: 20, color: '222233' },
+        },
+      },
+    },
+    sections: [
+      {
+        properties: {
+          page: {
+            margin: {
+              top: convertInchesToTwip(1),
+              right: convertInchesToTwip(1),
+              bottom: convertInchesToTwip(1),
+              left: convertInchesToTwip(1),
+            },
+          },
+        },
+        children,
+      },
+    ],
+  })
+
+  return Packer.toBuffer(doc)
+}
