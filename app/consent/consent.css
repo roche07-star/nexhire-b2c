@@ -242,6 +242,10 @@
   color: #333;
   line-height: 1.6;
   flex: 1;
+  word-break: keep-all;
+  white-space: normal;
+  display: inline-block;
+  width: 100%;
 }
 
 .required-mark {
