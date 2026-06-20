@@ -17,33 +17,48 @@ export async function GET(req: NextRequest) {
 
     const userEmail = session.user.email
 
+    console.log('[consents/check] Checking for:', userEmail)
+
     // 필수 개인정보 동의 확인
-    const { data: requiredConsent } = await supabase
+    const { data: requiredConsent, error: requiredError } = await supabase
       .from('consents')
       .select('id, agreed_at')
       .eq('user_email', userEmail)
       .eq('consent_type', 'privacy_required')
       .eq('is_agreed', true)
       .is('withdrawn_at', null)
-      .single()
+      .maybeSingle()
+
+    console.log('[consents/check] Required consent:', requiredConsent, 'Error:', requiredError)
 
     // 선택 개인정보 동의 확인
-    const { data: optionalConsent } = await supabase
+    const { data: optionalConsent, error: optionalError } = await supabase
       .from('consents')
       .select('id, agreed_at')
       .eq('user_email', userEmail)
       .eq('consent_type', 'privacy_optional')
       .eq('is_agreed', true)
       .is('withdrawn_at', null)
-      .single()
+      .maybeSingle()
+
+    console.log('[consents/check] Optional consent:', optionalConsent, 'Error:', optionalError)
+
+    // 에러가 발생한 경우에도 명확히 처리
+    if (requiredError) {
+      console.error('[consents/check] Required consent query error:', requiredError)
+    }
+
+    const hasConsent = !!requiredConsent && !requiredError
+
+    console.log('[consents/check] Final result:', { hasConsent })
 
     return NextResponse.json({
-      hasConsent: !!requiredConsent,
+      hasConsent,
       requiredConsent: requiredConsent ? {
         id: requiredConsent.id,
         agreedAt: requiredConsent.agreed_at
       } : null,
-      optionalConsent: optionalConsent ? {
+      optionalConsent: optionalConsent && !optionalError ? {
         id: optionalConsent.id,
         agreedAt: optionalConsent.agreed_at
       } : null
