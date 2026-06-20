@@ -242,10 +242,9 @@
   color: #333;
   line-height: 1.6;
   flex: 1;
-  word-break: keep-all;
-  white-space: normal;
-  display: inline-block;
-  width: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
+  display: block;
 }
 
 .required-mark {

@@ -11,12 +11,7 @@ function ConsentPageContent() {
   const [error, setError] = useState<string | null>(null)
 
   const [consents, setConsents] = useState({
-    privacyRequired: false,
-    privacyOptional: false
-  })
-
-  const [userInfo, setUserInfo] = useState({
-    address: ''
+    privacyRequired: false
   })
 
   useEffect(() => {
@@ -56,9 +51,7 @@ function ConsentPageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          privacyRequired: consents.privacyRequired,
-          privacyOptional: consents.privacyOptional,
-          address: consents.privacyOptional ? userInfo.address : null
+          privacyRequired: consents.privacyRequired
         })
       })
 
@@ -152,64 +145,10 @@ function ConsentPageContent() {
                 onChange={(e) => setConsents({ ...consents, privacyRequired: e.target.checked })}
                 required
               />
-              <span className="checkbox-text">
+              <div className="checkbox-text">
                 위 개인정보 수집·이용에 동의합니다. <strong className="required-mark">(필수)</strong>
-              </span>
+              </div>
             </label>
-          </div>
-
-          {/* 선택 동의 */}
-          <div className="consent-section optional">
-            <div className="section-header">
-              <h2>주소 등 선택 항목 수집·이용 동의 (선택)</h2>
-              <span className="optional-badge">선택</span>
-            </div>
-
-            <div className="consent-content">
-              <div className="info-row">
-                <div className="info-label">수집 항목</div>
-                <div className="info-value">주소</div>
-              </div>
-
-              <div className="info-row">
-                <div className="info-label">수집·이용 목적</div>
-                <div className="info-value">
-                  지역 기반 채용 포지션 추천, 근무지 매칭
-                </div>
-              </div>
-
-              <div className="info-row">
-                <div className="info-label">보유·이용 기간</div>
-                <div className="info-value">
-                  회원 탈퇴 또는 동의 철회 시까지
-                </div>
-              </div>
-            </div>
-
-            <label className="consent-checkbox">
-              <input
-                type="checkbox"
-                checked={consents.privacyOptional}
-                onChange={(e) => setConsents({ ...consents, privacyOptional: e.target.checked })}
-              />
-              <span className="checkbox-text">
-                주소 등 선택 항목 수집·이용에 동의합니다. <span className="optional-mark">(선택)</span>
-              </span>
-            </label>
-
-            {consents.privacyOptional && (
-              <div className="address-input-group">
-                <label className="address-label">주소 (선택)</label>
-                <input
-                  type="text"
-                  value={userInfo.address}
-                  onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
-                  className="address-input"
-                  placeholder="예) 서울시 강남구"
-                />
-                <p className="address-help">시/구/동 수준까지만 입력하시면 됩니다</p>
-              </div>
-            )}
           </div>
 
           {/* 제출 버튼 */}
