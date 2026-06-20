@@ -1,0 +1,394 @@
+/* =============================================
+   Adam (B2C) 개인정보 수집·이용 동의 페이지
+   ============================================= */
+
+.consent-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  padding: 40px 20px;
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.consent-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Header */
+.consent-header {
+  background: linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.consent-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Error */
+.consent-error {
+  margin: 24px 32px 0;
+  background: #fff5f5;
+  border: 1px solid #ff4444;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #cc0000;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.error-icon {
+  font-size: 20px;
+}
+
+/* Form */
+.consent-form {
+  padding: 32px;
+}
+
+/* Section */
+.consent-section {
+  margin-bottom: 32px;
+  border: 2px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+
+.consent-section.optional {
+  border-color: #e8e8e8;
+  background: #fafafa;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+}
+
+.section-header.required {
+  border-bottom-color: #e8ff47;
+}
+
+.required-badge,
+.optional-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.required-badge {
+  background: #ff4444;
+  color: white;
+}
+
+.optional-badge {
+  background: #e0e0e0;
+  color: #666;
+}
+
+/* Content */
+.consent-content {
+  margin-bottom: 20px;
+}
+
+.info-row {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.7;
+}
+
+.info-value strong {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.info-value p {
+  margin: 0 0 8px 0;
+}
+
+.info-value p:last-child {
+  margin-bottom: 0;
+}
+
+.info-sub {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+/* Notice */
+.consent-notice {
+  background: rgba(232, 255, 71, 0.1);
+  border: 1px solid rgba(232, 255, 71, 0.3);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.notice-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.notice-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.notice-text strong {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+/* Checkbox */
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f8f8;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.consent-checkbox:hover {
+  background: #f0f0f0;
+  border-color: #e8ff47;
+}
+
+.consent-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #e8ff47;
+  flex-shrink: 0;
+}
+
+.consent-checkbox input[type="checkbox"]:checked + .checkbox-text {
+  font-weight: 600;
+}
+
+.checkbox-text {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.required-mark {
+  color: #ff4444;
+  font-weight: 700;
+}
+
+.optional-mark {
+  color: #999;
+  font-weight: 500;
+}
+
+/* Address Input */
+.address-input-group {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 10px;
+}
+
+.address-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.address-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.address-input:focus {
+  outline: none;
+  border-color: #e8ff47;
+  box-shadow: 0 0 0 3px rgba(232, 255, 71, 0.1);
+}
+
+.address-help {
+  font-size: 12px;
+  color: #888;
+  margin: 6px 0 0 0;
+}
+
+/* Actions */
+.consent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.btn-consent-submit,
+.btn-consent-cancel {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-consent-submit {
+  background: linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%);
+  color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(232, 255, 71, 0.3);
+}
+
+.btn-consent-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(232, 255, 71, 0.4);
+}
+
+.btn-consent-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-consent-cancel {
+  background: transparent;
+  color: #666;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-consent-cancel:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+/* Footer */
+.consent-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.consent-footer p {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.consent-footer a {
+  color: #1a1a1a;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.consent-footer a:hover {
+  color: #e8ff47;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .consent-page {
+    padding: 20px 16px;
+  }
+
+  .consent-header {
+    padding: 32px 24px;
+  }
+
+  .consent-header h1 {
+    font-size: 24px;
+  }
+
+  .consent-form {
+    padding: 24px;
+  }
+
+  .consent-section {
+    padding: 20px;
+  }
+
+  .section-header h2 {
+    font-size: 16px;
+  }
+}
