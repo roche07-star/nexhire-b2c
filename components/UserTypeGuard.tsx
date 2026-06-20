@@ -94,9 +94,9 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
         console.log('[UserTypeGuard] Redirecting to consent page')
         router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
       } else {
-        // HEADHUNTER 선택 시 → 현재 페이지 새로고침
-        console.log('[UserTypeGuard] Refreshing page for headhunter')
-        router.refresh()
+        // HEADHUNTER 선택 시 → 헤드헌터 대시보드로 이동
+        console.log('[UserTypeGuard] Redirecting to headhunter dashboard')
+        router.push('/dashboard')
       }
     } catch (err: any) {
       console.error('[UserTypeGuard] Error:', err)

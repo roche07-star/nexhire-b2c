@@ -18,10 +18,10 @@ export default async function DashboardPage() {
 
   const email = session.user.email
 
-  // 사용자 플랜 확인
+  // 사용자 플랜 및 유형 확인
   const { data: userData, error: userError } = await supabase
     .from('users')
-    .select('plan')
+    .select('plan, user_type')
     .eq('email', email)
     .single()
 
@@ -29,8 +29,13 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // PRO 플랜 이상만 접근 가능
-  if (userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
+  // 개인 구직자는 /analyze로 리다이렉트
+  if (userData.user_type === 'INDIVIDUAL') {
+    redirect('/analyze')
+  }
+
+  // 헤드헌터가 아니고 PRO 플랜 미만이면 업그레이드 안내
+  if (userData.user_type !== 'HEADHUNTER' && userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
     return (
       <>
         <Nav />
