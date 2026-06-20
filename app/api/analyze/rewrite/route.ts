@@ -572,42 +572,28 @@ export async function POST(req: NextRequest) {
       const piiVals = extractPIIValues(resumeText)
       const maskedText = maskPIILocal(resumeText)
 
-      const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jdContext ? ` ${jdContext.company} 포지션 지원을 위해` : ''} 이력서를 전문 헤드헌터 표준 양식으로 재구성합니다.
+      const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jdContext ? ` ${jdContext.company} 포지션 지원을 위해` : ''} 이력서를 깔끔하고 전문적인 포맷으로 재구성합니다.
 
-[헤드헌터 표준 양식 구조] 아래 9개 섹션만 정확히 생성:
+[작성 방식]
+원본 이력서 내용을 아래 섹션으로 재구성하세요:
+1. 포지션명 (헤더)
+2. 인적사항 (성명, 생년월일, 주소, 학력, 병역)
+3. 학력사항 (표 형식)
+4. 경력사항 (총 경력 표시, 표 형식)
+5. 연봉정보 (현재/희망연봉, 입사가능일)
+6. 핵심역량 (주요 강점 5개)
+7. 경력상세 (각 회사별 상세 업무/성과)
+8. 지원동기
 
-1. 포지션 헤더 - "${jdContext ? `${jdContext.company} ${jdContext.position || ''} 포지션` : '포지션명'}"
+${jdContext ? `[JD 최적화]
+강점: ${toArr(jdContext.matching_points).slice(0, 2).join(', ')}
+보완: ${toArr(jdContext.gaps).slice(0, 1).join(', ')}
+키워드: ${toArr(jdContext.pitch_points).slice(0, 2).join(', ')}` : ''}
 
-2. 신상정보 - 성명, 생년월일, 주소, 최종학력, 병역사항
-
-3. 학력사항 - 표 형식 (기간 | 출신학교명 | 전공 | 평점/만점 | 소재지)
-
-4. 경력사항 - 표 헤더 "(총 X년 X개월)", 표 형식 (기간 | 회사명 | 부서명 | 직위)
-
-5. 연봉 사항 - 현재연봉, 희망연봉, 출근가능시기
-
-6. 업무상 강점 - 5-7개 대주제, 각각 2-3개 하위 항목
-
-7. 자격 및 교육 - 표 형식 (구분: 기타/영어/중국어 등 | 내용)
-
-8. 경력기술서 - 각 경력마다:
-   "회사명 | 부서 직급  근무기간: YYYY.MM ~ YYYY.MM"
-   회사 개요:
-   [주요 업무]
-   [주요 성과]
-   [이직 사유]
-
-9. 지원사유 및 포부 - 3-4개 문단
-
-${jdContext ? `[JD 매칭]
-• ${toArr(jdContext.matching_points).slice(0, 3).join(', ')} → 업무상 강점/경력기술서 부각
-• ${toArr(jdContext.gaps).slice(0, 2).join(', ')} → 긍정적 재프레이밍
-• ${toArr(jdContext.pitch_points).slice(0, 3).join(', ')} → 지원사유에 녹이기` : ''}
-
-[규칙]
-• 원본만 사용, 수치/회사명/기간 정확히 유지
-• 간결하고 전문적으로
-• content는 \\n으로 구분`
+[중요]
+• 원본 사실만 사용
+• 간결하게 작성
+• 각 섹션 content에 \\n 사용`
 
       const userPrompt = `${jdContext ? buildJDSection(jdContext) : '[JD 미선택 — 일반 관점으로 작성]'}
 
@@ -619,7 +605,7 @@ ${maskedText}
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 8000,
+        max_tokens: 12000,
         system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
         tool_choice: { type: 'tool', name: 'rewrite_resume' },
         tools: [{
