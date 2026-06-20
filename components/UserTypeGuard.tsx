@@ -66,11 +66,15 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
       // 모달 닫기
       setShowModal(false)
 
-      // 세션 갱신을 위해 페이지 새로고침
-      router.refresh()
-
-      // 성공 메시지
-      alert(data.message || '설정이 완료되었습니다!')
+      // INDIVIDUAL 선택 시 → 개인정보 동의 페이지로 이동
+      if (userType === 'INDIVIDUAL') {
+        console.log('[UserTypeGuard] Redirecting to consent page')
+        router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+      } else {
+        // HEADHUNTER 선택 시 → 현재 페이지 새로고침
+        console.log('[UserTypeGuard] Refreshing page for headhunter')
+        router.refresh()
+      }
     } catch (err: any) {
       console.error('[UserTypeGuard] Error:', err)
       throw err // 모달에서 처리

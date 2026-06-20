@@ -17,17 +17,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .split(',').map((e) => e.trim()).filter(Boolean)
       const isManager = managers.includes(user.email)
 
-      // 매니저는 HEADHUNTER, 일반 유저는 INDIVIDUAL로 자동 설정
       await supabase.from('users').upsert(
         {
           email: user.email,
           name: user.name,
           image: user.image,
-          plan: isManager ? 'EXPERT' : 'FREE',
-          user_type: isManager ? 'HEADHUNTER' : 'INDIVIDUAL',
-          service_type: 'B2C',
+          ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
         },
-        { onConflict: 'email', ignoreDuplicates: false }
+        { onConflict: 'email', ignoreDuplicates: !isManager }
       )
       return true
     },
