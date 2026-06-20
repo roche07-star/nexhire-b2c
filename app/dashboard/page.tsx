@@ -34,8 +34,9 @@ export default async function DashboardPage() {
     redirect('/analyze')
   }
 
-  // 헤드헌터가 아니고 PRO 플랜 미만이면 업그레이드 안내
-  if (userData.user_type !== 'HEADHUNTER' && userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
+  // 헤드헌터는 플랜과 관계없이 대시보드 접근 가능
+  // 개인 구직자가 아닌 미선택 상태이고 PRO 플랜 미만이면 업그레이드 안내
+  if (!userData.user_type && userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
     return (
       <>
         <Nav />
