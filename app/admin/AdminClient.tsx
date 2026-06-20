@@ -341,9 +341,9 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                           u.user_type === 'HEADHUNTER' ? 'expert' :
                           'free'
                         }`}>
-                          {u.user_type === 'INDIVIDUAL' ? '🎯 개인' :
-                           u.user_type === 'HEADHUNTER' ? '💼 헤드헌터' :
-                           '⚠️ 미선택'}
+                          {u.user_type === 'INDIVIDUAL' ? '개인' :
+                           u.user_type === 'HEADHUNTER' ? '헤드헌터' :
+                           '미선택'}
                         </span>
                       </td>
                       <td>{usageCell(u.analyze_count ?? 0, u.plan, 'analyze')}</td>
