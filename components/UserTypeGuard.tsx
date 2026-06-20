@@ -17,7 +17,7 @@ import type { UserType } from '@/types/user'
  * 작성일: 2026-06-13
  */
 
-const PUBLIC_PATHS = ['/', '/login', '/privacy', '/terms', '/licenses']
+const PUBLIC_PATHS = ['/', '/login', '/privacy', '/terms', '/licenses', '/consent']
 
 export default function UserTypeGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
