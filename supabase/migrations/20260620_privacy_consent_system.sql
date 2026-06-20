@@ -141,12 +141,16 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_target
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
   ON audit_logs(created_at);
 
--- 6. users 테이블에 휴면 계정 관련 컬럼 추가
+-- 6. users 테이블에 필요한 컬럼 추가
 ALTER TABLE users
+ADD COLUMN IF NOT EXISTS service_type TEXT DEFAULT 'B2C',
+ADD COLUMN IF NOT EXISTS address TEXT,
 ADD COLUMN IF NOT EXISTS last_service_use_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS is_dormant BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS dormant_notified_at TIMESTAMP WITH TIME ZONE;
 
+COMMENT ON COLUMN users.service_type IS 'B2C (개인 구직자), B2B (헤드헌터)';
+COMMENT ON COLUMN users.address IS '주소 (선택 동의 시)';
 COMMENT ON COLUMN users.last_service_use_at IS '최종 서비스 이용 일시 (휴면 판단 기준)';
 COMMENT ON COLUMN users.is_dormant IS '휴면 계정 여부';
 COMMENT ON COLUMN users.dormant_notified_at IS '휴면 전환 안내 발송 일시';
