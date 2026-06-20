@@ -67,9 +67,9 @@ function ConsentPageContent() {
         throw new Error(data.error || '동의 처리 실패')
       }
 
-      // 동의 완료 후 리다이렉트
+      // 동의 완료 후 리다이렉트 (세션 갱신을 위해 강제 새로고침)
       const callbackUrl = searchParams.get('callbackUrl') || '/analyze'
-      router.push(callbackUrl)
+      window.location.href = callbackUrl
 
     } catch (err: any) {
       console.error(err)
