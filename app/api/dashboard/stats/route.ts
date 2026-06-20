@@ -13,10 +13,10 @@ export async function GET() {
 
     const email = session.user.email
 
-    // 사용자 플랜 확인
+    // 사용자 플랜 및 유형 확인
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('plan')
+      .select('plan, user_type')
       .eq('email', email)
       .single()
 
@@ -24,8 +24,9 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // PRO 플랜 이상만 접근 가능
-    if (userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
+    // 헤드헌터는 플랜과 관계없이 접근 가능 (대시보드 조회)
+    // 개인 구직자는 PRO 플랜 이상 필요
+    if (userData.user_type !== 'HEADHUNTER' && userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
       return NextResponse.json(
         { error: 'PRO 플랜 이상만 이용 가능합니다.' },
         { status: 403 }
