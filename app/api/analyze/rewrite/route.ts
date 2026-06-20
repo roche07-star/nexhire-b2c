@@ -572,26 +572,37 @@ export async function POST(req: NextRequest) {
       const piiVals = extractPIIValues(resumeText)
       const maskedText = maskPIILocal(resumeText)
 
-      const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jdContext ? ` ${jdContext.company} 포지션 지원을 위해` : ''} 이력서를 깔끔하고 전문적인 포맷으로 재구성합니다.
+      const systemPrompt = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jdContext ? ` ${jdContext.company} 포지션 지원을 위해` : ''} 이력서를 전문 헤드헌터 양식으로 재구성합니다.
 
-[Claude 추천 포맷 원칙]
-1. 채용 담당자가 선호하는 깔끔하고 읽기 쉬운 구조로 재구성
-2. 핵심 강점을 최상단에 배치 (요약 → 경력 → 역량 → 학력 순서)
-3. 수치와 성과를 명확하게 부각
-4. 불필요한 수식어 제거, 간결하고 임팩트 있게
-5. ATS(지원자 추적 시스템) 친화적인 구조
+[헤드헌터 표준 양식 구조]
+원본 이력서 내용을 아래 섹션 구조에 맞춰 작성하세요. 각 섹션은 정확히 이 순서대로 생성합니다:
+
+1. "헤더" - 지원 회사명 / 분야 (직책), 성명, 생년월일, 나이
+2. "학력사항" - 최종학력 표기, 학교명(소재지), 전공, 학위, 졸업년월
+3. "경력사항" - 총 경력 기간 / 관련경력 기간, 각 경력별 기간/회사/팀/직급
+4. "직무능력/업무상 강점" - 채용포지션에 적합한 경험과 강점 3-5개 (한 줄씩)
+5. "개인 추가 정보" - 주소, 병역, 현재직급/연봉, 희망직급/연봉, 입사가능시기
+6. "외국어 능력" - 언어별 회화수준, 시험점수, 취득년월
+7. "자격증" - 자격증명, 발령처, 취득년월
+8. "교육/연수/수상경력/사회봉사" - 해당 항목들
+9. "Computer 능력" - 프로그래밍 언어, 툴, 프레임워크 등
+10. "경력 기술서" - 각 경력마다 [회사 소개 / 담당업무 / 상세 담당업무 및 성과 / 퇴직사유] 구조로 상세 작성
+11. "자기소개서" - [지원 동기] 와 [입사 후 포부] 두 개의 하위 섹션으로 구분
 
 ${jdContext ? `[JD 연동 최적화]
-• matching_points: ${toArr(jdContext.matching_points).join(' / ')} → 이 강점들을 전면 부각
+• matching_points: ${toArr(jdContext.matching_points).join(' / ')} → 직무능력/업무상 강점, 경력 기술서에서 전면 부각
 • gaps: ${toArr(jdContext.gaps).join(' / ')} → 긍정적으로 재프레이밍
-• pitch_points: ${toArr(jdContext.pitch_points).join(' / ')} → 자연스럽게 녹이기
+• pitch_points: ${toArr(jdContext.pitch_points).join(' / ')} → 자기소개서와 경력 기술서에 자연스럽게 녹이기
 • ${jdContext.company} 맞춤 어필 강화` : ''}
 
 [작성 규칙]
+• 원본에 없는 내용은 "해당 없음" 또는 빈 항목으로 표기
 • 수치/회사명/기간/기술명은 정확히 유지 (없는 내용 추가 금지)
 • 약한 표현 → 강한 표현: "담당"→"주도", "참여"→"기여", "수행"→"완수"
 • 구분자는 "/" 또는 "," 사용 (가운데점 금지)
-• 전문적이고 깔끔한 어감 유지`
+• 경력 기술서는 최신 경력부터 역순으로 작성
+• 전문적이고 깔끔한 어감 유지
+• 각 섹션의 content는 줄바꿈(\\n)으로 구분`
 
       const userPrompt = `${jdContext ? buildJDSection(jdContext) : '[JD 미선택 — 일반 관점으로 작성]'}
 
