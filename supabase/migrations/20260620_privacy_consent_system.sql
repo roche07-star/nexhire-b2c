@@ -196,6 +196,13 @@ CREATE POLICY "Headhunters can record consents" ON consents
     )
   );
 
+-- B2C 사용자가 본인 동의를 INSERT할 수 있도록
+DROP POLICY IF EXISTS "Users can insert own consents" ON consents;
+CREATE POLICY "Users can insert own consents" ON consents
+  FOR INSERT WITH CHECK (
+    auth.email() = user_email
+  );
+
 -- external_candidates 테이블: B2B 헤드헌터만 접근
 ALTER TABLE external_candidates ENABLE ROW LEVEL SECURITY;
 
