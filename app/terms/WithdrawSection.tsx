@@ -59,7 +59,11 @@ export default function WithdrawSection() {
             <ul className="withdraw-modal-list">
               <li>저장된 이력서 분석 결과 전체</li>
               <li>JD 적합도 분석 결과 전체</li>
+              <li>면접 가이드</li>
               <li>보유 쿠폰</li>
+              <li>개인정보 동의 기록</li>
+              <li>사용자 유형 선택 (개인/헤드헌터)</li>
+              <li>주소 등 선택 항목</li>
             </ul>
             <div className="withdraw-modal-warning">🚨 삭제된 데이터는 복구가 불가능합니다.</div>
             <div className="withdraw-modal-confirm-label">확인을 위해 가입한 이메일을 입력해 주세요</div>
