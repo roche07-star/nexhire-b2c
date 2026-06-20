@@ -15,11 +15,20 @@ interface CouponItem {
   expires_at?: string | null; claimed_at?: string | null
 }
 interface UsageItem { used: number; limit: number }
+interface ConsentInfo {
+  required: { agreed: boolean; agreedAt: string | null }
+  optional: { agreed: boolean; agreedAt: string | null }
+}
 interface MyInfo {
   plan: string
   usage: Record<string, UsageItem>
   coupons: CouponItem[]
   resetAt: string | null
+  consents?: ConsentInfo
+  userType?: string | null
+  userTypeLabel?: string
+  serviceType?: string
+  serviceTypeLabel?: string
 }
 
 export default function MyInfoButton() {
@@ -153,6 +162,48 @@ export default function MyInfoButton() {
                     </div>
                   )}
                 </div>
+
+                {/* 사용자 유형 & 서비스 타입 */}
+                {info.userType && (
+                  <div className="my-info-section">
+                    <div className="my-info-label">사용자 유형</div>
+                    <div className="my-info-row">
+                      <span className="my-info-key">유형</span>
+                      <span className="my-info-value">{info.userTypeLabel ?? '미설정'}</span>
+                    </div>
+                    <div className="my-info-row">
+                      <span className="my-info-key">서비스</span>
+                      <span className="my-info-value">{info.serviceTypeLabel ?? 'B2C'}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 개인정보 동의 현황 */}
+                {info.consents && (
+                  <div className="my-info-section">
+                    <div className="my-info-label">개인정보 동의 현황</div>
+                    <div className="my-info-row">
+                      <span className="my-info-key">필수 동의</span>
+                      <span className={`my-info-value ${info.consents.required.agreed ? 'text-green' : 'text-red'}`}>
+                        {info.consents.required.agreed ? (
+                          <>✅ 동의함 ({info.consents.required.agreedAt})</>
+                        ) : (
+                          <>❌ 미동의</>
+                        )}
+                      </span>
+                    </div>
+                    <div className="my-info-row">
+                      <span className="my-info-key">선택 동의 (주소)</span>
+                      <span className={`my-info-value ${info.consents.optional.agreed ? 'text-green' : 'text-gray'}`}>
+                        {info.consents.optional.agreed ? (
+                          <>✅ 동의함 ({info.consents.optional.agreedAt})</>
+                        ) : (
+                          <>— 미동의</>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
