@@ -238,13 +238,15 @@
 }
 
 .checkbox-text {
-  font-size: 15px;
-  color: #333;
-  line-height: 1.6;
   flex: 1;
-  word-break: normal;
-  overflow-wrap: break-word;
-  display: block;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 400;
+  color: #333;
+  line-height: 1.7;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .required-mark {
