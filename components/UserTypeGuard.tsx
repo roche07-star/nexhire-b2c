@@ -77,10 +77,10 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
     }
   }
 
-  return (
-    <>
-      {children}
-      {showModal && <UserTypeSelectionModal onSelect={handleSelectUserType} />}
-    </>
-  )
+  // 모달이 표시될 때는 children 숨기기
+  if (showModal) {
+    return <UserTypeSelectionModal onSelect={handleSelectUserType} />
+  }
+
+  return <>{children}</>
 }
