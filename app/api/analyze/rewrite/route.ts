@@ -649,12 +649,18 @@ ${maskedText}
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
+        console.error('[rewrite/standard] No tool_use in response:', JSON.stringify(message.content))
         return NextResponse.json({ error: '이력서 생성 실패' }, { status: 500 })
       }
 
       const { sections, changes } = toolUse.input as {
-        sections: Array<{ title: string; content: string }>
-        changes: string[]
+        sections?: Array<{ title: string; content: string }>
+        changes?: string[]
+      }
+
+      if (!sections || !Array.isArray(sections)) {
+        console.error('[rewrite/standard] Invalid sections:', toolUse.input)
+        return NextResponse.json({ error: '이력서 섹션 생성 실패' }, { status: 500 })
       }
 
       // PII 복원
