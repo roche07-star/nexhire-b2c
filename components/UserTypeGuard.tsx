@@ -26,25 +26,48 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    // 로딩 중이거나 비로그인 상태면 패스
-    if (status === 'loading' || status === 'unauthenticated') {
-      setShowModal(false)
-      return
-    }
+    async function checkUserType() {
+      // 로딩 중이거나 비로그인 상태면 패스
+      if (status === 'loading' || status === 'unauthenticated') {
+        setShowModal(false)
+        return
+      }
 
-    // 공개 페이지면 패스
-    if (PUBLIC_PATHS.includes(pathname)) {
-      setShowModal(false)
-      return
-    }
+      // 공개 페이지면 패스
+      if (PUBLIC_PATHS.includes(pathname)) {
+        setShowModal(false)
+        return
+      }
 
-    // 로그인 상태이고, user_type이 NULL이면 모달 표시
-    if (session?.user && !session.user.userType) {
+      // 세션에 user_type이 있으면 통과
+      if (session?.user?.userType) {
+        setShowModal(false)
+        return
+      }
+
+      // 세션에 없으면 DB에서 직접 확인 (세션 갱신 딜레이 대응)
+      if (session?.user?.email) {
+        try {
+          const res = await fetch('/api/user/check-type')
+          if (res.ok) {
+            const data = await res.json()
+            if (data.userType) {
+              console.log('[UserTypeGuard] User type found in DB:', data.userType)
+              setShowModal(false)
+              return
+            }
+          }
+        } catch (err) {
+          console.error('[UserTypeGuard] Error checking user type:', err)
+        }
+      }
+
+      // DB에도 없으면 모달 표시
       console.log('[UserTypeGuard] User type not set, showing modal')
       setShowModal(true)
-    } else {
-      setShowModal(false)
     }
+
+    checkUserType()
   }, [session, status, pathname])
 
   async function handleSelectUserType(userType: UserType) {
