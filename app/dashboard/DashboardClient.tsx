@@ -29,9 +29,10 @@ interface DashboardStats {
 interface DashboardClientProps {
   userEmail: string
   userPlan: string
+  userType?: string | null
 }
 
-export default function DashboardClient({ userEmail, userPlan }: DashboardClientProps) {
+export default function DashboardClient({ userEmail, userPlan, userType }: DashboardClientProps) {
   const router = useRouter()
   const { state: analysisState } = useAnalysis()
   const [stats, setStats] = useState<DashboardStats | null>(null)
