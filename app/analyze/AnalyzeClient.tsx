@@ -2378,7 +2378,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   <span className="jd-saved-resume">{item.result.position ?? item.result.resume_job_title ?? '이력서 분석'}</span>
                                 </div>
                                 <div className="jd-saved-card-right">
-                                  <span className="jd-saved-score" style={{ color }}>{item.result.fit_score}%</span>
+                                  <span className="jd-saved-score" style={{ color }}>{item.result.fit_score ?? 0}%</span>
                                   <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                                 </div>
                                 <button
@@ -2802,8 +2802,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="preserve-option-top">
                     <span className="preserve-option-icon">🎯</span>
                     <span className="preserve-option-label">{jd.result.company}{jd.result.position ? `, ${jd.result.position}` : ''}</span>
-                    <span className={`preserve-option-badge${jd.result.fit_score >= 70 ? ' coupon' : ' none'}`}>
-                      적합도 {jd.result.fit_score}%
+                    <span className={`preserve-option-badge${(jd.result.fit_score ?? 0) >= 70 ? ' coupon' : ' none'}`}>
+                      적합도 {jd.result.fit_score ?? 0}%
                     </span>
                   </div>
                   <div className="preserve-option-desc">
@@ -3412,7 +3412,7 @@ function JDResults({
           {result.position && <span className="jd-position-tag">{result.position}</span>}
         </div>
         <div className="jd-score-row">
-          <span className="jd-score" style={{ color }}>{result.fit_score}%</span>
+          <span className="jd-score" style={{ color }}>{result.fit_score ?? 0}%</span>
           <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
         </div>
         <p className="jd-verdict">{result.verdict}</p>
