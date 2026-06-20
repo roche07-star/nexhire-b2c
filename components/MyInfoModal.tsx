@@ -163,17 +163,13 @@ export default function MyInfoButton() {
                   )}
                 </div>
 
-                {/* 사용자 유형 & 서비스 타입 */}
+                {/* 사용자 유형 */}
                 {info.userType && (
                   <div className="my-info-section">
                     <div className="my-info-label">사용자 유형</div>
                     <div className="my-info-row">
                       <span className="my-info-key">유형</span>
                       <span className="my-info-value">{info.userTypeLabel ?? '미설정'}</span>
-                    </div>
-                    <div className="my-info-row">
-                      <span className="my-info-key">서비스</span>
-                      <span className="my-info-value">{info.serviceTypeLabel ?? 'B2C'}</span>
                     </div>
                   </div>
                 )}
