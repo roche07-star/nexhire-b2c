@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import './consent.css'
 
-export default function ConsentPage() {
+function ConsentPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
@@ -240,5 +240,23 @@ export default function ConsentPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function ConsentPage() {
+  return (
+    <Suspense fallback={
+      <div className="consent-page">
+        <div className="consent-container">
+          <div className="consent-header">
+            <div className="logo">JOBIZIC</div>
+            <h1>개인정보 수집·이용 동의</h1>
+            <p className="subtitle">로딩 중...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ConsentPageContent />
+    </Suspense>
   )
 }
