@@ -13,6 +13,7 @@ export default async function ResultPage({
   }
 
   const { id } = await params
+  const userType = session.user.userType
 
-  return <ResultClient analysisId={id} />
+  return <ResultClient analysisId={id} userType={userType} />
 }

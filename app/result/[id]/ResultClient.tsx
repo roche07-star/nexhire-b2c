@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
 
 interface AnalysisResult {
   id: string
@@ -11,11 +12,73 @@ interface AnalysisResult {
   stage: string
 }
 
-export default function ResultClient({ analysisId }: { analysisId: string }) {
+export default function ResultClient({ analysisId, userType }: { analysisId: string; userType?: string | null }) {
   const router = useRouter()
   const [data, setData] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [jdList, setJdList] = useState<any[]>([])
+  const [showJdSelect, setShowJdSelect] = useState(false)
+  const [generatingProposal, setGeneratingProposal] = useState(false)
+
+  useEffect(() => {
+    fetchResult()
+    if (userType === 'HEADHUNTER') {
+      fetchJdList()
+    }
+  }, [analysisId, userType])
+
+  const fetchJdList = async () => {
+    try {
+      const res = await fetch('/api/analyze/jd/list')
+      if (res.ok) {
+        const { jdAnalyses } = await res.json()
+        setJdList(jdAnalyses || [])
+      }
+    } catch (err) {
+      console.error('JD 목록 불러오기 실패:', err)
+    }
+  }
+
+  const generateProposal = async (jdId: string) => {
+    try {
+      setGeneratingProposal(true)
+      setShowJdSelect(false)
+
+      const jd = jdList.find(j => j.id === jdId)
+      if (!jd || !data) return
+
+      const res = await fetch('/api/generate-proposal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeAnalysis: data.result,
+          jdAnalysis: jd.result,
+        }),
+      })
+
+      if (!res.ok) throw new Error('제안서 생성 실패')
+
+      const { proposal } = await res.json()
+
+      // HTML 생성
+      const html = generateProposalHTML(proposal, data.result, jd.result)
+
+      // 다운로드
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `후보자제안서_${proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Proposal generation error:', error)
+      alert('제안서 생성에 실패했습니다.')
+    } finally {
+      setGeneratingProposal(false)
+    }
+  }
 
   useEffect(() => {
     fetchResult()
@@ -207,7 +270,26 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
       )}
 
       {/* 하단 버튼 */}
-      <div style={{ display: 'flex', gap: 12, marginTop: 32 }}>
+      <div style={{ display: 'flex', gap: 12, marginTop: 32, flexWrap: 'wrap' }}>
+        {userType === 'HEADHUNTER' && jdList.length > 0 && (
+          <button
+            onClick={() => setShowJdSelect(true)}
+            disabled={generatingProposal}
+            style={{
+              flex: '1 1 100%',
+              padding: '12px',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontWeight: 600,
+              cursor: generatingProposal ? 'not-allowed' : 'pointer',
+              opacity: generatingProposal ? 0.6 : 1,
+            }}
+          >
+            {generatingProposal ? '⏳ 제안서 생성 중...' : '📄 후보자 제안서 생성'}
+          </button>
+        )}
         <Link href="/pipeline" style={{ flex: 1 }}>
           <button style={{
             width: '100%',
@@ -237,6 +319,93 @@ export default function ResultClient({ analysisId }: { analysisId: string }) {
           </button>
         </Link>
       </div>
+
+      {/* JD 선택 모달 */}
+      {showJdSelect && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}
+          onClick={() => setShowJdSelect(false)}
+        >
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '80vh',
+              overflow: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
+              제안서에 반영할 JD 선택
+            </h3>
+            <p style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>
+              어떤 채용 공고에 대한 제안서를 생성하시겠습니까?
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {jdList.map((jd) => (
+                <div
+                  key={jd.id}
+                  onClick={() => generateProposal(jd.id)}
+                  style={{
+                    padding: '16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#8b5cf6'
+                    e.currentTarget.style.background = '#f5f3ff'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#e5e7eb'
+                    e.currentTarget.style.background = '#fff'
+                  }}
+                >
+                  <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>
+                    {jd.result.company} {jd.result.position && `- ${jd.result.position}`}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#666' }}>
+                    적합도: {jd.result.fit_score}점 | {new Date(jd.created_at).toLocaleDateString('ko-KR')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowJdSelect(false)}
+              style={{
+                width: '100%',
+                marginTop: 16,
+                padding: '12px',
+                background: '#f5f5f5',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
