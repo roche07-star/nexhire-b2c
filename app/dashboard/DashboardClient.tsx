@@ -479,6 +479,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                           background: '#fff',
                           borderRadius: 6,
                           marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 8 : 0,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                        onClick={() => router.push(`/jd-result/${jd.id}`)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#f5f5f5'
+                          e.currentTarget.style.transform = 'translateX(2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#fff'
+                          e.currentTarget.style.transform = 'translateX(0)'
                         }}
                       >
                         <div style={{ flex: 1 }}>
