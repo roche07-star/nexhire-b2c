@@ -3754,14 +3754,14 @@ function JDResults({
               <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
                 ↓ HTML 리포트 다운로드
               </button>
-              {userType === 'HEADHUNTER' && (
-                <button
-                  className="analyze-download-btn"
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                    color: '#fff',
-                  }}
-                  onClick={async () => {
+              <button
+                className="analyze-download-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                  color: '#fff',
+                  display: userType === 'HEADHUNTER' ? 'block' : 'none',
+                }}
+                onClick={async () => {
                     try {
                       const proposalBtn = document.activeElement as HTMLButtonElement
                       if (proposalBtn) proposalBtn.disabled = true
@@ -3808,9 +3808,8 @@ function JDResults({
                     }
                   }}
                 >
-                  📄 후보자 제안서 생성
+                  📄 후보자 제안서 생성 (userType: {String(userType)})
                 </button>
-              )}
             </>
           )
         )}
