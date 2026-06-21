@@ -3592,6 +3592,26 @@ function JDResults({
     ? new Date(result.resume_analyzed_at).toLocaleDateString('ko-KR')
     : ''
 
+  // 제안서 저장 상태 관리
+  const [proposalData, setProposalData] = React.useState<{ html: string; proposal: any } | null>(null)
+
+  // 제안서 localStorage 키
+  const proposalKey = `proposal_${result.id}`
+
+  // 컴포넌트 마운트 시 저장된 제안서 확인
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(proposalKey)
+      if (saved) {
+        try {
+          setProposalData(JSON.parse(saved))
+        } catch (e) {
+          console.error('Failed to parse saved proposal:', e)
+        }
+      }
+    }
+  }, [proposalKey])
+
   return (
     <div className="jd-results">
       <button className="jd-back-btn" onClick={onReset} style={{ marginBottom: 16 }}>
@@ -3762,54 +3782,74 @@ function JDResults({
                   display: userType === 'HEADHUNTER' ? 'block' : 'none',
                 }}
                 onClick={async () => {
-                    try {
-                      const proposalBtn = document.activeElement as HTMLButtonElement
-                      if (proposalBtn) proposalBtn.disabled = true
-                      const proposalBtnText = proposalBtn?.textContent
-                      if (proposalBtn) proposalBtn.textContent = '⏳ 제안서 생성 중...'
+                  // 이미 생성된 제안서가 있으면 다운로드만
+                  if (proposalData) {
+                    const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `후보자제안서_${proposalData.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                    return
+                  }
 
-                      const res = await fetch('/api/generate-proposal', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          resumeAnalysis: analysisItem.result,
-                          jdAnalysis: result,
-                        }),
-                      })
+                  // 제안서 생성
+                  try {
+                    const proposalBtn = document.activeElement as HTMLButtonElement
+                    if (proposalBtn) proposalBtn.disabled = true
+                    const proposalBtnText = proposalBtn?.textContent
+                    if (proposalBtn) proposalBtn.textContent = '⏳ 제안서 생성 중...'
 
-                      if (!res.ok) {
-                        throw new Error('제안서 생성 실패')
-                      }
+                    const res = await fetch('/api/generate-proposal', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        resumeAnalysis: analysisItem.result,
+                        jdAnalysis: result,
+                      }),
+                    })
 
-                      const { proposal } = await res.json()
-
-                      // HTML 생성 및 다운로드
-                      const html = generateProposalHTML(proposal, analysisItem.result, result)
-                      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `후보자제안서_${proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
-                      a.click()
-                      URL.revokeObjectURL(url)
-
-                      if (proposalBtn) {
-                        proposalBtn.textContent = proposalBtnText
-                        proposalBtn.disabled = false
-                      }
-                    } catch (error) {
-                      console.error('Proposal generation error:', error)
-                      alert('제안서 생성에 실패했습니다.')
-                      const proposalBtn = document.activeElement as HTMLButtonElement
-                      if (proposalBtn) {
-                        proposalBtn.textContent = '📄 후보자 제안서 생성'
-                        proposalBtn.disabled = false
-                      }
+                    if (!res.ok) {
+                      throw new Error('제안서 생성 실패')
                     }
-                  }}
-                >
-                  📄 후보자 제안서 생성 (userType: {String(userType)})
-                </button>
+
+                    const { proposal } = await res.json()
+
+                    // HTML 생성
+                    const html = generateProposalHTML(proposal, analysisItem.result, result)
+
+                    // localStorage에 저장
+                    const dataToSave = { html, proposal }
+                    localStorage.setItem(proposalKey, JSON.stringify(dataToSave))
+                    setProposalData(dataToSave)
+
+                    // 다운로드
+                    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `후보자제안서_${proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+                    a.click()
+                    URL.revokeObjectURL(url)
+
+                    if (proposalBtn) {
+                      proposalBtn.textContent = '📄 후보자 제안서 다운로드'
+                      proposalBtn.disabled = false
+                    }
+                  } catch (error) {
+                    console.error('Proposal generation error:', error)
+                    alert('제안서 생성에 실패했습니다.')
+                    const proposalBtn = document.activeElement as HTMLButtonElement
+                    if (proposalBtn) {
+                      proposalBtn.textContent = '📄 후보자 제안서 생성'
+                      proposalBtn.disabled = false
+                    }
+                  }
+                }}
+              >
+                {proposalData ? '📄 후보자 제안서 다운로드' : '📄 후보자 제안서 생성'}
+              </button>
             </>
           )
         )}
