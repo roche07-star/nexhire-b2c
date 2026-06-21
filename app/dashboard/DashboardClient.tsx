@@ -453,6 +453,25 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                           <div style={{ fontSize: 14, color: '#666' }}>
                             {group.resume.position}
                           </div>
+                          {(() => {
+                            const candidateName = typeof window !== 'undefined' && group.resume.id
+                              ? localStorage.getItem(`candidate_name_${group.resume.id}`)
+                              : null
+                            return candidateName ? (
+                              <div style={{
+                                display: 'inline-block',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                color: '#fff',
+                                padding: '4px 10px',
+                                borderRadius: '5px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                marginTop: '6px',
+                              }}>
+                                👤 {candidateName}
+                              </div>
+                            ) : null
+                          })()}
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>직무 적합도</div>
