@@ -2403,6 +2403,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     result={jdViewingSaved.result}
                     expiresAt={jdViewingSaved.expires_at ?? undefined}
                     onReset={() => setJdViewingSaved(null)}
+                    userType={userType}
                   />
                 ) : jdResult ? (
                   <JDResults
@@ -2410,6 +2411,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     analysisItem={jdSelectedAnalysis ?? undefined}
                     expiresAt={jdResult.expires_at}
                     onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
+                    userType={userType}
                   />
                 ) : jdSelectedAnalysis ? (
                   <>
@@ -3572,11 +3574,13 @@ function JDResults({
   analysisItem,
   expiresAt,
   onReset,
+  userType,
 }: {
   result: JDResult
   analysisItem?: AnalysisListItem
   expiresAt?: string
   onReset: () => void
+  userType?: string | null
 }) {
   const color = REC_COLOR_HEX[result.recommendation] ?? '#888'
   const label = REC_LABEL_CONST[result.recommendation] ?? result.recommendation
