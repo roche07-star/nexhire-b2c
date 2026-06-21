@@ -4768,6 +4768,24 @@ footer {
     font-size: 9px !important;
   }
 
+  /* 커리어 방향 탭 - 모바일 최적화 */
+  .career-tabs {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 2px !important;
+    margin: 0 !important;
+  }
+  .career-tab {
+    padding: 8px 6px !important;
+    min-width: 0 !important;
+  }
+  .career-tab-label {
+    font-size: 9px !important;
+    letter-spacing: 0.05em !important;
+  }
+  .career-tab-sub {
+    font-size: 8px !important;
+  }
+
   /* 모달 */
   .modal-overlay {
     padding: 8px;
