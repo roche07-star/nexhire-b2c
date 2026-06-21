@@ -11,6 +11,7 @@ export default async function AnalyzePage() {
   let isPro = false
   let isExpert = false
   let userEmail: string | null = null
+  let userType: string | null = null
 
   try {
     const session = await auth()
@@ -19,10 +20,11 @@ export default async function AnalyzePage() {
       const role = (session.user as { role?: string }).role ?? 'USER'
       const { data } = await supabase
         .from('users')
-        .select('plan')
+        .select('plan, user_type')
         .eq('email', userEmail)
         .maybeSingle()
       const plan = data?.plan ?? 'FREE'
+      userType = data?.user_type ?? null
       isExpert = plan === 'EXPERT' || role === 'MANAGER'
       isPro = plan === 'PRO' || isExpert
     }
@@ -33,7 +35,12 @@ export default async function AnalyzePage() {
   return (
     <ConsentGuard>
       <Nav />
-      <AnalyzeClient initialIsPro={isPro} initialIsExpert={isExpert} userEmail={userEmail} />
+      <AnalyzeClient
+        initialIsPro={isPro}
+        initialIsExpert={isExpert}
+        userEmail={userEmail}
+        userType={userType}
+      />
       <Footer />
     </ConsentGuard>
   )
