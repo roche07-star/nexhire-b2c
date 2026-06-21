@@ -1399,6 +1399,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setAnalysisId(data._id ?? null)
         if (data._id) {
           completeAnalysis(data._id) // 백그라운드 분석 완료 표시
+
+          // 후보자 이름 localStorage에 저장 (이후 단계에서 사용)
+          if (data.candidate_name) {
+            localStorage.setItem(`candidate_name_${data._id}`, data.candidate_name)
+          }
         }
 
         // 파일 초기화 (큐 처리는 useEffect에서)
@@ -1975,6 +1980,27 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   : <span className="preserve-badge unsaved">미보존</span>
                                 }
                               </span>
+                              {(() => {
+                                const candidateName = item.result.candidate_name ||
+                                  (typeof window !== 'undefined' && item.result.id
+                                    ? localStorage.getItem(`candidate_name_${item.result.id}`)
+                                    : null)
+                                return candidateName ? (
+                                  <div className="candidate-name-badge" style={{
+                                    display: 'inline-block',
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    color: '#fff',
+                                    padding: '4px 12px',
+                                    borderRadius: '6px',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    marginTop: '6px',
+                                    marginBottom: '4px',
+                                  }}>
+                                    👤 후보자: {candidateName}
+                                  </div>
+                                ) : null
+                              })()}
                               <span className="jd-saved-resume">
                                 {isTextPaste
                                   ? '양식 업로드 또는 자율 포맷으로 이력서 생성 가능'
@@ -2322,6 +2348,27 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               >
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                                  {(() => {
+                                    const candidateName = item.result.candidate_name ||
+                                      (typeof window !== 'undefined' && item.result.id
+                                        ? localStorage.getItem(`candidate_name_${item.result.id}`)
+                                        : null)
+                                    return candidateName ? (
+                                      <div className="candidate-name-badge" style={{
+                                        display: 'inline-block',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        color: '#fff',
+                                        padding: '4px 12px',
+                                        borderRadius: '6px',
+                                        fontSize: '13px',
+                                        fontWeight: 600,
+                                        marginTop: '6px',
+                                        marginBottom: '4px',
+                                      }}>
+                                        👤 후보자: {candidateName}
+                                      </div>
+                                    ) : null
+                                  })()}
                                   <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
                                 </div>
                                 <div className="jd-saved-card-right">
@@ -2424,6 +2471,26 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         {jdSelectedAnalysis.result.job_title ?? '이력서 분석'}
                         <span className="jd-selected-date">{new Date(jdSelectedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                       </div>
+                      {(() => {
+                        const candidateName = jdSelectedAnalysis.result.candidate_name ||
+                          (typeof window !== 'undefined' && jdSelectedAnalysis.result.id
+                            ? localStorage.getItem(`candidate_name_${jdSelectedAnalysis.result.id}`)
+                            : null)
+                        return candidateName ? (
+                          <div className="candidate-name-badge" style={{
+                            display: 'inline-block',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: '#fff',
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            marginBottom: '8px',
+                          }}>
+                            👤 후보자: {candidateName}
+                          </div>
+                        ) : null
+                      })()}
                       <p className="jd-selected-summary-text">{jdSelectedAnalysis.result.summary?.slice(0, 100)}…</p>
                     </div>
 
