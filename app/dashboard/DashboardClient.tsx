@@ -189,11 +189,41 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       </div>
 
       {/* 헤더 */}
-      <div style={{ marginBottom: 40 }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>헤드헌터 대시보드</h1>
-        <p style={{ color: '#666', fontSize: 16 }}>
-          {userEmail}, {userPlan} 플랜
-        </p>
+      <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>헤드헌터 대시보드</h1>
+          <p style={{ color: '#666', fontSize: 16 }}>
+            {userEmail}, {userPlan} 플랜
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setStats(null)
+            setLoading(true)
+            fetchStats()
+          }}
+          style={{
+            padding: '10px 20px',
+            background: '#e8ff47',
+            color: '#1a1a1a',
+            border: 'none',
+            borderRadius: 8,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontSize: 14,
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#d4eb33'
+            e.currentTarget.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#e8ff47'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          🔄 새로고침
+        </button>
       </div>
 
       {/* 통계 카드 */}
