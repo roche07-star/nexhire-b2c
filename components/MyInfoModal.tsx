@@ -168,7 +168,6 @@ export default function MyInfoButton() {
                   <div className="my-info-section">
                     <div className="my-info-label">사용자 유형</div>
                     <div className="my-info-row">
-                      <span className="my-info-key">유형</span>
                       <span className="my-info-value">{info.userTypeLabel ?? '미설정'}</span>
                     </div>
                   </div>
