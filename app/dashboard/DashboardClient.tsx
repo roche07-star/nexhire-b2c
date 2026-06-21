@@ -135,38 +135,54 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       minHeight: '100vh'
     }}>
       {/* 탭 바 */}
-      <div className="analyze-tab-bar" style={{ marginBottom: 32 }}>
-        <button className="analyze-tab-btn active">
+      <div
+        className="analyze-tab-bar"
+        style={{
+          marginBottom: 32,
+          background: '#ffffff',
+          border: '1px solid #e0e0e0',
+          padding: '8px',
+          borderRadius: '12px',
+        }}
+      >
+        <button
+          className="analyze-tab-btn active"
+          style={{
+            background: 'rgba(232, 255, 71, 0.15)',
+            color: '#1a1a1a',
+            fontWeight: 600,
+          }}
+        >
           <span>📊</span> 대시보드
         </button>
         <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn">
+          <button className="analyze-tab-btn" style={{ color: '#666' }}>
             <span>📄</span> 이력서 분석
           </button>
         </a>
         <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn">
+          <button className="analyze-tab-btn" style={{ color: '#666' }}>
             <span>📂</span> 분석 Report
           </button>
         </a>
         <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn">
+          <button className="analyze-tab-btn" style={{ color: '#666' }}>
             <span>📋</span> JD기반 분석
           </button>
         </a>
         <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn">
+          <button className="analyze-tab-btn" style={{ color: '#666' }}>
             <span>✏️</span> 이력서 생성
           </button>
         </a>
         {userPlan === 'EXPERT' ? (
           <a href="/analyze" style={{ textDecoration: 'none' }}>
-            <button className="analyze-tab-btn">
+            <button className="analyze-tab-btn" style={{ color: '#666' }}>
               <span>🎤</span> 면접 가이드 <span className="tab-expert-badge">EXPERT</span>
             </button>
           </a>
         ) : (
-          <button className="analyze-tab-btn disabled" disabled>
+          <button className="analyze-tab-btn disabled" disabled style={{ color: '#999' }}>
             <span>🎤</span> 면접 가이드 <span className="tab-soon">EXPERT</span>
           </button>
         )}
