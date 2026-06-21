@@ -4178,6 +4178,35 @@ footer {
   .feature-card p { font-size: 12px; }
   .ftag { font-size: 10px; padding: 3px 8px; }
 
+  /* HOW IT WORKS - 모바일 최적화 */
+  .how-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 24px;
+    border-radius: 12px;
+  }
+  .how-card {
+    padding: 20px 16px;
+  }
+  .how-num {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .how-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .how-card h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .how-card p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
   /* PERSONA */
   .persona-section { padding: 40px 12px; }
   .persona-wrap {
