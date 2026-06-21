@@ -44,6 +44,7 @@ interface SavedAnalysis {
 }
 
 interface JDResult {
+  id?: string
   company: string
   position?: string
   fit_score: number
@@ -1982,8 +1983,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               </span>
                               {(() => {
                                 const candidateName = item.result.candidate_name ||
-                                  (typeof window !== 'undefined' && item.result.id
-                                    ? localStorage.getItem(`candidate_name_${item.result.id}`)
+                                  (typeof window !== 'undefined' && item.id
+                                    ? localStorage.getItem(`candidate_name_${item.id}`)
                                     : null)
                                 return candidateName ? (
                                   <div className="candidate-name-badge" style={{
@@ -2350,8 +2351,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
                                   {(() => {
                                     const candidateName = item.result.candidate_name ||
-                                      (typeof window !== 'undefined' && item.result.id
-                                        ? localStorage.getItem(`candidate_name_${item.result.id}`)
+                                      (typeof window !== 'undefined' && item.id
+                                        ? localStorage.getItem(`candidate_name_${item.id}`)
                                         : null)
                                     return candidateName ? (
                                       <div className="candidate-name-badge" style={{
@@ -2473,8 +2474,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </div>
                       {(() => {
                         const candidateName = jdSelectedAnalysis.result.candidate_name ||
-                          (typeof window !== 'undefined' && jdSelectedAnalysis.result.id
-                            ? localStorage.getItem(`candidate_name_${jdSelectedAnalysis.result.id}`)
+                          (typeof window !== 'undefined' && jdSelectedAnalysis.id
+                            ? localStorage.getItem(`candidate_name_${jdSelectedAnalysis.id}`)
                             : null)
                         return candidateName ? (
                           <div className="candidate-name-badge" style={{
@@ -3660,13 +3661,13 @@ function JDResults({
     : ''
 
   // 제안서 저장 상태 관리
-  const [proposalData, setProposalData] = React.useState<{ html: string; proposal: any } | null>(null)
+  const [proposalData, setProposalData] = useState<{ html: string; proposal: any } | null>(null)
 
   // 제안서 localStorage 키
   const proposalKey = `proposal_${result.id}`
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(proposalKey)
       if (saved) {
