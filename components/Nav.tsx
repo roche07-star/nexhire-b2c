@@ -29,7 +29,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
         <span className="nav-logo-text">JOBIZIC</span>
       </Link>
       {!minimal && (
-        <ul className="nav-links">
+        <ul className={`nav-links ${isHeadhunter ? 'show-on-mobile' : ''}`}>
           <NavLinks isPro={isPro} isHeadhunter={isHeadhunter} />
         </ul>
       )}
