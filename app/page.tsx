@@ -1,7 +1,6 @@
 import { auth } from '@/auth'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
-import Stats from '@/components/Stats'
 import HowItWorks from '@/components/HowItWorks'
 import Features from '@/components/Features'
 import Persona from '@/components/Persona'
@@ -21,7 +20,6 @@ export default async function Home() {
       <ScrollReveal />
       <Nav />
       <Hero userType={userType} />
-      <Stats />
       <HowItWorks userType={userType} />
       <Features userType={userType} />
       <Persona />
