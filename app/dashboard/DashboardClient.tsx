@@ -467,57 +467,89 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                       </div>
                     )}
 
-                    {/* JD 분석들 */}
+                    {/* JD 분석들 - 차별화된 디자인 */}
                     {group.jdAnalyses.map((jd: any, jdIdx: number) => (
                       <div
                         key={jdIdx}
                         style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: 12,
-                          background: '#fff',
-                          borderRadius: 6,
+                          padding: 14,
+                          background: 'linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)',
+                          border: '2px solid #e9d5ff',
+                          borderRadius: 8,
                           marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 8 : 0,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
+                          boxShadow: '0 1px 3px rgba(139, 92, 246, 0.1)',
                         }}
                         onClick={() => router.push(`/jd-result/${jd.id}`)}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#f5f5f5'
-                          e.currentTarget.style.transform = 'translateX(2px)'
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%)'
+                          e.currentTarget.style.borderColor = '#d8b4fe'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.2)'
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#fff'
-                          e.currentTarget.style.transform = 'translateX(0)'
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)'
+                          e.currentTarget.style.borderColor = '#e9d5ff'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                          e.currentTarget.style.boxShadow = '0 1px 3px rgba(139, 92, 246, 0.1)'
                         }}
                       >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                            <span>📋</span>
-                            <span style={{
-                              padding: '2px 8px',
-                              background: '#8b5cf6',
-                              color: '#fff',
-                              borderRadius: 4,
-                              fontSize: 11,
-                              fontWeight: 700,
-                            }}>
-                              JD 분석
-                            </span>
+                        {/* 헤더: 배지 */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                          <span style={{ fontSize: 18 }}>📋</span>
+                          <span style={{
+                            padding: '3px 10px',
+                            background: '#8b5cf6',
+                            color: '#fff',
+                            borderRadius: 5,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            letterSpacing: '0.3px',
+                          }}>
+                            JD 분석
+                          </span>
+                        </div>
+
+                        {/* 회사 - 포지션 */}
+                        <div style={{ marginBottom: 12 }}>
+                          <div style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: '#7c3aed',
+                            marginBottom: 4,
+                          }}>
+                            {jd.position?.split(' - ')[0] || '회사명'}
                           </div>
                           <div style={{ fontSize: 14, color: '#666' }}>
                             {jd.position}
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>JD 적합도</div>
+
+                        {/* 하단: 점수와 날짜 */}
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          paddingTop: 10,
+                          borderTop: '1px solid #e9d5ff',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ fontSize: 11, color: '#999' }}>JD 적합도</div>
+                            <div style={{
+                              fontSize: 20,
+                              fontWeight: 700,
+                              color: jd.score >= 70 ? '#10b981' : '#f59e0b',
+                            }}>
+                              {jd.score}점
+                            </div>
+                          </div>
                           <div style={{
-                            fontSize: 18,
-                            fontWeight: 700,
-                            color: jd.score >= 70 ? '#10b981' : '#f59e0b',
+                            fontSize: 11,
+                            color: '#8b5cf6',
+                            fontWeight: 600,
                           }}>
-                            {jd.score}점
+                            →
                           </div>
                         </div>
                       </div>
