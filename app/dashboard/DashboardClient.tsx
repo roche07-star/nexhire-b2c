@@ -134,9 +134,47 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       background: '#fafafa',
       minHeight: '100vh'
     }}>
+      {/* 탭 바 */}
+      <div className="analyze-tab-bar" style={{ marginBottom: 32 }}>
+        <button className="analyze-tab-btn active">
+          <span>📊</span> 대시보드
+        </button>
+        <a href="/analyze" style={{ textDecoration: 'none' }}>
+          <button className="analyze-tab-btn">
+            <span>📄</span> 이력서 분석
+          </button>
+        </a>
+        <a href="/analyze" style={{ textDecoration: 'none' }}>
+          <button className="analyze-tab-btn">
+            <span>📂</span> 분석 Report
+          </button>
+        </a>
+        <a href="/analyze" style={{ textDecoration: 'none' }}>
+          <button className="analyze-tab-btn">
+            <span>📋</span> JD기반 분석
+          </button>
+        </a>
+        <a href="/analyze" style={{ textDecoration: 'none' }}>
+          <button className="analyze-tab-btn">
+            <span>✏️</span> 이력서 생성
+          </button>
+        </a>
+        {userPlan === 'EXPERT' ? (
+          <a href="/analyze" style={{ textDecoration: 'none' }}>
+            <button className="analyze-tab-btn">
+              <span>🎤</span> 면접 가이드 <span className="tab-expert-badge">EXPERT</span>
+            </button>
+          </a>
+        ) : (
+          <button className="analyze-tab-btn disabled" disabled>
+            <span>🎤</span> 면접 가이드 <span className="tab-soon">EXPERT</span>
+          </button>
+        )}
+      </div>
+
       {/* 헤더 */}
       <div style={{ marginBottom: 40 }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>PRO 대시보드</h1>
+        <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>헤드헌터 대시보드</h1>
         <p style={{ color: '#666', fontSize: 16 }}>
           {userEmail}, {userPlan} 플랜
         </p>
