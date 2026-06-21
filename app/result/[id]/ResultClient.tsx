@@ -20,13 +20,36 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
   const [jdList, setJdList] = useState<any[]>([])
   const [showJdSelect, setShowJdSelect] = useState(false)
   const [generatingProposal, setGeneratingProposal] = useState(false)
+  const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({})
 
   useEffect(() => {
     fetchResult()
     if (userType === 'HEADHUNTER') {
       fetchJdList()
+      loadSavedProposals()
     }
   }, [analysisId, userType])
+
+  const loadSavedProposals = () => {
+    if (typeof window === 'undefined') return
+    const saved: Record<string, any> = {}
+    // localStorage에서 이 이력서와 관련된 모든 제안서 로드
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith(`proposal_resume_${analysisId}_jd_`)) {
+        const jdId = key.replace(`proposal_resume_${analysisId}_jd_`, '')
+        try {
+          const data = localStorage.getItem(key)
+          if (data) {
+            saved[jdId] = JSON.parse(data)
+          }
+        } catch (e) {
+          console.error('Failed to parse saved proposal:', e)
+        }
+      }
+    }
+    setSavedProposals(saved)
+  }
 
   const fetchJdList = async () => {
     try {
@@ -64,6 +87,12 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
       // HTML 생성
       const html = generateProposalHTML(proposal, data.result, jd.result)
 
+      // localStorage에 저장
+      const proposalKey = `proposal_resume_${analysisId}_jd_${jdId}`
+      const dataToSave = { html, proposal }
+      localStorage.setItem(proposalKey, JSON.stringify(dataToSave))
+      setSavedProposals(prev => ({ ...prev, [jdId]: dataToSave }))
+
       // 다운로드
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
       const url = URL.createObjectURL(blob)
@@ -78,6 +107,19 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
     } finally {
       setGeneratingProposal(false)
     }
+  }
+
+  const downloadSavedProposal = (jdId: string) => {
+    const saved = savedProposals[jdId]
+    if (!saved) return
+
+    const blob = new Blob([saved.html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `후보자제안서_${saved.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   useEffect(() => {
@@ -358,34 +400,55 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {jdList.map((jd) => (
-                <div
-                  key={jd.id}
-                  onClick={() => generateProposal(jd.id)}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#8b5cf6'
-                    e.currentTarget.style.background = '#f5f3ff'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e5e7eb'
-                    e.currentTarget.style.background = '#fff'
-                  }}
-                >
-                  <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>
-                    {jd.result.company} {jd.result.position && `- ${jd.result.position}`}
+              {jdList.map((jd) => {
+                const hasSaved = savedProposals[jd.id]
+                return (
+                  <div
+                    key={jd.id}
+                    onClick={() => hasSaved ? downloadSavedProposal(jd.id) : generateProposal(jd.id)}
+                    style={{
+                      padding: '16px',
+                      border: hasSaved ? '2px solid #8b5cf6' : '2px solid #e5e7eb',
+                      borderRadius: 12,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      background: hasSaved ? '#f5f3ff' : '#fff',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#8b5cf6'
+                      e.currentTarget.style.background = '#f5f3ff'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = hasSaved ? '#8b5cf6' : '#e5e7eb'
+                      e.currentTarget.style.background = hasSaved ? '#f5f3ff' : '#fff'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ fontSize: 16, fontWeight: 600 }}>
+                        {jd.result.company} {jd.result.position && `- ${jd.result.position}`}
+                      </div>
+                      {hasSaved && (
+                        <span style={{
+                          padding: '4px 8px',
+                          background: '#8b5cf6',
+                          color: '#fff',
+                          borderRadius: 4,
+                          fontSize: 11,
+                          fontWeight: 600,
+                        }}>
+                          생성 완료
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 13, color: '#666' }}>
+                      적합도: {jd.result.fit_score}점 | {new Date(jd.created_at).toLocaleDateString('ko-KR')}
+                    </div>
+                    <div style={{ fontSize: 12, color: hasSaved ? '#8b5cf6' : '#999', marginTop: 6 }}>
+                      {hasSaved ? '📥 클릭하면 즉시 다운로드' : '📄 클릭하면 제안서 생성'}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, color: '#666' }}>
-                    적합도: {jd.result.fit_score}점 | {new Date(jd.created_at).toLocaleDateString('ko-KR')}
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
             <button
