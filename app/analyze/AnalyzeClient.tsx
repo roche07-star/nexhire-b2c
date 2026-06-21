@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
 import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
 
@@ -478,6 +479,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [isPro] = useState(initialIsPro)
   const [isExpert] = useState(!!initialIsExpert)
   const [activeMenu, setActiveMenu] = useState<SidebarMenu>('upload')
+  const searchParams = useSearchParams()
   const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [rewriteLoadingMsg, setRewriteLoadingMsg] = useState<string>('')
   const [rewriteError, setRewriteError] = useState<string | null>(null)
@@ -623,6 +625,33 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .then(({ analyses }) => setAnalysisList(analyses ?? []))
       .catch(() => setAnalysisList([]))
   }, [])
+
+  // URL parameter로 JD 탭으로 직접 진입
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    const id = searchParams.get('id')
+
+    if (tab === 'jd') {
+      setActiveMenu('jd')
+      // JD ID가 있으면 해당 JD 분석 로드
+      if (id) {
+        // JD 목록 로드 후 해당 JD 선택
+        fetch('/api/analyze/jd/list')
+          .then((r) => r.json())
+          .then((data) => {
+            if (Array.isArray(data.analyses)) {
+              setJdSavedList(data.analyses)
+              const foundJd = data.analyses.find((jd: any) => jd.id === id)
+              if (foundJd) {
+                setJdViewingSaved(foundJd)
+                setJdResult(foundJd.result)
+              }
+            }
+          })
+          .catch(() => {})
+      }
+    }
+  }, [searchParams])
 
   async function handleDeleteAnalysis(id: string, e: React.MouseEvent) {
     e.stopPropagation()
