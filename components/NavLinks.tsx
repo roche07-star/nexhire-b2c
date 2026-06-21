@@ -37,11 +37,6 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
 
   return (
     <>
-      {/* 헤드헌터면 대시보드 추가 */}
-      {isHeadhunter && (
-        <li><Link href="/dashboard" style={getLinkStyle('/dashboard')}>대시보드</Link></li>
-      )}
-
       {/* PRO 개인 구직자면 이력서 분석 추가 */}
       {isPro && !isHeadhunter && (
         <li><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
