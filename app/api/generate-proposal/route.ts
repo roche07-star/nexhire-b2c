@@ -44,9 +44,9 @@ export async function POST(req: NextRequest) {
                 properties: {
                   name: { type: 'string', description: '후보자명 (제공된 값 그대로, 변경 금지)' },
                   current_position: { type: 'string', description: '직무 (제공된 값 그대로)' },
-                  experience: { type: 'string', description: '경력 정보에서 추출한 총 경력, 없으면 "미기재"' },
-                  education: { type: 'string', description: '학력 (제공된 값 그대로)' },
-                  current_salary: { type: 'string', description: '현재 연봉, 정보 없으면 "미기재"' },
+                  experience: { type: 'string', description: '경력 정보에서 "총 O년 O개월" 형식으로 추출, 없으면 "미기재"' },
+                  education: { type: 'string', description: '학력에서 "OOO대학교 석사 졸업/수료" 또는 "학사 졸업" 형식으로 추출, 없으면 "미기재"' },
+                  current_salary: { type: 'string', description: '이력서에서 "현재 연봉" 또는 "직전 연봉"을 찾아서 기재, 없으면 "미기재"' },
                   availability: { type: 'string', description: '입사 가능일, 정보 없으면 "협의 후 결정"' },
                 },
                 required: ['name', 'current_position', 'experience', 'education', 'current_salary', 'availability'],
@@ -114,9 +114,9 @@ export async function POST(req: NextRequest) {
   "candidate_info": {
     "name": "${resumeAnalysis.candidate_name || '미상'}",
     "current_position": "${resumeAnalysis.job_title || '미기재'}",
-    "experience": "위 경력 정보에서 추출한 총 경력 (구체적으로, 없으면 '미기재')",
-    "education": "${resumeAnalysis.education || '미기재'}",
-    "current_salary": "위 이력서에서 언급된 연봉 정보 (없으면 '미기재')",
+    "experience": "위 경력 정보에서 '총 O년 O개월' 형식으로 추출 (예: '총 8년 4개월', 없으면 '미기재')",
+    "education": "위 학력 정보에서 'OOO대학교 석사 졸업/수료' 또는 '학사 졸업' 형식으로 추출 (예: '서울대학교 석사 졸업', '연세대학교 학사 졸업', 없으면 '미기재')",
+    "current_salary": "위 경력 정보에서 '현재 연봉' 또는 '직전 연봉'을 찾아서 기재 (예: '연 6,500만원', 없으면 '미기재')",
     "availability": "위 이력서에서 언급된 입사 가능일 (없으면 '협의 후 결정')"
   },
   "strengths": [
@@ -135,8 +135,15 @@ export async function POST(req: NextRequest) {
 - 후보자 이름을 임의로 변경하거나 생성하지 마세요
 - 없는 경력이나 학력을 추측하지 마세요
 - 제공되지 않은 연봉 정보를 임의로 작성하지 마세요
+- 경력을 "8년" 대신 반드시 "총 8년 O개월" 형식으로 작성하세요
+- 학력을 반드시 "대학교명 + 석사/학사 + 졸업/수료" 형식으로 작성하세요
 
-✅ **필수**:
+✅ **필수 추출 규칙**:
+1. **경력**: 이력서에서 "총 경력", "경력 기간", "근무 기간" 등의 정보를 찾아 "총 O년 O개월" 형식으로 정확히 기재
+2. **학력**: 이력서에서 최종 학력을 찾아 "대학교명 + 학위(석사/학사) + 졸업/수료" 형식으로 기재
+3. **연봉**: 이력서에서 "현재 연봉", "현재 급여", "직전 연봉" 등의 키워드를 찾아 그대로 기재
+4. **없는 정보**: 위 정보가 이력서에 없으면 반드시 "미기재"로 표시
+
 - 위 JSON 형식 그대로 출력
 - JSON만 출력하고 다른 설명은 하지 마세요`,
         },
