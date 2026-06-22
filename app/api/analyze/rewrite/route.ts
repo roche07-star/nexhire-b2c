@@ -137,29 +137,32 @@ function buildDocxPrompts(paraList: string, count: number, jd: JDContext | null,
     ? buildJDSection(jd)
     : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
 
-  // 제안서 강점이 있으면 우선 사용
-  const proposalStrengthsSection = proposal?.strengths ? `
-[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 단락에 우선 적용]
-이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 단락에 그대로 사용하십시오:
-${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
-
-⚠️ **최우선**: 핵심역량/업무상 강점 단락은 위의 제안서 내용을 그대로 사용
-- 원본 이력서 내용 무시
-- JD 분석 내용 무시
-- 제안서 강점을 그대로 복사하여 사용
-
-` : ''
-
   const jdAggressiveRules = jd ? `
-[JD 연동 수정 원칙 — 아래 규칙이 일반 원칙보다 우선합니다]
+[JD 연동 수정 원칙]
 • matching_points 관련 단락: 해당 강점이 전면에 부각되도록 문장을 적극 재구성합니다. 수치/성과가 있으면 문두로 배치하고, 임팩트 없는 표현은 교체합니다.
 • gaps 관련 단락: 약점으로 읽힐 수 있는 표현을 긍정적 역량으로 완전히 재프레이밍합니다. 문장 구조를 바꾸어도 됩니다.
 • pitch_points 키워드를 관련 단락에 자연스럽게 녹입니다.
 • 위 세 가지에 해당하는 단락은 원본 표현을 충분히 수정합니다.` : ''
 
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 보완합니다.` : ''}
-${proposalStrengthsSection}
-${jdAggressiveRules}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 우선순위 규칙 (절대 준수)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${proposal?.strengths ? `
+**1순위**: 제안서 핵심 강점 (핵심역량 단락에 그대로 복사)
+${proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
+
+❗ 제안서가 있으므로 JD 기반 핵심역량 지침은 무시하십시오.
+` : ''}
+
+**${proposal?.strengths ? '2' : '1'}순위**: 사실 변경 금지
+- 회사명, 기간, 수치, 기술명 절대 변경 금지
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${!proposal?.strengths ? jdAggressiveRules : ''}
 
 [중요: 분석 일관성 유지]
 ${jd ? `제공된 JD 분석 정보(matching_points, gaps, pitch_points)는 이 후보자의 이력서 분석 결과를 기반으로 생성되었습니다.
@@ -187,19 +190,6 @@ ${paraList}`
 
 function buildSectionPrompts(resumeText: string, jd: JDContext | null, proposal?: any): { system: string; user: string } {
   const jdSection = jd ? buildJDSection(jd) : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
-
-  // 제안서 강점이 있으면 우선 사용
-  const proposalStrengthsSection = proposal?.strengths ? `
-[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 섹션에 우선 적용]
-이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 섹션에 그대로 사용하십시오:
-${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
-
-⚠️ **최우선**: 핵심역량/업무상 강점 섹션은 위의 제안서 내용을 그대로 사용
-- 원본 이력서 내용 무시
-- JD 분석 내용 무시
-- 제안서 강점을 그대로 복사하여 사용
-
-` : ''
 
   const jdAggressiveRules = jd ? `
 [🎯 클라이언트 제출용 이력서 작성 지침]
@@ -274,9 +264,27 @@ ${proposal?.strengths ? `
 
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` 현재 ${jd.company} 포지션에 이 후보자를 추천하기 위해 이력서를 보완합니다.` : ''}
 
-⚠️ **최우선 지시**: 아래 [🎯 클라이언트 제출용 이력서 작성 지침]이 모든 다른 원칙보다 우선합니다.
-${proposalStrengthsSection}
-${jdAggressiveRules}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 우선순위 규칙 (절대 준수)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${proposal?.strengths ? `
+**1순위**: 제안서 핵심 강점 (아래 내용을 핵심역량 섹션에 그대로 복사)
+${proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
+
+❗ 제안서가 있으므로 JD 기반 핵심역량 지침은 무시하십시오.
+` : ''}
+
+**${proposal?.strengths ? '2' : '1'}순위**: 자기소개 길이 제한
+- 300-400자 이내 (공백 포함)
+- 지원동기 100자 / 주요성과 150자 / 입사포부 100자
+
+**${proposal?.strengths ? '3' : '2'}순위**: 사실 변경 금지
+- 회사명, 기간, 수치, 기술명 절대 변경 금지
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${!proposal?.strengths ? jdAggressiveRules : ''}
 
 [중요: 분석 일관성 유지]
 ${jd ? `제공된 JD 분석 정보(matching_points, gaps, pitch_points)는 이 후보자의 이력서 분석 결과를 기반으로 생성되었습니다.
@@ -317,21 +325,27 @@ function buildTemplateDocxPrompts(paraList: string, count: number, resumeText: s
     ? buildJDSection(jd)
     : '\n[JD 미선택 — 일반 헤드헌터 관점으로 작성]\n'
 
-  // 제안서 강점이 있으면 우선 사용
-  const proposalStrengthsSection = proposal?.strengths ? `
-[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 단락에 우선 적용]
-이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 단락에 그대로 사용하십시오:
-${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
-
-⚠️ **최우선**: 핵심역량/업무상 강점 단락은 위의 제안서 내용을 그대로 사용
-- 원본 이력서 내용 무시
-- JD 분석 내용 무시
-- 제안서 강점을 그대로 복사하여 사용
-
-` : ''
-
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 새 양식에 맞게 작성합니다.` : ''}
-${proposalStrengthsSection}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 우선순위 규칙 (절대 준수)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${proposal?.strengths ? `
+**1순위**: 제안서 핵심 강점 (핵심역량 단락에 그대로 복사)
+${proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
+
+❗ 제안서가 있으므로 JD 기반 핵심역량 지침은 무시하십시오.
+` : ''}
+
+**${proposal?.strengths ? '2' : '1'}순위**: 자기소개 길이 제한
+- 300-400자 이내 (공백 포함)
+
+**${proposal?.strengths ? '3' : '2'}순위**: 사실 변경 금지
+- 회사명, 기간, 수치, 기술명 절대 변경 금지
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 
 [중요: 분석 일관성 유지]
 ${jd ? `제공된 JD 분석 정보는 이 후보자의 이력서 분석 결과를 기반으로 생성되었습니다.
