@@ -3585,9 +3585,9 @@ function JDResults({
     }
   }, [proposalKey, analysisItem])
 
-  // JD 분석 완료 후 자동으로 제안서 생성 (모든 사용자)
+  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만)
   useEffect(() => {
-    if (analysisItem && !proposalData && !proposalGenerating) {
+    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
       console.log('[JDResults] Auto-generating proposal for:', {
         analysisItemId: analysisItem.id,
         resultId: result.id,
@@ -3595,7 +3595,7 @@ function JDResults({
       })
       generateProposal()
     }
-  }, [analysisItem, proposalData, proposalGenerating, generateProposal, userType])
+  }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
 
   return (
     <div className="jd-results">
@@ -3641,7 +3641,7 @@ function JDResults({
         })()}
 
         {/* 제안서 생성 중 뱃지 */}
-        {proposalGenerating && (
+        {userType === 'HEADHUNTER' && proposalGenerating && (
           <div style={{
             display: 'inline-block',
             background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -3802,7 +3802,7 @@ function JDResults({
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                   color: '#fff',
-                  display: proposalData ? 'block' : 'none',
+                  display: userType === 'HEADHUNTER' && proposalData ? 'block' : 'none',
                 }}
                 onClick={() => {
                   if (!proposalData) return
