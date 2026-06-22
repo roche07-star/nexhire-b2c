@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, DragEvent, ChangeEvent } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
@@ -3533,8 +3533,8 @@ function JDResults({
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
-  // 제안서 생성 함수
-  const generateProposal = async () => {
+  // 제안서 생성 함수 (useCallback으로 안정화)
+  const generateProposal = useCallback(async () => {
     if (!analysisItem || proposalGenerating || proposalData) return
 
     try {
@@ -3560,7 +3560,8 @@ function JDResults({
 
       // localStorage에 저장
       const dataToSave = { html, proposal }
-      localStorage.setItem(proposalKey, JSON.stringify(dataToSave))
+      const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
+      localStorage.setItem(key, JSON.stringify(dataToSave))
       setProposalData(dataToSave)
     } catch (error) {
       console.error('Proposal generation error:', error)
@@ -3568,7 +3569,7 @@ function JDResults({
     } finally {
       setProposalGenerating(false)
     }
-  }
+  }, [analysisItem, result, proposalGenerating, proposalData])
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
@@ -3589,7 +3590,7 @@ function JDResults({
     if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
       generateProposal()
     }
-  }, [analysisItem, userType, proposalData, proposalGenerating])
+  }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
 
   return (
     <div className="jd-results">
