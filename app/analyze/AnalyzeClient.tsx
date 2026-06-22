@@ -3526,11 +3526,49 @@ function JDResults({
 
   // 제안서 저장 상태 관리
   const [proposalData, setProposalData] = useState<{ html: string; proposal: any } | null>(null)
+  const [proposalGenerating, setProposalGenerating] = useState(false)
 
   // 제안서 localStorage 키 (후보자별 + JD별로 구분)
   const proposalKey = analysisItem
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
+
+  // 제안서 생성 함수
+  const generateProposal = async () => {
+    if (!analysisItem || proposalGenerating || proposalData) return
+
+    try {
+      setProposalGenerating(true)
+
+      const res = await fetch('/api/generate-proposal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumeAnalysis: analysisItem.result,
+          jdAnalysis: result,
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('제안서 생성 실패')
+      }
+
+      const { proposal } = await res.json()
+
+      // HTML 생성
+      const html = generateProposalHTML(proposal, analysisItem.result, result)
+
+      // localStorage에 저장
+      const dataToSave = { html, proposal }
+      localStorage.setItem(proposalKey, JSON.stringify(dataToSave))
+      setProposalData(dataToSave)
+    } catch (error) {
+      console.error('Proposal generation error:', error)
+      alert('제안서 생성에 실패했습니다.')
+    } finally {
+      setProposalGenerating(false)
+    }
+  }
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
@@ -3545,6 +3583,13 @@ function JDResults({
       }
     }
   }, [proposalKey, analysisItem])
+
+  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터 유형만)
+  useEffect(() => {
+    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
+      generateProposal()
+    }
+  }, [analysisItem, userType, proposalData, proposalGenerating])
 
   return (
     <div className="jd-results">
@@ -3567,6 +3612,44 @@ function JDResults({
       <div className="jd-ref-bar">
         기반 이력서: <strong>{resumeTitle}</strong>
         {resumeDate && <span className="jd-ref-date">{resumeDate}</span>}
+
+        {/* 후보자 이름 뱃지 */}
+        {(() => {
+          const candidateName = typeof window !== 'undefined' && analysisItem?.id
+            ? localStorage.getItem(`candidate_name_${analysisItem.id}`)
+            : null
+          return candidateName ? (
+            <div style={{
+              display: 'inline-block',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: '#fff',
+              padding: '4px 10px',
+              borderRadius: '5px',
+              fontSize: '12px',
+              fontWeight: 600,
+              marginLeft: '8px',
+            }}>
+              👤 {candidateName}
+            </div>
+          ) : null
+        })()}
+
+        {/* 제안서 생성 중 뱃지 */}
+        {userType === 'HEADHUNTER' && proposalGenerating && (
+          <div style={{
+            display: 'inline-block',
+            background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+            color: '#fff',
+            padding: '4px 10px',
+            borderRadius: '5px',
+            fontSize: '12px',
+            fontWeight: 600,
+            marginLeft: '8px',
+            animation: 'pulse 1.5s ease-in-out infinite',
+          }}>
+            ⏳ 제안서 생성 중...
+          </div>
+        )}
       </div>
 
       {(result.company_insight || result.company_analysis || result.jd_interpretation) && (
@@ -3713,76 +3796,21 @@ function JDResults({
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                   color: '#fff',
-                  display: userType === 'HEADHUNTER' ? 'block' : 'none',
+                  display: userType === 'HEADHUNTER' && proposalData ? 'block' : 'none',
                 }}
-                onClick={async () => {
-                  // 이미 생성된 제안서가 있으면 다운로드만
-                  if (proposalData) {
-                    const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `후보자제안서_${proposalData.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
-                    a.click()
-                    URL.revokeObjectURL(url)
-                    return
-                  }
+                onClick={() => {
+                  if (!proposalData) return
 
-                  // 제안서 생성
-                  try {
-                    const proposalBtn = document.activeElement as HTMLButtonElement
-                    if (proposalBtn) proposalBtn.disabled = true
-                    const proposalBtnText = proposalBtn?.textContent
-                    if (proposalBtn) proposalBtn.textContent = '⏳ 제안서 생성 중...'
-
-                    const res = await fetch('/api/generate-proposal', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        resumeAnalysis: analysisItem.result,
-                        jdAnalysis: result,
-                      }),
-                    })
-
-                    if (!res.ok) {
-                      throw new Error('제안서 생성 실패')
-                    }
-
-                    const { proposal } = await res.json()
-
-                    // HTML 생성
-                    const html = generateProposalHTML(proposal, analysisItem.result, result)
-
-                    // localStorage에 저장
-                    const dataToSave = { html, proposal }
-                    localStorage.setItem(proposalKey, JSON.stringify(dataToSave))
-                    setProposalData(dataToSave)
-
-                    // 다운로드
-                    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `후보자제안서_${proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
-                    a.click()
-                    URL.revokeObjectURL(url)
-
-                    if (proposalBtn) {
-                      proposalBtn.textContent = '📄 후보자 제안서 다운로드'
-                      proposalBtn.disabled = false
-                    }
-                  } catch (error) {
-                    console.error('Proposal generation error:', error)
-                    alert('제안서 생성에 실패했습니다.')
-                    const proposalBtn = document.activeElement as HTMLButtonElement
-                    if (proposalBtn) {
-                      proposalBtn.textContent = '📄 후보자 제안서 생성'
-                      proposalBtn.disabled = false
-                    }
-                  }
+                  const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `후보자제안서_${proposalData.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+                  a.click()
+                  URL.revokeObjectURL(url)
                 }}
               >
-                {proposalData ? '📄 후보자 제안서 다운로드' : '📄 후보자 제안서 생성'}
+                📄 후보자 제안서 다운로드
               </button>
             </>
           )
