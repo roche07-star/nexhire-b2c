@@ -830,6 +830,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       fd.append('formatMode', formatChoice)
       if (templateFile) fd.append('templateFile', templateFile)
 
+      // 기존 제안서 확인 및 전달
+      if (jdAnalysisId && typeof window !== 'undefined') {
+        const proposalKey = `proposal_resume_${analysisId}_jd_${jdAnalysisId}`
+        const savedProposal = localStorage.getItem(proposalKey)
+        if (savedProposal) {
+          try {
+            const proposalData = JSON.parse(savedProposal)
+            fd.append('proposalData', JSON.stringify(proposalData.proposal))
+          } catch (e) {
+            console.error('Failed to parse proposal:', e)
+          }
+        }
+      }
+
       const res = await fetch('/api/analyze/rewrite', {
         method: 'POST',
         body: fd,

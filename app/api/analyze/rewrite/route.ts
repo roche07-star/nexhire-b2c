@@ -132,10 +132,23 @@ function detectCLParagraphs(paras: DocxParagraph[], piiIndexes: Set<number>): { 
   return { clContentIndexSet: new Set(clContentIndices), clContentIndices }
 }
 
-function buildDocxPrompts(paraList: string, count: number, jd: JDContext | null): { system: string; user: string } {
+function buildDocxPrompts(paraList: string, count: number, jd: JDContext | null, proposal?: any): { system: string; user: string } {
   const jdSection = jd
     ? buildJDSection(jd)
     : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
+
+  // 제안서 강점이 있으면 우선 사용
+  const proposalStrengthsSection = proposal?.strengths ? `
+[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 단락에 우선 적용]
+이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 단락에 그대로 사용하십시오:
+${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
+
+⚠️ **최우선**: 핵심역량/업무상 강점 단락은 위의 제안서 내용을 그대로 사용
+- 원본 이력서 내용 무시
+- JD 분석 내용 무시
+- 제안서 강점을 그대로 복사하여 사용
+
+` : ''
 
   const jdAggressiveRules = jd ? `
 [JD 연동 수정 원칙 — 아래 규칙이 일반 원칙보다 우선합니다]
@@ -145,6 +158,7 @@ function buildDocxPrompts(paraList: string, count: number, jd: JDContext | null)
 • 위 세 가지에 해당하는 단락은 원본 표현을 충분히 수정합니다.` : ''
 
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 보완합니다.` : ''}
+${proposalStrengthsSection}
 ${jdAggressiveRules}
 
 [중요: 분석 일관성 유지]
@@ -171,8 +185,21 @@ ${paraList}`
   return { system, user }
 }
 
-function buildSectionPrompts(resumeText: string, jd: JDContext | null): { system: string; user: string } {
+function buildSectionPrompts(resumeText: string, jd: JDContext | null, proposal?: any): { system: string; user: string } {
   const jdSection = jd ? buildJDSection(jd) : '\n[JD 미선택 — 일반 헤드헌터 관점으로 보완]\n'
+
+  // 제안서 강점이 있으면 우선 사용
+  const proposalStrengthsSection = proposal?.strengths ? `
+[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 섹션에 우선 적용]
+이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 섹션에 그대로 사용하십시오:
+${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
+
+⚠️ **최우선**: 핵심역량/업무상 강점 섹션은 위의 제안서 내용을 그대로 사용
+- 원본 이력서 내용 무시
+- JD 분석 내용 무시
+- 제안서 강점을 그대로 복사하여 사용
+
+` : ''
 
   const jdAggressiveRules = jd ? `
 [🎯 클라이언트 제출용 이력서 작성 지침]
@@ -237,6 +264,7 @@ function buildSectionPrompts(resumeText: string, jd: JDContext | null): { system
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` 현재 ${jd.company} 포지션에 이 후보자를 추천하기 위해 이력서를 보완합니다.` : ''}
 
 ⚠️ **최우선 지시**: 아래 [🎯 클라이언트 제출용 이력서 작성 지침]이 모든 다른 원칙보다 우선합니다.
+${proposalStrengthsSection}
 ${jdAggressiveRules}
 
 [중요: 분석 일관성 유지]
@@ -273,12 +301,26 @@ ${resumeText}
   return { system, user }
 }
 
-function buildTemplateDocxPrompts(paraList: string, count: number, resumeText: string, jd: JDContext | null): { system: string; user: string } {
+function buildTemplateDocxPrompts(paraList: string, count: number, resumeText: string, jd: JDContext | null, proposal?: any): { system: string; user: string } {
   const jdSection = jd
     ? buildJDSection(jd)
     : '\n[JD 미선택 — 일반 헤드헌터 관점으로 작성]\n'
 
+  // 제안서 강점이 있으면 우선 사용
+  const proposalStrengthsSection = proposal?.strengths ? `
+[📄 제안서 핵심 강점 — 핵심역량/업무상 강점 단락에 우선 적용]
+이미 생성된 제안서의 핵심 강점을 핵심역량/업무상 강점 단락에 그대로 사용하십시오:
+${Array.isArray(proposal.strengths) ? proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n') : ''}
+
+⚠️ **최우선**: 핵심역량/업무상 강점 단락은 위의 제안서 내용을 그대로 사용
+- 원본 이력서 내용 무시
+- JD 분석 내용 무시
+- 제안서 강점을 그대로 복사하여 사용
+
+` : ''
+
   const system = `당신은 10년 경력의 한국 시니어 헤드헌터입니다.${jd ? ` ${jd.company} 포지션 지원을 위해 후보자 이력서를 새 양식에 맞게 작성합니다.` : ''}
+${proposalStrengthsSection}
 
 [중요: 분석 일관성 유지]
 ${jd ? `제공된 JD 분석 정보는 이 후보자의 이력서 분석 결과를 기반으로 생성되었습니다.
@@ -511,6 +553,17 @@ export async function POST(req: NextRequest) {
     const jdAnalysisId = formData.get('jdAnalysisId') as string | null
     const formatMode = (formData.get('formatMode') as string | null) ?? 'original'
     const templateFileEntry = formData.get('templateFile') as File | null
+    const proposalDataStr = formData.get('proposalData') as string | null
+
+    // 제안서 데이터 파싱
+    let proposalData: any = null
+    if (proposalDataStr) {
+      try {
+        proposalData = JSON.parse(proposalDataStr)
+      } catch (e) {
+        console.error('[rewrite] Failed to parse proposalData:', e)
+      }
+    }
 
     if (!analysisId) return NextResponse.json({ error: '분석 ID가 없습니다.' }, { status: 400 })
 
@@ -573,7 +626,7 @@ export async function POST(req: NextRequest) {
 
       const resumeText = await extractText(buffer, originalFilename)
       const originalPreview = generateOriginalPreviewHTML(resumeText)
-      const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext)
+      const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
 
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',
@@ -792,7 +845,7 @@ ${maskedText}
         .slice(0, 60)
 
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
-      const prompts = buildDocxPrompts(paraList, nonEmpty.length, jdContext)
+      const prompts = buildDocxPrompts(paraList, nonEmpty.length, jdContext, proposalData)
 
       // 커버레터 전용 call (JD + CL 단락 존재 시)
       const clCallPromise: Promise<{ application_reason: string; self_introduction: string } | null> =
@@ -937,7 +990,7 @@ ${maskedText}
     // PII 마스킹 후 Claude에 전송, 응답에서 원본값으로 복원
     const piiValues = extractPIIValues(resumeText)
     const maskedResumeText = maskPIILocal(resumeText)
-    const prompts = buildSectionPrompts(maskedResumeText, jdContext)
+    const prompts = buildSectionPrompts(maskedResumeText, jdContext, proposalData)
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
