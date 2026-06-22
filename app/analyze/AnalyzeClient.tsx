@@ -3513,12 +3513,14 @@ function JDResults({
   // 제안서 저장 상태 관리
   const [proposalData, setProposalData] = useState<{ html: string; proposal: any } | null>(null)
 
-  // 제안서 localStorage 키
-  const proposalKey = `proposal_${result.id}`
+  // 제안서 localStorage 키 (후보자별 + JD별로 구분)
+  const proposalKey = analysisItem
+    ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
+    : `proposal_jd_${result.id}`
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && analysisItem) {
       const saved = localStorage.getItem(proposalKey)
       if (saved) {
         try {
@@ -3528,7 +3530,7 @@ function JDResults({
         }
       }
     }
-  }, [proposalKey])
+  }, [proposalKey, analysisItem])
 
   return (
     <div className="jd-results">
