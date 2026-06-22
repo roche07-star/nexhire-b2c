@@ -56,7 +56,11 @@ export async function POST(
 
     if (updateError) {
       console.error('[share] Update error:', updateError)
-      return NextResponse.json({ error: '공유 설정 중 오류가 발생했습니다.' }, { status: 500 })
+      console.error('[share] Update error details:', JSON.stringify(updateError, null, 2))
+      return NextResponse.json({
+        error: `공유 설정 중 오류가 발생했습니다. ${updateError.message || ''}`,
+        details: updateError
+      }, { status: 500 })
     }
 
     return NextResponse.json({
