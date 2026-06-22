@@ -3533,9 +3533,9 @@ function JDResults({
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
-  // 제안서 생성 함수 (useCallback으로 안정화)
+  // 제안서 생성 함수
   const generateProposal = useCallback(async () => {
-    if (!analysisItem || proposalGenerating || proposalData) return
+    if (!analysisItem) return
 
     try {
       setProposalGenerating(true)
@@ -3569,7 +3569,7 @@ function JDResults({
     } finally {
       setProposalGenerating(false)
     }
-  }, [analysisItem, result, proposalGenerating, proposalData])
+  }, [analysisItem, result])
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
@@ -3585,12 +3585,17 @@ function JDResults({
     }
   }, [proposalKey, analysisItem])
 
-  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터 유형만)
+  // JD 분석 완료 후 자동으로 제안서 생성 (모든 사용자)
   useEffect(() => {
-    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
+    if (analysisItem && !proposalData && !proposalGenerating) {
+      console.log('[JDResults] Auto-generating proposal for:', {
+        analysisItemId: analysisItem.id,
+        resultId: result.id,
+        userType,
+      })
       generateProposal()
     }
-  }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
+  }, [analysisItem, proposalData, proposalGenerating, generateProposal, userType])
 
   return (
     <div className="jd-results">
@@ -3636,7 +3641,7 @@ function JDResults({
         })()}
 
         {/* 제안서 생성 중 뱃지 */}
-        {userType === 'HEADHUNTER' && proposalGenerating && (
+        {proposalGenerating && (
           <div style={{
             display: 'inline-block',
             background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -3797,7 +3802,7 @@ function JDResults({
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                   color: '#fff',
-                  display: userType === 'HEADHUNTER' && proposalData ? 'block' : 'none',
+                  display: proposalData ? 'block' : 'none',
                 }}
                 onClick={() => {
                   if (!proposalData) return
