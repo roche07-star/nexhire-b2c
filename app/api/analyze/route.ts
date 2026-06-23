@@ -315,6 +315,15 @@ ${OUTPUT_RULES}
         messages: [{ role: 'user', content: `다음 이력서를 분석해주세요:\n\n${maskedText}` }],
       })
 
+      // 🔍 토큰 사용량 로깅
+      console.log('[analyze] 기본 분석 토큰:', {
+        input: basicMsg.usage.input_tokens,
+        output: basicMsg.usage.output_tokens,
+        cache_creation: basicMsg.usage.cache_creation_input_tokens || 0,
+        cache_read: basicMsg.usage.cache_read_input_tokens || 0,
+        total: basicMsg.usage.input_tokens + basicMsg.usage.output_tokens
+      })
+
       const basicTU = basicMsg.content.find(c => c.type === 'tool_use')
       if (!basicTU || basicTU.type !== 'tool_use') {
         return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
@@ -332,8 +341,21 @@ ${OUTPUT_RULES}
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
 
-      // 하이브리드 하네스 검증 단계
+      // 하이브리드 하네스 검증 단계 (토큰 절약: 환경 변수로 제어)
+      const ENABLE_VALIDATION = process.env.ENABLE_VALIDATION !== 'false'
+
+      if (ENABLE_VALIDATION) {
+        console.log('[analyze] 🔍 검증 단계 실행 (ENABLE_VALIDATION=true)')
+      } else {
+        console.log('[analyze] ⚡ 검증 단계 건너뜀 (토큰 절약 모드)')
+      }
+
       try {
+        if (!ENABLE_VALIDATION) {
+          // 검증 건너뛰기 → 1,500 tokens 절약
+          throw new Error('SKIP_VALIDATION')
+        }
+
         const validationPrompt = `${VALIDATION_PROMPT}
 
 [1차 분석 결과]
@@ -352,6 +374,13 @@ ${maskedText.slice(0, 3000)}
           tool_choice: { type: 'tool', name: 'validate_analysis' },
           tools: [validationTool],
           messages: [{ role: 'user', content: validationPrompt }],
+        })
+
+        // 🔍 토큰 사용량 로깅
+        console.log('[analyze] 검증 단계 토큰:', {
+          input: validationMsg.usage.input_tokens,
+          output: validationMsg.usage.output_tokens,
+          total: validationMsg.usage.input_tokens + validationMsg.usage.output_tokens
         })
 
         const validationTU = validationMsg.content.find(c => c.type === 'tool_use')
@@ -375,8 +404,12 @@ ${maskedText.slice(0, 3000)}
           }
         }
       } catch (err) {
-        console.error('[analyze] validation error (non-fatal):', err)
-        // 검증 실패해도 분석은 계속 진행
+        if (err instanceof Error && err.message === 'SKIP_VALIDATION') {
+          // 검증 건너뛰기 (정상 흐름)
+        } else {
+          console.error('[analyze] validation error (non-fatal):', err)
+          // 검증 실패해도 분석은 계속 진행
+        }
       }
 
       // 커리어 경로: 기본 분석 완료 후 순차 실행 (실패 시 [] 반환 — expand 엔드포인트가 재시도 역할)
@@ -408,6 +441,14 @@ ${maskedText.slice(0, 3000)}
           tool_choice: { type: 'tool', name: 'generate_career_paths' },
           tools: [proCareerTool],
           messages: [{ role: 'user', content: careerPrompt }],
+        })
+
+        // 🔍 토큰 사용량 로깅
+        console.log('[analyze] 커리어 경로 토큰:', {
+          input: careerMsg.usage.input_tokens,
+          output: careerMsg.usage.output_tokens,
+          cache_read: careerMsg.usage.cache_read_input_tokens || 0,
+          total: careerMsg.usage.input_tokens + careerMsg.usage.output_tokens
         })
 
         const careerTU = careerMsg.content.find(c => c.type === 'tool_use')
@@ -492,6 +533,13 @@ ${maskedText.slice(0, 3000)}
           messages: [{ role: 'user', content: validationPrompt }],
         })
 
+        // 🔍 토큰 사용량 로깅
+        console.log('[analyze] 검증 단계 토큰:', {
+          input: validationMsg.usage.input_tokens,
+          output: validationMsg.usage.output_tokens,
+          total: validationMsg.usage.input_tokens + validationMsg.usage.output_tokens
+        })
+
         const validationTU = validationMsg.content.find(c => c.type === 'tool_use')
         if (validationTU && validationTU.type === 'tool_use') {
           const validation = validationTU.input as ValidationResult
@@ -513,8 +561,12 @@ ${maskedText.slice(0, 3000)}
           }
         }
       } catch (err) {
-        console.error('[analyze] validation error (non-fatal):', err)
-        // 검증 실패해도 분석은 계속 진행
+        if (err instanceof Error && err.message === 'SKIP_VALIDATION') {
+          // 검증 건너뛰기 (정상 흐름)
+        } else {
+          console.error('[analyze] validation error (non-fatal):', err)
+          // 검증 실패해도 분석은 계속 진행
+        }
       }
 
       resultPayload = {

@@ -11,6 +11,16 @@ export const maxDuration = 120
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+// 🔍 토큰 사용량 로깅 헬퍼
+function logTokenUsage(stage: string, message: Anthropic.Messages.Message) {
+  console.log(`[rewrite] ${stage} 토큰:`, {
+    input: message.usage.input_tokens,
+    output: message.usage.output_tokens,
+    cache_read: message.usage.cache_read_input_tokens || 0,
+    total: message.usage.input_tokens + message.usage.output_tokens
+  })
+}
+
 interface JDContext {
   company: string
   position?: string | null
@@ -705,6 +715,8 @@ export async function POST(req: NextRequest) {
         messages: [{ role: 'user', content: prompts.user }],
       })
 
+      logTokenUsage('템플릿 단락 재작성', message)
+
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
         return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
@@ -823,6 +835,8 @@ ${maskedText}
         messages: [{ role: 'user', content: userPrompt }],
       })
 
+      logTokenUsage('표준 이력서 재구성', message)
+
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
         console.error('[rewrite/standard] No tool_use in response:', JSON.stringify(message.content))
@@ -921,6 +935,7 @@ ${maskedText}
                   }],
                   messages: [{ role: 'user', content: clPrompts.user }],
                 })
+                logTokenUsage('커버레터 생성 (template)', clMsg)
                 const clTool = clMsg.content.find(c => c.type === 'tool_use')
                 if (clTool?.type === 'tool_use') {
                   const inp = clTool.input as { application_reason: string; self_introduction: string }
@@ -1077,6 +1092,8 @@ ${maskedText}
       messages: [{ role: 'user', content: prompts.user }],
     })
 
+    logTokenUsage('섹션 재작성 (original)', message)
+
     const toolUse = message.content.find(c => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
       return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
@@ -1124,6 +1141,7 @@ ${maskedText}
             }],
             messages: [{ role: 'user', content: clPrompts.user }],
           })
+          logTokenUsage('커버레터 생성 (original)', clMsg)
           const clTool = clMsg.content.find(c => c.type === 'tool_use')
           if (clTool?.type === 'tool_use') {
             const { application_reason, self_introduction } = clTool.input as {

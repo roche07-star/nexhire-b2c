@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Claude API로 제안서 생성 (Tool Use로 환각 방지)
+    const startTime = Date.now()
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
@@ -148,6 +149,15 @@ export async function POST(req: NextRequest) {
 - JSON만 출력하고 다른 설명은 하지 마세요`,
         },
       ],
+    })
+
+    // 🔍 토큰 사용량 로깅
+    const duration = Date.now() - startTime
+    console.log('[generate-proposal] 토큰 사용량:', {
+      input: message.usage.input_tokens,
+      output: message.usage.output_tokens,
+      total: message.usage.input_tokens + message.usage.output_tokens,
+      duration: `${duration}ms`
     })
 
     // Tool use 응답 추출 (환각 방지)
