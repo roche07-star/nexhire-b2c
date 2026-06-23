@@ -20,6 +20,9 @@ const baseTool: Anthropic.Tool = {
     type: 'object' as const,
     properties: {
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명' },
+      total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
+      education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
+      current_salary: { type: 'string', description: '현재 연봉 또는 직전 연봉 (예: "연 6,500만원", 없으면 빈 문자열)' },
       scores: {
         type: 'object',
         properties: {
@@ -72,6 +75,9 @@ const proBasicTool: Anthropic.Tool = {
     type: 'object' as const,
     properties: {
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)' },
+      total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
+      education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
+      current_salary: { type: 'string', description: '현재 연봉 또는 직전 연봉 (예: "연 6,500만원", 없으면 빈 문자열)' },
       scores: {
         type: 'object',
         properties: {

@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
                 properties: {
                   name: { type: 'string', description: '후보자명 (제공된 값 그대로, 변경 금지)' },
                   current_position: { type: 'string', description: '직무 (제공된 값 그대로)' },
-                  experience: { type: 'string', description: '경력 정보에서 "총 O년 O개월" 형식으로 추출, 없으면 "미기재"' },
-                  education: { type: 'string', description: '학력에서 "OOO대학교 석사 졸업/수료" 또는 "학사 졸업" 형식으로 추출, 없으면 "미기재"' },
-                  current_salary: { type: 'string', description: '이력서에서 "현재 연봉" 또는 "직전 연봉"을 찾아서 기재, 없으면 "미기재"' },
-                  availability: { type: 'string', description: '입사 가능일, 정보 없으면 "협의 후 결정"' },
+                  experience: { type: 'string', description: '제공된 "총 경력" 정보를 "총 O년 O개월" 형식으로 변환 (예: "총 8년 6개월"), 없으면 "미기재"' },
+                  education: { type: 'string', description: '제공된 "최종 학력" 정보 그대로 사용 (예: "서울대학교 석사 졸업"), 없으면 "미기재"' },
+                  current_salary: { type: 'string', description: '제공된 "현재/직전 연봉" 정보 그대로 사용 (예: "연 6,500만원"), 없으면 "미기재"' },
+                  availability: { type: 'string', description: '입사 가능일, "협의 후 결정" 기본값' },
                 },
                 required: ['name', 'current_position', 'experience', 'education', 'current_salary', 'availability'],
               },
@@ -87,8 +87,9 @@ export async function POST(req: NextRequest) {
 ## 후보자 이력서 분석 결과:
 - 후보자명: ${resumeAnalysis.candidate_name || '미상'}
 - 직무: ${resumeAnalysis.job_title || '미상'}
-- 경력 정보: ${JSON.stringify(resumeAnalysis.career_summary || {})}
-- 학력: ${resumeAnalysis.education || '미기재'}
+- 총 경력: ${resumeAnalysis.total_experience_years ? `${resumeAnalysis.total_experience_years}년` : '미기재'}
+- 최종 학력: ${resumeAnalysis.education || '미기재'}
+- 현재/직전 연봉: ${resumeAnalysis.current_salary || '미기재'}
 - 직무 적합도: ${resumeAnalysis.scores?.job_fit || 0}점
 - 시장 경쟁력: ${resumeAnalysis.scores?.market_competitiveness || 0}점
 - 성장 가능성: ${resumeAnalysis.scores?.growth_potential || 0}점
@@ -115,10 +116,10 @@ export async function POST(req: NextRequest) {
   "candidate_info": {
     "name": "${resumeAnalysis.candidate_name || '미상'}",
     "current_position": "${resumeAnalysis.job_title || '미기재'}",
-    "experience": "위 경력 정보에서 '총 O년 O개월' 형식으로 추출 (예: '총 8년 4개월', 없으면 '미기재')",
-    "education": "위 학력 정보에서 'OOO대학교 석사 졸업/수료' 또는 '학사 졸업' 형식으로 추출 (예: '서울대학교 석사 졸업', '연세대학교 학사 졸업', 없으면 '미기재')",
-    "current_salary": "위 경력 정보에서 '현재 연봉' 또는 '직전 연봉'을 찾아서 기재 (예: '연 6,500만원', 없으면 '미기재')",
-    "availability": "위 이력서에서 언급된 입사 가능일 (없으면 '협의 후 결정')"
+    "experience": "${resumeAnalysis.total_experience_years ? `총 ${Math.floor(resumeAnalysis.total_experience_years)}년 ${Math.round((resumeAnalysis.total_experience_years % 1) * 12)}개월` : '미기재'}" (위 총 경력 정보 사용, 없으면 '미기재'),
+    "education": "${resumeAnalysis.education || '미기재'}" (위 최종 학력 정보 사용, 없으면 '미기재'),
+    "current_salary": "${resumeAnalysis.current_salary || '미기재'}" (위 현재/직전 연봉 정보 사용, 없으면 '미기재'),
+    "availability": "협의 후 결정" (기본값)
   },
   "strengths": [
     "위 강점 정보를 기반으로 한 핵심 강점 3-5개 (구체적 사례 포함)"
