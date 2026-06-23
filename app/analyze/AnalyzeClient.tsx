@@ -3527,13 +3527,14 @@ function JDResults({
   // 제안서 저장 상태 관리
   const [proposalData, setProposalData] = useState<{ html: string; proposal: any } | null>(null)
   const [proposalGenerating, setProposalGenerating] = useState(false)
+  const proposalAttempted = useRef(false)  // 무한루프 방지: 생성 시도 여부 추적
 
   // 제안서 localStorage 키 (후보자별 + JD별로 구분)
   const proposalKey = analysisItem
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
-  // 제안서 생성 함수
+  // 제안서 생성 함수 (무한루프 방지 강화)
   const generateProposal = useCallback(async () => {
     if (!analysisItem) return
 
@@ -3566,6 +3567,12 @@ function JDResults({
     } catch (error) {
       console.error('Proposal generation error:', error)
       alert('제안서 생성에 실패했습니다.')
+
+      // 🚨 무한루프 방지: 에러 시에도 더미 데이터 설정하여 재시도 차단
+      setProposalData({
+        html: '',
+        proposal: { error: true, message: error instanceof Error ? error.message : '생성 실패' }
+      })
     } finally {
       setProposalGenerating(false)
     }
@@ -3585,21 +3592,21 @@ function JDResults({
     }
   }, [proposalKey, analysisItem])
 
-  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만) — 긴급 비활성화
+  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만) — 무한루프 방지 강화
   useEffect(() => {
-    // 🚨 긴급: 무한루프 방지를 위해 자동 생성 비활성화
-    console.log('[JDResults] ⚠️ 제안서 자동 생성 비활성화됨 (무한루프 방지)')
-    return
-
-    // if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
-    //   console.log('[JDResults] Auto-generating proposal for:', {
-    //     analysisItemId: analysisItem.id,
-    //     resultId: result.id,
-    //     userType,
-    //   })
-    //   generateProposal()
-    // }
+    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating && !proposalAttempted.current) {
+      console.log('[JDResults] ✅ 제안서 자동 생성 시작 (1회만)')
+      proposalAttempted.current = true  // 플래그 설정으로 재시도 차단
+      generateProposal()
+    }
   }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
+
+  // 컴포넌트 언마운트 시 플래그 리셋
+  useEffect(() => {
+    return () => {
+      proposalAttempted.current = false
+    }
+  }, [])
 
   return (
     <div className="jd-results">
