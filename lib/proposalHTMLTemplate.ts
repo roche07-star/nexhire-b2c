@@ -80,10 +80,78 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       .container { box-shadow: none; }
       .edit-hint { display: none; }
       .editable { box-shadow: none !important; background: transparent !important; }
+      .save-btn { display: none; }
+    }
+
+    /* 저장 버튼 스타일 */
+    .save-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+    .save-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+    }
+    .save-btn:active {
+      transform: translateY(0);
     }
   </style>
+
+  <script>
+    // 수정본 저장 기능
+    function saveModifiedProposal() {
+      try {
+        // 현재 HTML 전체 가져오기
+        const htmlContent = document.documentElement.outerHTML
+
+        // Blob 생성
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
+
+        // 다운로드 링크 생성
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+
+        // 파일명 생성 (날짜 + 시간)
+        const now = new Date()
+        const dateStr = now.toISOString().slice(0, 10)
+        const timeStr = now.toTimeString().slice(0, 5).replace(':', '')
+        const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상'
+
+        a.download = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`
+
+        // 다운로드 실행
+        a.click()
+
+        // 메모리 정리
+        URL.revokeObjectURL(url)
+
+        // 성공 메시지
+        alert('✅ 수정본이 저장되었습니다!')
+      } catch (error) {
+        console.error('저장 실패:', error)
+        alert('❌ 저장에 실패했습니다. Ctrl+S를 사용해주세요.')
+      }
+    }
+  </script>
 </head>
 <body>
+  <!-- 수정본 저장 버튼 -->
+  <button class="save-btn" onclick="saveModifiedProposal()">💾 수정본 저장</button>
+
   <div class="container">
     <div class="header">
       <h1>${proposal.title || '후보자 추천 요약'}</h1>
