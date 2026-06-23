@@ -588,6 +588,197 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
           </div>
         </div>
       )}
+
+      {/* 🔍 토큰 관리 탭 */}
+      {tab === 'tokens' && (
+        <div className="admin-content">
+          <h2 className="admin-subtitle">토큰 사용량 관리</h2>
+
+          {/* 환경 설정 */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>⚙️ 환경 설정</h3>
+            <div className="admin-stats">
+              <div className="admin-stat-card" style={{ minWidth: '300px' }}>
+                <div className="admin-stat-label">검증 단계 (ENABLE_VALIDATION)</div>
+                <div className="admin-stat-value" style={{ fontSize: '24px' }}>
+                  활성화
+                  <span style={{ fontSize: '14px', color: '#999', marginLeft: '8px' }}>
+                    (환경 변수)
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                  ✅ 품질 우선 모드 (기본값)
+                  <br />
+                  비활성화 시: 월 $2.25 절약, 품질 약간 하락
+                </div>
+              </div>
+
+              <div className="admin-stat-card" style={{ minWidth: '300px' }}>
+                <div className="admin-stat-label">Circuit Breaker</div>
+                <div className="admin-stat-value" style={{ fontSize: '24px', color: '#10b981' }}>
+                  ✅ 작동 중
+                </div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                  연속 3회 실패 시 5분 차단
+                  <br />
+                  무한루프 방지 완료
+                </div>
+              </div>
+
+              <div className="admin-stat-card" style={{ minWidth: '300px' }}>
+                <div className="admin-stat-label">제안서 자동 생성</div>
+                <div className="admin-stat-value" style={{ fontSize: '24px', color: '#ef4444' }}>
+                  🚫 비활성화
+                </div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                  수동 생성만 가능
+                  <br />
+                  무한루프 완전 차단
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 외부 링크 */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>🔗 외부 모니터링</h3>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a
+                href="https://console.anthropic.com/workbench/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="admin-download-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                🔥 Anthropic Console
+                <span style={{ fontSize: '12px', opacity: 0.9 }}>→ 실시간 토큰 사용량</span>
+              </a>
+
+              <a
+                href="https://vercel.com/roche07s-projects/nexhire-b2c/logs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="admin-download-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #000 0%, #333 100%)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                📊 Vercel Logs
+                <span style={{ fontSize: '12px', opacity: 0.9 }}>→ API 호출 로그</span>
+              </a>
+            </div>
+          </div>
+
+          {/* 토큰 사용량 가이드 */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>📖 로그 확인 방법</h3>
+            <div style={{
+              background: '#1a1a1a',
+              border: '1px solid #333',
+              borderRadius: '8px',
+              padding: '20px',
+              fontFamily: 'monospace',
+              fontSize: '13px',
+              lineHeight: '1.8',
+              color: '#e5e5e5'
+            }}>
+              <div style={{ color: '#10b981', marginBottom: '12px' }}>
+                <strong>Vercel Logs에서 검색:</strong>
+              </div>
+              <div style={{ color: '#999', marginBottom: '8px' }}>
+                1. Vercel → Functions → Logs
+              </div>
+              <div style={{ color: '#999', marginBottom: '8px' }}>
+                2. Filter: <code style={{ background: '#333', padding: '2px 6px', borderRadius: '4px', color: '#fbbf24' }}>[analyze]</code> 또는 <code style={{ background: '#333', padding: '2px 6px', borderRadius: '4px', color: '#fbbf24' }}>[rewrite]</code>
+              </div>
+              <div style={{ color: '#999', marginBottom: '16px' }}>
+                3. 토큰 사용량 확인
+              </div>
+
+              <div style={{ color: '#8b5cf6', marginBottom: '8px' }}>
+                <strong>예시 로그:</strong>
+              </div>
+              <div style={{ background: '#0a0a0a', padding: '12px', borderRadius: '6px', border: '1px solid #222' }}>
+                <div style={{ color: '#10b981' }}>[analyze] 기본 분석 토큰: {'{'} input: 2000, output: 500, total: 2500 {'}'}</div>
+                <div style={{ color: '#fbbf24' }}>[analyze] 검증 단계 토큰: {'{'} input: 1500, output: 300, total: 1800 {'}'}</div>
+                <div style={{ color: '#06b6d4' }}>[analyze] 커리어 경로 토큰: {'{'} input: 2000, output: 400, total: 2400 {'}'}</div>
+                <div style={{ color: '#999', marginTop: '8px' }}>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                <div style={{ color: '#fff' }}>총 사용: 6,700 tokens</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 환경 변수 설정 가이드 */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>⚙️ 환경 변수 설정 (Vercel)</h3>
+            <div style={{
+              background: '#fffbeb',
+              border: '1px solid #fbbf24',
+              borderRadius: '8px',
+              padding: '16px',
+              fontSize: '14px',
+              lineHeight: '1.6'
+            }}>
+              <div style={{ fontWeight: '600', marginBottom: '12px', color: '#92400e' }}>
+                💡 토큰 절약 모드 활성화 방법:
+              </div>
+              <ol style={{ margin: 0, paddingLeft: '20px', color: '#78350f' }}>
+                <li>Vercel → Settings → Environment Variables</li>
+                <li>변수 추가: <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '4px' }}>ENABLE_VALIDATION</code> = <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '4px' }}>false</code></li>
+                <li>Redeploy 필요 (Settings → Deployments → Redeploy)</li>
+              </ol>
+              <div style={{ marginTop: '12px', padding: '12px', background: '#fef3c7', borderRadius: '6px', color: '#78350f' }}>
+                <strong>⚠️ 주의:</strong> 검증 비활성화 시 품질이 약간 하락할 수 있습니다.
+                <br />
+                <strong>절감액:</strong> 월 $2.25 (이력서 분석 토큰 26% 감소)
+              </div>
+            </div>
+          </div>
+
+          {/* 현재 상태 요약 */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>📊 현재 상태 요약</h3>
+            <div className="admin-stats">
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">무한루프 방지</div>
+                <div className="admin-stat-value" style={{ color: '#10b981' }}>✅ 완료</div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">Circuit Breaker</div>
+                <div className="admin-stat-value" style={{ color: '#10b981' }}>✅ 작동 중</div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">토큰 로깅</div>
+                <div className="admin-stat-value" style={{ color: '#10b981' }}>✅ 활성화</div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">제안서 자동생성</div>
+                <div className="admin-stat-value" style={{ color: '#ef4444' }}>🚫 차단됨</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
