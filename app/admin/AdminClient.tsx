@@ -594,6 +594,182 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
         <div className="admin-content">
           <h2 className="admin-subtitle">토큰 사용량 관리</h2>
 
+          {/* 사용자별 토큰 사용량 (추정치) */}
+          <div className="admin-section">
+            <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>👥 사용자별 토큰 사용량 (추정치)</h3>
+            <div style={{ marginBottom: '12px', fontSize: '13px', color: '#999' }}>
+              * 평균 토큰 사용량 기준 추정치입니다. 실제 사용량은 Anthropic Console에서 확인하세요.
+            </div>
+
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>유저</th>
+                    <th>플랜</th>
+                    <th>이력서 분석</th>
+                    <th>JD 분석</th>
+                    <th>이력서 생성</th>
+                    <th>면접 가이드</th>
+                    <th>총 추정 토큰</th>
+                    <th>예상 비용</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users
+                    .map((u) => {
+                      // 평균 토큰 사용량 (tokens per request)
+                      const AVG_ANALYZE = 6700      // 이력서 분석 (검증 포함)
+                      const AVG_JD = 3000            // JD 분석
+                      const AVG_REWRITE = 8000       // 이력서 생성
+                      const AVG_INTERVIEW = 26000    // 면접 가이드
+
+                      // 총 토큰 계산
+                      const totalTokens =
+                        (u.analyze_count ?? 0) * AVG_ANALYZE +
+                        (u.jd_count ?? 0) * AVG_JD +
+                        (u.rewrite_count ?? 0) * AVG_REWRITE +
+                        (u.interview_count ?? 0) * AVG_INTERVIEW
+
+                      // 비용 계산 (입력: $1/1M, 출력: $5/1M, 평균 비율 80:20)
+                      const inputTokens = totalTokens * 0.8
+                      const outputTokens = totalTokens * 0.2
+                      const cost = (inputTokens / 1000000) * 1 + (outputTokens / 1000000) * 5
+
+                      return { ...u, totalTokens, cost }
+                    })
+                    .sort((a, b) => b.totalTokens - a.totalTokens)  // 토큰 많은 순
+                    .slice(0, 20)  // 상위 20명만
+                    .map((u) => (
+                      <tr key={u.email}>
+                        <td>
+                          <div className="admin-user-cell">
+                            {u.image && <img src={u.image} alt="" className="admin-avatar" />}
+                            <div>
+                              <div className="admin-user-name">{u.name ?? '—'}</div>
+                              <div className="admin-user-email" style={{ fontSize: '11px' }}>
+                                {u.email.length > 25 ? u.email.slice(0, 25) + '...' : u.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`admin-plan-badge ${
+                            u.plan === 'EXPERT' ? 'expert' :
+                            u.plan === 'PRO' ? 'pro' : 'free'
+                          }`}>
+                            {u.plan}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                            {u.analyze_count ?? 0}회
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            {((u.analyze_count ?? 0) * 6700).toLocaleString()}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                            {u.jd_count ?? 0}회
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            {((u.jd_count ?? 0) * 3000).toLocaleString()}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                            {u.rewrite_count ?? 0}회
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            {((u.rewrite_count ?? 0) * 8000).toLocaleString()}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                            {u.interview_count ?? 0}회
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            {((u.interview_count ?? 0) * 26000).toLocaleString()}
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{
+                            fontSize: '16px',
+                            fontWeight: '700',
+                            color: u.totalTokens > 100000 ? '#ef4444' :
+                                   u.totalTokens > 50000 ? '#f59e0b' : '#10b981'
+                          }}>
+                            {u.totalTokens.toLocaleString()}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            tokens
+                          </div>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{
+                            fontSize: '15px',
+                            fontWeight: '700',
+                            color: u.cost > 1 ? '#ef4444' :
+                                   u.cost > 0.5 ? '#f59e0b' : '#10b981'
+                          }}>
+                            ${u.cost.toFixed(2)}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#999' }}>
+                            추정
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+                <tfoot>
+                  <tr style={{ background: '#f9fafb', fontWeight: '700' }}>
+                    <td colSpan={2}>총합 (전체 사용자)</td>
+                    <td style={{ textAlign: 'center' }}>{totalAnalyze}회</td>
+                    <td style={{ textAlign: 'center' }}>{totalJd}회</td>
+                    <td style={{ textAlign: 'center' }}>{totalRewrite}회</td>
+                    <td style={{ textAlign: 'center' }}>{totalInterview}회</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {(
+                        totalAnalyze * 6700 +
+                        totalJd * 3000 +
+                        totalRewrite * 8000 +
+                        totalInterview * 26000
+                      ).toLocaleString()}
+                    </td>
+                    <td style={{ textAlign: 'right', color: '#ef4444' }}>
+                      ${(
+                        (totalAnalyze * 6700 + totalJd * 3000 + totalRewrite * 8000 + totalInterview * 26000) * 0.8 / 1000000 * 1 +
+                        (totalAnalyze * 6700 + totalJd * 3000 + totalRewrite * 8000 + totalInterview * 26000) * 0.2 / 1000000 * 5
+                      ).toFixed(2)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* 평균 토큰 참고표 */}
+            <div style={{
+              marginTop: '16px',
+              padding: '16px',
+              background: '#f3f4f6',
+              borderRadius: '8px',
+              fontSize: '13px',
+              lineHeight: '1.8'
+            }}>
+              <strong>📊 평균 토큰 사용량 (참고):</strong>
+              <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                <div>• 이력서 분석: <strong>6,700 tokens</strong> (검증 포함)</div>
+                <div>• JD 분석: <strong>3,000 tokens</strong></div>
+                <div>• 이력서 생성: <strong>8,000 tokens</strong> (평균)</div>
+                <div>• 면접 가이드: <strong>26,000 tokens</strong></div>
+              </div>
+              <div style={{ marginTop: '8px', color: '#666' }}>
+                * 비용 계산: 입력 $1/1M tokens, 출력 $5/1M tokens (비율 80:20 가정)
+              </div>
+            </div>
+          </div>
+
           {/* 환경 설정 */}
           <div className="admin-section">
             <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>⚙️ 환경 설정</h3>
