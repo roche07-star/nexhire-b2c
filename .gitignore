@@ -16,3 +16,14 @@ npm-debug.log*
 
 .vercel
 .env*
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Test fixtures (개인정보 보호)
+tests/fixtures/*.pdf
+tests/fixtures/*.docx
+tests/fixtures/*.txt
+!tests/fixtures/README.md
