@@ -163,22 +163,9 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         </div>
       </div>
 
-      <!-- 추천도 -->
-      <div class="section">
-        <div class="section-title">05 최종 추천</div>
-        <div class="recommendation">
-          <div class="recommendation-label">추천도</div>
-          <div class="recommendation-value">${
-            proposal.recommendation === 'HIGHLY_RECOMMEND' ? '적극 추천' :
-            proposal.recommendation === 'RECOMMEND' ? '추천' :
-            '검토 추천'
-          }</div>
-        </div>
-      </div>
-
       <!-- 제안 다음 단계 -->
       <div class="section">
-        <div class="section-title">06 제안 다음 단계</div>
+        <div class="section-title">05 제안 다음 단계</div>
         <div class="next-steps">
           ${proposal.next_steps || '면접 일정 조율 후 후보자 추천 진행을 제안드립니다.'}
         </div>
