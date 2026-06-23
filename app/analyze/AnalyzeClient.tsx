@@ -3534,8 +3534,12 @@ function JDResults({
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
-  // 제안서 생성 함수 (무한루프 방지 강화)
+  // 제안서 생성 함수 — 🚨 긴급 비활성화
   const generateProposal = useCallback(async () => {
+    console.error('🚨 제안서 생성 차단됨 — API 과금 폭주 방지')
+    alert('제안서 생성이 일시 차단되었습니다. 관리자에게 문의하세요.')
+    return  // 즉시 종료
+
     if (!analysisItem) return
 
     try {
@@ -3592,21 +3596,19 @@ function JDResults({
     }
   }, [proposalKey, analysisItem])
 
-  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만) — 무한루프 방지 강화
+  // 🚨🚨🚨 긴급: 제안서 자동 생성 완전 비활성화 (토큰 소모 계속 발생 중)
   useEffect(() => {
-    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating && !proposalAttempted.current) {
-      console.log('[JDResults] ✅ 제안서 자동 생성 시작 (1회만)')
-      proposalAttempted.current = true  // 플래그 설정으로 재시도 차단
-      generateProposal()
-    }
-  }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
-
-  // 컴포넌트 언마운트 시 플래그 리셋
-  useEffect(() => {
-    return () => {
-      proposalAttempted.current = false
-    }
+    console.log('[JDResults] 🚨 제안서 자동 생성 완전 비활성화됨 — 토큰 과금 폭주 긴급 차단')
+    // 완전 비활성화 — 어떤 조건에서도 실행 안 됨
+    return
   }, [])
+
+  // 언마운트 정리도 비활성화
+  // useEffect(() => {
+  //   return () => {
+  //     proposalAttempted.current = false
+  //   }
+  // }, [])
 
   return (
     <div className="jd-results">
