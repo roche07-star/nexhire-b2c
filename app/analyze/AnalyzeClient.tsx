@@ -3888,6 +3888,36 @@ function JDResults({
               >
                 📄 후보자 제안서 다운로드
               </button>
+
+              {/* 제안서 재생성 버튼 */}
+              <button
+                className="analyze-download-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: '#fff',
+                  display: userType === 'HEADHUNTER' && proposalData && !proposalData.proposal?.error ? 'block' : 'none',
+                  marginTop: '12px',
+                }}
+                onClick={() => {
+                  if (proposalGenerating) return
+
+                  const confirmMsg = '제안서를 다시 생성하시겠습니까?\n\n기존 제안서는 삭제되고 새로 생성됩니다.'
+                  if (!confirm(confirmMsg)) return
+
+                  // localStorage에서 제안서 삭제
+                  const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
+                  localStorage.removeItem(key)
+
+                  // proposalData 초기화
+                  setProposalData(null)
+
+                  // 재생성
+                  generateProposal()
+                }}
+                disabled={proposalGenerating}
+              >
+                {proposalGenerating ? '⏳ 재생성 중...' : '🔄 제안서 재생성'}
+              </button>
             </>
           )
         )}
