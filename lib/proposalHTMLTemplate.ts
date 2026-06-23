@@ -106,7 +106,6 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       <!-- 후보자 정보 -->
       <div class="section">
         <div class="section-title">02 후보자 기본 정보</div>
-        <div class="edit-hint">경력, 학력, 연봉, 출근 가능 필드를 클릭하면 수정할 수 있습니다</div>
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">추천 포지션</div>
