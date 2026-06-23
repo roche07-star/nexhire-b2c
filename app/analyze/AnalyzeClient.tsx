@@ -3585,16 +3585,20 @@ function JDResults({
     }
   }, [proposalKey, analysisItem])
 
-  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만)
+  // JD 분석 완료 후 자동으로 제안서 생성 (헤드헌터만) — 긴급 비활성화
   useEffect(() => {
-    if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
-      console.log('[JDResults] Auto-generating proposal for:', {
-        analysisItemId: analysisItem.id,
-        resultId: result.id,
-        userType,
-      })
-      generateProposal()
-    }
+    // 🚨 긴급: 무한루프 방지를 위해 자동 생성 비활성화
+    console.log('[JDResults] ⚠️ 제안서 자동 생성 비활성화됨 (무한루프 방지)')
+    return
+
+    // if (analysisItem && userType === 'HEADHUNTER' && !proposalData && !proposalGenerating) {
+    //   console.log('[JDResults] Auto-generating proposal for:', {
+    //     analysisItemId: analysisItem.id,
+    //     resultId: result.id,
+    //     userType,
+    //   })
+    //   generateProposal()
+    // }
   }, [analysisItem, userType, proposalData, proposalGenerating, generateProposal])
 
   return (
