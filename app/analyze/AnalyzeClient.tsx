@@ -3528,23 +3528,43 @@ function JDResults({
   const [proposalData, setProposalData] = useState<{ html: string; proposal: any } | null>(null)
   const [proposalGenerating, setProposalGenerating] = useState(false)
   const proposalAttempted = useRef(false)  // 무한루프 방지: 생성 시도 여부 추적
+  const proposalFailureCount = useRef(0)  // Circuit Breaker: 연속 실패 횟수
+  const proposalLastFailTime = useRef(0)  // Circuit Breaker: 마지막 실패 시간
 
   // 제안서 localStorage 키 (후보자별 + JD별로 구분)
   const proposalKey = analysisItem
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
-  // 제안서 생성 함수 — 🚨 긴급 비활성화
+  // 제안서 생성 함수 (Circuit Breaker + Rate Limiting)
   const generateProposal = useCallback(async () => {
-    console.error('🚨 제안서 생성 차단됨 — API 과금 폭주 방지')
-    alert('제안서 생성이 일시 차단되었습니다. 관리자에게 문의하세요.')
-    return  // 즉시 종료
-
-    /* 🚨 비활성화된 코드
     if (!analysisItem) return
+
+    // 🔒 Circuit Breaker: 연속 3회 실패 시 5분간 차단
+    if (proposalFailureCount.current >= 3) {
+      const timeSinceLastFail = Date.now() - proposalLastFailTime.current
+      const COOLDOWN_TIME = 5 * 60 * 1000 // 5분
+
+      if (timeSinceLastFail < COOLDOWN_TIME) {
+        const remainingMin = Math.ceil((COOLDOWN_TIME - timeSinceLastFail) / 60000)
+        console.error(`[Circuit Breaker] ${remainingMin}분 후 재시도 가능`)
+        alert(`제안서 생성이 일시 차단되었습니다. ${remainingMin}분 후 다시 시도해주세요.`)
+        return
+      } else {
+        // 쿨다운 기간 지남 → 카운터 리셋
+        proposalFailureCount.current = 0
+      }
+    }
 
     try {
       setProposalGenerating(true)
+      const startTime = Date.now()
+
+      console.log('[제안서 생성] 시작:', {
+        analysisId: analysisItem.id,
+        jdId: result.id,
+        timestamp: new Date().toISOString()
+      })
 
       const res = await fetch('/api/generate-proposal', {
         method: 'POST',
@@ -3556,7 +3576,7 @@ function JDResults({
       })
 
       if (!res.ok) {
-        throw new Error('제안서 생성 실패')
+        throw new Error(`API 오류: ${res.status}`)
       }
 
       const { proposal } = await res.json()
@@ -3569,20 +3589,35 @@ function JDResults({
       const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
       localStorage.setItem(key, JSON.stringify(dataToSave))
       setProposalData(dataToSave)
-    } catch (error) {
-      console.error('Proposal generation error:', error)
-      alert('제안서 생성에 실패했습니다.')
 
-      // 🚨 무한루프 방지: 에러 시에도 더미 데이터 설정하여 재시도 차단
+      // ✅ 성공 시 실패 카운터 리셋
+      proposalFailureCount.current = 0
+
+      const duration = Date.now() - startTime
+      console.log('[제안서 생성] 성공:', { duration: `${duration}ms` })
+
+    } catch (error) {
+      console.error('[제안서 생성] 실패:', error)
+
+      // 🔒 실패 카운터 증가
+      proposalFailureCount.current += 1
+      proposalLastFailTime.current = Date.now()
+
+      alert(`제안서 생성에 실패했습니다. (${proposalFailureCount.current}/3)`)
+
+      // 🚨 무한루프 방지: 에러 시에도 더미 데이터 설정
       setProposalData({
         html: '',
-        proposal: { error: true, message: error instanceof Error ? error.message : '생성 실패' }
+        proposal: {
+          error: true,
+          message: error instanceof Error ? error.message : '생성 실패',
+          failureCount: proposalFailureCount.current
+        }
       })
     } finally {
       setProposalGenerating(false)
     }
-    */
-  }, [])
+  }, [analysisItem, result])
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
@@ -3812,15 +3847,35 @@ function JDResults({
               <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
                 ↓ HTML 리포트 다운로드
               </button>
+
+              {/* 수동 제안서 생성 버튼 (헤드헌터 전용) */}
+              {userType === 'HEADHUNTER' && !proposalData && !proposalData?.proposal?.error && (
+                <button
+                  className="analyze-download-btn"
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    color: '#fff',
+                  }}
+                  onClick={() => {
+                    if (proposalGenerating) return
+                    generateProposal()
+                  }}
+                  disabled={proposalGenerating}
+                >
+                  {proposalGenerating ? '⏳ 제안서 생성 중...' : '📄 후보자 제안서 생성'}
+                </button>
+              )}
+
+              {/* 제안서 다운로드 버튼 */}
               <button
                 className="analyze-download-btn"
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                   color: '#fff',
-                  display: userType === 'HEADHUNTER' && proposalData ? 'block' : 'none',
+                  display: userType === 'HEADHUNTER' && proposalData && !proposalData.proposal?.error ? 'block' : 'none',
                 }}
                 onClick={() => {
-                  if (!proposalData) return
+                  if (!proposalData || proposalData.proposal?.error) return
 
                   const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
                   const url = URL.createObjectURL(blob)
