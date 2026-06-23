@@ -42,7 +42,7 @@ const FEATURE_LABELS: Record<string, string> = {
   rewrite: '이력서 생성',
 }
 
-type AdminTab = 'users' | 'coupons'
+type AdminTab = 'users' | 'coupons' | 'tokens'
 
 export default function AdminClient({ users: initialUsers }: { users: User[] }) {
   const [tab, setTab] = useState<AdminTab>('users')
@@ -243,6 +243,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
         <div className="admin-tab-bar">
           <button className={`admin-tab-btn${tab === 'users' ? ' active' : ''}`} onClick={() => onTabChange('users')}>유저 관리</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
+          <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
         </div>
 
         {tab === 'users' && (

@@ -3849,7 +3849,7 @@ function JDResults({
               </button>
 
               {/* 수동 제안서 생성 버튼 (헤드헌터 전용) */}
-              {userType === 'HEADHUNTER' && !proposalData && !proposalData?.proposal?.error && (
+              {userType === 'HEADHUNTER' && !proposalData && (
                 <button
                   className="analyze-download-btn"
                   style={{
