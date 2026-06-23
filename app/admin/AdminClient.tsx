@@ -101,6 +101,46 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     setLoading(null)
   }
 
+  async function deleteUser(email: string, name: string | null) {
+    // 확인 다이얼로그
+    const userName = name || email
+    const confirmMsg = `정말로 "${userName}"를 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없습니다!\n\n삭제될 데이터:\n- 유저 정보\n- 이력서 분석 결과\n- JD 분석 결과\n- 면접 가이드\n- 쿠폰\n\n삭제하려면 "삭제"를 입력하세요.`
+
+    const userInput = prompt(confirmMsg)
+
+    if (userInput !== '삭제') {
+      if (userInput !== null) {
+        alert('삭제가 취소되었습니다.')
+      }
+      return
+    }
+
+    setLoading(email + 'delete')
+
+    try {
+      const res = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        // 목록에서 제거
+        setUsers((prev) => prev.filter((u) => u.email !== email))
+        showMsg(`${email} 삭제 완료 (모든 관련 데이터 삭제됨)`)
+      } else {
+        alert(`삭제 실패: ${data.error}`)
+      }
+    } catch (error) {
+      console.error('Delete user error:', error)
+      alert('삭제 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(null)
+    }
+  }
+
   async function resetCount(email: string) {
     setLoading(email + 'reset')
     const res = await fetch('/api/admin/reset', {
@@ -317,6 +357,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                     <th>플랜 변경</th>
                     <th>유형 변경</th>
                     <th>초기화</th>
+                    <th>삭제</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -398,10 +439,24 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                           onClick={() => resetCount(u.email)}
                         >초기화</button>
                       </td>
+                      <td>
+                        <button
+                          className="admin-btn"
+                          style={{
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                            color: '#fff',
+                            fontWeight: '600',
+                          }}
+                          disabled={loading === u.email + 'delete'}
+                          onClick={() => deleteUser(u.email, u.name)}
+                        >
+                          {loading === u.email + 'delete' ? '삭제 중...' : '🗑️ 삭제'}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={12} className="admin-empty">가입한 유저가 없습니다.</td></tr>
+                    <tr><td colSpan={13} className="admin-empty">가입한 유저가 없습니다.</td></tr>
                   )}
                 </tbody>
               </table>
