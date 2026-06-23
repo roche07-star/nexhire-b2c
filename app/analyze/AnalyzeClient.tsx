@@ -3540,6 +3540,7 @@ function JDResults({
     alert('제안서 생성이 일시 차단되었습니다. 관리자에게 문의하세요.')
     return  // 즉시 종료
 
+    /* 🚨 비활성화된 코드
     if (!analysisItem) return
 
     try {
@@ -3580,7 +3581,8 @@ function JDResults({
     } finally {
       setProposalGenerating(false)
     }
-  }, [analysisItem, result])
+    */
+  }, [])
 
   // 컴포넌트 마운트 시 저장된 제안서 확인
   useEffect(() => {
