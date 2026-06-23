@@ -35,7 +35,52 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     .recommendation-value { font-size: 28px; font-weight: 700; color: #92400e; }
     .next-steps { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; color: #1e40af; }
     .footer { background: #fafafa; padding: 24px; text-align: center; color: #666; font-size: 14px; border-top: 1px solid #e5e7eb; }
-    @media print { body { padding: 0; background: #fff; } .container { box-shadow: none; } }
+
+    /* 수정 가능한 필드 스타일 */
+    .editable {
+      cursor: text;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin: -4px -8px;
+    }
+    .editable:hover {
+      background: #fef3c7;
+      box-shadow: 0 0 0 2px #fbbf24;
+    }
+    .editable:focus {
+      outline: none;
+      background: #fef3c7;
+      box-shadow: 0 0 0 3px #f59e0b;
+    }
+    .editable:empty:before {
+      content: attr(data-placeholder);
+      color: #999;
+      font-style: italic;
+    }
+
+    /* 수정 안내 메시지 */
+    .edit-hint {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #1e40af;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .edit-hint::before {
+      content: '✏️ ';
+    }
+
+    @media print {
+      body { padding: 0; background: #fff; }
+      .container { box-shadow: none; }
+      .edit-hint { display: none; }
+      .editable { box-shadow: none !important; background: transparent !important; }
+    }
   </style>
 </head>
 <body>
@@ -61,6 +106,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       <!-- 후보자 정보 -->
       <div class="section">
         <div class="section-title">02 후보자 기본 정보</div>
+        <div class="edit-hint">경력, 학력, 연봉, 출근 가능 필드를 클릭하면 수정할 수 있습니다</div>
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">추천 포지션</div>
@@ -72,19 +118,19 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
           </div>
           <div class="info-item">
             <div class="info-label">경력</div>
-            <div class="info-value">${proposal.candidate_info?.experience || '미상'}</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="경력을 입력하세요">${proposal.candidate_info?.experience || '미상'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">최종 학력</div>
-            <div class="info-value">${proposal.candidate_info?.education || '미상'}</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="학력을 입력하세요">${proposal.candidate_info?.education || '미상'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">현재 연봉</div>
-            <div class="info-value">${proposal.candidate_info?.current_salary || '협의 필요'}</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="연봉을 입력하세요">${proposal.candidate_info?.current_salary || '협의 필요'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">출근 가능</div>
-            <div class="info-value">${proposal.candidate_info?.availability || '협의 후 결정'}</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="입사 가능일을 입력하세요">${proposal.candidate_info?.availability || '협의 후 결정'}</div>
           </div>
         </div>
       </div>
