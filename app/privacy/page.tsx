@@ -71,6 +71,36 @@ export default function PrivacyPage() {
               <li>이용자가 사전에 동의한 경우</li>
               <li>법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</li>
             </ul>
+
+            <div className="privacy-subsection" style={{ marginTop: '20px', padding: '16px', background: '#f0f9ff', borderLeft: '4px solid #3b82f6', borderRadius: '8px' }}>
+              <h3 style={{ color: '#1e40af', marginBottom: '12px' }}>💼 헤드헌터 추천 서비스 (선택적 동의)</h3>
+              <p>회원가입 시 "헤드헌터 추천 서비스"에 동의하신 경우, 다음과 같이 개인정보가 제3자에게 제공됩니다:</p>
+
+              <table className="privacy-table" style={{ marginTop: '12px' }}>
+                <thead>
+                  <tr>
+                    <th>제공받는 자</th>
+                    <th>제공 항목</th>
+                    <th>제공 목적</th>
+                    <th>보유·이용 기간</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>협력 헤드헌터</td>
+                    <td>이름, 이메일, 전화번호(선택), 이력서 분석 결과</td>
+                    <td>채용 제안 및 커리어 상담</td>
+                    <td>1년 또는 동의 철회 시까지</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <ul style={{ marginTop: '12px', fontSize: '14px', lineHeight: '1.8' }}>
+                <li><strong>동의 거부권:</strong> 헤드헌터 추천 서비스는 선택사항이며, 동의하지 않아도 서비스 이용이 가능합니다.</li>
+                <li><strong>동의 철회:</strong> 설정 &gt; 개인정보 및 공유에서 언제든지 동의를 철회할 수 있습니다.</li>
+                <li><strong>철회 시 조치:</strong> 동의 철회 시 이미 제공된 개인정보는 즉시 삭제됩니다.</li>
+              </ul>
+            </div>
           </div>
 
           <div className="privacy-section">
