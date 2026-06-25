@@ -604,6 +604,54 @@ ${maskedText.slice(0, 3000)}
     // 캐시 무효화 (Dashboard 통계 갱신)
     await invalidateCache(`dashboard:stats:${email}`)
 
+    // Eve 업데이트 (헤드헌터 공유 동의한 구직자)
+    try {
+      const { data: user } = await supabase
+        .from('users')
+        .select('user_type, headhunter_sharing_enabled, eve_candidate_id')
+        .eq('email', email)
+        .single()
+
+      if (
+        user?.user_type === 'INDIVIDUAL' &&
+        user?.headhunter_sharing_enabled &&
+        user?.eve_candidate_id
+      ) {
+        console.log('[analyze] Eve 업데이트 시작:', user.eve_candidate_id)
+
+        const eveResponse = await fetch(
+          `${process.env.EVE_API_URL}/api/super-admin/candidates/${user.eve_candidate_id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': process.env.ADAM_TO_EVE_API_KEY || ''
+            },
+            body: JSON.stringify({
+              total_experience_years: resultPayload.total_experience_years,
+              job_title: resultPayload.job_title,
+              current_salary: resultPayload.current_salary,
+              education: resultPayload.education,
+              address: resultPayload.address || null,
+              skills: resultPayload.keywords || [],
+              strengths: resultPayload.strengths || [],
+              career_summary: resultPayload.summary,
+              analysis_result: resultPayload
+            })
+          }
+        )
+
+        if (eveResponse.ok) {
+          console.log('[analyze] Eve 업데이트 성공')
+        } else {
+          console.error('[analyze] Eve 업데이트 실패:', eveResponse.status)
+        }
+      }
+    } catch (err) {
+      console.error('[analyze] Eve 업데이트 실패 (non-fatal):', err)
+      // Eve 업데이트 실패는 치명적이지 않으므로 계속 진행
+    }
+
     // 원본 파일 보존 (Re-Writing용)
     let rewriteSaved = false
     let rewriteFilePath: string | null = null

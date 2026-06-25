@@ -72,32 +72,40 @@ export async function PUT(req: NextRequest) {
         .is('withdrawn_at', null)
     }
 
-    // 3. 비활성화 시 Eve 데이터 삭제 (나중에 구현)
+    // 3. 비활성화 시 Eve 데이터 삭제
     if (!enabled) {
-      // TODO: Eve API 준비되면 주석 해제
-      console.log('[settings/headhunter-sharing] Eve 데이터 삭제 준비:', userEmail)
+      try {
+        const { data: user } = await supabase
+          .from('users')
+          .select('eve_candidate_id')
+          .eq('email', userEmail)
+          .single()
 
-      /* Eve API 호출 (나중에 활성화)
-      const { data: user } = await supabase
-        .from('users')
-        .select('eve_candidate_id')
-        .eq('email', userEmail)
-        .single()
+        if (user?.eve_candidate_id) {
+          console.log('[settings/headhunter-sharing] Eve 데이터 삭제 시작:', user.eve_candidate_id)
 
-      if (user?.eve_candidate_id) {
-        await fetch(`${process.env.EVE_API_URL}/api/super-admin/candidates/${user.eve_candidate_id}`, {
-          method: 'DELETE',
-          headers: {
-            'X-API-Key': process.env.ADAM_TO_EVE_API_KEY
+          const eveResponse = await fetch(`${process.env.EVE_API_URL}/api/super-admin/candidates/${user.eve_candidate_id}`, {
+            method: 'DELETE',
+            headers: {
+              'X-API-Key': process.env.ADAM_TO_EVE_API_KEY || ''
+            }
+          })
+
+          if (eveResponse.ok) {
+            // eve_candidate_id 제거
+            await supabase.from('users').update({
+              eve_candidate_id: null
+            }).eq('email', userEmail)
+
+            console.log('[settings/headhunter-sharing] Eve 데이터 삭제 성공')
+          } else {
+            console.error('[settings/headhunter-sharing] Eve 삭제 실패:', eveResponse.status)
           }
-        })
-
-        // eve_candidate_id 제거
-        await supabase.from('users').update({
-          eve_candidate_id: null
-        }).eq('email', userEmail)
+        }
+      } catch (err) {
+        console.error('[settings/headhunter-sharing] Eve 삭제 실패 (non-fatal):', err)
+        // Eve 삭제 실패는 치명적이지 않으므로 계속 진행
       }
-      */
     }
 
     // 4. 감사 로그
