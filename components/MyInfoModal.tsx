@@ -134,7 +134,7 @@ export default function MyInfoButton() {
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            zIndex: 9999,
+            zIndex: 999999,
             padding: '40px 20px',
             backdropFilter: 'blur(4px)',
             overflowY: 'auto'
