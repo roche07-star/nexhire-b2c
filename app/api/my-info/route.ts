@@ -16,7 +16,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, user_type, service_type')
+      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
@@ -75,6 +75,14 @@ export async function GET() {
     : user?.service_type === 'B2B' ? 'B2B (기업/헤드헌터)'
     : '미설정'
 
+  // 헤드헌터 추천 서비스 정보
+  const headhunterSharing = {
+    enabled: user?.headhunter_sharing_enabled ?? false,
+    consentedAt: user?.headhunter_sharing_consented_at
+      ? new Date(user.headhunter_sharing_consented_at).toLocaleDateString('ko-KR')
+      : null
+  }
+
   return NextResponse.json({
     plan,
     usage,
@@ -84,6 +92,7 @@ export async function GET() {
     userType: user?.user_type ?? null,
     userTypeLabel,
     serviceType: user?.service_type ?? 'B2C',
-    serviceTypeLabel
+    serviceTypeLabel,
+    headhunterSharing
   })
 }

@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
       privacyRequired,
       privacyOptional,
       address,
-      headhunterSharing
+      headhunterSharing,
+      phone
     } = await req.json()
 
     if (!privacyRequired) {
@@ -124,9 +125,56 @@ export async function POST(req: NextRequest) {
         headhunter_sharing_consented_at: headhunterSharing ? now : null,
         headhunter_sharing_consent_ip: headhunterSharing
           ? (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'))
-          : null
+          : null,
+        phone: phone || null,
+        address: address || null
       })
       .eq('email', userEmail)
+
+    // 5-1. Eve Super Admin에 기본 정보 전송 (headhunterSharing = true이고 phone이 있는 경우)
+    if (headhunterSharing && phone) {
+      try {
+        // TODO: Eve API 준비되면 주석 해제
+        console.log('[consents/user] Eve 전송 준비:', {
+          name: session.user.name,
+          email: session.user.email,
+          phone,
+          address
+        })
+
+        /* Eve API 호출 (나중에 활성화)
+        const eveResponse = await fetch(`${process.env.EVE_API_URL}/api/super-admin/candidates`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': process.env.ADAM_TO_EVE_API_KEY
+          },
+          body: JSON.stringify({
+            name: session.user.name,
+            email: session.user.email,
+            phone,
+            address,
+            source: 'adam_signup',
+            adam_user_email: session.user.email
+          })
+        })
+
+        if (eveResponse.ok) {
+          const { candidate_id } = await eveResponse.json()
+
+          // eve_candidate_id 저장
+          await supabase.from('users').update({
+            eve_candidate_id: candidate_id
+          }).eq('email', userEmail)
+
+          console.log('[consents/user] Eve 전송 성공:', candidate_id)
+        }
+        */
+      } catch (err) {
+        console.error('[consents/user] Eve 전송 실패 (non-fatal):', err)
+        // Eve 전송 실패는 치명적이지 않으므로 계속 진행
+      }
+    }
 
     // 6. 감사 로그
     await supabase.from('audit_logs').insert({

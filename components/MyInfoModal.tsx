@@ -29,6 +29,10 @@ interface MyInfo {
   userTypeLabel?: string
   serviceType?: string
   serviceTypeLabel?: string
+  headhunterSharing?: {
+    enabled: boolean
+    consentedAt: string | null
+  }
 }
 
 export default function MyInfoButton() {
@@ -38,6 +42,7 @@ export default function MyInfoButton() {
   const [couponInput, setCouponInput] = useState('')
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
+  const [headhunterToggling, setHeadhunterToggling] = useState(false)
 
   async function openModal() {
     setOpen(true)
@@ -74,6 +79,38 @@ export default function MyInfoButton() {
       }
     } finally {
       setCouponClaiming(false)
+    }
+  }
+
+  async function toggleHeadhunterSharing() {
+    if (!info?.headhunterSharing) return
+    const newValue = !info.headhunterSharing.enabled
+
+    if (!newValue && !confirm('헤드헌터 추천 서비스를 중단하시겠습니까?\n\n이미 공유된 정보는 삭제됩니다.')) {
+      return
+    }
+
+    setHeadhunterToggling(true)
+    try {
+      const res = await fetch('/api/settings/headhunter-sharing', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: newValue }),
+      })
+
+      if (res.ok) {
+        // 정보 새로고침
+        const res2 = await fetch('/api/my-info')
+        setInfo(await res2.json())
+      } else {
+        const data = await res.json()
+        alert(data.error ?? '설정 변경에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setHeadhunterToggling(false)
     }
   }
 
@@ -186,6 +223,83 @@ export default function MyInfoButton() {
                           <>❌ 미동의</>
                         )}
                       </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 헤드헌터 추천 서비스 */}
+                {info.headhunterSharing && info.userType === 'INDIVIDUAL' && (
+                  <div className="my-info-section">
+                    <div className="my-info-label">💼 헤드헌터 추천 서비스</div>
+                    <div className="my-info-row" style={{ alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ marginBottom: '8px', fontSize: '14px', lineHeight: '1.6' }}>
+                          전문 헤드헌터가 귀하의 이력서를 검토하고 최적의 포지션을 추천해 드립니다.
+                        </div>
+                        {info.headhunterSharing.enabled && info.headhunterSharing.consentedAt && (
+                          <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                            동의 일시: {info.headhunterSharing.consentedAt}
+                          </div>
+                        )}
+                      </div>
+                      <label style={{
+                        position: 'relative',
+                        display: 'inline-block',
+                        width: '48px',
+                        height: '24px',
+                        flexShrink: 0
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={info.headhunterSharing.enabled}
+                          onChange={toggleHeadhunterSharing}
+                          disabled={headhunterToggling}
+                          style={{ opacity: 0, width: 0, height: 0 }}
+                        />
+                        <span style={{
+                          position: 'absolute',
+                          cursor: headhunterToggling ? 'not-allowed' : 'pointer',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: info.headhunterSharing.enabled ? '#3b82f6' : '#d1d5db',
+                          transition: '0.3s',
+                          borderRadius: '24px'
+                        }}>
+                          <span style={{
+                            position: 'absolute',
+                            content: '""',
+                            height: '18px',
+                            width: '18px',
+                            left: info.headhunterSharing.enabled ? '26px' : '3px',
+                            bottom: '3px',
+                            backgroundColor: 'white',
+                            transition: '0.3s',
+                            borderRadius: '50%'
+                          }} />
+                        </span>
+                      </label>
+                    </div>
+                    <div style={{
+                      marginTop: '12px',
+                      padding: '12px',
+                      background: '#f9fafb',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      color: '#6b7280',
+                      lineHeight: '1.6'
+                    }}>
+                      {info.headhunterSharing.enabled ? (
+                        <>
+                          ✅ <strong>활성화됨</strong> - 이력서 분석 시 자동으로 헤드헌터에게 공유됩니다.<br />
+                          언제든지 비활성화할 수 있으며, 비활성화 시 공유된 정보는 삭제됩니다.
+                        </>
+                      ) : (
+                        <>
+                          ℹ️ <strong>비활성화됨</strong> - 헤드헌터 추천 서비스를 이용하려면 활성화하세요.
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
