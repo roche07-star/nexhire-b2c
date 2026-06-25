@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const FEATURE_LABEL: Record<string, string> = {
   resume: '이력서 분석', direction: '방향성 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
@@ -43,6 +43,14 @@ export default function MyInfoButton() {
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
   const [headhunterToggling, setHeadhunterToggling] = useState(false)
+  const modalContentRef = useRef<HTMLDivElement>(null)
+
+  // 모달 열릴 때 스크롤 맨 위로
+  useEffect(() => {
+    if (open && modalContentRef.current) {
+      modalContentRef.current.scrollTop = 0
+    }
+  }, [open])
 
   async function openModal() {
     setOpen(true)
@@ -133,6 +141,7 @@ export default function MyInfoButton() {
           onClick={() => setOpen(false)}
         >
           <div
+            ref={modalContentRef}
             style={{
               background: '#ffffff',
               borderRadius: 20,
