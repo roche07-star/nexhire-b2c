@@ -48,6 +48,25 @@
   line-height: 1.5;
 }
 
+/* Optional Section */
+.consent-section.optional {
+  border-top: 1px solid #e5e7eb;
+}
+
+.section-header.optional h2 {
+  color: #3b82f6;
+}
+
+.optional-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* Error */
 .consent-error {
   margin: 24px 32px 0;

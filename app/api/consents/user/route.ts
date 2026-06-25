@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
     const {
       privacyRequired,
       privacyOptional,
-      address
+      address,
+      headhunterSharing
     } = await req.json()
 
     if (!privacyRequired) {
@@ -92,16 +93,42 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. service_type 설정 (B2C)
+    // 4. 헤드헌터 추천 서비스 동의 처리 (선택)
+    if (headhunterSharing) {
+      // consents 테이블에 저장
+      const { error: headhunterError } = await supabase
+        .from('consents')
+        .insert({
+          user_email: userEmail,
+          consent_type: 'headhunter_sharing',
+          consent_version: 'v1.0.0',
+          is_agreed: true,
+          agreed_at: now,
+          ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
+          user_agent: req.headers.get('user-agent')
+        })
+
+      if (headhunterError) {
+        console.error('[consents/user] Headhunter sharing consent insert error:', headhunterError)
+        // 선택 동의 실패는 치명적이지 않으므로 계속 진행
+      }
+    }
+
+    // 5. service_type 및 headhunter_sharing 설정 (B2C)
     await supabase
       .from('users')
       .update({
         service_type: 'B2C',
-        last_service_use_at: now
+        last_service_use_at: now,
+        headhunter_sharing_enabled: headhunterSharing || false,
+        headhunter_sharing_consented_at: headhunterSharing ? now : null,
+        headhunter_sharing_consent_ip: headhunterSharing
+          ? (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'))
+          : null
       })
       .eq('email', userEmail)
 
-    // 5. 감사 로그
+    // 6. 감사 로그
     await supabase.from('audit_logs').insert({
       action: 'user_consent',
       actor_email: userEmail,
@@ -109,7 +136,8 @@ export async function POST(req: NextRequest) {
       details: {
         privacy_required: true,
         privacy_optional: privacyOptional || false,
-        has_address: !!address
+        has_address: !!address,
+        headhunter_sharing: headhunterSharing || false
       },
       ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
       user_agent: req.headers.get('user-agent')

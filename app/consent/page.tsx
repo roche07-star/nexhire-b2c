@@ -11,8 +11,10 @@ function ConsentPageContent() {
   const [error, setError] = useState<string | null>(null)
 
   const [consents, setConsents] = useState({
-    privacyRequired: false
+    privacyRequired: false,
+    headhunterSharing: false
   })
+  const [showHeadhunterDetails, setShowHeadhunterDetails] = useState(false)
 
   useEffect(() => {
     // 이미 동의했는지 확인
@@ -51,7 +53,8 @@ function ConsentPageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          privacyRequired: consents.privacyRequired
+          privacyRequired: consents.privacyRequired,
+          headhunterSharing: consents.headhunterSharing
         })
       })
 
@@ -147,6 +150,110 @@ function ConsentPageContent() {
               />
               <div className="checkbox-text">
                 위 개인정보 수집·이용에 동의합니다. <strong className="required-mark">(필수)</strong>
+              </div>
+            </label>
+          </div>
+
+          {/* 헤드헌터 추천 서비스 동의 (선택) */}
+          <div className="consent-section optional">
+            <div className="section-header optional">
+              <h2>💼 헤드헌터 추천 서비스 (선택)</h2>
+              <span className="optional-badge">선택</span>
+            </div>
+
+            <div className="consent-content">
+              <div className="service-benefits" style={{ marginBottom: '16px' }}>
+                <p style={{ marginBottom: '12px', color: '#374151', lineHeight: '1.6' }}>
+                  전문 헤드헌터가 귀하의 이력서를 검토하고 최적의 포지션을 추천해 드립니다.
+                </p>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>✅</span>
+                    <span>무료 커리어 상담</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>✅</span>
+                    <span>숨은 포지션 추천</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>✅</span>
+                    <span>연봉 협상 지원</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowHeadhunterDetails(!showHeadhunterDetails)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  padding: '8px 0',
+                  fontSize: '14px',
+                  textDecoration: 'underline'
+                }}
+              >
+                {showHeadhunterDetails ? '상세 내용 숨기기 ▲' : '상세 내용 보기 ▼'}
+              </button>
+
+              {showHeadhunterDetails && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  background: '#f9fafb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  lineHeight: '1.8'
+                }}>
+                  <div className="info-row">
+                    <div className="info-label">공유 정보</div>
+                    <div className="info-value">
+                      이름, 이메일, 이력서 분석 결과 (경력, 스킬, 학력 등)
+                    </div>
+                  </div>
+
+                  <div className="info-row">
+                    <div className="info-label">이용 목적</div>
+                    <div className="info-value">
+                      채용 제안 및 커리어 상담
+                    </div>
+                  </div>
+
+                  <div className="info-row">
+                    <div className="info-label">보유·이용 기간</div>
+                    <div className="info-value">
+                      1년 (설정에서 언제든 철회 가능)
+                    </div>
+                  </div>
+
+                  <div className="info-row">
+                    <div className="info-label">수신자</div>
+                    <div className="info-value">
+                      NexHire 협력 헤드헌터
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="consent-notice" style={{ marginTop: '16px' }}>
+                <p className="notice-title">💡 동의 거부권 안내</p>
+                <p className="notice-text">
+                  헤드헌터 추천 서비스는 선택사항이며, 동의하지 않아도 서비스 이용이 가능합니다.
+                  설정 &gt; 개인정보 및 공유에서 언제든지 동의를 철회할 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            <label className="consent-checkbox">
+              <input
+                type="checkbox"
+                checked={consents.headhunterSharing}
+                onChange={(e) => setConsents({ ...consents, headhunterSharing: e.target.checked })}
+              />
+              <div className="checkbox-text">
+                헤드헌터 추천 서비스 이용에 동의합니다. (선택)
               </div>
             </label>
           </div>
