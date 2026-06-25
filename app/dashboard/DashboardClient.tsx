@@ -54,7 +54,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
       const data = await res.json()
 
-      // 방어적 코드: recentActivity가 없으면 빈 배열로 초기화
       const safeData: DashboardStats = {
         totalCandidates: data.totalCandidates || 0,
         thisMonthAnalyses: data.thisMonthAnalyses || 0,
@@ -86,34 +85,109 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   }
 
   const stageColors: Record<string, string> = {
-    pending: '#64748b',
+    pending: '#71717a',
     screening: '#3b82f6',
     interview: '#8b5cf6',
-    final: '#f97316',
-    completed: '#22c55e',
+    final: '#f59e0b',
+    completed: '#10b981',
   }
 
   if (loading) {
     return (
-      <main style={{ padding: '80px 20px', textAlign: 'center' }}>
-        <p>로딩 중...</p>
+      <main style={{
+        padding: '120px 24px 80px',
+        maxWidth: 1200,
+        margin: '0 auto',
+        background: '#ffffff',
+        minHeight: '100vh'
+      }}>
+        {/* Loading Skeleton */}
+        <div style={{ marginBottom: 48 }}>
+          <div style={{
+            height: 40,
+            width: 280,
+            background: '#f1f5f9',
+            borderRadius: 8,
+            marginBottom: 12
+          }} />
+          <div style={{
+            height: 20,
+            width: 180,
+            background: '#f1f5f9',
+            borderRadius: 6
+          }} />
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 24,
+          marginBottom: 48,
+        }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              background: '#ffffff',
+              border: '1px solid #f1f5f9',
+              borderRadius: 16,
+              padding: 32,
+              height: 140
+            }}>
+              <div style={{
+                height: 16,
+                width: 100,
+                background: '#f1f5f9',
+                borderRadius: 4,
+                marginBottom: 16
+              }} />
+              <div style={{
+                height: 48,
+                width: 120,
+                background: '#f1f5f9',
+                borderRadius: 8
+              }} />
+            </div>
+          ))}
+        </div>
       </main>
     )
   }
 
   if (error) {
     return (
-      <main style={{ padding: '80px 20px', textAlign: 'center' }}>
-        <p style={{ color: '#ef4444' }}>{error}</p>
+      <main style={{
+        padding: '120px 24px',
+        maxWidth: 600,
+        margin: '0 auto',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          fontSize: 48,
+          marginBottom: 24
+        }}>⚠️</div>
+        <p style={{
+          color: '#64748b',
+          fontSize: 16,
+          marginBottom: 32,
+          lineHeight: 1.6
+        }}>{error}</p>
         <button
           onClick={fetchStats}
           style={{
-            marginTop: 20,
-            padding: '8px 16px',
-            background: '#e8ff47',
+            padding: '12px 32px',
+            background: '#18181b',
+            color: '#ffffff',
             border: 'none',
-            borderRadius: 6,
+            borderRadius: 12,
             cursor: 'pointer',
+            fontSize: 15,
+            fontWeight: 600,
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#27272a'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#18181b'
           }}
         >
           다시 시도
@@ -128,72 +202,37 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
   return (
     <main style={{
-      padding: '80px 20px 40px',
+      padding: '96px 24px 80px',
       maxWidth: 1200,
       margin: '0 auto',
-      background: '#fafafa',
+      background: '#ffffff',
       minHeight: '100vh'
     }}>
-      {/* 탭 바 */}
-      <div
-        className="analyze-tab-bar"
-        style={{
-          marginBottom: 32,
-          background: '#ffffff',
-          border: '1px solid #e0e0e0',
-          padding: '8px',
-          borderRadius: '12px',
-        }}
-      >
-        <button
-          className="analyze-tab-btn active"
-          style={{
-            background: 'rgba(232, 255, 71, 0.15)',
-            color: '#1a1a1a',
-            fontWeight: 600,
-          }}
-        >
-          <span>📊</span> 대시보드
-        </button>
-        <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn" style={{ color: '#666' }}>
-            <span>📄</span> 이력서 분석
-          </button>
-        </a>
-        <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn" style={{ color: '#666' }}>
-            <span>📂</span> 분석 Report
-          </button>
-        </a>
-        <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn" style={{ color: '#666' }}>
-            <span>📋</span> JD기반 분석
-          </button>
-        </a>
-        <a href="/analyze" style={{ textDecoration: 'none' }}>
-          <button className="analyze-tab-btn" style={{ color: '#666' }}>
-            <span>✏️</span> 이력서 생성
-          </button>
-        </a>
-        {userPlan === 'EXPERT' ? (
-          <a href="/analyze" style={{ textDecoration: 'none' }}>
-            <button className="analyze-tab-btn" style={{ color: '#666' }}>
-              <span>🎤</span> 면접 가이드 <span className="tab-expert-badge">EXPERT</span>
-            </button>
-          </a>
-        ) : (
-          <button className="analyze-tab-btn disabled" disabled style={{ color: '#999' }}>
-            <span>🎤</span> 면접 가이드 <span className="tab-soon">EXPERT</span>
-          </button>
-        )}
-      </div>
-
-      {/* 헤더 */}
-      <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: 56,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        flexWrap: 'wrap',
+        gap: 24
+      }}>
         <div>
-          <h1 style={{ fontSize: 32, marginBottom: 8, color: '#1a1a1a' }}>헤드헌터 대시보드</h1>
-          <p style={{ color: '#666', fontSize: 16 }}>
-            {userEmail}, {userPlan} 플랜
+          <h1 style={{
+            fontSize: 36,
+            marginBottom: 8,
+            color: '#18181b',
+            fontWeight: 700,
+            letterSpacing: '-0.02em'
+          }}>
+            대시보드
+          </h1>
+          <p style={{
+            color: '#71717a',
+            fontSize: 15,
+            letterSpacing: '-0.01em'
+          }}>
+            {userEmail} · {userPlan}
           </p>
         </div>
         <button
@@ -204,99 +243,114 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           }}
           style={{
             padding: '10px 20px',
-            background: '#e8ff47',
-            color: '#1a1a1a',
-            border: 'none',
-            borderRadius: 8,
+            background: '#ffffff',
+            color: '#18181b',
+            border: '1px solid #e4e4e7',
+            borderRadius: 10,
             fontWeight: 600,
             cursor: 'pointer',
             fontSize: 14,
             transition: 'all 0.2s',
+            letterSpacing: '-0.01em'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#d4eb33'
-            e.currentTarget.style.transform = 'translateY(-1px)'
+            e.currentTarget.style.background = '#fafafa'
+            e.currentTarget.style.borderColor = '#d4d4d8'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#e8ff47'
-            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.background = '#ffffff'
+            e.currentTarget.style.borderColor = '#e4e4e7'
           }}
         >
-          🔄 새로고침
+          새로고침
         </button>
       </div>
 
-      {/* 통계 카드 */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 20,
-          marginBottom: 40,
-        }}
-      >
+      {/* Stats Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: 24,
+        marginBottom: 56,
+      }}>
         <StatCard
           title="총 후보자"
           value={stats.totalCandidates}
           suffix="명"
-          color="#3b82f6"
+          icon="👥"
         />
         <StatCard
           title="이번 달 분석"
           value={stats.thisMonthAnalyses}
           suffix="건"
-          color="#8b5cf6"
+          icon="📊"
         />
         <StatCard
           title="평균 적합도"
           value={stats.avgScore}
           suffix="점"
-          color="#f97316"
+          icon="⭐"
         />
       </div>
 
-      {/* 파이프라인 현황 */}
-      <div
-        style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 40,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <h2 style={{ fontSize: 20, marginBottom: 20, color: '#1a1a1a', fontWeight: 600 }}>파이프라인 현황</h2>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+      {/* Pipeline */}
+      <div style={{
+        background: '#ffffff',
+        border: '1px solid #f1f5f9',
+        borderRadius: 16,
+        padding: 32,
+        marginBottom: 56,
+      }}>
+        <h2 style={{
+          fontSize: 20,
+          marginBottom: 28,
+          color: '#18181b',
+          fontWeight: 700,
+          letterSpacing: '-0.01em'
+        }}>
+          파이프라인
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+          gap: 16
+        }}>
           {Object.entries(stats.pipelineCounts).map(([stage, count]) => (
             <div
               key={stage}
               style={{
-                flex: '1 1 140px',
-                background: stageColors[stage] + '10',
-                border: `2px solid ${stageColors[stage]}`,
-                borderRadius: 8,
-                padding: '16px 12px',
+                background: '#fafafa',
+                border: '1px solid #f1f5f9',
+                borderRadius: 12,
+                padding: '20px 16px',
                 textAlign: 'center',
+                transition: 'all 0.2s',
+                cursor: 'default'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f8f9fa'
+                e.currentTarget.style.borderColor = '#e4e4e7'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fafafa'
+                e.currentTarget.style.borderColor = '#f1f5f9'
               }}
             >
-              <div
-                style={{
-                  fontSize: 13,
-                  color: '#666',
-                  marginBottom: 8,
-                  fontWeight: 500,
-                }}
-              >
+              <div style={{
+                fontSize: 13,
+                color: '#71717a',
+                marginBottom: 12,
+                fontWeight: 600,
+                letterSpacing: '-0.01em'
+              }}>
                 {stageLabels[stage]}
               </div>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: stageColors[stage],
-                }}
-              >
+              <div style={{
+                fontSize: 32,
+                fontWeight: 700,
+                color: stageColors[stage],
+                letterSpacing: '-0.02em'
+              }}>
                 {count}
               </div>
             </div>
@@ -305,49 +359,59 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         <button
           onClick={() => router.push('/pipeline')}
           style={{
-            marginTop: 20,
+            marginTop: 28,
             padding: '12px 24px',
-            background: '#1a1a14',
-            color: '#e8ff47',
+            background: '#18181b',
+            color: '#ffffff',
             border: 'none',
-            borderRadius: 8,
+            borderRadius: 10,
             fontWeight: 600,
             cursor: 'pointer',
-            fontSize: 15,
+            fontSize: 14,
             transition: 'all 0.2s',
+            letterSpacing: '-0.01em'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#2a2a24'
-            e.currentTarget.style.transform = 'translateY(-1px)'
+            e.currentTarget.style.background = '#27272a'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#1a1a14'
-            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.background = '#18181b'
           }}
         >
           파이프라인 관리 →
         </button>
       </div>
 
-      {/* 최근 활동 */}
-      <div
-        style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 24,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <h2 style={{ fontSize: 20, marginBottom: 20, color: '#1a1a1a', fontWeight: 600 }}>최근 활동</h2>
+      {/* Recent Activity */}
+      <div style={{
+        background: '#ffffff',
+        border: '1px solid #f1f5f9',
+        borderRadius: 16,
+        padding: 32,
+      }}>
+        <h2 style={{
+          fontSize: 20,
+          marginBottom: 28,
+          color: '#18181b',
+          fontWeight: 700,
+          letterSpacing: '-0.01em'
+        }}>
+          최근 활동
+        </h2>
         {stats.recentActivity.length === 0 ? (
-          <p style={{ color: '#666', textAlign: 'center', padding: 40 }}>
-            아직 분석한 이력서가 없습니다.
-          </p>
+          <div style={{
+            textAlign: 'center',
+            padding: '80px 24px',
+            color: '#a1a1aa'
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+            <p style={{ fontSize: 15, letterSpacing: '-0.01em' }}>
+              아직 분석한 이력서가 없습니다.
+            </p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {(() => {
-              // 동일인 그룹화
               const grouped = stats.recentActivity.reduce((acc: any, activity) => {
                 if (!acc[activity.name]) {
                   acc[activity.name] = {
@@ -379,196 +443,198 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   <div
                     key={idx}
                     style={{
-                      padding: 16,
-                      background: isJustCompleted ? '#f0fdf4' : '#fafafa',
-                      border: isJustCompleted ? '2px solid #22c55e' : '1px solid #f0f0f0',
-                      borderRadius: 8,
+                      padding: 20,
+                      background: '#fafafa',
+                      border: '1px solid #f1f5f9',
+                      borderRadius: 12,
                     }}
                   >
-                    {/* 이름 */}
-                    <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 12, color: '#1a1a1a', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      fontSize: 17,
+                      fontWeight: 700,
+                      marginBottom: 16,
+                      color: '#18181b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      letterSpacing: '-0.01em'
+                    }}>
                       {group.name}
                       {isJustCompleted && (
                         <span style={{
-                          padding: '2px 8px',
-                          background: '#22c55e',
-                          color: '#fff',
-                          borderRadius: 4,
-                          fontSize: 11,
+                          padding: '4px 12px',
+                          background: '#10b981',
+                          color: '#ffffff',
+                          borderRadius: 6,
+                          fontSize: 12,
                           fontWeight: 700,
+                          letterSpacing: '0'
                         }}>
-                          완료!
+                          완료
                         </span>
                       )}
                     </div>
 
-                    {/* 이력서 분석 */}
                     {group.resume && (
                       <div
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          padding: 12,
-                          background: '#fff',
-                          borderRadius: 6,
-                          marginBottom: group.jdAnalyses.length > 0 ? 8 : 0,
+                          padding: 16,
+                          background: '#ffffff',
+                          border: '1px solid #f1f5f9',
+                          borderRadius: 10,
+                          marginBottom: group.jdAnalyses.length > 0 ? 12 : 0,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
                         }}
                         onClick={() => router.push(`/result/${group.resume.id}`)}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#f5f5f5'
-                          e.currentTarget.style.transform = 'translateX(2px)'
+                          e.currentTarget.style.background = '#f8f9fa'
+                          e.currentTarget.style.borderColor = '#e4e4e7'
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#fff'
-                          e.currentTarget.style.transform = 'translateX(0)'
+                          e.currentTarget.style.background = '#ffffff'
+                          e.currentTarget.style.borderColor = '#f1f5f9'
                         }}
                       >
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                            <span>📄</span>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            marginBottom: 6
+                          }}>
                             <span style={{
-                              padding: '2px 8px',
-                              background: '#3b82f6',
-                              color: '#fff',
-                              borderRadius: 4,
+                              padding: '4px 10px',
+                              background: '#18181b',
+                              color: '#ffffff',
+                              borderRadius: 6,
                               fontSize: 11,
                               fontWeight: 700,
+                              letterSpacing: '0.02em'
                             }}>
                               이력서 분석
                             </span>
                             <span style={{
-                              padding: '2px 8px',
-                              background: stageColors[group.resume.stage] + '20',
+                              padding: '4px 10px',
+                              background: '#fafafa',
                               color: stageColors[group.resume.stage],
-                              borderRadius: 4,
+                              borderRadius: 6,
                               fontSize: 11,
                               fontWeight: 600,
                             }}>
                               {stageLabels[group.resume.stage]}
                             </span>
                           </div>
-                          <div style={{ fontSize: 14, color: '#666' }}>
+                          <div style={{
+                            fontSize: 14,
+                            color: '#71717a',
+                            letterSpacing: '-0.01em'
+                          }}>
                             {group.resume.position}
                           </div>
-                          {(() => {
-                            const candidateName = typeof window !== 'undefined' && group.resume.id
-                              ? localStorage.getItem(`candidate_name_${group.resume.id}`)
-                              : null
-                            return candidateName ? (
-                              <div style={{
-                                display: 'inline-block',
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                color: '#fff',
-                                padding: '4px 10px',
-                                borderRadius: '5px',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                marginTop: '6px',
-                              }}>
-                                👤 {candidateName}
-                              </div>
-                            ) : null
-                          })()}
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 11, color: '#999', marginBottom: 2 }}>직무 적합도</div>
                           <div style={{
-                            fontSize: 18,
+                            fontSize: 11,
+                            color: '#a1a1aa',
+                            marginBottom: 4,
+                            letterSpacing: '0'
+                          }}>
+                            적합도
+                          </div>
+                          <div style={{
+                            fontSize: 24,
                             fontWeight: 700,
                             color: group.resume.score >= 70 ? '#10b981' : '#f59e0b',
+                            letterSpacing: '-0.02em'
                           }}>
-                            {group.resume.score}점
+                            {group.resume.score}
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* JD 분석들 - 차별화된 디자인 */}
                     {group.jdAnalyses.map((jd: any, jdIdx: number) => (
                       <div
                         key={jdIdx}
                         style={{
-                          padding: 14,
-                          background: 'linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)',
-                          border: '2px solid #e9d5ff',
-                          borderRadius: 8,
-                          marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 8 : 0,
+                          padding: 16,
+                          background: '#ffffff',
+                          border: '1px solid #f1f5f9',
+                          borderRadius: 10,
+                          marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 12 : 0,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          boxShadow: '0 1px 3px rgba(139, 92, 246, 0.1)',
                         }}
                         onClick={() => router.push(`/jd-result/${jd.id}`)}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%)'
-                          e.currentTarget.style.borderColor = '#d8b4fe'
-                          e.currentTarget.style.transform = 'translateY(-2px)'
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.2)'
+                          e.currentTarget.style.background = '#f8f9fa'
+                          e.currentTarget.style.borderColor = '#e4e4e7'
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)'
-                          e.currentTarget.style.borderColor = '#e9d5ff'
-                          e.currentTarget.style.transform = 'translateY(0)'
-                          e.currentTarget.style.boxShadow = '0 1px 3px rgba(139, 92, 246, 0.1)'
+                          e.currentTarget.style.background = '#ffffff'
+                          e.currentTarget.style.borderColor = '#f1f5f9'
                         }}
                       >
-                        {/* 헤더: 배지 */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                          <span style={{ fontSize: 18 }}>📋</span>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          marginBottom: 10
+                        }}>
                           <span style={{
-                            padding: '3px 10px',
+                            padding: '4px 10px',
                             background: '#8b5cf6',
-                            color: '#fff',
-                            borderRadius: 5,
-                            fontSize: 12,
+                            color: '#ffffff',
+                            borderRadius: 6,
+                            fontSize: 11,
                             fontWeight: 700,
-                            letterSpacing: '0.3px',
+                            letterSpacing: '0.02em'
                           }}>
                             JD 분석
                           </span>
                         </div>
-
-                        {/* 회사 - 포지션 */}
-                        <div style={{ marginBottom: 12 }}>
-                          <div style={{
-                            fontSize: 15,
-                            fontWeight: 700,
-                            color: '#7c3aed',
-                            marginBottom: 4,
-                          }}>
-                            {jd.position?.split(' - ')[0] || '회사명'}
-                          </div>
-                          <div style={{ fontSize: 14, color: '#666' }}>
-                            {jd.position}
-                          </div>
+                        <div style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: '#18181b',
+                          marginBottom: 4,
+                          letterSpacing: '-0.01em'
+                        }}>
+                          {jd.position?.split(' - ')[0] || '회사명'}
                         </div>
-
-                        {/* 하단: 점수와 날짜 */}
+                        <div style={{
+                          fontSize: 13,
+                          color: '#71717a',
+                          marginBottom: 12,
+                          letterSpacing: '-0.01em'
+                        }}>
+                          {jd.position}
+                        </div>
                         <div style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          paddingTop: 10,
-                          borderTop: '1px solid #e9d5ff',
+                          paddingTop: 12,
+                          borderTop: '1px solid #f1f5f9'
                         }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ fontSize: 11, color: '#999' }}>JD 적합도</div>
-                            <div style={{
-                              fontSize: 20,
-                              fontWeight: 700,
-                              color: jd.score >= 70 ? '#10b981' : '#f59e0b',
-                            }}>
-                              {jd.score}점
-                            </div>
-                          </div>
                           <div style={{
                             fontSize: 11,
-                            color: '#8b5cf6',
-                            fontWeight: 600,
+                            color: '#a1a1aa',
+                            letterSpacing: '0'
                           }}>
-                            →
+                            JD 적합도
+                          </div>
+                          <div style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            color: jd.score >= 70 ? '#10b981' : '#f59e0b',
+                            letterSpacing: '-0.02em'
+                          }}>
+                            {jd.score}
                           </div>
                         </div>
                       </div>
@@ -588,38 +654,61 @@ function StatCard({
   title,
   value,
   suffix,
-  color,
+  icon,
 }: {
   title: string
   value: number
   suffix: string
-  color: string
+  icon: string
 }) {
   return (
     <div
       style={{
-        background: '#fff',
-        border: '1px solid #e5e7eb',
-        borderRadius: 12,
-        padding: 24,
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        background: '#ffffff',
+        border: '1px solid #f1f5f9',
+        borderRadius: 16,
+        padding: 32,
+        transition: 'all 0.2s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+        e.currentTarget.style.background = '#fafafa'
+        e.currentTarget.style.borderColor = '#e4e4e7'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
+        e.currentTarget.style.background = '#ffffff'
+        e.currentTarget.style.borderColor = '#f1f5f9'
       }}
     >
-      <div style={{ fontSize: 14, color: '#666', marginBottom: 8, fontWeight: 500 }}>
+      <div style={{
+        fontSize: 28,
+        marginBottom: 16
+      }}>
+        {icon}
+      </div>
+      <div style={{
+        fontSize: 13,
+        color: '#71717a',
+        marginBottom: 12,
+        fontWeight: 600,
+        letterSpacing: '-0.01em'
+      }}>
         {title}
       </div>
-      <div style={{ fontSize: 36, fontWeight: 700, color }}>
+      <div style={{
+        fontSize: 40,
+        fontWeight: 700,
+        color: '#18181b',
+        letterSpacing: '-0.03em'
+      }}>
         {value}
-        <span style={{ fontSize: 18, marginLeft: 4, color: '#666' }}>{suffix}</span>
+        <span style={{
+          fontSize: 18,
+          marginLeft: 6,
+          color: '#a1a1aa',
+          fontWeight: 600
+        }}>
+          {suffix}
+        </span>
       </div>
     </div>
   )
