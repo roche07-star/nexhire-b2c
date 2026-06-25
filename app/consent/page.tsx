@@ -16,7 +16,6 @@ function ConsentPageContent() {
   })
   const [showHeadhunterDetails, setShowHeadhunterDetails] = useState(false)
   const [phone, setPhone] = useState('')
-  const [address, setAddress] = useState('')
 
   useEffect(() => {
     // 이미 동의했는지 확인
@@ -63,8 +62,7 @@ function ConsentPageContent() {
         body: JSON.stringify({
           privacyRequired: consents.privacyRequired,
           headhunterSharing: consents.headhunterSharing,
-          phone: phone.trim() || null,
-          address: address.trim() || null
+          phone: phone.trim() || null
         })
       })
 
@@ -267,7 +265,7 @@ function ConsentPageContent() {
               </div>
             </label>
 
-            {/* 헤드헌터 공유 동의 시 연락처 입력 */}
+            {/* 헤드헌터 공유 동의 시 전화번호 입력 */}
             {consents.headhunterSharing && (
               <div style={{
                 marginTop: '16px',
@@ -279,33 +277,18 @@ function ConsentPageContent() {
                 <div style={{ marginBottom: '12px', fontSize: '14px', fontWeight: 600, color: '#1e40af' }}>
                   📞 연락처 정보
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>
-                      전화번호 <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      className="coupon-input"
-                      placeholder="010-1234-5678"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      style={{ width: '100%' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>
-                      주소 (선택)
-                    </label>
-                    <input
-                      type="text"
-                      className="coupon-input"
-                      placeholder="서울시 강남구..."
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      style={{ width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px', fontWeight: 500 }}>
+                    전화번호 <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    className="coupon-input"
+                    placeholder="010-1234-5678"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{ width: '100%' }}
+                  />
                 </div>
               </div>
             )}
