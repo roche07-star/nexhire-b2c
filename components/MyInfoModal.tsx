@@ -146,7 +146,7 @@ export default function MyInfoButton() {
           >
             {/* Header */}
             <div style={{
-              padding: '28px 32px',
+              padding: '20px 24px',
               borderBottom: '1px solid #f1f5f9',
               display: 'flex',
               justifyContent: 'space-between',
@@ -159,7 +159,7 @@ export default function MyInfoButton() {
               borderTopRightRadius: 20
             }}>
               <h2 style={{
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: 700,
                 color: '#18181b',
                 margin: 0,
@@ -201,10 +201,10 @@ export default function MyInfoButton() {
             </div>
 
             {/* Content */}
-            <div style={{ padding: '8px 0 32px' }}>
+            <div style={{ padding: '0 0 24px' }}>
               {loading ? (
                 <div style={{
-                  padding: '80px 32px',
+                  padding: '60px 24px',
                   textAlign: 'center',
                   color: '#71717a',
                   fontSize: 15
@@ -219,7 +219,7 @@ export default function MyInfoButton() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      marginBottom: 20
+                      marginBottom: 16
                     }}>
                       <span className={`nav-plan-badge plan-${info.plan.toLowerCase()}`}
                         style={{
@@ -244,7 +244,7 @@ export default function MyInfoButton() {
 
                     <div style={{
                       display: 'grid',
-                      gap: 16
+                      gap: 12
                     }}>
                       {Object.entries(info.usage).map(([key, u]) => {
                         if (u.limit === 0) return null
@@ -256,13 +256,13 @@ export default function MyInfoButton() {
                             background: '#fafafa',
                             border: '1px solid #f1f5f9',
                             borderRadius: 12,
-                            padding: 16
+                            padding: 14
                           }}>
                             <div style={{
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              marginBottom: 12
+                              marginBottom: 10
                             }}>
                               <span style={{
                                 fontSize: 14,
@@ -377,7 +377,7 @@ export default function MyInfoButton() {
                   <Section title="보유 쿠폰">
                     {info.coupons.length === 0 ? (
                       <div style={{
-                        padding: '40px 24px',
+                        padding: '32px 24px',
                         textAlign: 'center',
                         color: '#a1a1aa',
                         fontSize: 14
@@ -509,7 +509,7 @@ export default function MyInfoButton() {
                         background: '#fafafa',
                         border: '1px solid #f1f5f9',
                         borderRadius: 12,
-                        padding: 20
+                        padding: 16
                       }}>
                         <div style={{
                           display: 'flex',
@@ -575,7 +575,7 @@ export default function MyInfoButton() {
                           </label>
                         </div>
                         <div style={{
-                          padding: 16,
+                          padding: 14,
                           background: info.headhunterSharing.enabled ? '#f0fdf4' : '#ffffff',
                           border: `1px solid ${info.headhunterSharing.enabled ? '#bbf7d0' : '#e4e4e7'}`,
                           borderRadius: 10,
@@ -611,14 +611,14 @@ export default function MyInfoButton() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{
-      padding: '24px 32px',
+      padding: '20px 24px',
       borderBottom: '1px solid #f1f5f9'
     }}>
       <h3 style={{
         fontSize: 15,
         fontWeight: 700,
         color: '#18181b',
-        marginBottom: 20,
+        marginBottom: 16,
         letterSpacing: '-0.01em'
       }}>
         {title}
