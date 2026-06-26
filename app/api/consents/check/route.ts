@@ -19,6 +19,17 @@ export async function GET(req: NextRequest) {
 
     console.log('[consents/check] Checking for:', userEmail)
 
+    // user_type 확인
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('email', userEmail)
+      .single()
+
+    const hasUserType = !userError && !!user?.user_type
+
+    console.log('[consents/check] User type:', user?.user_type, 'Has user type:', hasUserType)
+
     // 필수 개인정보 동의 확인
     const { data: requiredConsent, error: requiredError } = await supabase
       .from('consents')
@@ -50,10 +61,11 @@ export async function GET(req: NextRequest) {
 
     const hasConsent = !!requiredConsent && !requiredError
 
-    console.log('[consents/check] Final result:', { hasConsent })
+    console.log('[consents/check] Final result:', { hasConsent, hasUserType })
 
     return NextResponse.json({
       hasConsent,
+      hasUserType,
       requiredConsent: requiredConsent ? {
         id: requiredConsent.id,
         agreedAt: requiredConsent.agreed_at
