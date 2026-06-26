@@ -1264,11 +1264,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         setAnalysisId(data._id ?? null)
         if (data._id) {
           completeAnalysis(data._id) // 백그라운드 분석 완료 표시
-
-          // 후보자 이름 localStorage에 저장 (이후 단계에서 사용)
-          if (data.candidate_name) {
-            localStorage.setItem(`candidate_name_${data._id}`, data.candidate_name)
-          }
+          // 보안: candidate_name은 localStorage에 저장하지 않음
+          // 대신 분석 결과 객체에서 직접 사용
         }
 
         // 파일 초기화 (큐 처리는 useEffect에서)
@@ -1846,10 +1843,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 }
                               </span>
                               {(() => {
-                                const candidateName = item.result.candidate_name ||
-                                  (typeof window !== 'undefined' && item.id
-                                    ? localStorage.getItem(`candidate_name_${item.id}`)
-                                    : null)
+                                // 보안: localStorage에서 읽지 않고 result에서 직접 사용
+                                const candidateName = item.result.candidate_name
                                 return candidateName ? (
                                   <div className="candidate-name-badge" style={{
                                     display: 'inline-block',
@@ -2214,10 +2209,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
                                   {(() => {
-                                    const candidateName = item.result.candidate_name ||
-                                      (typeof window !== 'undefined' && item.id
-                                        ? localStorage.getItem(`candidate_name_${item.id}`)
-                                        : null)
+                                    // 보안: localStorage에서 읽지 않고 result에서 직접 사용
+                                    const candidateName = item.result.candidate_name
                                     return candidateName ? (
                                       <div className="candidate-name-badge" style={{
                                         display: 'inline-block',
@@ -2337,10 +2330,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <span className="jd-selected-date">{new Date(jdSelectedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                       </div>
                       {(() => {
-                        const candidateName = jdSelectedAnalysis.result.candidate_name ||
-                          (typeof window !== 'undefined' && jdSelectedAnalysis.id
-                            ? localStorage.getItem(`candidate_name_${jdSelectedAnalysis.id}`)
-                            : null)
+                        // 보안: localStorage에서 읽지 않고 result에서 직접 사용
+                        const candidateName = jdSelectedAnalysis.result.candidate_name
                         return candidateName ? (
                           <div className="candidate-name-badge" style={{
                             display: 'inline-block',
@@ -3671,9 +3662,8 @@ function JDResults({
 
         {/* 후보자 이름 뱃지 */}
         {(() => {
-          const candidateName = typeof window !== 'undefined' && analysisItem?.id
-            ? localStorage.getItem(`candidate_name_${analysisItem.id}`)
-            : null
+          // 보안: localStorage에서 읽지 않고 result에서 직접 사용
+          const candidateName = analysisItem?.result?.candidate_name
           return candidateName ? (
             <div style={{
               display: 'inline-block',
