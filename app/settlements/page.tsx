@@ -161,68 +161,91 @@ export default function SettlementsPage() {
     return `${date.getMonth() + 1}/${date.getDate()}`
   }
 
-  const calculateCommission = (salary: number, rate: number) => Math.round(salary * (rate / 100) * 10) / 10
-  const calculatePersonalCommission = (commission: number) => Math.round(commission / 2 * 10) / 10
-  const calculateIncentive = (commission: number, rate: number) => Math.round(commission * (rate / 100) * 10) / 10
-  const calculateTax = (commission: number, incentive: number, taxRate: number) =>
-    Math.round((commission - incentive) * (taxRate / 100) * 10) / 10
-  const calculateNetIncome = (incentive: number, tax: number) => Math.round((incentive - tax) * 10) / 10
+  const f = (n: number) => Math.round(n * 100) / 100
+
+  const calculateCommission = (salary: number, rate: number) => f(salary * (rate / 100))
+  const calculatePersonalCommission = (commission: number) => f(commission / 2)
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
 
-  const stats = settlements.reduce(
-    (acc, s) => {
-      const commission = calculateCommission(s.salary, s.commission_rate)
-      const personalCommission = calculatePersonalCommission(commission)
-      const incentive = calculateIncentive(personalCommission, s.incentive_rate)
+  const stats = (() => {
+    let totalSales = 0, totalPersonal = 0, totalIncentive = 0, totalTax = 0, totalNet = 0, rateSum = 0, rateCount = 0
+    let cumPersonal = 0
+    const threshold = goalAmount
 
-      return {
-        totalSalary: acc.totalSalary + s.salary,
-        totalCommission: acc.totalCommission + commission,
-        totalPersonalCommission: acc.totalPersonalCommission + personalCommission,
-        totalIncentive: acc.totalIncentive + incentive,
-        totalCommissionRate: acc.totalCommissionRate + s.commission_rate,
+    settlements.forEach((s, idx) => {
+      const sales = calculateCommission(s.salary, s.commission_rate)
+      const personal = calculatePersonalCommission(sales)
+      const ir = threshold > 0 && cumPersonal >= threshold ? 100 : s.incentive_rate
+      const incentive = f(personal * ir / 100)
+      cumPersonal += personal
+      const tax = f(incentive * 0.033)
+      const net = f(incentive - tax)
+
+      totalSales += sales
+      totalPersonal += personal
+      totalIncentive += incentive
+      totalTax += tax
+      totalNet += net
+      if (s.commission_rate > 0) {
+        rateSum += s.commission_rate
+        rateCount++
       }
-    },
-    { totalSalary: 0, totalCommission: 0, totalPersonalCommission: 0, totalIncentive: 0, totalCommissionRate: 0 }
-  )
+    })
 
-  const avgCommissionRate = settlements.length > 0 ? stats.totalCommissionRate / settlements.length : 0
-  const achievementRate = (stats.totalPersonalCommission / goalAmount) * 100
-  const remaining = goalAmount - stats.totalPersonalCommission
+    const avgRate = rateCount > 0 ? rateSum / rateCount : 0
+    return { totalSales: f(totalSales), totalPersonal: f(totalPersonal), totalIncentive: f(totalIncentive), totalTax: f(totalTax), totalNet: f(totalNet), avgRate: f(avgRate) }
+  })()
+
+  const achievementRate = goalAmount > 0 ? Math.min(Math.round((stats.totalPersonal / goalAmount) * 100), 100) : 0
+  const remaining = Math.max(goalAmount - stats.totalPersonal, 0)
 
   if (status === 'loading' || !session) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-600 border-t-transparent"></div>
-          <p className="mt-4 text-stone-600">로딩 중...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-700 border-t-transparent"></div>
+          <p className="mt-4" style={{ color: '#78716c' }}>로딩 중...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: '#f5f1e8' }}>
-      <div className="max-w-[1600px] mx-auto">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8', padding: '24px' }}>
+      <div className="mx-auto" style={{ maxWidth: '1600px' }}>
         {/* 연도 탭 */}
-        <div className="flex items-center gap-3 mb-6">
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
           {years.map((year) => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
-              className={`px-8 py-2.5 rounded-xl font-semibold transition-all text-lg ${
-                selectedYear === year
-                  ? 'text-white shadow-md'
-                  : 'bg-stone-200 text-stone-700 hover:bg-stone-300'
-              }`}
-              style={selectedYear === year ? { backgroundColor: '#b8860b' } : {}}
+              style={{
+                padding: '8px 28px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '14px',
+                background: selectedYear === year ? '#b8860b' : '#e7e5e4',
+                color: selectedYear === year ? '#fff' : '#78716c'
+              }}
             >
               {year}년
             </button>
           ))}
           <button
-            className="ml-2 w-10 h-10 rounded-full bg-stone-200 hover:bg-stone-300 flex items-center justify-center text-xl text-stone-600"
+            style={{
+              padding: '8px 14px',
+              borderRadius: '8px',
+              border: '1px dashed #d6d3d1',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '16px',
+              background: 'transparent',
+              color: '#a8a29e'
+            }}
+            title="연도 추가"
           >
             +
           </button>
@@ -230,165 +253,89 @@ export default function SettlementsPage() {
 
         {/* 진행바 */}
         {settlements.length > 0 && (
-          <div className="rounded-xl p-5 mb-6" style={{ backgroundColor: '#e8e1d3' }}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">💡</span>
-                <span className="font-semibold text-stone-700 text-lg">
-                  전환액 (개인매출액 기준)
-                </span>
-                <span className="text-3xl font-bold text-stone-900">
-                  {stats.totalPersonalCommission.toLocaleString()}
-                </span>
-                <span className="text-stone-600 text-lg">만원</span>
-                <button className="px-4 py-1.5 rounded-md text-sm font-medium" style={{ backgroundColor: '#d4c5a9', color: '#6b5d47' }}>
-                  수정
-                </button>
+          <div style={{ background: '#e8e1d3', border: '1px solid #d6d3d1', borderRadius: '12px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '12px', color: '#b8860b', fontWeight: 700 }}>💡 전환액 (개인매출액 기준)</span>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, color: '#1c1917' }}>
+              {stats.totalPersonal.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 400 }}>만원</span>
+            </span>
+            <button style={{ fontSize: '11px', padding: '3px 10px', background: '#d4c5a9', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#6b5d47' }}>수정</button>
+            <span style={{ fontSize: '12px', color: '#78716c', marginLeft: '8px' }}>미수금 전환 추가:</span>
+            <button style={{ fontSize: '11px', padding: '3px 10px', background: '#f5f5f4', border: '1px solid #d6d3d1', borderRadius: '6px', cursor: 'pointer', color: '#a8a29e' }}>+ 추가</button>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '12px', color: '#78716c' }}>
+                {achievementRate}% 달성 {remaining > 0 && <span style={{ color: '#dc2626', marginLeft: '4px' }}>({remaining.toLocaleString()}만원 남음)</span>}
+              </span>
+              <div style={{ width: '200px', height: '8px', background: '#d4c5a9', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: `${achievementRate}%`, height: '100%', background: '#b8860b', borderRadius: '4px' }} />
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-stone-600">미수금 전환 추가:</span>
-                <button className="px-4 py-1.5 rounded-md text-sm font-medium bg-stone-300 text-stone-700">
-                  + 추가
-                </button>
-                <span className="font-bold text-lg" style={{ color: '#b8860b' }}>
-                  {achievementRate.toFixed(0)}% 달성
-                </span>
-                <span className="text-red-600 font-medium">
-                  ({remaining > 0 ? remaining.toLocaleString() : '0'}만원 남음)
-                </span>
-              </div>
-            </div>
-            <div className="w-full rounded-full h-4" style={{ backgroundColor: '#d4c5a9' }}>
-              <div
-                className="h-4 rounded-full transition-all"
-                style={{
-                  width: `${Math.min(achievementRate, 100)}%`,
-                  backgroundColor: '#b8860b'
-                }}
-              />
             </div>
           </div>
         )}
 
         {/* 통계 카드 */}
         {settlements.length > 0 && (
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-              <div className="text-sm text-stone-500 mb-2">총 실매출액</div>
-              <div className="text-4xl font-bold mb-1" style={{ color: '#8b7355' }}>
-                {stats.totalCommission.toLocaleString()}<span className="text-xl ml-1">만원</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '24px' }}>
+            {[
+              { label: '총 실매출액', val: `${stats.totalSales.toLocaleString()} 만원`, sub: `${settlements.length}건 합산`, color: '#b8860b' },
+              { label: '개인 매출액', val: `${stats.totalPersonal.toLocaleString()} 만원`, sub: '실매출 × 1/2', color: '#3b82f6' },
+              { label: '총 인센티브 (실수령)', val: `${stats.totalNet.toLocaleString()} 만원`, sub: `세전 ${stats.totalIncentive.toLocaleString()} · 세금 ${stats.totalTax.toLocaleString()}`, color: '#22c55e' },
+              { label: '평균 수수료율', val: `${stats.avgRate.toFixed(1)}%`, sub: '전체 평균', color: '#1c1917' },
+            ].map(({ label, val, sub, color }) => (
+              <div key={label} style={{ background: '#fff', border: '1px solid #d6d3d1', borderRadius: '12px', padding: '16px 18px' }}>
+                <div style={{ fontSize: '10px', color: '#a8a29e', marginBottom: '6px' }}>{label}</div>
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, color }}>{val}</div>
+                <div style={{ fontSize: '10px', color: '#a8a29e', marginTop: '4px' }}>{sub}</div>
               </div>
-              <div className="text-xs text-stone-400">{settlements.length}건 입사</div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-              <div className="text-sm text-stone-500 mb-2">개인 매출액</div>
-              <div className="text-4xl font-bold mb-1" style={{ color: '#4a7c9e' }}>
-                {stats.totalPersonalCommission.toLocaleString()}<span className="text-xl ml-1">만원</span>
-              </div>
-              <div className="text-xs text-stone-400">실매출 × 1/2</div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-              <div className="text-sm text-stone-500 mb-2">총 인센티브 (실수령)</div>
-              <div className="text-4xl font-bold mb-1" style={{ color: '#6b9e4a' }}>
-                {stats.totalIncentive.toLocaleString()}<span className="text-xl ml-1">만원</span>
-              </div>
-              <div className="text-xs text-stone-400">
-                세전 {stats.totalPersonalCommission.toLocaleString()} × 세율 {avgCommissionRate.toFixed(2)}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-              <div className="text-sm text-stone-500 mb-2">평균 수수료율</div>
-              <div className="text-4xl font-bold mb-1 text-stone-800">
-                {avgCommissionRate.toFixed(1)}<span className="text-2xl">%</span>
-              </div>
-              <div className="text-xs text-stone-400">전체 평균</div>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* 정산 내역 */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-stone-800">정산 내역</h2>
+        {/* 헤더 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <div style={{ fontSize: '15px', fontWeight: 700 }}>정산 내역</div>
           <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-6 py-2.5 rounded-xl text-white font-semibold shadow-md hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: '#b8860b' }}
+            onClick={() => setShowForm(p => !p)}
+            style={{ padding: '8px 20px', background: '#b8860b', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
           >
-            + 정산 추가
+            {showForm ? '✕ 닫기' : '+ 정산 추가'}
           </button>
         </div>
 
         {/* 등록 폼 */}
         {showForm && (
-          <div className="bg-white rounded-xl p-6 mb-6 shadow-md border border-stone-200">
-            <h3 className="text-lg font-bold mb-4">{editingId ? '정산 수정' : '정산 등록'}</h3>
-            <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">합격자 *</label>
-                <input
-                  type="text"
-                  value={formData.candidate_name}
-                  onChange={(e) => setFormData({ ...formData, candidate_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                  required
-                />
+          <div style={{ background: '#fff', border: '1px solid #b8860b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', alignItems: 'end' }}>
+                {[
+                  ['합격자 *', 'candidate_name', 'text', '홍길동'],
+                  ['입사일', 'start_date', 'date', ''],
+                  ['연봉(만)', 'salary', 'number', '5000'],
+                  ['수수료율%', 'commission_rate', 'number', '17'],
+                  ['요율%', 'incentive_rate', 'number', '70'],
+                  ['고객사', 'company', 'text', '삼성전자'],
+                  ['포지션', 'position', 'text', '백엔드 개발'],
+                ].map(([label, key, type, ph]) => (
+                  <div key={key}>
+                    <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '5px' }}>{label}</label>
+                    <input
+                      type={type}
+                      value={formData[key as keyof typeof formData]}
+                      onChange={e => setFormData(p => ({ ...p, [key]: type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value }))}
+                      placeholder={ph}
+                      style={{ width: '100%', padding: '7px 8px', border: '1px solid #d6d3d1', borderRadius: '7px', fontSize: '12px', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                ))}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">입사일 *</label>
-                <input
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">연봉(만) *</label>
-                <input
-                  type="number"
-                  value={formData.salary}
-                  onChange={(e) => setFormData({ ...formData, salary: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">수수료율%</label>
-                <input
-                  type="number"
-                  value={formData.commission_rate}
-                  onChange={(e) => setFormData({ ...formData, commission_rate: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                  step="0.1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">고과사</label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">포지션</label>
-                <input
-                  type="text"
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
-                />
-              </div>
-              <div className="col-span-3 flex gap-2 mt-2">
+              {formData.salary && formData.commission_rate && (
+                <div style={{ fontSize: '11px', color: '#b8860b', fontWeight: 700, marginTop: '10px' }}>
+                  실매출 {calculateCommission(formData.salary, formData.commission_rate).toLocaleString()}만 / 개인 {calculatePersonalCommission(calculateCommission(formData.salary, formData.commission_rate)).toLocaleString()}만 / 인센티브 {f(calculatePersonalCommission(calculateCommission(formData.salary, formData.commission_rate)) * formData.incentive_rate / 100 * 0.967).toLocaleString()}만원 (실수령)
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', gap: '8px' }}>
                 <button
                   type="submit"
-                  className="px-6 py-2 text-white rounded-lg font-medium"
-                  style={{ backgroundColor: '#b8860b' }}
+                  style={{ padding: '8px 28px', background: '#b8860b', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {editingId ? '수정' : '등록'}
                 </button>
@@ -399,7 +346,7 @@ export default function SettlementsPage() {
                     setEditingId(null)
                     resetForm()
                   }}
-                  className="px-6 py-2 bg-stone-300 text-stone-700 rounded-lg font-medium"
+                  style={{ padding: '8px 20px', background: '#e7e5e4', color: '#44403c', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   취소
                 </button>
@@ -409,93 +356,91 @@ export default function SettlementsPage() {
         )}
 
         {/* 테이블 */}
-        <div className="bg-white rounded-xl overflow-hidden shadow-md border border-stone-200">
-          {loading ? (
-            <div className="p-12 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-600 border-t-transparent"></div>
-            </div>
-          ) : settlements.length === 0 ? (
-            <div className="p-12 text-center text-stone-500">
-              정산 내역이 없습니다.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ backgroundColor: '#f9f6f0' }}>
-                    <th className="px-4 py-3 text-left font-semibold text-stone-600">No</th>
-                    <th className="px-4 py-3 text-left font-semibold text-stone-600">합격자</th>
-                    <th className="px-4 py-3 text-left font-semibold text-stone-600">입사일</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">연봉(만)</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">수수료율%</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">실매출액(만)</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">개인매출액(만)</th>
-                    <th className="px-4 py-3 text-center font-semibold text-stone-600">누적 개인매출</th>
-                    <th className="px-4 py-3 text-center font-semibold text-stone-600">요율</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">인센티브(만)</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">세금(3.3%)</th>
-                    <th className="px-4 py-3 text-right font-semibold text-stone-600">실수령(만)</th>
-                    <th className="px-4 py-3 text-center font-semibold text-stone-600">고과사</th>
-                    <th className="px-4 py-3 text-center font-semibold text-stone-600">포지션</th>
-                    <th className="px-4 py-3 text-center font-semibold text-stone-600">요율</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {settlements.map((s, idx) => {
-                    const commission = calculateCommission(s.salary, s.commission_rate)
-                    const personalCommission = calculatePersonalCommission(commission)
-                    const incentive = calculateIncentive(personalCommission, s.incentive_rate)
-                    const tax = calculateTax(personalCommission, incentive, 3.3)
-                    const netIncome = calculateNetIncome(incentive, tax)
-
-                    const cumulativeCommission = settlements
-                      .slice(0, idx + 1)
-                      .reduce((sum, item) => sum + calculatePersonalCommission(calculateCommission(item.salary, item.commission_rate)), 0)
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#a8a29e' }}>로딩 중...</div>
+        ) : settlements.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '56px', color: '#a8a29e' }}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>💰</div>
+            <div style={{ fontSize: '13px' }}>정산 내역이 없습니다. + 정산 추가를 눌러 등록하세요.</div>
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+              <thead>
+                <tr style={{ background: '#f5f5f4', borderBottom: '2px solid #d6d3d1' }}>
+                  {['No', '합격자', '입사일', '연봉(만)', '수수료율%', '실매출액(만)', '개인매출액(만)', '누적 개인매출', '요율', '인센티브(만)', '세금(3.3%)', '실수령(만)', '고객사', '포지션', '요율'].map(h => (
+                    <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontSize: '10px', fontWeight: 700, color: '#78716c', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  let cumPersonal = 0
+                  let conversionDone = false
+                  const threshold = goalAmount
+                  return settlements.map((s, idx) => {
+                    const sales = calculateCommission(s.salary, s.commission_rate)
+                    const personal = calculatePersonalCommission(sales)
+                    const converted = threshold > 0 && cumPersonal >= threshold
+                    cumPersonal += personal
+                    const ir = threshold > 0 ? (converted ? 100 : 70) : s.incentive_rate
+                    const isConvRow = ir === 100 && !conversionDone
+                    if (ir === 100) conversionDone = true
+                    const incentive = f(personal * ir / 100)
+                    const tax = f(incentive * 0.033)
+                    const net = f(incentive - tax)
 
                     return (
-                      <tr key={s.id} className="border-t border-stone-100 hover:bg-stone-50">
-                        <td className="px-4 py-3 text-stone-600">{idx + 1}</td>
-                        <td className="px-4 py-3">
+                      <tr key={s.id} style={{ borderBottom: '1px solid #e7e5e4' }}>
+                        <td style={{ padding: '8px 10px', textAlign: 'center', color: '#a8a29e', fontSize: '11px' }}>{idx + 1}</td>
+                        <td style={{ padding: '6px 8px', minWidth: '90px' }}>
                           <button
                             onClick={() => startEdit(s)}
-                            className="font-medium hover:underline"
-                            style={{ color: '#4a7c9e' }}
+                            style={{ minWidth: '82px', padding: '4px 7px', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '12px', background: '#fff', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                           >
                             {s.candidate_name}
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-stone-700">{formatDate(s.start_date)}</td>
-                        <td className="px-4 py-3 text-right font-medium text-stone-800">{s.salary.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right text-stone-700">{s.commission_rate}</td>
-                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#b8860b' }}>{commission.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#4a7c9e' }}>{personalCommission.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-center font-medium text-stone-700">{cumulativeCommission.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
-                            {s.incentive_rate}%
+                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{formatDate(s.start_date)}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600 }}>{s.salary.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center' }}>{s.commission_rate}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#b8860b', fontWeight: 600 }}>{sales.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>{personal.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>{cumPersonal.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '20px',
+                            background: isConvRow ? '#dbeafe' : converted ? '#dcfce7' : '#fef3c7',
+                            color: isConvRow ? '#3b82f6' : converted ? '#22c55e' : '#b8860b',
+                            border: `1px solid ${isConvRow ? '#93c5fd' : converted ? '#86efac' : '#e8d0a0'}`
+                          }}>
+                            {isConvRow ? '70%→100%' : `${ir}%`}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#6b9e4a' }}>{incentive.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right text-stone-600">{tax.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-bold text-stone-800">{netIncome.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-center text-stone-700">{s.company || '-'}</td>
-                        <td className="px-4 py-3 text-center text-stone-700">{s.position || '-'}</td>
-                        <td className="px-4 py-3 text-center">
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#22c55e', fontWeight: 600 }}>{incentive.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#a8a29e' }}>{tax.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>{net.toLocaleString()}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.company || '-'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.position || '-'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>
                           <button
                             onClick={() => handleDelete(s.id)}
-                            className="text-stone-400 hover:text-red-500 text-xl font-bold"
+                            style={{ padding: '3px 7px', background: 'none', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '11px', color: '#a8a29e', cursor: 'pointer' }}
                           >
-                            ×
+                            ✕
                           </button>
                         </td>
                       </tr>
                     )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  })
+                })()}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )
