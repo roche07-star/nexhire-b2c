@@ -42,6 +42,11 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
         <li><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
       )}
 
+      {/* PRO 헤드헌터면 정산 메뉴 추가 */}
+      {isPro && isHeadhunter && (
+        <li><Link href="/settlements" style={getLinkStyle('/settlements')}>💰 정산</Link></li>
+      )}
+
       {/* 기본 메뉴 (모두에게 표시) */}
       <li><a href="/#how" onClick={handleHashLink('#how')}>사용법</a></li>
       <li><a href="/#features" onClick={handleHashLink('#features')}>기능</a></li>

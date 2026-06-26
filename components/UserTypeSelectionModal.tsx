@@ -64,7 +64,7 @@ export default function UserTypeSelectionModal({ onSelect }: Props) {
             <div className="user-type-cards">
               {/* 개인 구직자 */}
               <button
-                onClick={() => handleSelect('INDIVIDUAL')}
+                onClick={() => handleSelect('JOBSEEKER')}
                 className="user-type-card"
               >
                 <div className="card-header">

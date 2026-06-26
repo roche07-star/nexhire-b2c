@@ -67,7 +67,7 @@ export async function GET() {
   }
 
   // 사용자 유형 정보
-  const userTypeLabel = user?.user_type === 'INDIVIDUAL' ? '개인 구직자'
+  const userTypeLabel = user?.user_type === 'JOBSEEKER' ? '개인 구직자'
     : user?.user_type === 'HEADHUNTER' ? '헤드헌터'
     : '미설정'
 

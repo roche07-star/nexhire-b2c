@@ -4,10 +4,10 @@
 
 /**
  * 사용자 유형
- * - INDIVIDUAL: 개인 구직자 (본인 이력서 분석, JD 매칭)
- * - HEADHUNTER: 헤드헌터 (후보자 분석, 클라이언트 제안, Eve 연동)
+ * - JOBSEEKER: 구직자 (본인 이력서 분석, JD 매칭)
+ * - HEADHUNTER: 헤드헌터 (후보자 분석, 클라이언트 제안, Eve 연동, 정산 기능)
  */
-export type UserType = 'INDIVIDUAL' | 'HEADHUNTER'
+export type UserType = 'JOBSEEKER' | 'HEADHUNTER'
 
 /**
  * 시스템 권한

@@ -10,7 +10,7 @@ function ConsentPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER' | null>(null)
+  const [userType, setUserType] = useState<'JOBSEEKER' | 'HEADHUNTER' | null>(null)
   const [consents, setConsents] = useState({
     privacyRequired: false,
     headhunterSharing: false,
@@ -82,7 +82,7 @@ function ConsentPageContent() {
         body: JSON.stringify({
           userType,
           privacyRequired: consents.privacyRequired,
-          headhunterSharing: userType === 'INDIVIDUAL' ? consents.headhunterSharing : false,
+          headhunterSharing: userType === 'JOBSEEKER' ? consents.headhunterSharing : false,
           headhunterResponsibility: userType === 'HEADHUNTER' ? consents.headhunterResponsibility : false,
           phone: phone.trim() || null
         })
@@ -138,7 +138,7 @@ function ConsentPageContent() {
                 {/* 개인 구직자 */}
                 <button
                   type="button"
-                  onClick={() => setUserType('INDIVIDUAL')}
+                  onClick={() => setUserType('JOBSEEKER')}
                   className="user-type-card"
                 >
                   <div className="card-header">
@@ -186,7 +186,7 @@ function ConsentPageContent() {
           )}
 
           {/* 필수 동의 - 개인 구직자용 */}
-          {userType === 'INDIVIDUAL' && (
+          {userType === 'JOBSEEKER' && (
           <div className="consent-section">
             <div className="section-header required">
               <h2>개인정보 수집·이용 동의 (필수)</h2>
@@ -433,7 +433,7 @@ function ConsentPageContent() {
           )}
 
           {/* 개인 구직자 전용: 헤드헌터 추천 서비스 동의 (선택) */}
-          {userType === 'INDIVIDUAL' && (
+          {userType === 'JOBSEEKER' && (
             <div className="consent-section optional">
             <div className="section-header optional">
               <h2>💼 헤드헌터 추천 서비스 (선택)</h2>

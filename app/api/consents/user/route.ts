@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       phone
     } = await req.json()
 
-    if (!userType || (userType !== 'INDIVIDUAL' && userType !== 'HEADHUNTER')) {
+    if (!userType || (userType !== 'JOBSEEKER' && userType !== 'HEADHUNTER')) {
       return NextResponse.json({
         error: '사용자 유형을 선택해주세요.'
       }, { status: 400 })
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. 헤드헌터 추천 서비스 동의 처리 (개인 구직자 전용, 선택)
-    if (userType === 'INDIVIDUAL' && headhunterSharing) {
+    if (userType === 'JOBSEEKER' && headhunterSharing) {
       // consents 테이블에 저장
       const { error: headhunterError } = await supabase
         .from('consents')
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. users 테이블 업데이트
-    const isHeadhunterSharing = userType === 'INDIVIDUAL' && headhunterSharing
+    const isHeadhunterSharing = userType === 'JOBSEEKER' && headhunterSharing
 
     await supabase
       .from('users')
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
       .eq('email', userEmail)
 
     // 7. Eve Super Admin에 기본 정보 전송 (개인 구직자 + headhunterSharing = true + phone 있는 경우)
-    if (userType === 'INDIVIDUAL' && headhunterSharing && phone) {
+    if (userType === 'JOBSEEKER' && headhunterSharing && phone) {
       try {
         console.log('[consents/user] Eve 전송 시작:', {
           name: session.user.name,
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
         privacy_required: true,
         privacy_optional: privacyOptional || false,
         has_address: !!address,
-        headhunter_sharing: userType === 'INDIVIDUAL' ? (headhunterSharing || false) : false,
+        headhunter_sharing: userType === 'JOBSEEKER' ? (headhunterSharing || false) : false,
         headhunter_responsibility: userType === 'HEADHUNTER' ? (headhunterResponsibility || false) : false
       },
       ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),

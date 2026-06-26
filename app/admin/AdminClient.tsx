@@ -7,7 +7,7 @@ interface User {
   name: string | null
   image: string | null
   plan: 'FREE' | 'PRO' | 'EXPERT'
-  user_type: 'INDIVIDUAL' | 'HEADHUNTER' | null
+  user_type: 'JOBSEEKER' | 'HEADHUNTER' | null
   analyze_count: number
   jd_count: number
   rewrite_count: number
@@ -166,7 +166,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     setLoading(null)
   }
 
-  async function changeUserType(email: string, userType: 'INDIVIDUAL' | 'HEADHUNTER') {
+  async function changeUserType(email: string, userType: 'JOBSEEKER' | 'HEADHUNTER') {
     setLoading(email + userType)
     const res = await fetch('/api/admin/user-type', {
       method: 'POST',
@@ -178,7 +178,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
         ? { ...u, user_type: userType }
         : u
       ))
-      showMsg(`${email} → ${userType === 'INDIVIDUAL' ? '개인' : '헤드헌터'} 변경 완료`)
+      showMsg(`${email} → ${userType === 'JOBSEEKER' ? '개인' : '헤드헌터'} 변경 완료`)
     } else {
       const data = await res.json()
       alert(data.error || '변경 실패')
@@ -316,7 +316,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const total = users.length
   const expertCount = users.filter((u) => u.plan === 'EXPERT').length
   const proCount = users.filter((u) => u.plan === 'PRO').length
-  const individualCount = users.filter((u) => u.user_type === 'INDIVIDUAL').length
+  const individualCount = users.filter((u) => u.user_type === 'JOBSEEKER').length
   const headhunterCount = users.filter((u) => u.user_type === 'HEADHUNTER').length
   const noTypeCount = users.filter((u) => !u.user_type).length
   const headhunterSharingCount = users.filter((u) => u.headhunter_sharing_enabled === true).length
@@ -453,11 +453,11 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       </td>
                       <td>
                         <span className={`admin-plan-badge ${
-                          u.user_type === 'INDIVIDUAL' ? 'pro' :
+                          u.user_type === 'JOBSEEKER' ? 'pro' :
                           u.user_type === 'HEADHUNTER' ? 'expert' :
                           'free'
                         }`}>
-                          {u.user_type === 'INDIVIDUAL' ? '개인' :
+                          {u.user_type === 'JOBSEEKER' ? '개인' :
                            u.user_type === 'HEADHUNTER' ? '헤드헌터' :
                            '미선택'}
                         </span>
@@ -491,8 +491,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                         <div className="admin-actions">
                           <button
                             className="admin-btn pro"
-                            disabled={u.user_type === 'INDIVIDUAL' || loading === u.email + 'INDIVIDUAL'}
-                            onClick={() => changeUserType(u.email, 'INDIVIDUAL')}
+                            disabled={u.user_type === 'JOBSEEKER' || loading === u.email + 'JOBSEEKER'}
+                            onClick={() => changeUserType(u.email, 'JOBSEEKER')}
                             title="개인 구직자로 변경"
                           >🎯 개인</button>
                           <button
@@ -504,7 +504,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                         </div>
                       </td>
                       <td>
-                        {u.user_type === 'INDIVIDUAL' ? (
+                        {u.user_type === 'JOBSEEKER' ? (
                           <label style={{
                             position: 'relative',
                             display: 'inline-block',

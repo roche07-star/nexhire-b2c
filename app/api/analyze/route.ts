@@ -635,7 +635,7 @@ ${maskedText.slice(0, 3000)}
         .single()
 
       if (
-        user?.user_type === 'INDIVIDUAL' &&
+        user?.user_type === 'JOBSEEKER' &&
         user?.headhunter_sharing_enabled &&
         user?.eve_candidate_id
       ) {

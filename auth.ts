@@ -22,7 +22,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image,
-          ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
+          ...(isManager
+            ? { plan: 'EXPERT', user_type: 'HEADHUNTER' }
+            : { user_type: 'JOBSEEKER' }
+          ),
         },
         { onConflict: 'email', ignoreDuplicates: !isManager }
       )

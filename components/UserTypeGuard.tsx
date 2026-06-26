@@ -96,7 +96,7 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
       setShowModal(false)
 
       // INDIVIDUAL 선택 시 → 개인정보 동의 페이지로 이동
-      if (userType === 'INDIVIDUAL') {
+      if (userType === 'JOBSEEKER') {
         console.log('[UserTypeGuard] Redirecting to consent page')
         router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
       } else {
