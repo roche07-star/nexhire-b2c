@@ -39,6 +39,12 @@ export default function UserTypeGuard({ children }: { children: React.ReactNode 
         return
       }
 
+      // MANAGER는 user_type 체크 건너뛰기
+      if (session?.user?.role === 'MANAGER') {
+        setShowModal(false)
+        return
+      }
+
       // 세션에 user_type이 있으면 통과
       if (session?.user?.userType) {
         setShowModal(false)
