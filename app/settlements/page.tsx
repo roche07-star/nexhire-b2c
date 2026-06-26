@@ -26,7 +26,7 @@ export default function SettlementsPage() {
   const [showForm, setShowForm] = useState(false)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [goalAmount] = useState(5000) // 목표액 (만원)
+  const [goalAmount] = useState(5000)
   const [formData, setFormData] = useState({
     candidate_name: '',
     company: '',
@@ -156,91 +156,115 @@ export default function SettlementsPage() {
     })
   }
 
-  const calculateCommission = (salary: number, rate: number) => Math.round(salary * (rate / 100))
-  const calculateIncentive = (salary: number, cRate: number, iRate: number, override: number) =>
-    Math.round(calculateCommission(salary, cRate) * (iRate / 100)) + override
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return `${date.getMonth() + 1}/${date.getDate()}`
+  }
+
+  const calculateCommission = (salary: number, rate: number) => Math.round(salary * (rate / 100) * 10) / 10
+  const calculatePersonalCommission = (commission: number) => Math.round(commission / 2 * 10) / 10
+  const calculateIncentive = (commission: number, rate: number) => Math.round(commission * (rate / 100) * 10) / 10
+  const calculateTax = (commission: number, incentive: number, taxRate: number) =>
+    Math.round((commission - incentive) * (taxRate / 100) * 10) / 10
+  const calculateNetIncome = (incentive: number, tax: number) => Math.round((incentive - tax) * 10) / 10
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
+
   const stats = settlements.reduce(
-    (acc, s) => ({
-      totalSalary: acc.totalSalary + s.salary,
-      totalCommission: acc.totalCommission + calculateCommission(s.salary, s.commission_rate),
-      totalIncentive:
-        acc.totalIncentive +
-        calculateIncentive(s.salary, s.commission_rate, s.incentive_rate, s.personal_override),
-    }),
-    { totalSalary: 0, totalCommission: 0, totalIncentive: 0 }
+    (acc, s) => {
+      const commission = calculateCommission(s.salary, s.commission_rate)
+      const personalCommission = calculatePersonalCommission(commission)
+      const incentive = calculateIncentive(personalCommission, s.incentive_rate)
+
+      return {
+        totalSalary: acc.totalSalary + s.salary,
+        totalCommission: acc.totalCommission + commission,
+        totalPersonalCommission: acc.totalPersonalCommission + personalCommission,
+        totalIncentive: acc.totalIncentive + incentive,
+        totalCommissionRate: acc.totalCommissionRate + s.commission_rate,
+      }
+    },
+    { totalSalary: 0, totalCommission: 0, totalPersonalCommission: 0, totalIncentive: 0, totalCommissionRate: 0 }
   )
 
-  const avgCommissionRate = settlements.length > 0
-    ? settlements.reduce((sum, s) => sum + s.commission_rate, 0) / settlements.length
-    : 0
-
-  const achievementRate = (stats.totalIncentive / goalAmount) * 100
+  const avgCommissionRate = settlements.length > 0 ? stats.totalCommissionRate / settlements.length : 0
+  const achievementRate = (stats.totalPersonalCommission / goalAmount) * 100
+  const remaining = goalAmount - stats.totalPersonalCommission
 
   if (status === 'loading' || !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-600 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">로딩 중...</p>
+          <p className="mt-4 text-stone-600">로딩 중...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#f5f1e8' }}>
+      <div className="max-w-[1600px] mx-auto">
         {/* 연도 탭 */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-6">
           {years.map((year) => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              className={`px-8 py-2.5 rounded-xl font-semibold transition-all text-lg ${
                 selectedYear === year
-                  ? 'bg-yellow-600 text-white shadow-md'
+                  ? 'text-white shadow-md'
                   : 'bg-stone-200 text-stone-700 hover:bg-stone-300'
               }`}
+              style={selectedYear === year ? { backgroundColor: '#b8860b' } : {}}
             >
               {year}년
             </button>
           ))}
           <button
-            onClick={() => setShowForm(!showForm)}
-            className="ml-auto px-6 py-2 bg-yellow-600 text-white rounded-lg font-medium hover:bg-yellow-700 shadow-md"
+            className="ml-2 w-10 h-10 rounded-full bg-stone-200 hover:bg-stone-300 flex items-center justify-center text-xl text-stone-600"
           >
-            + 정산 추가
+            +
           </button>
         </div>
 
         {/* 진행바 */}
         {settlements.length > 0 && (
-          <div className="bg-stone-100 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-600">💡</span>
-                <span className="font-medium text-stone-700">
+          <div className="rounded-xl p-5 mb-6" style={{ backgroundColor: '#e8e1d3' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">💡</span>
+                <span className="font-semibold text-stone-700 text-lg">
                   전환액 (개인매출액 기준)
                 </span>
-                <span className="text-2xl font-bold text-stone-800">
-                  {stats.totalCommission.toLocaleString()}
+                <span className="text-3xl font-bold text-stone-900">
+                  {stats.totalPersonalCommission.toLocaleString()}
                 </span>
-                <span className="text-stone-600">만원</span>
-                <button className="px-3 py-1 bg-stone-300 text-stone-700 rounded text-sm">수정</button>
+                <span className="text-stone-600 text-lg">만원</span>
+                <button className="px-4 py-1.5 rounded-md text-sm font-medium" style={{ backgroundColor: '#d4c5a9', color: '#6b5d47' }}>
+                  수정
+                </button>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-stone-600">미수금 전환 추가:</span>
-                <button className="px-3 py-1 bg-stone-200 text-stone-700 rounded text-sm">+ 추가</button>
-                <span className="text-yellow-600 font-bold">{achievementRate.toFixed(0)}% 달성</span>
-                <span className="text-red-500">({(stats.totalIncentive - goalAmount).toLocaleString()}만원 남음)</span>
+                <button className="px-4 py-1.5 rounded-md text-sm font-medium bg-stone-300 text-stone-700">
+                  + 추가
+                </button>
+                <span className="font-bold text-lg" style={{ color: '#b8860b' }}>
+                  {achievementRate.toFixed(0)}% 달성
+                </span>
+                <span className="text-red-600 font-medium">
+                  ({remaining > 0 ? remaining.toLocaleString() : '0'}만원 남음)
+                </span>
               </div>
             </div>
-            <div className="w-full bg-stone-300 rounded-full h-3">
+            <div className="w-full rounded-full h-4" style={{ backgroundColor: '#d4c5a9' }}>
               <div
-                className="bg-yellow-600 h-3 rounded-full transition-all"
-                style={{ width: `${Math.min(achievementRate, 100)}%` }}
+                className="h-4 rounded-full transition-all"
+                style={{
+                  width: `${Math.min(achievementRate, 100)}%`,
+                  backgroundColor: '#b8860b'
+                }}
               />
             </div>
           </div>
@@ -249,50 +273,66 @@ export default function SettlementsPage() {
         {/* 통계 카드 */}
         {settlements.length > 0 && (
           <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
-              <div className="text-sm text-stone-600 mb-1">총 실매출액</div>
-              <div className="text-3xl font-bold text-stone-800 mb-1">
-                {stats.totalSalary.toLocaleString()}<span className="text-lg ml-1">만원</span>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+              <div className="text-sm text-stone-500 mb-2">총 실매출액</div>
+              <div className="text-4xl font-bold mb-1" style={{ color: '#8b7355' }}>
+                {stats.totalCommission.toLocaleString()}<span className="text-xl ml-1">만원</span>
               </div>
-              <div className="text-xs text-stone-500">{settlements.length}건 입사</div>
+              <div className="text-xs text-stone-400">{settlements.length}건 입사</div>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
-              <div className="text-sm text-stone-600 mb-1">개인 매출액(만)</div>
-              <div className="text-3xl font-bold text-blue-600 mb-1">
-                {stats.totalCommission.toLocaleString()}<span className="text-lg ml-1">만원</span>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+              <div className="text-sm text-stone-500 mb-2">개인 매출액</div>
+              <div className="text-4xl font-bold mb-1" style={{ color: '#4a7c9e' }}>
+                {stats.totalPersonalCommission.toLocaleString()}<span className="text-xl ml-1">만원</span>
               </div>
-              <div className="text-xs text-stone-500">실매출 × 1/2</div>
+              <div className="text-xs text-stone-400">실매출 × 1/2</div>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
-              <div className="text-sm text-stone-600 mb-1">총 인센티브 (실수령)</div>
-              <div className="text-3xl font-bold text-green-600 mb-1">
-                {stats.totalIncentive.toLocaleString()}<span className="text-lg ml-1">만원</span>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+              <div className="text-sm text-stone-500 mb-2">총 인센티브 (실수령)</div>
+              <div className="text-4xl font-bold mb-1" style={{ color: '#6b9e4a' }}>
+                {stats.totalIncentive.toLocaleString()}<span className="text-xl ml-1">만원</span>
               </div>
-              <div className="text-xs text-stone-500">세전 {stats.totalCommission.toLocaleString()} × 세율 {avgCommissionRate.toFixed(2)}</div>
+              <div className="text-xs text-stone-400">
+                세전 {stats.totalPersonalCommission.toLocaleString()} × 세율 {avgCommissionRate.toFixed(2)}
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
-              <div className="text-sm text-stone-600 mb-1">평균 수수료율</div>
-              <div className="text-3xl font-bold text-stone-800 mb-1">{avgCommissionRate.toFixed(1)}%</div>
-              <div className="text-xs text-stone-500">전체 평균</div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+              <div className="text-sm text-stone-500 mb-2">평균 수수료율</div>
+              <div className="text-4xl font-bold mb-1 text-stone-800">
+                {avgCommissionRate.toFixed(1)}<span className="text-2xl">%</span>
+              </div>
+              <div className="text-xs text-stone-400">전체 평균</div>
             </div>
           </div>
         )}
 
+        {/* 정산 내역 */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-stone-800">정산 내역</h2>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-6 py-2.5 rounded-xl text-white font-semibold shadow-md hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: '#b8860b' }}
+          >
+            + 정산 추가
+          </button>
+        </div>
+
         {/* 등록 폼 */}
         {showForm && (
-          <div className="bg-white rounded-lg p-6 mb-6 border border-stone-200">
-            <h2 className="text-xl font-bold mb-4">{editingId ? '정산 수정' : '정산 등록'}</h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl p-6 mb-6 shadow-md border border-stone-200">
+            <h3 className="text-lg font-bold mb-4">{editingId ? '정산 수정' : '정산 등록'}</h3>
+            <form onSubmit={handleSubmit} className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">후보자 이름 *</label>
+                <label className="block text-sm font-medium text-stone-700 mb-1">합격자 *</label>
                 <input
                   type="text"
                   value={formData.candidate_name}
                   onChange={(e) => setFormData({ ...formData, candidate_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                   required
                 />
               </div>
@@ -302,7 +342,7 @@ export default function SettlementsPage() {
                   type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                   required
                 />
               </div>
@@ -312,8 +352,7 @@ export default function SettlementsPage() {
                   type="number"
                   value={formData.salary}
                   onChange={(e) => setFormData({ ...formData, salary: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  min="0"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                   required
                 />
               </div>
@@ -323,19 +362,17 @@ export default function SettlementsPage() {
                   type="number"
                   value={formData.commission_rate}
                   onChange={(e) => setFormData({ ...formData, commission_rate: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  min="0"
-                  max="100"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                   step="0.1"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">채용사</label>
+                <label className="block text-sm font-medium text-stone-700 mb-1">고과사</label>
                 <input
                   type="text"
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                 />
               </div>
               <div>
@@ -344,34 +381,14 @@ export default function SettlementsPage() {
                   type="text"
                   value={formData.position}
                   onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-yellow-600 focus:border-transparent"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">인센티브율%</label>
-                <input
-                  type="number"
-                  value={formData.incentive_rate}
-                  onChange={(e) => setFormData({ ...formData, incentive_rate: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  min="0"
-                  max="100"
-                  step="0.1"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-1">메모</label>
-                <textarea
-                  value={formData.memo}
-                  onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-                  className="w-full px-3 py-2 border border-stone-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  rows={2}
-                />
-              </div>
-              <div className="col-span-2 flex gap-2">
+              <div className="col-span-3 flex gap-2 mt-2">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-yellow-600 text-white rounded font-medium hover:bg-yellow-700"
+                  className="px-6 py-2 text-white rounded-lg font-medium"
+                  style={{ backgroundColor: '#b8860b' }}
                 >
                   {editingId ? '수정' : '등록'}
                 </button>
@@ -382,7 +399,7 @@ export default function SettlementsPage() {
                     setEditingId(null)
                     resetForm()
                   }}
-                  className="px-6 py-2 bg-stone-300 text-stone-700 rounded font-medium hover:bg-stone-400"
+                  className="px-6 py-2 bg-stone-300 text-stone-700 rounded-lg font-medium"
                 >
                   취소
                 </button>
@@ -391,12 +408,8 @@ export default function SettlementsPage() {
           </div>
         )}
 
-        {/* 정산 내역 테이블 */}
-        <div className="bg-white rounded-lg overflow-hidden border border-stone-200">
-          <div className="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-stone-800">정산 내역</h2>
-          </div>
-
+        {/* 테이블 */}
+        <div className="bg-white rounded-xl overflow-hidden shadow-md border border-stone-200">
           {loading ? (
             <div className="p-12 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-600 border-t-transparent"></div>
@@ -408,63 +421,69 @@ export default function SettlementsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-stone-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium text-stone-700">No</th>
-                    <th className="px-4 py-3 text-left font-medium text-stone-700">합격자</th>
-                    <th className="px-4 py-3 text-left font-medium text-stone-700">입사일</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">연봉(만)</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">수수료율%</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">실매출액(만)</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">개인매출액(만)</th>
-                    <th className="px-4 py-3 text-center font-medium text-stone-700">누적 개인매출</th>
-                    <th className="px-4 py-3 text-center font-medium text-stone-700">요율</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">인센티브(만)</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">세금</th>
-                    <th className="px-4 py-3 text-right font-medium text-stone-700">실수령(만)</th>
-                    <th className="px-4 py-3 text-center font-medium text-stone-700">고과사</th>
-                    <th className="px-4 py-3 text-center font-medium text-stone-700">포지션</th>
-                    <th className="px-4 py-3 text-center font-medium text-stone-700">요율</th>
+                <thead>
+                  <tr style={{ backgroundColor: '#f9f6f0' }}>
+                    <th className="px-4 py-3 text-left font-semibold text-stone-600">No</th>
+                    <th className="px-4 py-3 text-left font-semibold text-stone-600">합격자</th>
+                    <th className="px-4 py-3 text-left font-semibold text-stone-600">입사일</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">연봉(만)</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">수수료율%</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">실매출액(만)</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">개인매출액(만)</th>
+                    <th className="px-4 py-3 text-center font-semibold text-stone-600">누적 개인매출</th>
+                    <th className="px-4 py-3 text-center font-semibold text-stone-600">요율</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">인센티브(만)</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">세금(3.3%)</th>
+                    <th className="px-4 py-3 text-right font-semibold text-stone-600">실수령(만)</th>
+                    <th className="px-4 py-3 text-center font-semibold text-stone-600">고과사</th>
+                    <th className="px-4 py-3 text-center font-semibold text-stone-600">포지션</th>
+                    <th className="px-4 py-3 text-center font-semibold text-stone-600">요율</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody>
                   {settlements.map((s, idx) => {
                     const commission = calculateCommission(s.salary, s.commission_rate)
-                    const personalCommission = commission / 2
-                    const incentive = calculateIncentive(s.salary, s.commission_rate, s.incentive_rate, s.personal_override)
-                    const tax = commission - incentive
+                    const personalCommission = calculatePersonalCommission(commission)
+                    const incentive = calculateIncentive(personalCommission, s.incentive_rate)
+                    const tax = calculateTax(personalCommission, incentive, 3.3)
+                    const netIncome = calculateNetIncome(incentive, tax)
+
+                    const cumulativeCommission = settlements
+                      .slice(0, idx + 1)
+                      .reduce((sum, item) => sum + calculatePersonalCommission(calculateCommission(item.salary, item.commission_rate)), 0)
 
                     return (
-                      <tr key={s.id} className="hover:bg-stone-50">
+                      <tr key={s.id} className="border-t border-stone-100 hover:bg-stone-50">
                         <td className="px-4 py-3 text-stone-600">{idx + 1}</td>
                         <td className="px-4 py-3">
                           <button
                             onClick={() => startEdit(s)}
-                            className="text-blue-600 hover:underline font-medium"
+                            className="font-medium hover:underline"
+                            style={{ color: '#4a7c9e' }}
                           >
                             {s.candidate_name}
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-stone-700">{s.start_date}</td>
-                        <td className="px-4 py-3 text-right font-medium">{s.salary.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right">{s.commission_rate}</td>
-                        <td className="px-4 py-3 text-right font-bold text-yellow-700">{commission.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right font-bold text-blue-600">{personalCommission.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-center text-stone-600">-</td>
+                        <td className="px-4 py-3 text-stone-700">{formatDate(s.start_date)}</td>
+                        <td className="px-4 py-3 text-right font-medium text-stone-800">{s.salary.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-stone-700">{s.commission_rate}</td>
+                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#b8860b' }}>{commission.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#4a7c9e' }}>{personalCommission.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-center font-medium text-stone-700">{cumulativeCommission.toLocaleString()}</td>
                         <td className="px-4 py-3 text-center">
-                          <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
+                          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
                             {s.incentive_rate}%
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right font-bold text-green-600">{incentive.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right font-bold" style={{ color: '#6b9e4a' }}>{incentive.toLocaleString()}</td>
                         <td className="px-4 py-3 text-right text-stone-600">{tax.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-bold text-green-700">{incentive.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right font-bold text-stone-800">{netIncome.toLocaleString()}</td>
                         <td className="px-4 py-3 text-center text-stone-700">{s.company || '-'}</td>
                         <td className="px-4 py-3 text-center text-stone-700">{s.position || '-'}</td>
                         <td className="px-4 py-3 text-center">
                           <button
                             onClick={() => handleDelete(s.id)}
-                            className="text-red-500 hover:text-red-700 text-xl"
+                            className="text-stone-400 hover:text-red-500 text-xl font-bold"
                           >
                             ×
                           </button>
