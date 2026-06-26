@@ -25,6 +25,7 @@ export default function SettlementsPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [years, setYears] = useState([new Date().getFullYear()])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [goalAmount] = useState(5000)
   const [formData, setFormData] = useState({
@@ -166,8 +167,6 @@ export default function SettlementsPage() {
   const calculateCommission = (salary: number, rate: number) => f(salary * (rate / 100))
   const calculatePersonalCommission = (commission: number) => f(commission / 2)
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
-
   const stats = (() => {
     let totalSales = 0, totalPersonal = 0, totalIncentive = 0, totalTax = 0, totalNet = 0, rateSum = 0, rateCount = 0
     let cumPersonal = 0
@@ -235,6 +234,11 @@ export default function SettlementsPage() {
             </button>
           ))}
           <button
+            onClick={() => {
+              const maxYear = Math.max(...years)
+              const nextYear = maxYear + 1
+              setYears(prev => [...prev, nextYear])
+            }}
             style={{
               padding: '8px 14px',
               borderRadius: '8px',
