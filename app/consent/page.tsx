@@ -10,7 +10,7 @@ function ConsentPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER' | null>(null)
+  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER'>('INDIVIDUAL')
   const [consents, setConsents] = useState({
     privacyRequired: false,
     headhunterSharing: false,
@@ -43,12 +43,6 @@ function ConsentPageContent() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
-    // 사용자 유형 선택 확인
-    if (!userType) {
-      setError('사용자 유형을 선택해주세요.')
-      return
-    }
 
     if (!consents.privacyRequired) {
       setError('필수 개인정보 수집·이용에 동의해주세요.')
@@ -109,6 +103,66 @@ function ConsentPageContent() {
           <p className="subtitle">
             JOBIZIC 서비스 이용을 위해 아래 내용을 확인하고 동의해주세요
           </p>
+
+          {/* 헤드헌터 전환 링크 */}
+          {userType === 'INDIVIDUAL' && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px 16px',
+              background: '#f9fafb',
+              borderRadius: '8px',
+              textAlign: 'center',
+              fontSize: '14px'
+            }}>
+              <span style={{ color: '#6b7280' }}>헤드헌터이신가요?</span>{' '}
+              <button
+                type="button"
+                onClick={() => setUserType('HEADHUNTER')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3b82f6',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontSize: '14px'
+                }}
+              >
+                헤드헌터로 가입하기 →
+              </button>
+            </div>
+          )}
+
+          {userType === 'HEADHUNTER' && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px 16px',
+              background: '#fef2f2',
+              borderRadius: '8px',
+              textAlign: 'center',
+              fontSize: '14px'
+            }}>
+              <span style={{ color: '#991b1b', fontWeight: 600 }}>💼 헤드헌터 회원가입</span>
+              <span style={{ color: '#7f1d1d', marginLeft: '8px' }}>
+                후보자 개인정보 처리 책임을 부담합니다.
+              </span>
+              <button
+                type="button"
+                onClick={() => setUserType('INDIVIDUAL')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3b82f6',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  marginLeft: '12px'
+                }}
+              >
+                ← 개인 구직자로 돌아가기
+              </button>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -119,79 +173,6 @@ function ConsentPageContent() {
         )}
 
         <form onSubmit={handleSubmit} className="consent-form">
-          {/* 사용자 유형 선택 - 항상 표시 */}
-          {!userType && (
-            <div className="consent-section">
-            <div className="section-header required">
-              <h2>사용자 유형 선택</h2>
-              <span className="required-badge">필수</span>
-            </div>
-
-            <div className="user-type-selection" style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
-              <label style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                padding: '16px',
-                border: userType === 'INDIVIDUAL' ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                background: userType === 'INDIVIDUAL' ? '#eff6ff' : '#ffffff',
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="INDIVIDUAL"
-                  checked={userType === 'INDIVIDUAL'}
-                  onChange={() => setUserType('INDIVIDUAL')}
-                  style={{ marginTop: '4px', cursor: 'pointer' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
-                    🎯 개인 구직자
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-                    내 이력서를 분석하고 취업/이직을 준비합니다.
-                    <br />
-                    헤드헌터 추천 서비스를 선택적으로 이용할 수 있습니다.
-                  </div>
-                </div>
-              </label>
-
-              <label style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-                padding: '16px',
-                border: userType === 'HEADHUNTER' ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                background: userType === 'HEADHUNTER' ? '#eff6ff' : '#ffffff',
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="HEADHUNTER"
-                  checked={userType === 'HEADHUNTER'}
-                  onChange={() => setUserType('HEADHUNTER')}
-                  style={{ marginTop: '4px', cursor: 'pointer' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
-                    💼 헤드헌터
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-                    후보자 이력서를 분석하고 클라이언트에게 제안합니다.
-                    <br />
-                    <strong style={{ color: '#ef4444' }}>후보자 개인정보 처리 책임을 부담합니다.</strong>
-                  </div>
-                </div>
-              </label>
-            </div>
-          </div>
-          )}
 
           {/* 필수 동의 - userType 선택 후 표시 */}
           {userType && (
