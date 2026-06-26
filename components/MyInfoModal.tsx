@@ -48,7 +48,14 @@ export default function MyInfoButton() {
   // 모달 열릴 때 스크롤 맨 위로
   useEffect(() => {
     if (open && modalContentRef.current) {
+      // 즉시 실행
       modalContentRef.current.scrollTop = 0
+      // 렌더링 후에도 한번 더 실행
+      setTimeout(() => {
+        if (modalContentRef.current) {
+          modalContentRef.current.scrollTop = 0
+        }
+      }, 0)
     }
   }, [open])
 
