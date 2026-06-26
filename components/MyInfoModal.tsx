@@ -132,12 +132,11 @@ export default function MyInfoButton() {
             inset: 0,
             background: 'rgba(0, 0, 0, 0.6)',
             display: 'flex',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'center',
             zIndex: 999999,
-            padding: '40px 20px',
-            backdropFilter: 'blur(4px)',
-            overflowY: 'auto'
+            padding: '20px',
+            backdropFilter: 'blur(4px)'
           }}
           onClick={() => setOpen(false)}
         >
@@ -148,7 +147,7 @@ export default function MyInfoButton() {
               borderRadius: 20,
               maxWidth: 600,
               width: '100%',
-              maxHeight: 'calc(100vh - 80px)',
+              maxHeight: '80vh',
               overflow: 'auto',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
             }}
