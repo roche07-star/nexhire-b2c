@@ -10,11 +10,7 @@ function ConsentPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // URL에서 type 파라미터 확인
-  const typeParam = searchParams.get('type')
-  const initialUserType = typeParam === 'headhunter' ? 'HEADHUNTER' : 'INDIVIDUAL'
-
-  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER'>(initialUserType)
+  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER' | null>(null)
   const [consents, setConsents] = useState({
     privacyRequired: false,
     headhunterSharing: false,
@@ -47,6 +43,11 @@ function ConsentPageContent() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!userType) {
+      setError('사용자 유형을 선택해주세요.')
+      return
+    }
 
     if (!consents.privacyRequired) {
       setError('필수 개인정보 수집·이용에 동의해주세요.')
@@ -103,39 +104,17 @@ function ConsentPageContent() {
       <div className="consent-container">
         <div className="consent-header">
           <div className="logo">JOBIZIC</div>
-          <h1>{userType === 'HEADHUNTER' ? '헤드헌터 회원가입' : '개인정보 수집·이용 동의'}</h1>
+          <h1>
+            {!userType ? '환영합니다!' :
+             userType === 'HEADHUNTER' ? '헤드헌터 회원가입' : '개인정보 수집·이용 동의'}
+          </h1>
           <p className="subtitle">
-            {userType === 'HEADHUNTER'
+            {!userType ? 'JOBIZIC을 어떻게 사용하실 계획인가요?' :
+             userType === 'HEADHUNTER'
               ? '후보자 개인정보 처리 책임을 부담하는 헤드헌터 회원가입입니다'
               : 'JOBIZIC 서비스 이용을 위해 아래 내용을 확인하고 동의해주세요'
             }
           </p>
-
-          {/* 헤드헌터 화면 안내 */}
-          {userType === 'HEADHUNTER' && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px 16px',
-              background: '#fef2f2',
-              borderRadius: '8px',
-              textAlign: 'center',
-              fontSize: '14px'
-            }}>
-              <span style={{ color: '#991b1b', fontWeight: 600 }}>⚠️ 후보자 개인정보 처리 책임 동의 필수</span>
-              <a
-                href={`/consent${searchParams.get('callbackUrl') ? `?callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl')!)}` : ''}`}
-                style={{
-                  color: '#3b82f6',
-                  fontWeight: 500,
-                  fontSize: '13px',
-                  marginLeft: '12px',
-                  textDecoration: 'none'
-                }}
-              >
-                ← 개인 구직자로 돌아가기
-              </a>
-            </div>
-          )}
         </div>
 
         {error && (
@@ -146,6 +125,72 @@ function ConsentPageContent() {
         )}
 
         <form onSubmit={handleSubmit} className="consent-form">
+          {/* 사용자 유형 선택 */}
+          {!userType && (
+            <div className="user-type-form">
+              <div className="user-type-cards">
+                {/* 개인 구직자 */}
+                <button
+                  type="button"
+                  onClick={() => setUserType('INDIVIDUAL')}
+                  className="user-type-card"
+                >
+                  <div className="card-header">
+                    <span className="card-icon">🎯</span>
+                    <div>
+                      <h3 className="card-title">개인 구직자</h3>
+                      <p className="card-subtitle">내 이력서 분석 & 취업 준비</p>
+                    </div>
+                  </div>
+
+                  <ul className="card-features">
+                    <li>✓ 내 이력서 강점/약점 분석</li>
+                    <li>✓ 채용공고 적합도 자동 매칭</li>
+                    <li>✓ 면접 준비 & 자소서 가이드</li>
+                    <li>✓ 추천 커리어 경로 제시</li>
+                  </ul>
+                </button>
+
+                {/* 헤드헌터 */}
+                <button
+                  type="button"
+                  onClick={() => setUserType('HEADHUNTER')}
+                  className="user-type-card"
+                >
+                  <div className="card-header">
+                    <span className="card-icon">💼</span>
+                    <div>
+                      <h3 className="card-title">헤드헌터</h3>
+                      <p className="card-subtitle">후보자 분석 & 클라이언트 제안</p>
+                    </div>
+                  </div>
+
+                  <ul className="card-features">
+                    <li>✓ 후보자 이력서 대량 분석</li>
+                    <li>✓ JD 매칭 & 클라이언트 리포트</li>
+                    <li>✓ 분석 결과 공유 & 프레젠테이션</li>
+                    <li>✓ Eve (B2B 플랫폼) 연동</li>
+                  </ul>
+
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '8px 12px',
+                    background: '#fef2f2',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    color: '#991b1b',
+                    fontWeight: 500
+                  }}>
+                    ⚠️ 후보자 개인정보 처리 책임 부담
+                  </div>
+                </button>
+              </div>
+
+              <p className="user-type-help">
+                💡 선택하시면 동의 화면으로 이동합니다
+              </p>
+            </div>
+          )}
 
           {/* 필수 동의 - 개인 구직자용 */}
           {userType === 'INDIVIDUAL' && (
