@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       success: true,
       email,
       userType,
-      message: `${email}을(를) ${userType === 'INDIVIDUAL' ? '개인 구직자' : '헤드헌터'}로 변경했습니다.`,
+      message: `${email}을(를) ${userType === 'JOBSEEKER' ? '구직자' : '헤드헌터'}로 변경했습니다.`,
     })
   } catch (e) {
     console.error('[admin/user-type] Error:', e)
