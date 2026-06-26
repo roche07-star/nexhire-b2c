@@ -173,7 +173,7 @@ function ConsentPageContent() {
 
                   <ul className="card-features">
                     <li>✓ 개인 구직자 모든 기능</li>
-                    <li>✓ 후보자 대량 분석</li>
+                    <li>✓ 엑셀 업로드 대량 분석</li>
                     <li>✓ 클라이언트 리포트 생성</li>
                     <li>✓ 채용 프로세스 관리</li>
                   </ul>
