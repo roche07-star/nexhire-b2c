@@ -14,6 +14,8 @@ interface User {
   interview_count: number
   monthly_reset_at: string | null
   created_at: string
+  headhunter_sharing_enabled: boolean | null
+  headhunter_sharing_consented_at: string | null
 }
 
 interface Coupon {
@@ -49,6 +51,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [loading, setLoading] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
+  const [showOnlyHeadhunterSharing, setShowOnlyHeadhunterSharing] = useState(false)
 
   // coupon state
   const [coupons, setCoupons] = useState<Coupon[] | null>(null)
@@ -178,6 +181,32 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     setLoading(null)
   }
 
+  async function toggleHeadhunterSharing(email: string, currentValue: boolean) {
+    const newValue = !currentValue
+
+    if (!newValue && !confirm(`${email}의 헤드헌터 공유를 중단하시겠습니까?\n\nEve에 공유된 정보가 삭제됩니다.`)) {
+      return
+    }
+
+    setLoading(email + 'headhunter')
+    const res = await fetch('/api/admin/headhunter-sharing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, enabled: newValue }),
+    })
+    if (res.ok) {
+      setUsers((prev) => prev.map((u) => u.email === email
+        ? { ...u, headhunter_sharing_enabled: newValue, headhunter_sharing_consented_at: newValue ? new Date().toISOString() : null }
+        : u
+      ))
+      showMsg(`${email} 헤드헌터 공유 ${newValue ? '활성화' : '비활성화'} 완료`)
+    } else {
+      const data = await res.json()
+      alert(data.error || '변경 실패')
+    }
+    setLoading(null)
+  }
+
   async function loadCoupons() {
     if (coupons !== null) return
     setCouponLoading(true)
@@ -257,12 +286,17 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     )
   }
 
+  const filteredUsers = showOnlyHeadhunterSharing
+    ? users.filter((u) => u.headhunter_sharing_enabled === true)
+    : users
+
   const total = users.length
   const expertCount = users.filter((u) => u.plan === 'EXPERT').length
   const proCount = users.filter((u) => u.plan === 'PRO').length
   const individualCount = users.filter((u) => u.user_type === 'INDIVIDUAL').length
   const headhunterCount = users.filter((u) => u.user_type === 'HEADHUNTER').length
   const noTypeCount = users.filter((u) => !u.user_type).length
+  const headhunterSharingCount = users.filter((u) => u.headhunter_sharing_enabled === true).length
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
   const totalJd = users.reduce((s, u) => s + (u.jd_count ?? 0), 0)
   const totalRewrite = users.reduce((s, u) => s + (u.rewrite_count ?? 0), 0)
@@ -307,6 +341,10 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                 <div className="admin-stat-value">{noTypeCount}<span>명</span></div>
               </div>
               <div className="admin-stat-card">
+                <div className="admin-stat-label">🤝 헤드헌터 공유</div>
+                <div className="admin-stat-value">{headhunterSharingCount}<span>명</span></div>
+              </div>
+              <div className="admin-stat-card">
                 <div className="admin-stat-label">EXPERT 플랜</div>
                 <div className="admin-stat-value">{expertCount}<span>명</span></div>
               </div>
@@ -341,6 +379,17 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
             </div>
 
             {/* 유저 목록 */}
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+                <input
+                  type="checkbox"
+                  checked={showOnlyHeadhunterSharing}
+                  onChange={(e) => setShowOnlyHeadhunterSharing(e.target.checked)}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                🤝 헤드헌터 공유 동의한 후보자만 보기 ({headhunterSharingCount}명)
+              </label>
+            </div>
             <div className="admin-table-wrap">
               <table className="admin-table">
                 <thead>
@@ -356,12 +405,13 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                     <th>가입일</th>
                     <th>플랜 변경</th>
                     <th>유형 변경</th>
+                    <th>헤드헌터 공유</th>
                     <th>초기화</th>
                     <th>삭제</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <tr key={u.email}>
                       <td>
                         <div className="admin-user-cell">
@@ -430,6 +480,47 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                         </div>
                       </td>
                       <td>
+                        {u.user_type === 'INDIVIDUAL' ? (
+                          <label style={{
+                            position: 'relative',
+                            display: 'inline-block',
+                            width: 54,
+                            height: 28,
+                            cursor: loading === u.email + 'headhunter' ? 'not-allowed' : 'pointer'
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={u.headhunter_sharing_enabled ?? false}
+                              onChange={() => toggleHeadhunterSharing(u.email, u.headhunter_sharing_enabled ?? false)}
+                              disabled={loading === u.email + 'headhunter'}
+                              style={{ opacity: 0, width: 0, height: 0 }}
+                            />
+                            <span style={{
+                              position: 'absolute',
+                              cursor: loading === u.email + 'headhunter' ? 'not-allowed' : 'pointer',
+                              inset: 0,
+                              background: u.headhunter_sharing_enabled ? '#18181b' : '#d4d4d8',
+                              transition: 'background 0.3s',
+                              borderRadius: 28
+                            }}>
+                              <span style={{
+                                position: 'absolute',
+                                height: 22,
+                                width: 22,
+                                left: u.headhunter_sharing_enabled ? 29 : 3,
+                                bottom: 3,
+                                background: '#ffffff',
+                                transition: 'left 0.3s',
+                                borderRadius: '50%',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                              }} />
+                            </span>
+                          </label>
+                        ) : (
+                          <span style={{ fontSize: 13, color: '#999' }}>—</span>
+                        )}
+                      </td>
+                      <td>
                         <button
                           className="admin-btn reset"
                           disabled={
@@ -455,8 +546,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       </td>
                     </tr>
                   ))}
-                  {users.length === 0 && (
-                    <tr><td colSpan={13} className="admin-empty">가입한 유저가 없습니다.</td></tr>
+                  {filteredUsers.length === 0 && (
+                    <tr><td colSpan={14} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
                   )}
                 </tbody>
               </table>
