@@ -219,6 +219,28 @@ export default function SettlementsPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8', padding: '24px' }}>
       <div className="mx-auto" style={{ maxWidth: '1600px' }}>
+        {/* 뒤로가기 버튼 */}
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            onClick={() => router.push('/analyze')}
+            style={{
+              padding: '8px 16px',
+              background: '#e7e5e4',
+              color: '#1c1917',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            ← 뒤로가기
+          </button>
+        </div>
+
         {/* 연도 탭 */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
           {years.map((year) => (
