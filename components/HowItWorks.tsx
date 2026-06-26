@@ -13,7 +13,7 @@ const headhunterSteps = [
   { num: '02', icon: '🧠', title: 'AI 후보자 분석', desc: '💼 후보자 강점/약점/시장 가치를 점수화하고, 추천 포지션과 연봉 밴드를 도출합니다.' },
   { num: '03', icon: '📋', title: 'JD 매칭 분석', desc: '💼 클라이언트 JD를 입력하면 후보자 적합도를 분석하고 제안 전략을 자동 생성합니다.' },
   { num: '04', icon: '📊', title: '클라이언트 제안서 생성', desc: '💼 후보자 강점, JD 매칭, 예상 질문까지 포함된 제안서를 HTML/PDF로 다운로드합니다.' },
-  { num: '05', icon: '🤝', title: 'Eve 연동 (Pro 이상)', desc: '💼 B2B 플랫폼 Eve와 연동하여 후보자 관리, 파이프라인 추적, 팀 협업까지 한 곳에서.' },
+  { num: '05', icon: '🤝', title: '기업 플랫폼 연동 (Pro 이상)', desc: '💼 B2B 플랫폼과 연동하여 후보자 관리, 파이프라인 추적, 팀 협업까지 한 곳에서.' },
 ]
 
 export default function HowItWorks({ userType }: { userType?: UserType | null }) {
