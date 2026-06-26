@@ -27,7 +27,12 @@ export default function SettlementsPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [years, setYears] = useState([new Date().getFullYear()])
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [goalAmount] = useState(5000)
+  const [goalAmount, setGoalAmount] = useState(5000)
+  const [carryover, setCarryover] = useState(0)
+  const [editingGoal, setEditingGoal] = useState(false)
+  const [editingCarryover, setEditingCarryover] = useState(false)
+  const [tempGoal, setTempGoal] = useState('')
+  const [tempCarryover, setTempCarryover] = useState('')
   const [formData, setFormData] = useState({
     candidate_name: '',
     company: '',
@@ -196,8 +201,9 @@ export default function SettlementsPage() {
     return { totalSales: f(totalSales), totalPersonal: f(totalPersonal), totalIncentive: f(totalIncentive), totalTax: f(totalTax), totalNet: f(totalNet), avgRate: f(avgRate) }
   })()
 
-  const achievementRate = goalAmount > 0 ? Math.min(Math.round((stats.totalPersonal / goalAmount) * 100), 100) : 0
-  const remaining = Math.max(goalAmount - stats.totalPersonal, 0)
+  const threshold = goalAmount + carryover
+  const achievementRate = threshold > 0 ? Math.min(Math.round((stats.totalPersonal / threshold) * 100), 100) : 0
+  const remaining = Math.max(threshold - stats.totalPersonal, 0)
 
   if (status === 'loading' || !session) {
     return (
@@ -227,7 +233,7 @@ export default function SettlementsPage() {
                 fontWeight: 700,
                 fontSize: '14px',
                 background: selectedYear === year ? '#b8860b' : '#e7e5e4',
-                color: selectedYear === year ? '#fff' : '#78716c'
+                color: selectedYear === year ? '#1c1917' : '#78716c'
               }}
             >
               {year}년
@@ -259,12 +265,98 @@ export default function SettlementsPage() {
         {settlements.length > 0 && (
           <div style={{ background: '#e8e1d3', border: '1px solid #d6d3d1', borderRadius: '12px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '12px', color: '#b8860b', fontWeight: 700 }}>💡 전환액 (개인매출액 기준)</span>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, color: '#1c1917' }}>
-              {stats.totalPersonal.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 400 }}>만원</span>
-            </span>
-            <button style={{ fontSize: '11px', padding: '3px 10px', background: '#d4c5a9', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#6b5d47' }}>수정</button>
+            {editingGoal ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="number"
+                  autoFocus
+                  value={tempGoal}
+                  onChange={e => setTempGoal(e.target.value)}
+                  style={{ width: '100px', padding: '4px 8px', border: '1px solid #b8860b', borderRadius: '6px', fontSize: '13px' }}
+                />
+                <span style={{ fontSize: '12px', color: '#78716c' }}>만원</span>
+                <button
+                  onClick={() => {
+                    setGoalAmount(parseInt(tempGoal) || 0)
+                    setEditingGoal(false)
+                  }}
+                  style={{ fontSize: '11px', padding: '4px 12px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => setEditingGoal(false)}
+                  style={{ fontSize: '11px', padding: '4px 8px', background: '#e7e5e4', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
+              <>
+                <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, color: '#1c1917' }}>
+                  {goalAmount.toLocaleString()} <span style={{ fontSize: '13px', fontWeight: 400 }}>만원</span>
+                </span>
+                <button
+                  onClick={() => {
+                    setTempGoal(String(goalAmount))
+                    setEditingGoal(true)
+                  }}
+                  style={{ fontSize: '11px', padding: '3px 10px', background: '#d4c5a9', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#6b5d47' }}
+                >
+                  수정
+                </button>
+              </>
+            )}
             <span style={{ fontSize: '12px', color: '#78716c', marginLeft: '8px' }}>미수금 전환 추가:</span>
-            <button style={{ fontSize: '11px', padding: '3px 10px', background: '#f5f5f4', border: '1px solid #d6d3d1', borderRadius: '6px', cursor: 'pointer', color: '#a8a29e' }}>+ 추가</button>
+            {editingCarryover ? (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <input
+                  type="number"
+                  autoFocus
+                  value={tempCarryover}
+                  onChange={e => setTempCarryover(e.target.value)}
+                  placeholder="만원"
+                  style={{ width: '80px', padding: '4px 8px', border: '1px solid #3b82f6', borderRadius: '6px', fontSize: '12px' }}
+                />
+                <button
+                  onClick={() => {
+                    setCarryover(parseInt(tempCarryover) || 0)
+                    setEditingCarryover(false)
+                  }}
+                  style={{ fontSize: '11px', padding: '4px 10px', background: '#3b82f6', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingCarryover(false)
+                    setTempCarryover('')
+                  }}
+                  style={{ fontSize: '11px', padding: '4px 8px', background: '#e7e5e4', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  취소
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setTempCarryover(String(carryover || ''))
+                  setEditingCarryover(true)
+                }}
+                style={{
+                  fontSize: '11px',
+                  padding: '3px 10px',
+                  background: carryover > 0 ? '#dbeafe' : '#f5f5f4',
+                  border: `1px solid ${carryover > 0 ? '#3b82f6' : '#d6d3d1'}`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  color: carryover > 0 ? '#3b82f6' : '#a8a29e',
+                  fontWeight: carryover > 0 ? 700 : 400
+                }}
+              >
+                {carryover > 0 ? `${carryover.toLocaleString()}만원 ✎` : '+ 추가'}
+              </button>
+            )}
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ fontSize: '12px', color: '#78716c' }}>
                 {achievementRate}% 달성 {remaining > 0 && <span style={{ color: '#dc2626', marginLeft: '4px' }}>({remaining.toLocaleString()}만원 남음)</span>}
@@ -299,7 +391,7 @@ export default function SettlementsPage() {
           <div style={{ fontSize: '15px', fontWeight: 700 }}>정산 내역</div>
           <button
             onClick={() => setShowForm(p => !p)}
-            style={{ padding: '8px 20px', background: '#b8860b', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+            style={{ padding: '8px 20px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
           >
             {showForm ? '✕ 닫기' : '+ 정산 추가'}
           </button>
@@ -339,7 +431,7 @@ export default function SettlementsPage() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', gap: '8px' }}>
                 <button
                   type="submit"
-                  style={{ padding: '8px 28px', background: '#b8860b', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ padding: '8px 28px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {editingId ? '수정' : '등록'}
                 </button>
