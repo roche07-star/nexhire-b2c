@@ -10,7 +10,11 @@ function ConsentPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER'>('INDIVIDUAL')
+  // URL에서 type 파라미터 확인
+  const typeParam = searchParams.get('type')
+  const initialUserType = typeParam === 'headhunter' ? 'HEADHUNTER' : 'INDIVIDUAL'
+
+  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER'>(initialUserType)
   const [consents, setConsents] = useState({
     privacyRequired: false,
     headhunterSharing: false,
@@ -99,9 +103,12 @@ function ConsentPageContent() {
       <div className="consent-container">
         <div className="consent-header">
           <div className="logo">JOBIZIC</div>
-          <h1>개인정보 수집·이용 동의</h1>
+          <h1>{userType === 'HEADHUNTER' ? '헤드헌터 회원가입' : '개인정보 수집·이용 동의'}</h1>
           <p className="subtitle">
-            JOBIZIC 서비스 이용을 위해 아래 내용을 확인하고 동의해주세요
+            {userType === 'HEADHUNTER'
+              ? '후보자 개인정보 처리 책임을 부담하는 헤드헌터 회원가입입니다'
+              : 'JOBIZIC 서비스 이용을 위해 아래 내용을 확인하고 동의해주세요'
+            }
           </p>
 
           {/* 헤드헌터 전환 링크 */}
@@ -115,21 +122,17 @@ function ConsentPageContent() {
               fontSize: '14px'
             }}>
               <span style={{ color: '#6b7280' }}>헤드헌터이신가요?</span>{' '}
-              <button
-                type="button"
-                onClick={() => setUserType('HEADHUNTER')}
+              <a
+                href={`/consent?type=headhunter${searchParams.get('callbackUrl') ? `&callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl')!)}` : ''}`}
                 style={{
-                  background: 'none',
-                  border: 'none',
                   color: '#3b82f6',
                   fontWeight: 600,
-                  cursor: 'pointer',
                   textDecoration: 'underline',
                   fontSize: '14px'
                 }}
               >
                 헤드헌터로 가입하기 →
-              </button>
+              </a>
             </div>
           )}
 
@@ -142,25 +145,19 @@ function ConsentPageContent() {
               textAlign: 'center',
               fontSize: '14px'
             }}>
-              <span style={{ color: '#991b1b', fontWeight: 600 }}>💼 헤드헌터 회원가입</span>
-              <span style={{ color: '#7f1d1d', marginLeft: '8px' }}>
-                후보자 개인정보 처리 책임을 부담합니다.
-              </span>
-              <button
-                type="button"
-                onClick={() => setUserType('INDIVIDUAL')}
+              <span style={{ color: '#991b1b', fontWeight: 600 }}>⚠️ 후보자 개인정보 처리 책임 동의 필수</span>
+              <a
+                href={`/consent${searchParams.get('callbackUrl') ? `?callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl')!)}` : ''}`}
                 style={{
-                  background: 'none',
-                  border: 'none',
                   color: '#3b82f6',
                   fontWeight: 500,
-                  cursor: 'pointer',
                   fontSize: '13px',
-                  marginLeft: '12px'
+                  marginLeft: '12px',
+                  textDecoration: 'none'
                 }}
               >
                 ← 개인 구직자로 돌아가기
-              </button>
+              </a>
             </div>
           )}
         </div>
