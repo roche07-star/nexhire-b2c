@@ -93,6 +93,13 @@ export default function SettlementsClient() {
       return
     }
 
+    // 입사일의 연도가 선택된 연도와 일치하는지 확인
+    const startYear = new Date(formData.start_date).getFullYear()
+    if (startYear !== selectedYear) {
+      alert(`입사일의 연도(${startYear}년)가 선택된 연도(${selectedYear}년)와 일치하지 않습니다.\n입사일을 ${selectedYear}년으로 입력해주세요.`)
+      return
+    }
+
     try {
       const url = editingId ? `/api/settlements/${editingId}` : '/api/settlements'
       const method = editingId ? 'PATCH' : 'POST'
