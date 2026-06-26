@@ -510,21 +510,21 @@ export default function SettlementsClient() {
 
                     return (
                       <tr key={s.id} style={{ borderBottom: '1px solid #e7e5e4' }}>
-                        <td style={{ padding: '8px 10px', textAlign: 'center', color: '#a8a29e', fontSize: '11px' }}>{idx + 1}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center', color: '#1c1917', fontSize: '11px' }}>{idx + 1}</td>
                         <td style={{ padding: '6px 8px', minWidth: '90px' }}>
                           <button
                             onClick={() => startEdit(s)}
-                            style={{ minWidth: '82px', padding: '4px 7px', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '12px', background: '#fff', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                            style={{ minWidth: '82px', padding: '4px 7px', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '12px', background: '#f5f5f4', color: '#1c1917', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                           >
                             {s.candidate_name}
                           </button>
                         </td>
-                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{formatDate(s.start_date)}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600 }}>{s.salary.toLocaleString()}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'center' }}>{s.commission_rate}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center', color: '#1c1917' }}>{formatDate(s.start_date)}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#1c1917' }}>{s.salary.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center', color: '#1c1917' }}>{s.commission_rate}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#b8860b', fontWeight: 600 }}>{sales.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>{personal.toLocaleString()}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>{cumPersonal.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{cumPersonal.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                           <span style={{
                             fontSize: '11px',
@@ -532,21 +532,21 @@ export default function SettlementsClient() {
                             padding: '3px 10px',
                             borderRadius: '20px',
                             background: isConvRow ? '#dbeafe' : converted ? '#dcfce7' : '#fef3c7',
-                            color: isConvRow ? '#3b82f6' : converted ? '#22c55e' : '#b8860b',
+                            color: isConvRow ? '#1e40af' : converted ? '#15803d' : '#92400e',
                             border: `1px solid ${isConvRow ? '#93c5fd' : converted ? '#86efac' : '#e8d0a0'}`
                           }}>
                             {isConvRow ? '70%→100%' : `${ir}%`}
                           </span>
                         </td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#22c55e', fontWeight: 600 }}>{incentive.toLocaleString()}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#a8a29e' }}>{tax.toLocaleString()}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700 }}>{net.toLocaleString()}</td>
-                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.company || '-'}</td>
-                        <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.position || '-'}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#15803d', fontWeight: 600 }}>{incentive.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#1c1917' }}>{tax.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{net.toLocaleString()}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center', color: '#1c1917' }}>{s.company || '-'}</td>
+                        <td style={{ padding: '6px 8px', textAlign: 'center', color: '#1c1917' }}>{s.position || '-'}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'center' }}>
                           <button
                             onClick={() => handleDelete(s.id)}
-                            style={{ padding: '3px 7px', background: 'none', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '11px', color: '#a8a29e', cursor: 'pointer' }}
+                            style={{ padding: '3px 7px', background: 'none', border: '1px solid #d6d3d1', borderRadius: '5px', fontSize: '11px', color: '#dc2626', cursor: 'pointer' }}
                           >
                             ✕
                           </button>
