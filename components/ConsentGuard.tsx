@@ -37,6 +37,13 @@ export default function ConsentGuard({ children }: { children: React.ReactNode }
 
       // 로그인 상태에서 동의 여부 확인
       if (session?.user?.email) {
+        // MANAGER는 동의 절차 건너뛰기
+        if (session.user.role === 'MANAGER') {
+          setHasConsent(true)
+          setChecking(false)
+          return
+        }
+
         try {
           const res = await fetch('/api/consents/check')
 
