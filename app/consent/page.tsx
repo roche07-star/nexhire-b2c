@@ -460,15 +460,15 @@ function ConsentPageContent() {
                 <div style={{ display: 'grid', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>✅</span>
-                    <span>무료 커리어 상담</span>
+                    <span style={{ color: '#18181b' }}>무료 커리어 상담</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>✅</span>
-                    <span>숨은 포지션 추천</span>
+                    <span style={{ color: '#18181b' }}>숨은 포지션 추천</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>✅</span>
-                    <span>연봉 협상 지원</span>
+                    <span style={{ color: '#18181b' }}>연봉 협상 지원</span>
                   </div>
                 </div>
               </div>
