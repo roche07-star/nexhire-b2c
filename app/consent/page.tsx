@@ -172,9 +172,9 @@ function ConsentPageContent() {
                   </div>
 
                   <ul className="card-features">
-                    <li>✓ 후보자 이력서 대량 분석</li>
-                    <li>✓ JD 매칭 & 클라이언트 리포트</li>
-                    <li>✓ 분석 결과 공유 & 프레젠테이션</li>
+                    <li>✓ 개인 구직자 모든 기능</li>
+                    <li>✓ 후보자 대량 분석</li>
+                    <li>✓ 클라이언트 리포트 생성</li>
                     <li>✓ 채용 프로세스 관리</li>
                   </ul>
                 </button>
