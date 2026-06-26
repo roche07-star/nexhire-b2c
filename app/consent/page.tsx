@@ -175,20 +175,8 @@ function ConsentPageContent() {
                     <li>✓ 후보자 이력서 대량 분석</li>
                     <li>✓ JD 매칭 & 클라이언트 리포트</li>
                     <li>✓ 분석 결과 공유 & 프레젠테이션</li>
-                    <li>✓ 기업 플랫폼 연동</li>
+                    <li>✓ 채용 프로세스 관리</li>
                   </ul>
-
-                  <div style={{
-                    marginTop: '12px',
-                    padding: '8px 12px',
-                    background: '#fef2f2',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    color: '#991b1b',
-                    fontWeight: 500
-                  }}>
-                    ⚠️ 후보자 개인정보 처리 책임 부담
-                  </div>
                 </button>
               </div>
 
