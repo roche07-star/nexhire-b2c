@@ -3,6 +3,25 @@ import { supabase } from '@/lib/supabase'
 
 export const maxDuration = 30
 
+// CORS 헤더
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://jobizic-biz.vercel.app',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+  'Access-Control-Max-Age': '86400',
+}
+
+/**
+ * OPTIONS /api/audit/candidate-access
+ * CORS Preflight 요청 처리
+ */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: CORS_HEADERS,
+  })
+}
+
 /**
  * POST /api/audit/candidate-access
  * 헤드헌터의 후보자 정보 접근 로그 기록
@@ -15,7 +34,10 @@ export async function POST(req: NextRequest) {
     // API Key 검증 (Eve → Adam 호출)
     const apiKey = req.headers.get('x-api-key')
     if (apiKey !== process.env.EVE_TO_ADAM_API_KEY) {
-      return NextResponse.json({ error: '권한 없음' }, { status: 403 })
+      return NextResponse.json({ error: '권한 없음' }, {
+        status: 403,
+        headers: CORS_HEADERS
+      })
     }
 
     const {
@@ -29,7 +51,10 @@ export async function POST(req: NextRequest) {
     if (!headhunter_email || !candidate_email || !action) {
       return NextResponse.json({
         error: 'headhunter_email, candidate_email, action 필수'
-      }, { status: 400 })
+      }, {
+        status: 400,
+        headers: CORS_HEADERS
+      })
     }
 
     // 유효한 액션 타입 검증
@@ -37,7 +62,10 @@ export async function POST(req: NextRequest) {
     if (!validActions.includes(action)) {
       return NextResponse.json({
         error: `action은 ${validActions.join(', ')} 중 하나여야 합니다`
-      }, { status: 400 })
+      }, {
+        status: 400,
+        headers: CORS_HEADERS
+      })
     }
 
     // audit_logs에 기록
@@ -58,15 +86,23 @@ export async function POST(req: NextRequest) {
 
     if (auditError) {
       console.error('[audit/candidate-access] Insert error:', auditError)
-      return NextResponse.json({ error: '로그 기록 실패' }, { status: 500 })
+      return NextResponse.json({ error: '로그 기록 실패' }, {
+        status: 500,
+        headers: CORS_HEADERS
+      })
     }
 
     console.log(`[audit/candidate-access] ${headhunter_email} → ${candidate_email} (${action})`)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true }, {
+      headers: CORS_HEADERS
+    })
 
   } catch (e) {
     console.error('[audit/candidate-access] Unexpected error:', e)
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
+    return NextResponse.json({ error: '서버 오류' }, {
+      status: 500,
+      headers: CORS_HEADERS
+    })
   }
 }
