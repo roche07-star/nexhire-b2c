@@ -111,31 +111,7 @@ function ConsentPageContent() {
             }
           </p>
 
-          {/* 헤드헌터 전환 링크 */}
-          {userType === 'INDIVIDUAL' && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px 16px',
-              background: '#f9fafb',
-              borderRadius: '8px',
-              textAlign: 'center',
-              fontSize: '14px'
-            }}>
-              <span style={{ color: '#6b7280' }}>헤드헌터이신가요?</span>{' '}
-              <a
-                href={`/consent?type=headhunter${searchParams.get('callbackUrl') ? `&callbackUrl=${encodeURIComponent(searchParams.get('callbackUrl')!)}` : ''}`}
-                style={{
-                  color: '#3b82f6',
-                  fontWeight: 600,
-                  textDecoration: 'underline',
-                  fontSize: '14px'
-                }}
-              >
-                헤드헌터로 가입하기 →
-              </a>
-            </div>
-          )}
-
+          {/* 헤드헌터 화면 안내 */}
           {userType === 'HEADHUNTER' && (
             <div style={{
               marginTop: '16px',
@@ -171,8 +147,8 @@ function ConsentPageContent() {
 
         <form onSubmit={handleSubmit} className="consent-form">
 
-          {/* 필수 동의 - userType 선택 후 표시 */}
-          {userType && (
+          {/* 필수 동의 - 개인 구직자용 */}
+          {userType === 'INDIVIDUAL' && (
           <div className="consent-section">
             <div className="section-header required">
               <h2>개인정보 수집·이용 동의 (필수)</h2>
@@ -226,7 +202,69 @@ function ConsentPageContent() {
                 onChange={(e) => setConsents({ ...consents, privacyRequired: e.target.checked })}
                 required
               />
-              <div className="checkbox-text">
+              <div className="checkbox-text" style={{ color: '#18181b' }}>
+                위 개인정보 수집·이용에 동의합니다. <strong className="required-mark">(필수)</strong>
+              </div>
+            </label>
+          </div>
+          )}
+
+          {/* 필수 동의 - 헤드헌터용 */}
+          {userType === 'HEADHUNTER' && (
+          <div className="consent-section">
+            <div className="section-header required">
+              <h2>개인정보 수집·이용 동의 (필수)</h2>
+              <span className="required-badge">필수</span>
+            </div>
+
+            <div className="consent-content">
+              <div className="info-row">
+                <div className="info-label">수집·이용 목적</div>
+                <div className="info-value">
+                  회원 가입 및 관리, 본인 확인, 헤드헌터 서비스 제공,
+                  서비스 운영 관련 안내/고지
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-label">수집 항목</div>
+                <div className="info-value">
+                  <strong>이름, 이메일, 전화번호</strong>
+                  <div className="info-sub">
+                    ※ 헤드헌터 본인의 정보만 수집되며, 후보자 정보는 별도 처리됩니다.
+                  </div>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <div className="info-label">보유·이용 기간</div>
+                <div className="info-value">
+                  <p>회원 탈퇴 시까지 보유합니다.</p>
+                  <div className="info-sub">
+                    다만, 최종 서비스 이용일로부터 <strong>2년간 미이용 시</strong> 만료 30일 전 사전 안내 후
+                    분리보관 또는 파기하며, 관계 법령에 따라 별도의 보존 의무가 있는 경우
+                    해당 법령에서 정한 기간 동안 보관 후 파기합니다.
+                  </div>
+                </div>
+              </div>
+
+              <div className="consent-notice" style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+                <p className="notice-title" style={{ color: '#991b1b' }}>⚠️ 동의 거부권 안내</p>
+                <p className="notice-text" style={{ color: '#7f1d1d' }}>
+                  귀하는 위 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.
+                  다만 필수 항목에 대한 동의를 거부하실 경우 <strong>헤드헌터 회원 가입 및 서비스 이용이 제한</strong>될 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            <label className="consent-checkbox">
+              <input
+                type="checkbox"
+                checked={consents.privacyRequired}
+                onChange={(e) => setConsents({ ...consents, privacyRequired: e.target.checked })}
+                required
+              />
+              <div className="checkbox-text" style={{ color: '#18181b' }}>
                 위 개인정보 수집·이용에 동의합니다. <strong className="required-mark">(필수)</strong>
               </div>
             </label>
@@ -257,9 +295,9 @@ function ConsentPageContent() {
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                  <p style={{ marginBottom: '12px', fontWeight: 600 }}>다음 사항을 확인하고 동의합니다:</p>
+                  <p style={{ marginBottom: '12px', fontWeight: 600, color: '#18181b' }}>다음 사항을 확인하고 동의합니다:</p>
 
-                  <div style={{ display: 'grid', gap: '12px', fontSize: '14px', lineHeight: '1.8' }}>
+                  <div style={{ display: 'grid', gap: '12px', fontSize: '14px', lineHeight: '1.8', color: '#18181b' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <span>1️⃣</span>
                       <div>
@@ -347,7 +385,7 @@ function ConsentPageContent() {
                   onChange={(e) => setConsents({ ...consents, headhunterResponsibility: e.target.checked })}
                   required={userType === 'HEADHUNTER'}
                 />
-                <div className="checkbox-text">
+                <div className="checkbox-text" style={{ color: '#18181b' }}>
                   위 후보자 개인정보 처리 책임을 확인하고 동의합니다.
                   <strong className="required-mark" style={{ color: '#ef4444' }}> (필수)</strong>
                 </div>
@@ -470,7 +508,7 @@ function ConsentPageContent() {
                 checked={consents.headhunterSharing}
                 onChange={(e) => setConsents({ ...consents, headhunterSharing: e.target.checked })}
               />
-              <div className="checkbox-text">
+              <div className="checkbox-text" style={{ color: '#18181b' }}>
                 헤드헌터 추천 서비스 이용에 동의합니다. (선택)
               </div>
             </label>
