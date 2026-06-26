@@ -410,7 +410,7 @@ export default function SettlementsClient() {
 
         {/* 헤더 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <div style={{ fontSize: '15px', fontWeight: 700 }}>정산 내역</div>
+          <div style={{ fontSize: '15px', fontWeight: 700, color: '#1c1917' }}>정산 내역</div>
           <button
             onClick={() => setShowForm(p => !p)}
             style={{ padding: '8px 20px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
