@@ -8,6 +8,7 @@ import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
 import { VALIDATION_PROMPT, ValidationResult } from '@/lib/prompts/validation'
 import { invalidateCache } from '@/lib/cache'
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
@@ -211,6 +212,27 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, role } = session.user
+
+    // Rate limiting (MANAGER 제외)
+    if (role !== 'MANAGER') {
+      const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+      const rateLimitKey = `${email}:${ip}`
+      const limited = await checkRateLimit(rateLimitKey, RATE_LIMITS.ANALYZE)
+
+      if (!limited.success) {
+        return NextResponse.json(
+          { error: '너무 많은 요청입니다. 잠시 후 다시 시도하세요.' },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': String(RATE_LIMITS.ANALYZE.limit),
+              'X-RateLimit-Remaining': String(limited.remaining),
+              'X-RateLimit-Reset': String(limited.reset),
+            }
+          }
+        )
+      }
+    }
 
     // 쿠폰 체크 (MANAGER 제외)
     let resumeCouponId: string | null = null
