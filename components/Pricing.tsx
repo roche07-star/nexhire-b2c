@@ -72,7 +72,7 @@ export default function Pricing({ userType }: { userType?: UserType | null }) {
   const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
   const content = {
-    INDIVIDUAL: {
+    JOBSEEKER: {
       title: '합리적인 가격으로\n커리어를 설계하세요',
       sub: '첫 분석은 무료. 부담 없이 시작해보세요.',
     },

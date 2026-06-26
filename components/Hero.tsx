@@ -373,7 +373,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNTER' | null }) {
+export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTER' | null }) {
   const [showDemo, setShowDemo] = useState(false)
   const [heroTab, setHeroTab] = useState(0)
 
@@ -384,7 +384,7 @@ export default function Hero({ userType }: { userType?: 'INDIVIDUAL' | 'HEADHUNT
 
   // 개인/헤드헌터 맞춤 콘텐츠
   const content = {
-    INDIVIDUAL: {
+    JOBSEEKER: {
       badge: '재직 중 이직 준비 직장인을 위한 AI 커리어 코치',
       headline: (
         <>

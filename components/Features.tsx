@@ -37,7 +37,7 @@ import type { UserType } from '@/types/user'
 
 export default function Features({ userType }: { userType?: UserType | null }) {
   const content = {
-    INDIVIDUAL: {
+    JOBSEEKER: {
       title: '단순 분석이 아닌\n실행 가능한 인사이트',
       sub: '헤드헌터의 시각으로 이력서를 읽고, AI의 속도로 전략을 제시합니다.',
     },

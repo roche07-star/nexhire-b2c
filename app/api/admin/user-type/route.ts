@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '이메일을 입력해주세요.' }, { status: 400 })
     }
 
-    if (!userType || !['INDIVIDUAL', 'HEADHUNTER'].includes(userType)) {
+    if (!userType || !['JOBSEEKER', 'HEADHUNTER'].includes(userType)) {
       return NextResponse.json(
         { error: '올바른 사용자 유형을 선택해주세요.' },
         { status: 400 }

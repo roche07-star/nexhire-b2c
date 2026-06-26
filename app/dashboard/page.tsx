@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   }
 
   // 개인 구직자는 /analyze로 리다이렉트
-  if (userData.user_type === 'INDIVIDUAL') {
+  if (userData.user_type === 'JOBSEEKER') {
     redirect('/analyze')
   }
 

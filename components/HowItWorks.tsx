@@ -20,7 +20,7 @@ export default function HowItWorks({ userType }: { userType?: UserType | null })
   const steps = userType === 'HEADHUNTER' ? headhunterSteps : individualSteps
 
   const content = {
-    INDIVIDUAL: {
+    JOBSEEKER: {
       title: '5단계로\n서류부터 면접까지 준비됩니다',
       sub: '복잡한 설정 없이, 이력서 하나만 있으면 됩니다.',
     },

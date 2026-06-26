@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const { userType } = await req.json() as { userType: UserType }
 
     // 유효성 검증
-    if (!userType || !['INDIVIDUAL', 'HEADHUNTER'].includes(userType)) {
+    if (!userType || !['JOBSEEKER', 'HEADHUNTER'].includes(userType)) {
       return NextResponse.json(
         { error: '올바른 사용자 유형을 선택해주세요.' },
         { status: 400 }
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     if (existingUser?.user_type) {
       return NextResponse.json(
         {
-          error: `이미 ${existingUser.user_type === 'INDIVIDUAL' ? '개인 구직자' : '헤드헌터'}로 설정되어 있습니다.\n사용자 유형은 변경할 수 없습니다.`,
+          error: `이미 ${existingUser.user_type === 'JOBSEEKER' ? '구직자' : '헤드헌터'}로 설정되어 있습니다.\n사용자 유형은 변경할 수 없습니다.`,
         },
         { status: 409 } // Conflict
       )
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       .from('users')
       .update({
         user_type: userType,
-        service_type: userType === 'INDIVIDUAL' ? 'B2C' : 'B2B',
+        service_type: userType === 'JOBSEEKER' ? 'B2C' : 'B2B',
         user_type_selected_at: new Date().toISOString(),
       })
       .eq('email', session.user.email)
@@ -72,8 +72,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       userType,
-      message: userType === 'INDIVIDUAL'
-        ? '개인 구직자 모드로 설정되었습니다!'
+      message: userType === 'JOBSEEKER'
+        ? '구직자 모드로 설정되었습니다!'
         : '헤드헌터 모드로 설정되었습니다!',
     })
   } catch (e) {
