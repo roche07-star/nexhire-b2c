@@ -487,7 +487,7 @@ export default function SettlementsClient() {
               <thead>
                 <tr style={{ background: '#f5f5f4', borderBottom: '2px solid #d6d3d1' }}>
                   {['No', '합격자', '입사일', '연봉(만)', '수수료율%', '실매출액(만)', '개인매출액(만)', '누적 개인매출', '요율', '인센티브(만)', '세금(3.3%)', '실수령(만)', '고객사', '포지션', '요율'].map(h => (
-                    <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontSize: '10px', fontWeight: 700, color: '#78716c', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontSize: '10px', fontWeight: 700, color: '#1c1917', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
