@@ -413,7 +413,8 @@ function ConsentPageContent() {
                     background: '#f9fafb',
                     borderRadius: '8px',
                     fontSize: '13px',
-                    lineHeight: '1.8'
+                    lineHeight: '1.8',
+                    color: '#18181b'
                   }}>
                     <p style={{ fontWeight: 600, marginBottom: '8px' }}>관련 법령:</p>
                     <ul style={{ paddingLeft: '20px', margin: 0 }}>
