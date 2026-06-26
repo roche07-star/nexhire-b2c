@@ -10,11 +10,14 @@ function ConsentPageContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [userType, setUserType] = useState<'INDIVIDUAL' | 'HEADHUNTER' | null>(null)
   const [consents, setConsents] = useState({
     privacyRequired: false,
-    headhunterSharing: false
+    headhunterSharing: false,
+    headhunterResponsibility: false // 헤드헌터 전용
   })
   const [showHeadhunterDetails, setShowHeadhunterDetails] = useState(false)
+  const [showResponsibilityDetails, setShowResponsibilityDetails] = useState(false)
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
@@ -41,8 +44,20 @@ function ConsentPageContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
+    // 사용자 유형 선택 확인
+    if (!userType) {
+      setError('사용자 유형을 선택해주세요.')
+      return
+    }
+
     if (!consents.privacyRequired) {
       setError('필수 개인정보 수집·이용에 동의해주세요.')
+      return
+    }
+
+    // 헤드헌터의 경우 책임 동의 필수
+    if (userType === 'HEADHUNTER' && !consents.headhunterResponsibility) {
+      setError('후보자 개인정보 처리 책임 동의는 필수입니다.')
       return
     }
 
@@ -60,8 +75,10 @@ function ConsentPageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userType,
           privacyRequired: consents.privacyRequired,
-          headhunterSharing: consents.headhunterSharing,
+          headhunterSharing: userType === 'INDIVIDUAL' ? consents.headhunterSharing : false,
+          headhunterResponsibility: userType === 'HEADHUNTER' ? consents.headhunterResponsibility : false,
           phone: phone.trim() || null
         })
       })
@@ -102,7 +119,82 @@ function ConsentPageContent() {
         )}
 
         <form onSubmit={handleSubmit} className="consent-form">
-          {/* 필수 동의 */}
+          {/* 사용자 유형 선택 - 항상 표시 */}
+          {!userType && (
+            <div className="consent-section">
+            <div className="section-header required">
+              <h2>사용자 유형 선택</h2>
+              <span className="required-badge">필수</span>
+            </div>
+
+            <div className="user-type-selection" style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                padding: '16px',
+                border: userType === 'INDIVIDUAL' ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                background: userType === 'INDIVIDUAL' ? '#eff6ff' : '#ffffff',
+                transition: 'all 0.2s'
+              }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="INDIVIDUAL"
+                  checked={userType === 'INDIVIDUAL'}
+                  onChange={() => setUserType('INDIVIDUAL')}
+                  style={{ marginTop: '4px', cursor: 'pointer' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
+                    🎯 개인 구직자
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+                    내 이력서를 분석하고 취업/이직을 준비합니다.
+                    <br />
+                    헤드헌터 추천 서비스를 선택적으로 이용할 수 있습니다.
+                  </div>
+                </div>
+              </label>
+
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px',
+                padding: '16px',
+                border: userType === 'HEADHUNTER' ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                background: userType === 'HEADHUNTER' ? '#eff6ff' : '#ffffff',
+                transition: 'all 0.2s'
+              }}>
+                <input
+                  type="radio"
+                  name="userType"
+                  value="HEADHUNTER"
+                  checked={userType === 'HEADHUNTER'}
+                  onChange={() => setUserType('HEADHUNTER')}
+                  style={{ marginTop: '4px', cursor: 'pointer' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
+                    💼 헤드헌터
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+                    후보자 이력서를 분석하고 클라이언트에게 제안합니다.
+                    <br />
+                    <strong style={{ color: '#ef4444' }}>후보자 개인정보 처리 책임을 부담합니다.</strong>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+          )}
+
+          {/* 필수 동의 - userType 선택 후 표시 */}
+          {userType && (
           <div className="consent-section">
             <div className="section-header required">
               <h2>개인정보 수집·이용 동의 (필수)</h2>
@@ -161,9 +253,133 @@ function ConsentPageContent() {
               </div>
             </label>
           </div>
+          )}
 
-          {/* 헤드헌터 추천 서비스 동의 (선택) */}
-          <div className="consent-section optional">
+          {/* 헤드헌터 전용: 후보자 개인정보 처리 책임 동의 (필수) */}
+          {userType === 'HEADHUNTER' && (
+            <div className="consent-section">
+              <div className="section-header required">
+                <h2>🛡️ 후보자 개인정보 처리 책임 동의</h2>
+                <span className="required-badge">필수</span>
+              </div>
+
+              <div className="consent-content">
+                <div className="consent-notice" style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  marginBottom: '16px'
+                }}>
+                  <p className="notice-title" style={{ color: '#991b1b' }}>⚠️ 법적 책임 안내</p>
+                  <p className="notice-text" style={{ color: '#7f1d1d' }}>
+                    헤드헌터는 <strong>개인정보보호법상 "개인정보 수탁자"</strong>로서
+                    후보자 정보 처리에 대한 법적 책임을 부담합니다.
+                    <br />
+                    위반 시 <strong>5년 이하 징역 또는 5천만원 이하 벌금</strong>에 처해질 수 있습니다.
+                  </p>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ marginBottom: '12px', fontWeight: 600 }}>다음 사항을 확인하고 동의합니다:</p>
+
+                  <div style={{ display: 'grid', gap: '12px', fontSize: '14px', lineHeight: '1.8' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span>1️⃣</span>
+                      <div>
+                        <strong>법적 책임:</strong> 본인은 개인정보보호법상 수탁자로서 후보자 정보 유출,
+                        오용 시 형사처벌 및 과태료 대상이 될 수 있음을 인지합니다.
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span>2️⃣</span>
+                      <div>
+                        <strong>이용 목적 및 범위:</strong> 후보자 정보는 채용 중개 목적으로만 이용하며,
+                        마케팅, 영업, 제3자 제공 등 목적 외 사용을 금지합니다.
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span>3️⃣</span>
+                      <div>
+                        <strong>보안 의무:</strong> 후보자 정보를 안전하게 관리하고 무단 접근을 방지하며,
+                        타인과 계정을 공유하거나 정보를 재위탁하지 않습니다.
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span>4️⃣</span>
+                      <div>
+                        <strong>후보자 권리 보장:</strong> 후보자의 열람, 정정, 삭제 요구에 적극 협조하며,
+                        후보자가 동의 철회 시 즉시 정보를 파기합니다.
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span>5️⃣</span>
+                      <div>
+                        <strong>서비스 탈퇴 시:</strong> 모든 후보자 정보를 즉시 파기합니다.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowResponsibilityDetails(!showResponsibilityDetails)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#3b82f6',
+                    cursor: 'pointer',
+                    padding: '8px 0',
+                    fontSize: '14px',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  {showResponsibilityDetails ? '법적 근거 숨기기 ▲' : '법적 근거 보기 ▼'}
+                </button>
+
+                {showResponsibilityDetails && (
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '16px',
+                    background: '#f9fafb',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    lineHeight: '1.8'
+                  }}>
+                    <p style={{ fontWeight: 600, marginBottom: '8px' }}>관련 법령:</p>
+                    <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                      <li>개인정보 보호법 제17조 (개인정보의 제공)</li>
+                      <li>개인정보 보호법 제26조 (업무위탁에 따른 개인정보의 처리 제한)</li>
+                      <li>개인정보 보호법 제71조 (벌칙)</li>
+                    </ul>
+                    <p style={{ marginTop: '12px', color: '#6b7280' }}>
+                      💡 Jobizic은 <strong>개인정보 처리자</strong>(Controller)이며,
+                      헤드헌터는 <strong>개인정보 수탁자</strong>(Processor)입니다.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <label className="consent-checkbox">
+                <input
+                  type="checkbox"
+                  checked={consents.headhunterResponsibility}
+                  onChange={(e) => setConsents({ ...consents, headhunterResponsibility: e.target.checked })}
+                  required={userType === 'HEADHUNTER'}
+                />
+                <div className="checkbox-text">
+                  위 후보자 개인정보 처리 책임을 확인하고 동의합니다.
+                  <strong className="required-mark" style={{ color: '#ef4444' }}> (필수)</strong>
+                </div>
+              </label>
+            </div>
+          )}
+
+          {/* 개인 구직자 전용: 헤드헌터 추천 서비스 동의 (선택) */}
+          {userType === 'INDIVIDUAL' && (
+            <div className="consent-section optional">
             <div className="section-header optional">
               <h2>💼 헤드헌터 추천 서비스 (선택)</h2>
               <span className="optional-badge">선택</span>
@@ -239,7 +455,23 @@ function ConsentPageContent() {
                   <div className="info-row">
                     <div className="info-label">수신자</div>
                     <div className="info-value">
-                      NexHire 협력 헤드헌터
+                      <strong>Jobizic 플랫폼에 등록된 모든 헤드헌터</strong>
+                      <div className="info-sub" style={{ marginTop: '8px', color: '#ef4444' }}>
+                        ⚠️ <strong>중요:</strong> 귀하의 정보는 Jobizic에 가입한 모든 헤드헌터 회원에게 공유됩니다.
+                        특정 헤드헌터만 선택할 수 없으며, 동의 시 전체 공개됩니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="info-row">
+                    <div className="info-label">헤드헌터 책임</div>
+                    <div className="info-value">
+                      헤드헌터는 <strong>개인정보보호법상 수탁자</strong>로서 다음을 보장합니다:
+                      <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px' }}>
+                        <li>채용 중개 목적으로만 이용</li>
+                        <li>제3자 제공 및 목적 외 사용 금지</li>
+                        <li>보안 유지 의무 (유출 시 형사처벌 대상)</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
@@ -293,6 +525,7 @@ function ConsentPageContent() {
               </div>
             )}
           </div>
+          )}
 
           {/* 제출 버튼 */}
           <div className="consent-actions">

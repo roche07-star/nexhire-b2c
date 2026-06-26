@@ -17,16 +17,30 @@ export async function POST(req: NextRequest) {
     }
 
     const {
+      userType,
       privacyRequired,
       privacyOptional,
       address,
       headhunterSharing,
+      headhunterResponsibility,
       phone
     } = await req.json()
+
+    if (!userType || (userType !== 'INDIVIDUAL' && userType !== 'HEADHUNTER')) {
+      return NextResponse.json({
+        error: '사용자 유형을 선택해주세요.'
+      }, { status: 400 })
+    }
 
     if (!privacyRequired) {
       return NextResponse.json({
         error: '필수 개인정보 수집·이용 동의가 필요합니다.'
+      }, { status: 400 })
+    }
+
+    if (userType === 'HEADHUNTER' && !headhunterResponsibility) {
+      return NextResponse.json({
+        error: '후보자 개인정보 처리 책임 동의가 필요합니다.'
       }, { status: 400 })
     }
 
@@ -94,8 +108,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. 헤드헌터 추천 서비스 동의 처리 (선택)
-    if (headhunterSharing) {
+    // 4. 헤드헌터 책임 동의 처리 (헤드헌터 전용, 필수)
+    if (userType === 'HEADHUNTER' && headhunterResponsibility) {
+      const { error: responsibilityError } = await supabase
+        .from('consents')
+        .insert({
+          user_email: userEmail,
+          consent_type: 'headhunter_responsibility',
+          consent_version: 'v1.0.0',
+          is_agreed: true,
+          agreed_at: now,
+          ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
+          user_agent: req.headers.get('user-agent')
+        })
+
+      if (responsibilityError) {
+        console.error('[consents/user] Headhunter responsibility consent insert error:', responsibilityError)
+        return NextResponse.json({ error: '헤드헌터 책임 동의 저장 실패' }, { status: 500 })
+      }
+    }
+
+    // 5. 헤드헌터 추천 서비스 동의 처리 (개인 구직자 전용, 선택)
+    if (userType === 'INDIVIDUAL' && headhunterSharing) {
       // consents 테이블에 저장
       const { error: headhunterError } = await supabase
         .from('consents')
@@ -115,15 +149,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. service_type 및 headhunter_sharing 설정 (B2C)
+    // 6. users 테이블 업데이트
+    const isHeadhunterSharing = userType === 'INDIVIDUAL' && headhunterSharing
+
     await supabase
       .from('users')
       .update({
+        user_type: userType,
         service_type: 'B2C',
         last_service_use_at: now,
-        headhunter_sharing_enabled: headhunterSharing || false,
-        headhunter_sharing_consented_at: headhunterSharing ? now : null,
-        headhunter_sharing_consent_ip: headhunterSharing
+        headhunter_sharing_enabled: isHeadhunterSharing,
+        headhunter_sharing_consented_at: isHeadhunterSharing ? now : null,
+        headhunter_sharing_consent_ip: isHeadhunterSharing
           ? (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'))
           : null,
         phone: phone || null,
@@ -131,8 +168,8 @@ export async function POST(req: NextRequest) {
       })
       .eq('email', userEmail)
 
-    // 5-1. Eve Super Admin에 기본 정보 전송 (headhunterSharing = true이고 phone이 있는 경우)
-    if (headhunterSharing && phone) {
+    // 7. Eve Super Admin에 기본 정보 전송 (개인 구직자 + headhunterSharing = true + phone 있는 경우)
+    if (userType === 'INDIVIDUAL' && headhunterSharing && phone) {
       try {
         console.log('[consents/user] Eve 전송 시작:', {
           name: session.user.name,
@@ -174,16 +211,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 6. 감사 로그
+    // 8. 감사 로그
     await supabase.from('audit_logs').insert({
       action: 'user_consent',
       actor_email: userEmail,
       target_email: userEmail,
       details: {
+        user_type: userType,
         privacy_required: true,
         privacy_optional: privacyOptional || false,
         has_address: !!address,
-        headhunter_sharing: headhunterSharing || false
+        headhunter_sharing: userType === 'INDIVIDUAL' ? (headhunterSharing || false) : false,
+        headhunter_responsibility: userType === 'HEADHUNTER' ? (headhunterResponsibility || false) : false
       },
       ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
       user_agent: req.headers.get('user-agent')

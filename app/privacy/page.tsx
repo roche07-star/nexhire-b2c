@@ -104,6 +104,92 @@ export default function PrivacyPage() {
           </div>
 
           <div className="privacy-section">
+            <h2>4-1. 헤드헌터 회원의 후보자 개인정보 처리</h2>
+
+            <div className="privacy-subsection" style={{ marginTop: '20px', padding: '20px', background: '#fef2f2', border: '2px solid #fecaca', borderRadius: '12px' }}>
+              <h3 style={{ color: '#991b1b', marginBottom: '16px', fontSize: '18px' }}>🛡️ 법적 책임 구조</h3>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#7f1d1d' }}>1. 법적 관계</h4>
+                <table className="privacy-table" style={{ marginTop: '8px' }}>
+                  <thead>
+                    <tr>
+                      <th>주체</th>
+                      <th>법적 역할</th>
+                      <th>책임 범위</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Jobizic (회사)</strong></td>
+                      <td>개인정보 처리자 (Controller)</td>
+                      <td>
+                        • 후보자로부터 직접 동의 획득<br />
+                        • 시스템 보안 및 기술 지원<br />
+                        • 헤드헌터 관리 감독
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>헤드헌터 회원</strong></td>
+                      <td>개인정보 수탁자 (Processor)</td>
+                      <td>
+                        • 제공받은 정보의 목적 내 사용<br />
+                        • 보안 유지 의무<br />
+                        • 재위탁 금지
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>후보자 (개인 구직자)</strong></td>
+                      <td>정보주체</td>
+                      <td>
+                        • 동의권 및 동의 철회권<br />
+                        • 열람/정정/삭제 요구권
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#7f1d1d' }}>2. 헤드헌터의 의무</h4>
+                <ul style={{ lineHeight: '1.8', fontSize: '14px' }}>
+                  <li><strong>목적 제한:</strong> 후보자 정보는 채용 중개 목적으로만 이용하며, 마케팅, 영업, 제3자 제공 등 목적 외 사용을 금지합니다.</li>
+                  <li><strong>재위탁 금지:</strong> 제공받은 후보자 정보를 타인에게 재위탁하거나 계정을 공유할 수 없습니다.</li>
+                  <li><strong>보안 유지:</strong> 개인정보보호법 등 관련 법령을 준수하고, 정보 유출을 방지하기 위한 적절한 조치를 취합니다.</li>
+                  <li><strong>즉시 통보:</strong> 보안 사고 발생 시 즉시 회사에 통보합니다.</li>
+                  <li><strong>동의 철회 협조:</strong> 후보자가 동의 철회 시 제공받은 정보를 즉시 파기합니다.</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#7f1d1d' }}>3. 회사의 관리 감독</h4>
+                <ul style={{ lineHeight: '1.8', fontSize: '14px' }}>
+                  <li><strong>접근 로그 기록:</strong> 헤드헌터의 후보자 정보 접근 내역을 기록하고 모니터링합니다.</li>
+                  <li><strong>부적절한 사용 제재:</strong> 목적 외 사용 적발 시 서비스 이용을 즉시 정지하고 법적 조치를 취합니다.</li>
+                  <li><strong>정기 점검:</strong> 연 1회 이상 보안 교육 및 감사를 실시합니다 (향후 계획).</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px', color: '#7f1d1d' }}>4. 후보자의 권리</h4>
+                <ul style={{ lineHeight: '1.8', fontSize: '14px' }}>
+                  <li><strong>동의 철회:</strong> "내 정보" 설정에서 언제든지 헤드헌터 공유 동의를 철회할 수 있습니다.</li>
+                  <li><strong>자동 삭제:</strong> 동의 철회 시 모든 헤드헌터에게 공유된 정보가 즉시 삭제됩니다.</li>
+                  <li><strong>특정 차단:</strong> 특정 헤드헌터에 대한 정보 제공을 거부할 수 있습니다 (향후 기능 추가 예정).</li>
+                </ul>
+              </div>
+
+              <div style={{ padding: '16px', background: '#ffffff', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.8', color: '#7f1d1d' }}>
+                  <strong>⚠️ 법적 책임:</strong> 헤드헌터가 후보자 정보를 유출하거나 목적 외로 사용할 경우,
+                  개인정보보호법 제71조에 따라 <strong>5년 이하의 징역 또는 5천만원 이하의 벌금</strong>에 처해질 수 있으며,
+                  민사상 손해배상 책임도 부담합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="privacy-section">
             <h2>5. 개인정보 처리의 위탁</h2>
             <p>회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다.</p>
             <table className="privacy-table">
