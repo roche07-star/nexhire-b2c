@@ -329,7 +329,7 @@ export default function SettlementsClient() {
                 </button>
               </>
             )}
-            <span style={{ fontSize: '12px', color: '#78716c', marginLeft: '8px' }}>미수금 전환 추가:</span>
+            <span style={{ fontSize: '12px', color: '#78716c', marginLeft: '8px' }}>미수금:</span>
             {editingCarryover ? (
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <input
@@ -495,14 +495,15 @@ export default function SettlementsClient() {
                 {(() => {
                   let cumPersonal = 0
                   let conversionDone = false
-                  const threshold = goalAmount
+                  const threshold = goalAmount + carryover
                   return settlements.map((s, idx) => {
                     const sales = calculateCommission(s.salary, s.commission_rate)
                     const personal = calculatePersonalCommission(sales)
-                    const converted = threshold > 0 && cumPersonal >= threshold
+                    const alreadyConverted = threshold > 0 && cumPersonal >= threshold
+                    const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
                     cumPersonal += personal
-                    const ir = threshold > 0 ? (converted ? 100 : 70) : s.incentive_rate
-                    const isConvRow = ir === 100 && !conversionDone
+                    const ir = threshold > 0 ? (alreadyConverted || willConvert ? 100 : 70) : s.incentive_rate
+                    const isConvRow = willConvert && !conversionDone
                     if (ir === 100) conversionDone = true
                     const incentive = f(personal * ir / 100)
                     const tax = f(incentive * 0.033)
@@ -531,9 +532,9 @@ export default function SettlementsClient() {
                             fontWeight: 700,
                             padding: '3px 10px',
                             borderRadius: '20px',
-                            background: isConvRow ? '#dbeafe' : converted ? '#dcfce7' : '#fef3c7',
-                            color: isConvRow ? '#1e40af' : converted ? '#15803d' : '#92400e',
-                            border: `1px solid ${isConvRow ? '#93c5fd' : converted ? '#86efac' : '#e8d0a0'}`
+                            background: isConvRow ? '#dbeafe' : alreadyConverted ? '#dcfce7' : '#fef3c7',
+                            color: isConvRow ? '#1e40af' : alreadyConverted ? '#15803d' : '#92400e',
+                            border: `1px solid ${isConvRow ? '#93c5fd' : alreadyConverted ? '#86efac' : '#e8d0a0'}`
                           }}>
                             {isConvRow ? '70%→100%' : `${ir}%`}
                           </span>
