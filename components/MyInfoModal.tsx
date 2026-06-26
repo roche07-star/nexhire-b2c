@@ -340,6 +340,7 @@ export default function MyInfoButton() {
                           borderRadius: 10,
                           fontSize: 14,
                           background: '#ffffff',
+                          color: '#18181b',
                           outline: 'none',
                           transition: 'all 0.2s'
                         }}
