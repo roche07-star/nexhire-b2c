@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 const PUBLIC_API_ROUTES = [
   '/api/auth',
   '/api/share',
+  '/api/audit', // Eve → Adam 접근 로그 (API Key 인증)
 ]
 
 export default auth(async (req) => {
