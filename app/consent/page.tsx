@@ -30,7 +30,13 @@ function ConsentPageContent() {
       const res = await fetch('/api/consents/check')
       if (res.ok) {
         const data = await res.json()
-        if (data.hasConsent) {
+
+        // userType이 이미 설정되어 있으면 설정
+        if (data.userType) {
+          setUserType(data.userType)
+        }
+
+        if (data.hasConsent && data.hasUserType) {
           // 이미 동의한 경우 메인으로 리다이렉트
           const callbackUrl = searchParams.get('callbackUrl') || '/analyze'
           router.push(callbackUrl)

@@ -61,11 +61,12 @@ export async function GET(req: NextRequest) {
 
     const hasConsent = !!requiredConsent && !requiredError
 
-    console.log('[consents/check] Final result:', { hasConsent, hasUserType })
+    console.log('[consents/check] Final result:', { hasConsent, hasUserType, userType: user?.user_type })
 
     return NextResponse.json({
       hasConsent,
       hasUserType,
+      userType: user?.user_type || null,
       requiredConsent: requiredConsent ? {
         id: requiredConsent.id,
         agreedAt: requiredConsent.agreed_at
