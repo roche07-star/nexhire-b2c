@@ -31,10 +31,8 @@ function ConsentPageContent() {
       if (res.ok) {
         const data = await res.json()
 
-        // userType이 이미 설정되어 있으면 설정
-        if (data.userType) {
-          setUserType(data.userType)
-        }
+        // userType이 이미 설정되어 있어도 자동으로 설정하지 않음
+        // 사용자가 직접 선택하도록 함
 
         if (data.hasConsent && data.hasUserType) {
           // 이미 동의한 경우 메인으로 리다이렉트
