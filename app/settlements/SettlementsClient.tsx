@@ -198,7 +198,9 @@ export default function SettlementsClient() {
 
     settlements.forEach((s, idx) => {
       const sales = calculateCommission(s.salary, s.commission_rate)
-      const personal = calculatePersonalCommission(sales)
+      const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
+      const myRatio = s.my_ratio || 50 // 내 비율
+      const personal = f(personalFull * (myRatio / 100)) // 내 실제 몫
       const ir = threshold > 0 && cumPersonal >= threshold ? 100 : s.incentive_rate
       const incentive = f(personal * ir / 100)
       cumPersonal += personal
@@ -414,7 +416,7 @@ export default function SettlementsClient() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '24px' }}>
             {[
               { label: '총 실매출액', val: `${stats.totalSales.toLocaleString()} 만원`, sub: `${settlements.length}건 합산`, color: '#b8860b' },
-              { label: '개인 매출액', val: `${stats.totalPersonal.toLocaleString()} 만원`, sub: '실매출 × 1/2', color: '#3b82f6' },
+              { label: '개인 매출액', val: `${stats.totalPersonal.toLocaleString()} 만원`, sub: '내 몫 합계', color: '#3b82f6' },
               { label: '총 인센티브 (실수령)', val: `${stats.totalNet.toLocaleString()} 만원`, sub: `세전 ${stats.totalIncentive.toLocaleString()} · 세금 ${stats.totalTax.toLocaleString()}`, color: '#22c55e' },
               { label: '평균 수수료율', val: `${stats.avgRate.toFixed(1)}%`, sub: '전체 평균', color: '#1c1917' },
             ].map(({ label, val, sub, color }) => (
