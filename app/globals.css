@@ -4136,7 +4136,7 @@ footer {
   }
   .nav-logo-icon { width: 18px; height: 18px; }
   .nav-logo-text { font-size: 11px; letter-spacing: 0.3px; }
-  .nav-links { display: none; }
+  /* .nav-links { display: none; } */ /* 햄버거 버튼을 위해 제거 */
   .nav-links.show-on-mobile { display: flex !important; gap: 16px; font-size: 12px; }
   .nav-cta { gap: 3px; }
   .btn-ghost {
