@@ -13,7 +13,7 @@ export const PLAN_LIMITS: Record<UserType, Record<Plan, Record<Feature, number>>
   HEADHUNTER: {
     FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
     PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0 },
-    EXPERT: { analyze: 40, jd: 40, rewrite: 50, interview: 50 },
+    EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
   }
 }
 
