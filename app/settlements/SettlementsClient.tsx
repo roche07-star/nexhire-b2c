@@ -475,11 +475,10 @@ export default function SettlementsClient() {
                     const isSolo = !formData.searcher_name
                     const pmRatio = formData.pm_ratio || 50
                     const personal = isSolo ? personalFull : f(personalFull * (pmRatio / 100))
-                    const searcherRatio = 100 - pmRatio
                     const incentive = f(personal * formData.incentive_rate / 100)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
-                    return `실매출 ${sales.toLocaleString()}만 / PM+써처 몫 ${personalFull.toLocaleString()}만 / ${isSolo ? 'PM 단독' : `PM(${pmRatio}%)`} ${personal.toLocaleString()}만${!isSolo ? ` / 써처(${searcherRatio}%) ${f(personalFull * (searcherRatio / 100)).toLocaleString()}만` : ''} / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
+                    return `실매출 ${sales.toLocaleString()}만 / ${isSolo ? `PM 단독 ${personal.toLocaleString()}만` : `PM 몫(${pmRatio}%) ${personal.toLocaleString()}만`} / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
                   })()}
                 </div>
               )}
