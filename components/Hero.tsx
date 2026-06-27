@@ -132,6 +132,7 @@ function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER' | 'HEADHUNTER
   const headhunterTabs = [
     { icon: '👤', label: '후보자 분석' },
     { icon: '📋', label: 'JD 매칭' },
+    { icon: '📊', label: '채용 프로세스' },
     { icon: '📄', label: '클라이언트 제안서' },
     { icon: '💰', label: '정산 기능' },
   ]
@@ -406,6 +407,163 @@ function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER' | 'HEADHUNTER
 
           {demoTab === 2 && isHeadhunter && (
             <>
+              <div className="results-label" style={{ marginBottom: 10 }}>📊 채용 프로세스 관리 — 후보자 진행 상황 추적</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  후보자별 진행 단계를 실시간으로 추적하고 <strong>다음 액션</strong>을 놓치지 않도록 관리합니다.
+                </p>
+              </div>
+
+              <div className="results-label" style={{ marginTop: 16 }}>🏢 진행 중인 포지션: Product Manager</div>
+
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { name: '김OO', status: '최종 합격', stage: 4, color: '#22d3ee', nextAction: '입사일 협의 중', date: '2026-06-25' },
+                  { name: '이OO', status: '2차 면접 대기', stage: 3, color: '#e8ff47', nextAction: '2차 면접 일정 조율', date: '2026-06-28' },
+                  { name: '박OO', status: '1차 면접 합격', stage: 2, color: '#a78bfa', nextAction: '2차 면접 제안 예정', date: '2026-06-30' },
+                ].map((candidate, i) => (
+                  <div key={i} style={{ background: 'var(--surface2)', borderRadius: '12px', padding: '16px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <div>
+                        <span style={{ fontSize: '16px', fontWeight: 700 }}>{candidate.name}</span>
+                        <span style={{
+                          marginLeft: '8px',
+                          padding: '4px 10px',
+                          background: candidate.color + '20',
+                          color: candidate.color,
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          border: `1px solid ${candidate.color}40`
+                        }}>
+                          {candidate.status}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{candidate.date}</span>
+                    </div>
+
+                    {/* 프로세스 바 */}
+                    <div style={{ position: 'relative', height: '6px', background: 'var(--border)', borderRadius: '3px', marginBottom: '12px' }}>
+                      <div style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        height: '100%',
+                        width: `${(candidate.stage / 4) * 100}%`,
+                        background: candidate.color,
+                        borderRadius: '3px',
+                        transition: 'width 0.3s'
+                      }} />
+                    </div>
+
+                    {/* 단계 표시 */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      {['서류', '1차', '2차', '최종'].map((step, idx) => (
+                        <span key={idx} style={{
+                          fontSize: '10px',
+                          color: idx < candidate.stage ? candidate.color : 'var(--muted)',
+                          fontWeight: idx < candidate.stage ? 600 : 400
+                        }}>
+                          {step}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div style={{
+                      padding: '10px 12px',
+                      background: 'var(--surface)',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}>
+                      <span style={{ color: 'var(--muted2)' }}>다음 액션:</span>{' '}
+                      <span style={{ fontWeight: 600 }}>{candidate.nextAction}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">📋 진행 통계</div>
+                  <ul className="result-list">
+                    <li>총 후보자: 8명</li>
+                    <li>서류 합격: 5명 (62.5%)</li>
+                    <li>1차 면접 합격: 3명 (60%)</li>
+                    <li>최종 합격: 1명</li>
+                  </ul>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">⏰ 다가오는 일정</div>
+                  <ul className="result-list">
+                    <li>이OO - 2차 면접 (6/28)</li>
+                    <li>박OO - 2차 제안 (6/30)</li>
+                    <li>김OO - 입사일 확정 (7/1)</li>
+                  </ul>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">💡 프로세스 관리 기능</div>
+                  <ul className="result-list">
+                    <li>후보자별 진행 단계 실시간 추적</li>
+                    <li>다음 액션 알림</li>
+                    <li>면접 일정 관리</li>
+                    <li>진행 통계 및 전환율 분석</li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 3 = 면접 가이드 */}
+          {/* 헤드헌터: Tab 3 = 클라이언트 제안서 */}
+          {/* ────────────────────────────────────── */}
+          {demoTab === 3 && !isHeadhunter && (
+            <>
+              <div className="jd-demo-company-bar">
+                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
+                <span className="jd-demo-pos">{jdDemo.position}</span>
+              </div>
+
+              <div className="results-label" style={{ marginBottom: 10 }}>🎤 예상 질문 & 이력서 기반 모범 답변</div>
+              <div className="interview-questions-list">
+                {interviewQuestions.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`interview-q-item${expandedQ === i ? ' expanded' : ''}`}
+                    onClick={() => setExpandedQ(expandedQ === i ? null : i)}
+                  >
+                    <div className="interview-q-row">
+                      <span className="interview-q-num">Q{i + 1}</span>
+                      <span className="interview-q-text">{item.q}</span>
+                      <span className="interview-q-toggle">{expandedQ === i ? '▲' : '▼'}</span>
+                    </div>
+                    {expandedQ === i && (
+                      <div className="interview-q-answer">
+                        {item.a
+                          ? <><span className="interview-q-answer-label">모범 답변</span>{item.a}</>
+                          : <span style={{ color: 'var(--muted)' }}>내 이력서 기반 모범 답변이 생성됩니다.</span>
+                        }
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="results-label" style={{ marginTop: 20, marginBottom: 10 }}>💬 역질문 — 면접관에게 꼭 물어볼 것</div>
+              <div className="reverse-questions-list">
+                {reverseQuestions.map((rq, i) => (
+                  <div key={i} className="reverse-q-card">
+                    <span className="reverse-q-type">{rq.type}</span>
+                    <p className="reverse-q-text">{rq.q}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {demoTab === 3 && isHeadhunter && (
+            <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
                 <span className="jd-demo-pos">{jdDemo.position}</span>
@@ -476,54 +634,9 @@ function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER' | 'HEADHUNTER
           )}
 
           {/* ────────────────────────────────────── */}
-          {/* 개인 구직자: Tab 3 = 면접 가이드 */}
-          {/* 헤드헌터: Tab 3 = 정산 기능 */}
+          {/* 헤드헌터: Tab 4 = 정산 기능 */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 3 && !isHeadhunter && (
-            <>
-              <div className="jd-demo-company-bar">
-                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
-                <span className="jd-demo-pos">{jdDemo.position}</span>
-              </div>
-
-              <div className="results-label" style={{ marginBottom: 10 }}>🎤 예상 질문 & 이력서 기반 모범 답변</div>
-              <div className="interview-questions-list">
-                {interviewQuestions.map((item, i) => (
-                  <div
-                    key={i}
-                    className={`interview-q-item${expandedQ === i ? ' expanded' : ''}`}
-                    onClick={() => setExpandedQ(expandedQ === i ? null : i)}
-                  >
-                    <div className="interview-q-row">
-                      <span className="interview-q-num">Q{i + 1}</span>
-                      <span className="interview-q-text">{item.q}</span>
-                      <span className="interview-q-toggle">{expandedQ === i ? '▲' : '▼'}</span>
-                    </div>
-                    {expandedQ === i && (
-                      <div className="interview-q-answer">
-                        {item.a
-                          ? <><span className="interview-q-answer-label">모범 답변</span>{item.a}</>
-                          : <span style={{ color: 'var(--muted)' }}>내 이력서 기반 모범 답변이 생성됩니다.</span>
-                        }
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="results-label" style={{ marginTop: 20, marginBottom: 10 }}>💬 역질문 — 면접관에게 꼭 물어볼 것</div>
-              <div className="reverse-questions-list">
-                {reverseQuestions.map((rq, i) => (
-                  <div key={i} className="reverse-q-card">
-                    <span className="reverse-q-type">{rq.type}</span>
-                    <p className="reverse-q-text">{rq.q}</p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {demoTab === 3 && isHeadhunter && (
+          {demoTab === 4 && isHeadhunter && (
             <>
               <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 — 매출/수수료 자동 계산</div>
 
