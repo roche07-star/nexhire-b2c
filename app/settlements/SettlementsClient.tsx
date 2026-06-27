@@ -18,7 +18,7 @@ interface Settlement {
   year: number
   pm_name?: string
   searcher_name?: string
-  pm_bonus?: number
+  pm_ratio?: number // PM 비율 (%)
 }
 
 export default function SettlementsClient() {
@@ -48,7 +48,7 @@ export default function SettlementsClient() {
     memo: '',
     pm_name: '',
     searcher_name: '',
-    pm_bonus: 0,
+    pm_ratio: 50, // 기본 50:50
   })
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function SettlementsClient() {
       memo: s.memo || '',
       pm_name: s.pm_name || '',
       searcher_name: s.searcher_name || '',
-      pm_bonus: s.pm_bonus || 0,
+      pm_ratio: s.pm_ratio || 0,
     })
     setEditingId(s.id)
     setShowForm(true)
@@ -177,7 +177,7 @@ export default function SettlementsClient() {
       memo: '',
       pm_name: '',
       searcher_name: '',
-      pm_bonus: 0,
+      pm_ratio: 50, // 기본 50:50
     })
   }
 
@@ -453,7 +453,7 @@ export default function SettlementsClient() {
                   ['고객사', 'company', 'text', '삼성전자'],
                   ['포지션', 'position', 'text', '백엔드 개발'],
                   ['요율%', 'incentive_rate', 'number', '70'],
-                  ['PM보전(만)', 'pm_bonus', 'number', '0'],
+                  ['PM 비율(%)', 'pm_ratio', 'number', '50'],
                 ].map(([label, key, type, ph]) => (
                   <div key={key}>
                     <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '5px' }}>{label}</label>
@@ -473,11 +473,13 @@ export default function SettlementsClient() {
                     const sales = calculateCommission(formData.salary, formData.commission_rate)
                     const personalFull = calculatePersonalCommission(sales)
                     const isSolo = !formData.searcher_name
-                    const personal = isSolo ? personalFull : f(personalFull / 2)
+                    const pmRatio = formData.pm_ratio || 50
+                    const personal = isSolo ? personalFull : f(personalFull * (pmRatio / 100))
+                    const searcherRatio = 100 - pmRatio
                     const incentive = f(personal * formData.incentive_rate / 100)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
-                    return `실매출 ${sales.toLocaleString()}만 / PM+써처 몫 ${personalFull.toLocaleString()}만 / ${isSolo ? 'PM 단독' : 'PM/써처 각'} ${personal.toLocaleString()}만 / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
+                    return `실매출 ${sales.toLocaleString()}만 / PM+써처 몫 ${personalFull.toLocaleString()}만 / ${isSolo ? 'PM 단독' : `PM(${pmRatio}%)`} ${personal.toLocaleString()}만${!isSolo ? ` / 써처(${searcherRatio}%) ${f(personalFull * (searcherRatio / 100)).toLocaleString()}만` : ''} / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
                   })()}
                 </div>
               )}
@@ -531,7 +533,8 @@ export default function SettlementsClient() {
                     const sales = calculateCommission(s.salary, s.commission_rate)
                     const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
                     const isSolo = !s.searcher_name // PM 단독 여부
-                    const personal = isSolo ? personalFull : f(personalFull / 2) // PM 또는 써처의 개인 몫
+                    const pmRatio = s.pm_ratio || 50 // PM 비율 (기본 50%)
+                    const personal = isSolo ? personalFull : f(personalFull * (pmRatio / 100)) // PM 몫 (비율 적용)
 
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
