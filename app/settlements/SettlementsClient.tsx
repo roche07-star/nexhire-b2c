@@ -451,16 +451,38 @@ export default function SettlementsClient() {
                     ['PM (파트너와)', 'PM'],
                     ['써처 (파트너와)', 'SEARCHER'],
                   ].map(([label, value]) => (
-                    <label key={value} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <label
+                      key={value}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        padding: '8px 14px',
+                        borderRadius: '8px',
+                        border: formData.my_role === value ? '2px solid #b8860b' : '2px solid #e7e5e4',
+                        background: formData.my_role === value ? '#fef3c7' : '#fff',
+                        transition: 'all 0.2s'
+                      }}
+                    >
                       <input
                         type="radio"
                         name="my_role"
                         value={value}
                         checked={formData.my_role === value}
                         onChange={e => setFormData(p => ({ ...p, my_role: e.target.value as 'PM_SOLO' | 'PM' | 'SEARCHER', my_ratio: e.target.value === 'PM_SOLO' ? 100 : 50 }))}
-                        style={{ cursor: 'pointer' }}
+                        style={{
+                          cursor: 'pointer',
+                          width: '18px',
+                          height: '18px',
+                          accentColor: '#b8860b'
+                        }}
                       />
-                      <span style={{ fontSize: '12px', fontWeight: 500 }}>{label}</span>
+                      <span style={{
+                        fontSize: '13px',
+                        fontWeight: formData.my_role === value ? 700 : 500,
+                        color: '#1c1917'
+                      }}>{label}</span>
                     </label>
                   ))}
                 </div>
