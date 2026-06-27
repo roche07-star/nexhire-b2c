@@ -76,6 +76,9 @@ export async function POST(req: NextRequest) {
       position,
       memo,
       personal_override = 0,
+      my_role = 'PM',
+      partner_name,
+      my_ratio = 50,
     } = body
 
     if (!candidate_name || !start_date || salary === undefined) {
@@ -109,6 +112,9 @@ export async function POST(req: NextRequest) {
         position,
         memo,
         personal_override,
+        my_role,
+        partner_name,
+        my_ratio,
         headhunter_email: session.user.email,
       })
       .select()

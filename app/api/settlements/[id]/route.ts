@@ -54,6 +54,9 @@ export async function PATCH(
       'position',
       'memo',
       'personal_override',
+      'my_role',
+      'partner_name',
+      'my_ratio',
     ]
 
     for (const field of allowedFields) {
