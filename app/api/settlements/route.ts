@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       .select('*')
       .eq('headhunter_email', session.user.email)
       .eq('year', year)
-      .order('start_date', { ascending: false })
+      .order('start_date', { ascending: true }) // 1월부터 순서대로 (오름차순)
 
     if (error) {
       console.error('[settlements GET]', error)
