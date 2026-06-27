@@ -102,7 +102,7 @@ nav {
   display: flex; flex-direction: column;
   align-items: center; justify-content: flex-start;
   text-align: center;
-  padding: 140px 24px 80px;
+  padding: 100px 24px 60px;
   position: relative;
   overflow: hidden;
 }
@@ -364,7 +364,7 @@ nav {
 .stat-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
 /* SECTIONS */
-section { padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
+section { padding: 60px 48px; max-width: 1100px; margin: 0 auto; }
 
 .section-label {
   font-family: 'Outfit', sans-serif;
@@ -498,7 +498,7 @@ section { padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
 }
 
 /* PERSONA */
-.persona-section { padding: 80px 48px; }
+.persona-section { padding: 60px 48px; }
 .persona-wrap {
   max-width: 1100px; margin: 0 auto;
   display: grid; grid-template-columns: 1fr 1fr 1fr;
@@ -4151,7 +4151,7 @@ footer {
   }
 
   /* HERO */
-  .hero { padding: 70px 10px 35px; }
+  .hero { padding: 50px 10px 25px; }
   .hero h1 { font-size: clamp(22px, 7vw, 36px); margin-bottom: 10px; }
   .hero-sub { font-size: 11px; margin-bottom: 18px; }
   .hero-badge {
@@ -4162,7 +4162,7 @@ footer {
   .hero-actions { gap: 5px; margin-bottom: 28px; }
 
   /* SECTION */
-  .section { padding: 35px 10px; }
+  .section { padding: 25px 10px; }
   .section-title { font-size: clamp(18px, 5vw, 28px); margin-bottom: 8px; }
   .section-sub { font-size: 10px; }
 
