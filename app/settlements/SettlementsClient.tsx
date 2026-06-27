@@ -30,8 +30,20 @@ export default function SettlementsClient() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [years, setYears] = useState([2025, 2026]) // 2025년, 2026년
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [goalAmount, setGoalAmount] = useState(5000)
-  const [carryover, setCarryover] = useState(0)
+  const [goalAmount, setGoalAmount] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('settlements_goalAmount')
+      return saved ? parseInt(saved) : 5000
+    }
+    return 5000
+  })
+  const [carryover, setCarryover] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('settlements_carryover')
+      return saved ? parseInt(saved) : 0
+    }
+    return 0
+  })
   const [editingGoal, setEditingGoal] = useState(false)
   const [editingCarryover, setEditingCarryover] = useState(false)
   const [tempGoal, setTempGoal] = useState('')
@@ -320,7 +332,9 @@ export default function SettlementsClient() {
                 <span style={{ fontSize: '12px', color: '#78716c' }}>만원</span>
                 <button
                   onClick={() => {
-                    setGoalAmount(parseInt(tempGoal) || 0)
+                    const newGoal = parseInt(tempGoal) || 0
+                    setGoalAmount(newGoal)
+                    localStorage.setItem('settlements_goalAmount', String(newGoal))
                     setEditingGoal(false)
                   }}
                   style={{ fontSize: '11px', padding: '4px 12px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
@@ -363,7 +377,9 @@ export default function SettlementsClient() {
                 />
                 <button
                   onClick={() => {
-                    setCarryover(parseInt(tempCarryover) || 0)
+                    const newCarryover = parseInt(tempCarryover) || 0
+                    setCarryover(newCarryover)
+                    localStorage.setItem('settlements_carryover', String(newCarryover))
                     setEditingCarryover(false)
                   }}
                   style={{ fontSize: '11px', padding: '4px 10px', background: '#3b82f6', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
