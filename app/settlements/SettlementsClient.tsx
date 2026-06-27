@@ -508,11 +508,20 @@ export default function SettlementsClient() {
                     const personal = calculatePersonalCommission(sales)
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
+
+                    // 분할 계산: 70% 구간과 100% 구간
+                    const seventyPart = willConvert ? f(threshold - cumPersonal) : (alreadyConverted ? 0 : personal)
+                    const hundredPart = willConvert ? f(personal - seventyPart) : (alreadyConverted ? personal : 0)
+
                     cumPersonal += personal
                     const ir = threshold > 0 ? (alreadyConverted || willConvert ? 100 : 70) : s.incentive_rate
                     const isConvRow = willConvert && !conversionDone
                     if (ir === 100) conversionDone = true
-                    const incentive = f(personal * ir / 100)
+
+                    // 인센티브 분할 계산
+                    const incentiveSeventyPart = f(seventyPart * 0.7)
+                    const incentiveHundredPart = f(hundredPart * 1.0)
+                    const incentive = f(incentiveSeventyPart + incentiveHundredPart)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
 
@@ -531,7 +540,20 @@ export default function SettlementsClient() {
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: '#1c1917' }}>{s.salary.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center', color: '#1c1917' }}>{s.commission_rate}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#b8860b', fontWeight: 600 }}>{sales.toLocaleString()}</td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>{personal.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>
+                          {willConvert ? (
+                            <div style={{ lineHeight: 1.6 }}>
+                              <div>
+                                <span style={{ color: '#b8860b' }}>{seventyPart.toLocaleString()}</span>
+                                <span style={{ fontSize: '10px', color: '#78716c', marginLeft: '3px' }}>70%</span>
+                              </div>
+                              <div>
+                                <span style={{ color: '#15803d' }}>{hundredPart.toLocaleString()}</span>
+                                <span style={{ fontSize: '10px', color: '#78716c', marginLeft: '3px' }}>100%</span>
+                              </div>
+                            </div>
+                          ) : personal.toLocaleString()}
+                        </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{cumPersonal.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                           <span style={{
@@ -546,7 +568,16 @@ export default function SettlementsClient() {
                             {isConvRow ? '70%→100%' : `${ir}%`}
                           </span>
                         </td>
-                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#15803d', fontWeight: 600 }}>{incentive.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', color: '#15803d', fontWeight: 600 }}>
+                          {willConvert ? (
+                            <div style={{ lineHeight: 1.6 }}>
+                              <div style={{ fontSize: '11px' }}>
+                                {incentiveSeventyPart.toLocaleString()} + {incentiveHundredPart.toLocaleString()}
+                              </div>
+                              <div style={{ fontWeight: 700 }}>{incentive.toLocaleString()}</div>
+                            </div>
+                          ) : incentive.toLocaleString()}
+                        </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#1c1917' }}>{tax.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{net.toLocaleString()}</td>
                         <td style={{ padding: '6px 8px', textAlign: 'center', color: '#1c1917' }}>{s.company || '-'}</td>
