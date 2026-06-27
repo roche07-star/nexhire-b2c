@@ -10,9 +10,15 @@ export async function GET(request: NextRequest) {
       const role = (session.user as { role?: string }).role ?? 'USER'
       const { data } = await supabase
         .from('users')
-        .select('plan')
+        .select('plan, user_type')
         .eq('email', session.user.email as string)
         .maybeSingle()
+
+      // user_type이 없으면 consent 페이지로
+      if (!data?.user_type) {
+        return NextResponse.redirect(`${base}/consent?callbackUrl=/analyze`)
+      }
+
       const plan = data?.plan ?? 'FREE'
       if (plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER') {
         return NextResponse.redirect(`${base}/analyze`)
