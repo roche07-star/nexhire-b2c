@@ -25,9 +25,13 @@ ADD COLUMN IF NOT EXISTS my_ratio INTEGER DEFAULT 50;
 CREATE INDEX IF NOT EXISTS idx_settlements_my_role ON settlements(my_role);
 CREATE INDEX IF NOT EXISTS idx_settlements_partner_name ON settlements(partner_name);
 
--- 제약 조건
-ALTER TABLE settlements
-ADD CONSTRAINT IF NOT EXISTS valid_my_ratio CHECK (my_ratio >= 0 AND my_ratio <= 100);
+-- 제약 조건 (에러 무시)
+DO $$ BEGIN
+  ALTER TABLE settlements
+  ADD CONSTRAINT valid_my_ratio CHECK (my_ratio >= 0 AND my_ratio <= 100);
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- 코멘트
 COMMENT ON COLUMN settlements.my_role IS '나의 역할 (PM_SOLO: PM 단독, PM: PM, SEARCHER: 써처)';
