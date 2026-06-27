@@ -16,9 +16,9 @@ interface Settlement {
   personal_override: number
   memo?: string
   year: number
-  pm_name?: string
-  searcher_name?: string
-  pm_ratio?: number // PM 비율 (%)
+  my_role?: 'PM_SOLO' | 'PM' | 'SEARCHER' // 나의 역할
+  partner_name?: string // 파트너 이름
+  my_ratio?: number // 내 비율 (%)
 }
 
 export default function SettlementsClient() {
@@ -46,9 +46,9 @@ export default function SettlementsClient() {
     incentive_rate: 70,
     personal_override: 0,
     memo: '',
-    pm_name: '',
-    searcher_name: '',
-    pm_ratio: 50, // 기본 50:50
+    my_role: 'PM' as 'PM_SOLO' | 'PM' | 'SEARCHER', // 기본 PM
+    partner_name: '',
+    my_ratio: 50, // 기본 50%
   })
 
   useEffect(() => {
@@ -156,9 +156,9 @@ export default function SettlementsClient() {
       incentive_rate: s.incentive_rate,
       personal_override: s.personal_override,
       memo: s.memo || '',
-      pm_name: s.pm_name || '',
-      searcher_name: s.searcher_name || '',
-      pm_ratio: s.pm_ratio || 0,
+      my_role: s.my_role || 'PM',
+      partner_name: s.partner_name || '',
+      my_ratio: s.my_ratio || 50,
     })
     setEditingId(s.id)
     setShowForm(true)
@@ -175,9 +175,9 @@ export default function SettlementsClient() {
       incentive_rate: 70,
       personal_override: 0,
       memo: '',
-      pm_name: '',
-      searcher_name: '',
-      pm_ratio: 50, // 기본 50:50
+      my_role: 'PM',
+      partner_name: '',
+      my_ratio: 50,
     })
   }
 
@@ -442,18 +442,41 @@ export default function SettlementsClient() {
         {showForm && (
           <div style={{ background: '#fff', border: '1px solid #b8860b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
             <form onSubmit={handleSubmit}>
+              {/* 역할 선택 */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '8px' }}>나의 역할 *</label>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  {[
+                    ['PM 단독', 'PM_SOLO'],
+                    ['PM (파트너와)', 'PM'],
+                    ['써처 (파트너와)', 'SEARCHER'],
+                  ].map(([label, value]) => (
+                    <label key={value} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="my_role"
+                        value={value}
+                        checked={formData.my_role === value}
+                        onChange={e => setFormData(p => ({ ...p, my_role: e.target.value as 'PM_SOLO' | 'PM' | 'SEARCHER', my_ratio: e.target.value === 'PM_SOLO' ? 100 : 50 }))}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '12px', fontWeight: 500 }}>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', alignItems: 'end' }}>
                 {[
                   ['합격자 *', 'candidate_name', 'text', '홍길동'],
                   ['입사일', 'start_date', 'date', ''],
                   ['연봉(만)', 'salary', 'number', '5000'],
                   ['수수료율%', 'commission_rate', 'number', '17'],
-                  ['PM *', 'pm_name', 'text', 'PM 이름'],
-                  ['써처', 'searcher_name', 'text', '써처 이름 (선택)'],
+                  ...(formData.my_role !== 'PM_SOLO' ? [['파트너 이름', 'partner_name', 'text', '파트너 이름']] : []),
+                  ...(formData.my_role !== 'PM_SOLO' ? [['내 비율(%)', 'my_ratio', 'number', '50']] : []),
                   ['고객사', 'company', 'text', '삼성전자'],
                   ['포지션', 'position', 'text', '백엔드 개발'],
                   ['요율%', 'incentive_rate', 'number', '70'],
-                  ['PM 비율(%)', 'pm_ratio', 'number', '50'],
                 ].map(([label, key, type, ph]) => (
                   <div key={key}>
                     <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '5px' }}>{label}</label>
@@ -472,13 +495,17 @@ export default function SettlementsClient() {
                   {(() => {
                     const sales = calculateCommission(formData.salary, formData.commission_rate)
                     const personalFull = calculatePersonalCommission(sales)
-                    const isSolo = !formData.searcher_name
-                    const pmRatio = formData.pm_ratio || 50
-                    const personal = isSolo ? personalFull : f(personalFull * (pmRatio / 100))
+                    const myRatio = formData.my_ratio || 50
+                    const personal = f(personalFull * (myRatio / 100))
                     const incentive = f(personal * formData.incentive_rate / 100)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
-                    return `실매출 ${sales.toLocaleString()}만 / ${isSolo ? `PM 단독 ${personal.toLocaleString()}만` : `PM 몫(${pmRatio}%) ${personal.toLocaleString()}만`} / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
+
+                    const roleText = formData.my_role === 'PM_SOLO' ? 'PM 단독' :
+                                    formData.my_role === 'PM' ? `PM(${myRatio}%)` :
+                                    `써처(${myRatio}%)`
+
+                    return `실매출 ${sales.toLocaleString()}만 / 내 몫 ${personal.toLocaleString()}만 (${roleText}) / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
                   })()}
                 </div>
               )}
@@ -531,9 +558,8 @@ export default function SettlementsClient() {
                   return settlements.map((s, idx) => {
                     const sales = calculateCommission(s.salary, s.commission_rate)
                     const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
-                    const isSolo = !s.searcher_name // PM 단독 여부
-                    const pmRatio = s.pm_ratio || 50 // PM 비율 (기본 50%)
-                    const personal = isSolo ? personalFull : f(personalFull * (pmRatio / 100)) // PM 몫 (비율 적용)
+                    const myRatio = s.my_ratio || 50 // 내 비율 (기본 50%)
+                    const personal = f(personalFull * (myRatio / 100)) // 내 몫 (비율 적용)
 
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold

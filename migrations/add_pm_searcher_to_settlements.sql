@@ -1,24 +1,35 @@
 -- ============================================================
--- settlements 테이블에 PM/써처 필드 추가
+-- settlements 테이블에 역할/파트너 필드 추가
 -- ============================================================
 
--- PM 이름 컬럼 추가
-ALTER TABLE settlements
-ADD COLUMN IF NOT EXISTS pm_name TEXT;
+-- 역할 ENUM 타입 생성
+DO $$ BEGIN
+  CREATE TYPE headhunter_role AS ENUM ('PM_SOLO', 'PM', 'SEARCHER');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
--- 써처 이름 컬럼 추가 (null이면 PM 단독)
+-- 나의 역할 컬럼 추가
 ALTER TABLE settlements
-ADD COLUMN IF NOT EXISTS searcher_name TEXT;
+ADD COLUMN IF NOT EXISTS my_role headhunter_role DEFAULT 'PM';
 
--- PM 보전 금액 추가
+-- 파트너 이름 컬럼 추가
 ALTER TABLE settlements
-ADD COLUMN IF NOT EXISTS pm_bonus BIGINT DEFAULT 0;
+ADD COLUMN IF NOT EXISTS partner_name TEXT;
+
+-- 내 비율 컬럼 추가 (%)
+ALTER TABLE settlements
+ADD COLUMN IF NOT EXISTS my_ratio INTEGER DEFAULT 50;
 
 -- 인덱스 추가
-CREATE INDEX IF NOT EXISTS idx_settlements_pm_name ON settlements(pm_name);
-CREATE INDEX IF NOT EXISTS idx_settlements_searcher_name ON settlements(searcher_name);
+CREATE INDEX IF NOT EXISTS idx_settlements_my_role ON settlements(my_role);
+CREATE INDEX IF NOT EXISTS idx_settlements_partner_name ON settlements(partner_name);
+
+-- 제약 조건
+ALTER TABLE settlements
+ADD CONSTRAINT IF NOT EXISTS valid_my_ratio CHECK (my_ratio >= 0 AND my_ratio <= 100);
 
 -- 코멘트
-COMMENT ON COLUMN settlements.pm_name IS 'PM 이름';
-COMMENT ON COLUMN settlements.searcher_name IS '써처 이름 (null이면 PM 단독 수행)';
-COMMENT ON COLUMN settlements.pm_bonus IS 'PM 보전 금액 (만원)';
+COMMENT ON COLUMN settlements.my_role IS '나의 역할 (PM_SOLO: PM 단독, PM: PM, SEARCHER: 써처)';
+COMMENT ON COLUMN settlements.partner_name IS '파트너 이름 (함께 일한 PM 또는 써처)';
+COMMENT ON COLUMN settlements.my_ratio IS '내 비율 (0-100%)';
