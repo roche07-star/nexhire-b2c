@@ -660,7 +660,7 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
       sub: (
         <>
           후보자 강점 분석부터 JD 적합도, 클라이언트 제안 전략까지.<br />
-          AI가 2분 만에 완성합니다. 헤드헌터의 시간은 관계 구축에 집중하세요.
+          AI가 10분 만에 완성합니다. 헤드헌터의 시간은 관계 구축에 집중하세요.
         </>
       ),
     },

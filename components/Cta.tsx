@@ -10,7 +10,7 @@ export default function Cta({ userType }: { userType?: UserType | null }) {
     },
     HEADHUNTER: {
       headline: <>후보자 이력서로<br />제안서를 만드세요</>,
-      sub: <>2분이면 후보자 분석부터 클라이언트 제안 전략까지 완성됩니다.<br />첫 분석은 완전 무료입니다.</>,
+      sub: <>10분이면 후보자 분석부터 클라이언트 제안 전략까지 완성됩니다.<br />첫 분석은 완전 무료입니다.</>,
       btnText: '무료 분석 시작하기 →',
     },
     DEFAULT: {

@@ -25,7 +25,7 @@ export default function HowItWorks({ userType }: { userType?: UserType | null })
       sub: '복잡한 설정 없이, 이력서 하나만 있으면 됩니다.',
     },
     HEADHUNTER: {
-      title: '후보자 분석부터\n클라이언트 제안까지 2분',
+      title: '후보자 분석부터\n클라이언트 제안까지 10분',
       sub: '이력서 업로드 하나로 제안서까지 자동 완성됩니다.',
     },
     DEFAULT: {
