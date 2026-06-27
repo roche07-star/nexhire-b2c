@@ -28,7 +28,7 @@ export default function SettlementsClient() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
-  const [years, setYears] = useState([new Date().getFullYear()])
+  const [years, setYears] = useState([2025, 2026]) // 2025년, 2026년
   const [editingId, setEditingId] = useState<string | null>(null)
   const [goalAmount, setGoalAmount] = useState(5000)
   const [carryover, setCarryover] = useState(0)
