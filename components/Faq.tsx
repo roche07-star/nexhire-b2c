@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import type { UserType } from '@/types/user'
 
-const faqs = [
+const individualFaqs = [
   {
     q: '어떤 형식의 이력서를 지원하나요?',
     a: 'PDF 및 DOCX 형식을 지원합니다. 한글 이력서도 자연스럽게 분석됩니다. 파일 크기는 최대 10MB까지 가능합니다.',
@@ -33,8 +34,36 @@ const faqs = [
   },
 ]
 
-export default function Faq() {
+const headhunterFaqs = [
+  {
+    q: '후보자 이력서는 어떤 형식을 지원하나요?',
+    a: 'PDF 및 DOCX 형식을 지원합니다. 한글 이력서도 자연스럽게 분석됩니다. 파일 크기는 최대 10MB까지 가능합니다.',
+  },
+  {
+    q: '클라이언트 제안서는 무엇을 제공하나요?',
+    a: '후보자 강점 분석, JD 적합도 점수, 매칭 포인트, 예상 질문/답변을 포함한 종합 제안서를 자동으로 생성합니다. PRO는 월 20회, EXPERT는 월 50회 이용 가능합니다.',
+  },
+  {
+    q: '정산 기능은 어떻게 사용하나요?',
+    a: '헤드헌터 PRO/EXPERT 플랜에서 이용 가능합니다. 합격자 정보, 입사일, 연봉, 수수료율을 입력하면 자동으로 정산 금액이 계산됩니다. 연도별 통계와 목표 달성률도 확인할 수 있습니다.',
+  },
+  {
+    q: '후보자 데이터는 안전한가요?',
+    a: '성명, 연락처, 이메일 등 식별 정보는 AI 분석 전 자동으로 마스킹 처리되어 외부로 전송되지 않습니다. 직무/경력 내용만 분석에 활용되며, 모든 데이터는 암호화되어 저장됩니다.',
+  },
+  {
+    q: '분석 결과는 저장되나요?',
+    a: 'PRO / EXPERT 플랜은 후보자 분석 결과와 JD 적합도 분석 결과 모두 영구적으로 저장됩니다. 재접속 시 언제든 다시 확인할 수 있으며, HTML/PDF 리포트 다운로드도 가능합니다.',
+  },
+  {
+    q: '여러 명의 후보자를 동시에 분석할 수 있나요?',
+    a: '네, 가능합니다. 후보자별로 개별 분석을 진행하며, 후보자 관리 대시보드에서 전체 후보자 목록과 분석 결과를 한눈에 확인할 수 있습니다.',
+  },
+]
+
+export default function Faq({ userType }: { userType?: UserType | null }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null)
+  const faqs = userType === 'HEADHUNTER' ? headhunterFaqs : individualFaqs
 
   return (
     <section id="faq" style={{ maxWidth: 720 }}>

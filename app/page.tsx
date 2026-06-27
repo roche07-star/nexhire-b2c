@@ -22,9 +22,9 @@ export default async function Home() {
       <Hero userType={userType} />
       <HowItWorks userType={userType} />
       <Features userType={userType} />
-      <Persona />
+      {userType !== 'HEADHUNTER' && <Persona />}
       <Pricing userType={userType} />
-      <Faq />
+      <Faq userType={userType} />
       <Cta userType={userType} />
       <Footer />
     </>
