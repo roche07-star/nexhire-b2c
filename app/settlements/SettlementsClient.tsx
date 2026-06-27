@@ -189,7 +189,8 @@ export default function SettlementsClient() {
   const f = (n: number) => Math.round(n * 100) / 100
 
   const calculateCommission = (salary: number, rate: number) => f(salary * (rate / 100))
-  const calculatePersonalCommission = (commission: number) => f(commission / 2) // PM+써처로 분할 (단순히 절반)
+  // 개인 매출액 계산: 실매출액 × my_ratio
+  const calculatePersonalCommission = (commission: number, myRatio: number) => f(commission * (myRatio / 100))
 
   const stats = (() => {
     let totalSales = 0, totalPersonal = 0, totalIncentive = 0, totalTax = 0, totalNet = 0, rateSum = 0, rateCount = 0
@@ -197,12 +198,11 @@ export default function SettlementsClient() {
     const threshold = goalAmount
 
     settlements.forEach((s, idx) => {
-      const sales = calculateCommission(s.salary, s.commission_rate)
-      const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
+      const sales = calculateCommission(s.salary, s.commission_rate) // 실매출액
       const myRatio = s.my_ratio || 50 // 내 비율
-      const personal = f(personalFull * (myRatio / 100)) // 내 실제 몫
+      const personal = calculatePersonalCommission(sales, myRatio) // 개인 매출액 (실매출액 × my_ratio)
       const ir = threshold > 0 && cumPersonal >= threshold ? 100 : s.incentive_rate
-      const incentive = f(personal * ir / 100)
+      const incentive = f(personal * ir / 100) // 인센티브 (개인 매출액 × 요율)
       cumPersonal += personal
       const tax = f(incentive * 0.033)
       const net = f(incentive - tax)
@@ -518,9 +518,8 @@ export default function SettlementsClient() {
                 <div style={{ fontSize: '11px', color: '#b8860b', fontWeight: 700, marginTop: '10px' }}>
                   {(() => {
                     const sales = calculateCommission(formData.salary, formData.commission_rate)
-                    const personalFull = calculatePersonalCommission(sales)
                     const myRatio = formData.my_ratio || 50
-                    const personal = f(personalFull * (myRatio / 100))
+                    const personal = calculatePersonalCommission(sales, myRatio)
                     const incentive = f(personal * formData.incentive_rate / 100)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
@@ -529,7 +528,7 @@ export default function SettlementsClient() {
                                     formData.my_role === 'PM' ? `PM(${myRatio}%)` :
                                     `써처(${myRatio}%)`
 
-                    return `실매출 ${sales.toLocaleString()}만 / 내 몫 ${personal.toLocaleString()}만 (${roleText}) / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
+                    return `실매출 ${sales.toLocaleString()}만 / 개인 매출액 ${personal.toLocaleString()}만 (${roleText}) / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
                   })()}
                 </div>
               )}
@@ -581,26 +580,19 @@ export default function SettlementsClient() {
                   const threshold = goalAmount + carryover
                   return settlements.map((s, idx) => {
                     const sales = calculateCommission(s.salary, s.commission_rate)
-                    const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
-                    const myRatio = s.my_ratio || 50 // 내 비율 (기본 50%)
-                    const personal = f(personalFull * (myRatio / 100)) // 내 몫 (비율 적용)
+                    const myRatio = s.my_ratio || 50 // 내 비율
+                    const personal = calculatePersonalCommission(sales, myRatio) // 개인 매출액 (실매출액 × my_ratio)
 
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
-
-                    // 분할 계산: 70% 구간과 100% 구간
-                    const seventyPart = willConvert ? f(threshold - cumPersonal) : (alreadyConverted ? 0 : personal)
-                    const hundredPart = willConvert ? f(personal - seventyPart) : (alreadyConverted ? personal : 0)
 
                     cumPersonal += personal
                     const ir = threshold > 0 ? (alreadyConverted || willConvert ? 100 : 70) : s.incentive_rate
                     const isConvRow = willConvert && !conversionDone
                     if (ir === 100) conversionDone = true
 
-                    // 인센티브 분할 계산
-                    const incentiveSeventyPart = f(seventyPart * 0.7)
-                    const incentiveHundredPart = f(hundredPart * 1.0)
-                    const incentive = f(incentiveSeventyPart + incentiveHundredPart)
+                    // 인센티브 계산 (개인 매출액 × 요율)
+                    const incentive = f(personal * ir / 100)
                     const tax = f(incentive * 0.033)
                     const net = f(incentive - tax)
 
@@ -620,18 +612,7 @@ export default function SettlementsClient() {
                         <td style={{ padding: '8px 10px', textAlign: 'center', color: '#1c1917' }}>{s.commission_rate}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#b8860b', fontWeight: 600 }}>{sales.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>
-                          {willConvert ? (
-                            <div style={{ lineHeight: 1.6 }}>
-                              <div>
-                                <span style={{ color: '#b8860b' }}>{seventyPart.toLocaleString()}</span>
-                                <span style={{ fontSize: '10px', color: '#78716c', marginLeft: '3px' }}>70%</span>
-                              </div>
-                              <div>
-                                <span style={{ color: '#15803d' }}>{hundredPart.toLocaleString()}</span>
-                                <span style={{ fontSize: '10px', color: '#78716c', marginLeft: '3px' }}>100%</span>
-                              </div>
-                            </div>
-                          ) : personal.toLocaleString()}
+                          {personal.toLocaleString()}
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{cumPersonal.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
@@ -648,14 +629,7 @@ export default function SettlementsClient() {
                           </span>
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#15803d', fontWeight: 600 }}>
-                          {willConvert ? (
-                            <div style={{ lineHeight: 1.6 }}>
-                              <div style={{ fontSize: '11px' }}>
-                                {incentiveSeventyPart.toLocaleString()} + {incentiveHundredPart.toLocaleString()}
-                              </div>
-                              <div style={{ fontWeight: 700 }}>{incentive.toLocaleString()}</div>
-                            </div>
-                          ) : incentive.toLocaleString()}
+                          {incentive.toLocaleString()}
                         </td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', color: '#1c1917' }}>{tax.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#1c1917' }}>{net.toLocaleString()}</td>
