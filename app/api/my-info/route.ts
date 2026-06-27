@@ -2,10 +2,19 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-const PLAN_LIMITS: Record<string, Record<string, number>> = {
-  FREE:   { analyze: 3,  jd: 0,  rewrite: 0,  interview: 0 },
-  PRO:    { analyze: 10, jd: 15, rewrite: 3,  interview: 0 },
-  EXPERT: { analyze: 30, jd: 30, rewrite: 15, interview: 15 },
+type UserType = 'JOBSEEKER' | 'HEADHUNTER'
+
+const PLAN_LIMITS: Record<UserType, Record<string, Record<string, number>>> = {
+  JOBSEEKER: {
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
+    PRO:    { analyze: 15, jd: 15, rewrite: 10, interview: 0 },
+    EXPERT: { analyze: 30, jd: 30, rewrite: 50, interview: 50 },
+  },
+  HEADHUNTER: {
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
+    PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0 },
+    EXPERT: { analyze: 40, jd: 40, rewrite: 50, interview: 50 },
+  }
 }
 
 export async function GET() {
@@ -30,7 +39,8 @@ export async function GET() {
   ])
 
   const plan = user?.plan ?? 'FREE'
-  const limits = PLAN_LIMITS[plan] ?? PLAN_LIMITS.FREE
+  const userType = (user?.user_type ?? 'JOBSEEKER') as UserType
+  const limits = PLAN_LIMITS[userType]?.[plan] ?? PLAN_LIMITS.JOBSEEKER.FREE
   const now = new Date()
 
   const usage = {
