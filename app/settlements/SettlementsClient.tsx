@@ -506,8 +506,8 @@ export default function SettlementsClient() {
                     <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '5px' }}>{label}</label>
                     <input
                       type={type}
-                      value={formData[key as keyof typeof formData]}
-                      onChange={e => setFormData(p => ({ ...p, [key]: type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value }))}
+                      value={type === 'number' ? (formData[key as keyof typeof formData] || '') : formData[key as keyof typeof formData]}
+                      onChange={e => setFormData(p => ({ ...p, [key]: type === 'number' ? (e.target.value === '' ? 0 : parseInt(e.target.value) || 0) : e.target.value }))}
                       placeholder={ph}
                       style={{ width: '100%', padding: '7px 8px', border: '1px solid #d6d3d1', borderRadius: '7px', fontSize: '12px', boxSizing: 'border-box' }}
                     />
