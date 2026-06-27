@@ -585,11 +585,11 @@ export default function SettlementsClient() {
 
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
+                    const ir = threshold > 0 ? (alreadyConverted ? 100 : 70) : s.incentive_rate
+                    const isConvRow = willConvert && !conversionDone
+                    if (willConvert) conversionDone = true
 
                     cumPersonal += personal
-                    const ir = threshold > 0 ? (alreadyConverted || willConvert ? 100 : 70) : s.incentive_rate
-                    const isConvRow = willConvert && !conversionDone
-                    if (ir === 100) conversionDone = true
 
                     // 인센티브 계산 (개인 매출액 × 요율)
                     const incentive = f(personal * ir / 100)
