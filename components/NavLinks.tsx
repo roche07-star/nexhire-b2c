@@ -41,7 +41,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     // PRO 이상이면 이력서 분석 표시
     ...(isPro ? [{ href: '/analyze', label: '이력서 분석' }] : []),
     // 헤드헌터 + PRO 이상이면 정산 표시
-    ...(isPro && isHeadhunter ? [{ href: '/settlements', label: '💰 정산' }] : []),
+    ...(isPro && isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
     { href: '/store', label: 'Store' },
   ]
 
@@ -59,7 +59,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
       )}
       {/* 헤드헌터 + PRO 이상이면 정산 */}
       {isPro && isHeadhunter && (
-        <li className="desktop-only"><Link href="/settlements" style={getLinkStyle('/settlements')}>💰 정산</Link></li>
+        <li className="desktop-only"><Link href="/settlements" style={getLinkStyle('/settlements')}>정산</Link></li>
       )}
       <li className="desktop-only"><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
 
