@@ -142,7 +142,7 @@ export default function MyInfoButton() {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 999999,
-            padding: '500px 20px 20px',
+            padding: '80px 20px 20px',
             backdropFilter: 'blur(4px)'
           }}
           onClick={() => setOpen(false)}
