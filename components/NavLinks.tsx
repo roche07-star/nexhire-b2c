@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -11,6 +12,7 @@ interface NavLinksProps {
 export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const getLinkStyle = (path: string) => {
     const isActive = pathname === path || (path !== '/' && pathname?.startsWith(path))
@@ -35,24 +37,54 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     }
   }
 
+  const menuItems = [
+    ...(isPro && !isHeadhunter ? [{ href: '/analyze', label: '이력서 분석' }] : []),
+    ...(isPro && isHeadhunter ? [{ href: '/settlements', label: '💰 정산' }] : []),
+    { href: '/store', label: 'Store' },
+  ]
+
   return (
     <>
-      {/* PRO 개인 구직자면 이력서 분석 추가 */}
+      {/* 데스크톱 메뉴 */}
+      <li className="desktop-only"><a href="/#how" onClick={handleHashLink('#how')}>사용법</a></li>
+      <li className="desktop-only"><a href="/#features" onClick={handleHashLink('#features')}>기능</a></li>
+      <li className="desktop-only"><a href="/#pricing" onClick={handleHashLink('#pricing')}>가격</a></li>
+      <li className="desktop-only"><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
+
       {isPro && !isHeadhunter && (
-        <li><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
+        <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
       )}
-
-      {/* PRO 헤드헌터면 정산 메뉴 추가 */}
       {isPro && isHeadhunter && (
-        <li><Link href="/settlements" style={getLinkStyle('/settlements')}>💰 정산</Link></li>
+        <li className="desktop-only"><Link href="/settlements" style={getLinkStyle('/settlements')}>💰 정산</Link></li>
       )}
+      <li className="desktop-only"><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
 
-      {/* 기본 메뉴 (모두에게 표시) */}
-      <li><a href="/#how" onClick={handleHashLink('#how')}>사용법</a></li>
-      <li><a href="/#features" onClick={handleHashLink('#features')}>기능</a></li>
-      <li><a href="/#pricing" onClick={handleHashLink('#pricing')}>가격</a></li>
-      <li><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
-      <li><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
+      {/* 모바일 햄버거 버튼 */}
+      <li className="mobile-only">
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="mobile-menu-btn"
+          aria-label="메뉴"
+        >
+          ☰
+        </button>
+      </li>
+
+      {/* 모바일 드롭다운 메뉴 */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu-dropdown">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="mobile-menu-item"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </>
   )
 }
