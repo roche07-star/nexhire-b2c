@@ -1568,7 +1568,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
-                    <AnalysisResults result={savedSelectedItem.result} analysisId={savedSelectedItem.id} isPro={isPro} />
+                    <AnalysisResults result={savedSelectedItem.result} analysisId={savedSelectedItem.id} isPro={isPro} userType={userType} userEmail={userEmail} />
                   </>
                 ) : (
                   <>
@@ -2761,7 +2761,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </button>
                 </div>
 
-                <AnalysisResults result={result} analysisId={analysisId} isPro={isPro} />
+                <AnalysisResults result={result} analysisId={analysisId} isPro={isPro} userType={userType} userEmail={userEmail} />
 
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
@@ -2996,10 +2996,14 @@ function AnalysisResults({
   result,
   analysisId,
   isPro,
+  userType,
+  userEmail,
 }: {
   result: AnalysisResult
   analysisId?: string | null
   isPro?: boolean
+  userType?: string | null
+  userEmail?: string | null
 }) {
   const [activeCareerTab, setActiveCareerTab] = useState(
     result.career_paths && result.career_paths.length > 0 ? Math.min(1, result.career_paths.length - 1) : 0
@@ -3011,6 +3015,8 @@ function AnalysisResults({
   const [expanding, setExpanding] = useState(false)
   const [expandError, setExpandError] = useState<string | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
+  const [showHiringModal, setShowHiringModal] = useState(false)
+  const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
 
   // PRO 분석 후 커리어 경로가 없으면 자동으로 expand 호출 (504 방지용 분리 설계)
   useEffect(() => {
@@ -3459,6 +3465,199 @@ function AnalysisResults({
               <RefinementTextView text={refinementText} />
             </div>
           )}
+        </div>
+      )}
+
+      {/* 헤드헌터 + PRO 이상: 채용 프로세스 추가 */}
+      {userType === 'HEADHUNTER' && isPro && analysisId && (
+        <div style={{ marginBottom: '16px' }}>
+          <button
+            className="analyze-download-btn"
+            onClick={() => setShowHiringModal(true)}
+            style={{ background: '#22d3ee', borderColor: '#22d3ee' }}
+          >
+            📊 채용 프로세스 추가
+          </button>
+        </div>
+      )}
+
+      {/* 채용 프로세스 추가 모달 */}
+      {showHiringModal && (
+        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)}>
+          <div className="demo-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', padding: '24px' }}>
+            <button
+              className="demo-modal-close"
+              onClick={() => !hiringProcessCreating && setShowHiringModal(false)}
+              disabled={hiringProcessCreating}
+            >
+              ✕
+            </button>
+
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>
+              📊 채용 프로세스 추가
+            </h2>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              const positionTitle = formData.get('position_title') as string
+              const companyName = formData.get('company_name') as string
+              const nextAction = formData.get('next_action') as string
+
+              if (!positionTitle || !companyName) {
+                alert('포지션명과 회사명은 필수입니다.')
+                return
+              }
+
+              setHiringProcessCreating(true)
+              try {
+                const res = await fetch('/api/hiring-process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    analysis_id: analysisId,
+                    position_title: positionTitle,
+                    company_name: companyName,
+                    candidate_name: result.candidate_name || '후보자',
+                    next_action: nextAction || '서류 검토',
+                    current_stage: 0,
+                    status: 'ACTIVE'
+                  })
+                })
+
+                if (res.ok) {
+                  alert('채용 프로세스가 추가되었습니다!')
+                  setShowHiringModal(false)
+                  window.location.href = '/hiring-process'
+                } else {
+                  const data = await res.json()
+                  alert(data.error || '추가 실패')
+                }
+              } catch (err) {
+                alert('서버 오류가 발생했습니다.')
+              } finally {
+                setHiringProcessCreating(false)
+              }
+            }}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  후보자명
+                </label>
+                <input
+                  type="text"
+                  value={result.candidate_name || '후보자'}
+                  disabled
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface2)',
+                    fontSize: '14px',
+                    color: 'var(--muted)'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  회사명 <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="company_name"
+                  required
+                  placeholder="예: 네이버"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  포지션명 <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="position_title"
+                  required
+                  placeholder="예: Product Manager"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  다음 액션 (선택)
+                </label>
+                <input
+                  type="text"
+                  name="next_action"
+                  placeholder="예: 서류 검토"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowHiringModal(false)}
+                  disabled={hiringProcessCreating}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'var(--surface2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: hiringProcessCreating ? 'not-allowed' : 'pointer',
+                    opacity: hiringProcessCreating ? 0.5 : 1
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={hiringProcessCreating}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#22d3ee',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#000',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: hiringProcessCreating ? 'not-allowed' : 'pointer',
+                    opacity: hiringProcessCreating ? 0.5 : 1
+                  }}
+                >
+                  {hiringProcessCreating ? '추가 중...' : '추가하기'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
