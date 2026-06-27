@@ -19,8 +19,8 @@ export type Role = 'MANAGER' | 'USER'
 /**
  * 플랜 (구독 등급)
  * - FREE: 무료 (월 3회)
- * - PRO: 프로 (월 30회)
- * - EXPERT: 전문가 (무제한, MANAGER 자동 부여)
+ * - PRO: 프로 (개인 월 15회, 헤드헌터 월 20회)
+ * - EXPERT: 전문가 (개인 월 30회, 헤드헌터 월 50회)
  */
 export type Plan = 'FREE' | 'PRO' | 'EXPERT'
 

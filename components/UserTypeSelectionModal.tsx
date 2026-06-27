@@ -83,7 +83,7 @@ export default function UserTypeSelectionModal({ onSelect }: Props) {
                 </ul>
 
                 <div className="card-footer">
-                  <strong>PRO 플랜:</strong> 월 9,900원 (30회)
+                  <strong>PRO 플랜:</strong> 월 9,900원 (15회)
                 </div>
               </button>
 
@@ -108,7 +108,7 @@ export default function UserTypeSelectionModal({ onSelect }: Props) {
                 </ul>
 
                 <div className="card-footer">
-                  <strong>PRO 플랜:</strong> 월 19,900원 (100회)
+                  <strong>PRO 플랜:</strong> 월 19,900원 (20회)
                 </div>
               </button>
             </div>

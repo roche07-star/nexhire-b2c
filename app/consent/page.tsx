@@ -172,6 +172,7 @@ function ConsentPageContent() {
                   <ul className="card-features">
                     <li>✓ 개인 구직자 모든 기능</li>
                     <li>✓ 후보자 분석 & 제안서</li>
+                    <li>✓ 💰 정산 기능 (매출/수수료 관리)</li>
                     <li>✓ 채용 프로세스 관리</li>
                   </ul>
                 </button>
