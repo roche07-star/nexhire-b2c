@@ -189,7 +189,7 @@ export default function SettlementsClient() {
   const f = (n: number) => Math.round(n * 100) / 100
 
   const calculateCommission = (salary: number, rate: number) => f(salary * (rate / 100))
-  const calculatePersonalCommission = (commission: number) => f(commission * 0.7) // 써치펌 30% 제외
+  const calculatePersonalCommission = (commission: number) => f(commission / 2) // PM+써처로 분할 (단순히 절반)
 
   const stats = (() => {
     let totalSales = 0, totalPersonal = 0, totalIncentive = 0, totalTax = 0, totalNet = 0, rateSum = 0, rateCount = 0
