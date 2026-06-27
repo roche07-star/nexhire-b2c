@@ -112,12 +112,31 @@ const reverseQuestions = [
 const recColor = { APPLY: '#22c55e', CONSIDER: '#e8a020', SKIP: '#ef4444' }
 const recLabel = { APPLY: '✅ 지원 강력 추천', CONSIDER: '⚠️ 조건부 추천', SKIP: '❌ 부적합' }
 
-function DemoModal({ onClose }: { onClose: () => void }) {
+function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER' | 'HEADHUNTER' | null; onClose: () => void }) {
   const [activeCareer, setActiveCareer] = useState(1)
   const [demoTab, setDemoTab] = useState(0)
   const [expandedQ, setExpandedQ] = useState<number | null>(0)
   const active = careerPaths[activeCareer]
   const color = recColor[jdDemo.recommendation]
+
+  const isHeadhunter = userType === 'HEADHUNTER'
+
+  // 탭 구성
+  const jobseekerTabs = [
+    { icon: '📊', label: '이력서 분석' },
+    { icon: '📋', label: 'JD 적합도' },
+    { icon: '✍️', label: '이력서 생성' },
+    { icon: '🎤', label: '면접 가이드' },
+  ]
+
+  const headhunterTabs = [
+    { icon: '👤', label: '후보자 분석' },
+    { icon: '📋', label: 'JD 매칭' },
+    { icon: '📄', label: '클라이언트 제안서' },
+    { icon: '💰', label: '정산 기능' },
+  ]
+
+  const tabs = isHeadhunter ? headhunterTabs : jobseekerTabs
 
   return (
     <div className="demo-modal-overlay" onClick={onClose}>
@@ -127,18 +146,21 @@ function DemoModal({ onClose }: { onClose: () => void }) {
         <div className="demo-modal-header">
           <div className="section-label">SAMPLE ANALYSIS — EXPERT</div>
           <h2 className="demo-modal-title">
-            3년차 B2B SaaS 마케터{' '}
-            <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>, 연봉 3,800만원</span>
+            {isHeadhunter ? '후보자: 김OO (30세, 여)' : '3년차 B2B SaaS 마케터'}{' '}
+            <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>
+              {isHeadhunter ? ', 희망연봉 5,000만원' : ', 연봉 3,800만원'}
+            </span>
           </h2>
-          <p className="demo-modal-sub">실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.</p>
+          <p className="demo-modal-sub">
+            {isHeadhunter
+              ? '실제 분석 결과는 업로드한 후보자 이력서 내용에 따라 달라집니다.'
+              : '실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.'
+            }
+          </p>
         </div>
 
         <div className="demo-feature-tabs">
-          {[
-            { icon: '📊', label: '이력서 분석' },
-            { icon: '📋', label: 'JD 적합도' },
-            { icon: '🎤', label: '면접 가이드' },
-          ].map((t, i) => (
+          {tabs.map((t, i) => (
             <button
               key={i}
               className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
@@ -151,7 +173,10 @@ function DemoModal({ onClose }: { onClose: () => void }) {
 
         <div className="demo-modal-body">
 
-          {/* ── Tab 0: 이력서 분석 ── */}
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 0 = 이력서 분석 */}
+          {/* 헤드헌터: Tab 0 = 후보자 분석 */}
+          {/* ────────────────────────────────────── */}
           {demoTab === 0 && (
             <>
               <div className="demo-scores">
@@ -264,7 +289,10 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             </>
           )}
 
-          {/* ── Tab 1: JD 적합도 ── */}
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 1 = JD 적합도 */}
+          {/* 헤드헌터: Tab 1 = JD 매칭 */}
+          {/* ────────────────────────────────────── */}
           {demoTab === 1 && (
             <>
               <div className="jd-demo-company-bar">
@@ -317,8 +345,141 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             </>
           )}
 
-          {/* ── Tab 2: 면접 가이드 ── */}
-          {demoTab === 2 && (
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 2 = 이력서 생성 */}
+          {/* 헤드헌터: Tab 2 = 클라이언트 제안서 */}
+          {/* ────────────────────────────────────── */}
+          {demoTab === 2 && !isHeadhunter && (
+            <>
+              <div className="jd-demo-company-bar">
+                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
+                <span className="jd-demo-pos">{jdDemo.position}</span>
+              </div>
+
+              <div className="results-label" style={{ marginBottom: 10 }}>✍️ JD 맞춤 이력서 자동 생성</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  원본 이력서와 JD 분석 결과를 기반으로 <strong>매칭 강점은 부각</strong>하고 <strong>부족한 점은 보완</strong>하여 이력서를 자동으로 재작성합니다.
+                </p>
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">원본 이력서</div>
+                  <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
+                    <strong>[주요 업무]</strong><br/>
+                    • B2B SaaS 제품 마케팅 전략 수립<br/>
+                    • SQL 기반 데이터 분석 및 성과 측정<br/>
+                    • 마케팅 캠페인 기획 및 실행
+                  </div>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">생성된 이력서 (JD 최적화)</div>
+                  <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'rgba(232,255,71,0.1)', borderRadius: '8px', border: '1px solid rgba(232,255,71,0.2)' }}>
+                    <strong>[주요 업무 및 성과]</strong><br/>
+                    • <strong>B2B SaaS 제품의 GTM 전략 수립 및 실행</strong> (PM 필수 역량)<br/>
+                    • <strong>SQL로 사용자 퍼널 분석, 전환율 50% 개선</strong> (데이터 기반 의사결정)<br/>
+                    • <strong>Figma로 프로덕트 개선안 제안, 5건 반영</strong> (프로덕트 감각)
+                  </div>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">💡 변경 사항</div>
+                  <ul className="result-list">
+                    <li><strong>GTM 전략</strong> → PM 핵심 역량으로 강조</li>
+                    <li><strong>구체적 성과 수치</strong> 추가 (전환율 50% 개선)</li>
+                    <li><strong>Figma 프로덕트 제안</strong> 경험 부각</li>
+                    <li><strong>데이터 기반 의사결정</strong> 키워드 삽입</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="results-label" style={{ marginTop: 16 }}>📝 자기소개서 최적화</div>
+              <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
+                저는 B2B SaaS 기업에서 <strong>GTM 전략 수립과 실행을 주도</strong>하며 <strong>데이터 기반 의사결정</strong>을 실천해온 마케터입니다.
+                SQL로 직접 퍼널을 분석하고 개선안을 도출하여 <strong>전환율을 50% 향상</strong>시켰으며,
+                Figma를 활용해 프로덕트 개선안을 제안한 경험이 있습니다.
+                이러한 경험을 바탕으로 <strong>사용자와 비즈니스 양쪽의 관점</strong>에서 문제를 해결하는 PM이 되고자 합니다.
+              </div>
+            </>
+          )}
+
+          {demoTab === 2 && isHeadhunter && (
+            <>
+              <div className="jd-demo-company-bar">
+                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
+                <span className="jd-demo-pos">{jdDemo.position}</span>
+              </div>
+
+              <div className="results-label" style={{ marginBottom: 10 }}>📄 클라이언트 제안서 자동 생성</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  후보자 강점, JD 적합도, 매칭 포인트, 예상 질문/답변을 포함한 <strong>종합 제안서</strong>를 자동으로 생성합니다.
+                </p>
+              </div>
+
+              <div className="demo-scores" style={{ marginTop: 16 }}>
+                <div className="results-label">후보자 적합도</div>
+                {[
+                  { label: 'JD 매칭률', val: 89 },
+                  { label: '직무 경험', val: 92 },
+                  { label: '연봉 협상력', val: 85 },
+                ].map((s) => (
+                  <div key={s.label} className="result-score-row">
+                    <div className="score-meta">
+                      <span className="score-name">{s.label}</span>
+                      <span className="score-val">{s.val}%</span>
+                    </div>
+                    <div className="score-bar-wrap">
+                      <div className="score-bar" style={{ width: `${s.val}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">✅ 추천 이유</div>
+                  <ul className="result-list">
+                    <li>B2B SaaS PM 필수 역량 (GTM, 데이터 분석) 완벽 보유</li>
+                    <li>SQL 기반 퍼널 분석으로 전환율 50% 개선 성과</li>
+                    <li>스타트업 0→1 성장 경험, 즉시 전력 가능</li>
+                  </ul>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">⚠️ 유의사항</div>
+                  <ul className="result-list improvement-list">
+                    <li>PM 전환 희망으로 프로덕트 스펙 작성 경험 부족</li>
+                    <li>리더십 경험 이력서에 명시 필요</li>
+                  </ul>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">💰 연봉 협상 가이드</div>
+                  <ul className="result-list">
+                    <li>현재 연봉: 3,800만원</li>
+                    <li>희망 연봉: 5,000만원</li>
+                    <li>적정 제안: <strong>4,500~4,800만원</strong></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="results-label" style={{ marginTop: 16 }}>📋 클라이언트 프레젠테이션 요약</div>
+              <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'rgba(232,255,71,0.1)', borderRadius: '8px', border: '1px solid rgba(232,255,71,0.2)' }}>
+                <strong>추천 후보:</strong> 김OO (30세, 여)<br/>
+                <strong>핵심 강점:</strong> B2B SaaS GTM 전략 수립/실행, SQL 기반 데이터 분석, 0→1 성장 경험<br/>
+                <strong>JD 매칭률:</strong> 89% (매우 우수)<br/>
+                <strong>제안 연봉:</strong> 4,500~4,800만원<br/>
+                <strong>추천 사유:</strong> 귀사가 찾는 PM 역량(GTM 전략, 데이터 분석)을 완벽히 보유하고 있으며, 스타트업 성장 경험으로 빠른 적응이 가능합니다.
+              </div>
+            </>
+          )}
+
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 3 = 면접 가이드 */}
+          {/* 헤드헌터: Tab 3 = 정산 기능 */}
+          {/* ────────────────────────────────────── */}
+          {demoTab === 3 && !isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
@@ -356,6 +517,95 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   <div key={i} className="reverse-q-card">
                     <span className="reverse-q-type">{rq.type}</span>
                     <p className="reverse-q-text">{rq.q}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {demoTab === 3 && isHeadhunter && (
+            <>
+              <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 — 매출/수수료 자동 계산</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  합격자 정보, 입사일, 연봉, 수수료율을 입력하면 <strong>정산 금액을 자동으로 계산</strong>하고 <strong>연도별 통계</strong>를 제공합니다.
+                </p>
+              </div>
+
+              <div className="demo-scores" style={{ marginTop: 16 }}>
+                <div className="results-label">2026년 실적 요약</div>
+                {[
+                  { label: '총 매출', val: '128,500,000원' },
+                  { label: '전환액 (회수)', val: '96,200,000원' },
+                  { label: '미수금 (대기)', val: '32,300,000원' },
+                ].map((s) => (
+                  <div key={s.label} className="result-score-row">
+                    <div className="score-meta">
+                      <span className="score-name">{s.label}</span>
+                      <span className="score-val" style={{ color: 'var(--primary)' }}>{s.val}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">📊 월별 매출</div>
+                  <ul className="result-list">
+                    <li>1월: 12,500,000원</li>
+                    <li>2월: 18,300,000원</li>
+                    <li>3월: 21,700,000원</li>
+                    <li>4월: 19,200,000원</li>
+                    <li>5월: 23,800,000원</li>
+                    <li>6월: 33,000,000원 (최고)</li>
+                  </ul>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">🎯 목표 달성률</div>
+                  <div className="result-score-row">
+                    <div className="score-meta">
+                      <span className="score-name">연간 목표 (1.5억)</span>
+                      <span className="score-val">86%</span>
+                    </div>
+                    <div className="score-bar-wrap">
+                      <div className="score-bar" style={{ width: '86%' }} />
+                    </div>
+                  </div>
+                  <p className="result-summary" style={{ fontSize: '12px', marginTop: 8 }}>
+                    현재 진행률로 <strong>목표 달성 가능</strong> (예상: 1.62억)
+                  </p>
+                </div>
+                <div className="results-section">
+                  <div className="results-label">💡 정산 관리 기능</div>
+                  <ul className="result-list">
+                    <li>합격자별 정산 내역 자동 기록</li>
+                    <li>입사일 기준 수수료 자동 계산</li>
+                    <li>전환액/미수금 실시간 집계</li>
+                    <li>연도별 통계 및 목표 달성률</li>
+                    <li>Excel 다운로드 지원</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="results-label" style={{ marginTop: 16 }}>📋 최근 정산 내역</div>
+              <div style={{ background: 'var(--surface2)', borderRadius: '8px', padding: '12px', fontSize: '13px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', fontWeight: 600, marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>
+                  <span>이름</span>
+                  <span>입사일</span>
+                  <span>연봉</span>
+                  <span>수수료</span>
+                </div>
+                {[
+                  { name: '김OO', date: '2026-06-01', salary: '5,000만원', fee: '12,500,000원' },
+                  { name: '이OO', date: '2026-05-15', salary: '6,500만원', fee: '16,250,000원' },
+                  { name: '박OO', date: '2026-04-20', salary: '4,200만원', fee: '10,500,000원' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', padding: '6px 0' }}>
+                    <span>{item.name}</span>
+                    <span style={{ color: 'var(--muted)' }}>{item.date}</span>
+                    <span>{item.salary}</span>
+                    <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{item.fee}</span>
                   </div>
                 ))}
               </div>
@@ -553,7 +803,7 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
         </div>
       </div>
 
-      {showDemo && <DemoModal onClose={() => setShowDemo(false)} />}
+      {showDemo && <DemoModal userType={userType} onClose={() => setShowDemo(false)} />}
     </section>
   )
 }

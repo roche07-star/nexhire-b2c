@@ -4234,6 +4234,101 @@ footer {
   .faq-a { font-size: 12px; }
   .faq-item.open .faq-a { padding: 0 14px 12px; }
 
+  /* DEMO MODAL */
+  .demo-modal {
+    max-width: calc(100% - 20px);
+    max-height: calc(100vh - 40px);
+    padding: 20px;
+  }
+  .demo-modal-header {
+    padding: 0;
+  }
+  .demo-modal-title {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+  .demo-modal-sub {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  .demo-modal-body {
+    max-height: calc(100vh - 280px);
+  }
+  .demo-feature-tabs {
+    gap: 4px;
+    padding: 0 0 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .demo-feature-tab {
+    flex: 0 0 auto;
+    min-width: 80px;
+    padding: 8px 6px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .demo-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .demo-scores {
+    padding: 12px;
+  }
+  .demo-summary-block {
+    padding: 12px;
+    margin: 12px 0;
+  }
+  .result-summary {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .jd-demo-company-bar {
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+  }
+  .jd-fit-hero {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  .jd-fit-score-block {
+    margin: 0 auto;
+  }
+  .interview-questions-list {
+    gap: 6px;
+  }
+  .interview-q-item {
+    padding: 10px;
+  }
+  .interview-q-text {
+    font-size: 12px;
+  }
+  .interview-q-answer {
+    font-size: 11px;
+    padding: 10px;
+    margin-top: 8px;
+  }
+  .reverse-questions-list {
+    gap: 8px;
+  }
+  .reverse-q-card {
+    padding: 10px;
+  }
+  .reverse-q-text {
+    font-size: 12px;
+  }
+  .career-cards {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+  .salary-band-wrap {
+    padding: 12px;
+  }
+  .career-detail {
+    padding: 12px;
+  }
+
   /* CTA */
   .cta-section { padding: 50px 12px; }
   .cta-inner h2 { font-size: clamp(20px, 7vw, 36px); }
