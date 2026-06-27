@@ -16,6 +16,9 @@ interface Settlement {
   personal_override: number
   memo?: string
   year: number
+  pm_name?: string
+  searcher_name?: string
+  pm_bonus?: number
 }
 
 export default function SettlementsClient() {
@@ -43,6 +46,9 @@ export default function SettlementsClient() {
     incentive_rate: 70,
     personal_override: 0,
     memo: '',
+    pm_name: '',
+    searcher_name: '',
+    pm_bonus: 0,
   })
 
   useEffect(() => {
@@ -150,6 +156,9 @@ export default function SettlementsClient() {
       incentive_rate: s.incentive_rate,
       personal_override: s.personal_override,
       memo: s.memo || '',
+      pm_name: s.pm_name || '',
+      searcher_name: s.searcher_name || '',
+      pm_bonus: s.pm_bonus || 0,
     })
     setEditingId(s.id)
     setShowForm(true)
@@ -166,6 +175,9 @@ export default function SettlementsClient() {
       incentive_rate: 70,
       personal_override: 0,
       memo: '',
+      pm_name: '',
+      searcher_name: '',
+      pm_bonus: 0,
     })
   }
 
@@ -177,7 +189,7 @@ export default function SettlementsClient() {
   const f = (n: number) => Math.round(n * 100) / 100
 
   const calculateCommission = (salary: number, rate: number) => f(salary * (rate / 100))
-  const calculatePersonalCommission = (commission: number) => f(commission / 2)
+  const calculatePersonalCommission = (commission: number) => f(commission * 0.7) // 써치펌 30% 제외
 
   const stats = (() => {
     let totalSales = 0, totalPersonal = 0, totalIncentive = 0, totalTax = 0, totalNet = 0, rateSum = 0, rateCount = 0
@@ -436,9 +448,12 @@ export default function SettlementsClient() {
                   ['입사일', 'start_date', 'date', ''],
                   ['연봉(만)', 'salary', 'number', '5000'],
                   ['수수료율%', 'commission_rate', 'number', '17'],
-                  ['요율%', 'incentive_rate', 'number', '70'],
+                  ['PM *', 'pm_name', 'text', 'PM 이름'],
+                  ['써처', 'searcher_name', 'text', '써처 이름 (선택)'],
                   ['고객사', 'company', 'text', '삼성전자'],
                   ['포지션', 'position', 'text', '백엔드 개발'],
+                  ['요율%', 'incentive_rate', 'number', '70'],
+                  ['PM보전(만)', 'pm_bonus', 'number', '0'],
                 ].map(([label, key, type, ph]) => (
                   <div key={key}>
                     <label style={{ fontSize: '10px', fontWeight: 700, color: '#a8a29e', display: 'block', marginBottom: '5px' }}>{label}</label>
@@ -454,7 +469,16 @@ export default function SettlementsClient() {
               </div>
               {formData.salary && formData.commission_rate && (
                 <div style={{ fontSize: '11px', color: '#b8860b', fontWeight: 700, marginTop: '10px' }}>
-                  실매출 {calculateCommission(formData.salary, formData.commission_rate).toLocaleString()}만 / 개인 {calculatePersonalCommission(calculateCommission(formData.salary, formData.commission_rate)).toLocaleString()}만 / 인센티브 {f(calculatePersonalCommission(calculateCommission(formData.salary, formData.commission_rate)) * formData.incentive_rate / 100 * 0.967).toLocaleString()}만원 (실수령)
+                  {(() => {
+                    const sales = calculateCommission(formData.salary, formData.commission_rate)
+                    const personalFull = calculatePersonalCommission(sales)
+                    const isSolo = !formData.searcher_name
+                    const personal = isSolo ? personalFull : f(personalFull / 2)
+                    const incentive = f(personal * formData.incentive_rate / 100)
+                    const tax = f(incentive * 0.033)
+                    const net = f(incentive - tax)
+                    return `실매출 ${sales.toLocaleString()}만 / PM+써처 몫 ${personalFull.toLocaleString()}만 / ${isSolo ? 'PM 단독' : 'PM/써처 각'} ${personal.toLocaleString()}만 / 인센티브 ${incentive.toLocaleString()}만 / 실수령 ${net.toLocaleString()}만원`
+                  })()}
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', gap: '8px' }}>
@@ -505,7 +529,10 @@ export default function SettlementsClient() {
                   const threshold = goalAmount + carryover
                   return settlements.map((s, idx) => {
                     const sales = calculateCommission(s.salary, s.commission_rate)
-                    const personal = calculatePersonalCommission(sales)
+                    const personalFull = calculatePersonalCommission(sales) // PM+써처 전체 몫
+                    const isSolo = !s.searcher_name // PM 단독 여부
+                    const personal = isSolo ? personalFull : f(personalFull / 2) // PM 또는 써처의 개인 몫
+
                     const alreadyConverted = threshold > 0 && cumPersonal >= threshold
                     const willConvert = threshold > 0 && !alreadyConverted && (cumPersonal + personal) >= threshold
 
