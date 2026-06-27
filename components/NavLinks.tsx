@@ -38,9 +38,11 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   }
 
   const menuItems = [
-    ...(isPro && !isHeadhunter ? [{ href: '/analyze', label: '이력서 분석' }] : []),
+    // 헤드헌터만 정산 표시
     ...(isPro && isHeadhunter ? [{ href: '/settlements', label: '💰 정산' }] : []),
     { href: '/store', label: 'Store' },
+    // 개인 구직자만 이력서 분석 표시
+    ...(isPro && !isHeadhunter ? [{ href: '/analyze', label: '이력서 분석' }] : []),
   ]
 
   return (
@@ -51,16 +53,18 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
       <li className="desktop-only"><a href="/#pricing" onClick={handleHashLink('#pricing')}>가격</a></li>
       <li className="desktop-only"><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
 
-      {isPro && !isHeadhunter && (
-        <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
-      )}
+      {/* 헤드헌터만 정산 */}
       {isPro && isHeadhunter && (
         <li className="desktop-only"><Link href="/settlements" style={getLinkStyle('/settlements')}>💰 정산</Link></li>
       )}
       <li className="desktop-only"><Link href="/store" style={getLinkStyle('/store')}>Store</Link></li>
+      {/* 개인 구직자만 이력서 분석 */}
+      {isPro && !isHeadhunter && (
+        <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
+      )}
 
       {/* 모바일 햄버거 버튼 */}
-      <li className="mobile-only">
+      <li className="mobile-menu-toggle">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="mobile-menu-btn"
@@ -68,23 +72,23 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
         >
           ☰
         </button>
-      </li>
 
-      {/* 모바일 드롭다운 메뉴 */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu-dropdown">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="mobile-menu-item"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+        {/* 모바일 드롭다운 메뉴 */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu-dropdown">
+            {menuItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="mobile-menu-item"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </li>
     </>
   )
 }
