@@ -1,14 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import type { HiringProcess, HiringProcessStage, HiringProcessStatus } from '@/types/hiring-process'
 import { STAGE_LABELS, STAGE_COLORS, STATUS_LABELS } from '@/types/hiring-process'
 
 export default function HiringProcessClient() {
+  const { data: session } = useSession()
   const [processes, setProcesses] = useState<HiringProcess[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'PASSED' | 'HIRED'>('ALL')
+
+  const plan = session?.user?.plan || 'FREE'
+  const isPro = plan === 'PRO' || plan === 'EXPERT'
 
   useEffect(() => {
     fetchProcesses()
@@ -83,13 +88,44 @@ export default function HiringProcessClient() {
           borderRadius: '16px',
           border: '1px solid var(--border)'
         }}>
-          <p style={{ fontSize: '48px', marginBottom: '16px' }}>📋</p>
-          <p style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>
-            {filter === 'ALL' ? '채용 프로세스가 없습니다.' : `${STATUS_LABELS[filter]} 프로세스가 없습니다.`}
-          </p>
-          <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
-            이력서 분석 결과에서 채용 프로세스를 추가하세요.
-          </p>
+          {!isPro ? (
+            // FREE 사용자: 자물쇠 + PRO 전용 안내
+            <>
+              <p style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</p>
+              <p style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: '#fbbf24' }}>
+                PRO 플랜 전용 기능
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '24px' }}>
+                채용 프로세스 관리는 PRO 이상 플랜에서 이용 가능합니다.
+              </p>
+              <a
+                href="/#pricing"
+                style={{
+                  display: 'inline-block',
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                  color: '#000',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
+                }}
+              >
+                PRO 플랜 업그레이드 →
+              </a>
+            </>
+          ) : (
+            // PRO 이상: 기존 안내
+            <>
+              <p style={{ fontSize: '48px', marginBottom: '16px' }}>📋</p>
+              <p style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px' }}>
+                {filter === 'ALL' ? '채용 프로세스가 없습니다.' : `${STATUS_LABELS[filter]} 프로세스가 없습니다.`}
+              </p>
+              <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
+                이력서 분석 결과에서 채용 프로세스를 추가하세요.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
