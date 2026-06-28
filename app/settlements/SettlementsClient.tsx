@@ -27,6 +27,9 @@ export default function SettlementsClient() {
   const [settlements, setSettlements] = useState<Settlement[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+
+  const plan = session?.user?.plan || 'FREE'
+  const isPro = plan === 'PRO' || plan === 'EXPERT'
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [years, setYears] = useState([2025, 2026]) // 2025년, 2026년
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -74,11 +77,7 @@ export default function SettlementsClient() {
       router.push('/')
       return
     }
-    if (session.user.plan === 'FREE') {
-      alert('PRO 이상 플랜이 필요합니다.')
-      router.push('/pricing')
-      return
-    }
+    // FREE 사용자도 페이지 접근 허용 (자물쇠 표시)
   }, [session, status, router])
 
   useEffect(() => {
@@ -574,6 +573,38 @@ export default function SettlementsClient() {
         {/* 테이블 */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#a8a29e' }}>로딩 중...</div>
+        ) : !isPro ? (
+          // FREE 사용자: 자물쇠 + PRO 전용 안내
+          <div style={{
+            textAlign: 'center',
+            padding: '60px 24px',
+            background: '#fff',
+            borderRadius: '12px',
+            border: '1px solid #e7e5e4'
+          }}>
+            <p style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</p>
+            <p style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: '#fbbf24' }}>
+              PRO 플랜 전용 기능
+            </p>
+            <p style={{ fontSize: '14px', color: '#78716c', marginBottom: '24px' }}>
+              정산 관리는 PRO 이상 플랜에서 이용 가능합니다.
+            </p>
+            <a
+              href="/#pricing"
+              style={{
+                display: 'inline-block',
+                padding: '12px 24px',
+                background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                color: '#000',
+                borderRadius: '8px',
+                fontWeight: 600,
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)'
+              }}
+            >
+              PRO 플랜 업그레이드 →
+            </a>
+          </div>
         ) : settlements.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px', color: '#a8a29e' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>💰</div>
