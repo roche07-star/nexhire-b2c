@@ -129,11 +129,52 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [error, setError] = useState<string | null>(null)
   const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0 })
   const [privacyMode, setPrivacyMode] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  // 알림 생성 (실시간 시뮬레이션)
+  const notifications = [
+    ...(hiringStats.hired > 0 ? [{
+      id: 1,
+      type: 'success' as const,
+      icon: '🎉',
+      title: '새로운 입사자',
+      message: `${hiringStats.hired}명이 입사 절차를 완료했습니다`,
+      time: '방금 전'
+    }] : []),
+    ...(hiringStats.passed > 0 ? [{
+      id: 2,
+      type: 'info' as const,
+      icon: '✅',
+      title: '합격 처리',
+      message: `${hiringStats.passed}명이 최종 합격했습니다`,
+      time: '5분 전'
+    }] : []),
+    ...(hiringStats.active > 0 ? [{
+      id: 3,
+      type: 'warning' as const,
+      icon: '📋',
+      title: '진행 중',
+      message: `${hiringStats.active}명의 후보자가 프로세스 진행 중입니다`,
+      time: '30분 전'
+    }] : []),
+  ]
 
   useEffect(() => {
     fetchStats()
     fetchHiringProcessStats()
+
+    // 온보딩 체크 (첫 방문)
+    const hasSeenOnboarding = localStorage.getItem('dashboard_onboarding_seen')
+    if (!hasSeenOnboarding) {
+      setTimeout(() => setShowOnboarding(true), 1000)
+    }
   }, [])
+
+  const completeOnboarding = () => {
+    localStorage.setItem('dashboard_onboarding_seen', 'true')
+    setShowOnboarding(false)
+  }
 
   // 이름 마스킹 함수
   const maskName = (name: string) => {
@@ -435,6 +476,195 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             <span>{privacyMode ? '🔒' : '🔓'}</span>
             <span>익명 모드</span>
           </button>
+
+          {/* 알림 버튼 */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              style={{
+                padding: '12px',
+                background: showNotifications ? 'rgba(251, 191, 36, 0.2)' : 'rgba(255,255,255,0.05)',
+                color: showNotifications ? '#fbbf24' : '#ffffff',
+                border: showNotifications ? '1px solid rgba(251, 191, 36, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: 20,
+                transition: 'all 0.3s',
+                backdropFilter: 'blur(10px)',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = showNotifications ? 'rgba(251, 191, 36, 0.3)' : 'rgba(255,255,255,0.1)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = showNotifications ? 'rgba(251, 191, 36, 0.2)' : 'rgba(255,255,255,0.05)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              🔔
+              {notifications.length > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  width: 20,
+                  height: 20,
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  borderRadius: '50%',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
+                }}>
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+
+            {/* 알림 드롭다운 */}
+            {showNotifications && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 12px)',
+                right: 0,
+                width: 380,
+                maxWidth: '90vw',
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                borderRadius: 16,
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+                zIndex: 1000,
+                animation: 'slideDown 0.3s ease-out'
+              }}>
+                <style>{`
+                  @keyframes slideDown {
+                    from {
+                      opacity: 0;
+                      transform: translateY(-10px);
+                    }
+                    to {
+                      opacity: 1;
+                      transform: translateY(0);
+                    }
+                  }
+                `}</style>
+
+                <div style={{
+                  padding: '20px 24px',
+                  borderBottom: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  <div style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: '#ffffff'
+                  }}>
+                    알림 ({notifications.length})
+                  </div>
+                </div>
+
+                <div style={{
+                  maxHeight: 400,
+                  overflowY: 'auto'
+                }}>
+                  {notifications.length === 0 ? (
+                    <div style={{
+                      padding: '60px 24px',
+                      textAlign: 'center',
+                      color: 'rgba(255,255,255,0.4)'
+                    }}>
+                      <div style={{ fontSize: 48, marginBottom: 12 }}>🔕</div>
+                      <div>새로운 알림이 없습니다</div>
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        style={{
+                          padding: '16px 24px',
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent'
+                        }}
+                      >
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: 12
+                        }}>
+                          <span style={{ fontSize: 24 }}>{notif.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{
+                              fontSize: 14,
+                              fontWeight: 700,
+                              color: '#ffffff',
+                              marginBottom: 4
+                            }}>
+                              {notif.title}
+                            </div>
+                            <div style={{
+                              fontSize: 13,
+                              color: 'rgba(255,255,255,0.7)',
+                              marginBottom: 8
+                            }}>
+                              {notif.message}
+                            </div>
+                            <div style={{
+                              fontSize: 11,
+                              color: 'rgba(255,255,255,0.4)'
+                            }}>
+                              {notif.time}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {notifications.length > 0 && (
+                  <div style={{
+                    padding: '16px 24px',
+                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                    textAlign: 'center'
+                  }}>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        color: 'rgba(255,255,255,0.7)',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                      }}
+                    >
+                      모두 읽음
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => {
@@ -744,6 +974,246 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 성과 시각화 */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 56,
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: 24,
+          padding: 40,
+          transition: 'all 0.3s'
+        }}>
+          <h2 style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: '#ffffff',
+            marginBottom: 28,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 28 }}>📈</span>
+            이번 달 성과
+          </h2>
+
+          {/* 목표 카드 */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: 20,
+            marginBottom: 32
+          }}>
+            {/* 입사 목표 */}
+            {(() => {
+              const target = 10
+              const current = hiringStats.hired
+              const percentage = Math.min(100, Math.round((current / target) * 100))
+              return (
+                <div style={{
+                  padding: '24px 28px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 16,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 16
+                  }}>
+                    입사 목표
+                  </div>
+                  <div style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: '#10b981',
+                    marginBottom: 8,
+                    letterSpacing: '-0.02em'
+                  }}>
+                    {current} / {target}명
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: 8,
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    marginBottom: 12
+                  }}>
+                    <div style={{
+                      width: `${percentage}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #10b981 0%, #22d3ee 100%)',
+                      borderRadius: 4,
+                      transition: 'all 0.6s ease-out'
+                    }} />
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.7)'
+                  }}>
+                    {percentage}% 달성 {current >= target ? '🎉' : '💪'}
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* 합격 목표 */}
+            {(() => {
+              const target = 20
+              const current = hiringStats.passed
+              const percentage = Math.min(100, Math.round((current / target) * 100))
+              return (
+                <div style={{
+                  padding: '24px 28px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 16,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 16
+                  }}>
+                    합격 목표
+                  </div>
+                  <div style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: '#22d3ee',
+                    marginBottom: 8,
+                    letterSpacing: '-0.02em'
+                  }}>
+                    {current} / {target}명
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: 8,
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    marginBottom: 12
+                  }}>
+                    <div style={{
+                      width: `${percentage}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #22d3ee 0%, #a78bfa 100%)',
+                      borderRadius: 4,
+                      transition: 'all 0.6s ease-out'
+                    }} />
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.7)'
+                  }}>
+                    {percentage}% 달성 {current >= target ? '🎉' : '📊'}
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* 이력서 분석 목표 */}
+            {(() => {
+              const target = 50
+              const current = stats.thisMonthResumes ?? stats.thisMonthAnalyses
+              const percentage = Math.min(100, Math.round((current / target) * 100))
+              return (
+                <div style={{
+                  padding: '24px 28px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 16,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 16
+                  }}>
+                    이력서 분석 목표
+                  </div>
+                  <div style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: '#a78bfa',
+                    marginBottom: 8,
+                    letterSpacing: '-0.02em'
+                  }}>
+                    {current} / {target}건
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: 8,
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    marginBottom: 12
+                  }}>
+                    <div style={{
+                      width: `${percentage}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #a78bfa 0%, #fbbf24 100%)',
+                      borderRadius: 4,
+                      transition: 'all 0.6s ease-out'
+                    }} />
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.7)'
+                  }}>
+                    {percentage}% 달성 {current >= target ? '🎉' : '📋'}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* 성과 메시지 */}
+          {hiringStats.hired > 0 && (
+            <div style={{
+              padding: '20px 24px',
+              background: 'rgba(16, 185, 129, 0.2)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16
+            }}>
+              <span style={{ fontSize: 32 }}>🎉</span>
+              <div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: '#10b981',
+                  marginBottom: 4
+                }}>
+                  축하합니다!
+                </div>
+                <div style={{
+                  fontSize: 14,
+                  color: 'rgba(255,255,255,0.8)'
+                }}>
+                  이번 달 {hiringStats.hired}명이 입사했습니다. 계속해서 좋은 성과를 내고 계십니다!
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1326,6 +1796,152 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           )}
         </div>
       </div>
+
+      {/* 온보딩 모달 */}
+      {showOnboarding && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          animation: 'fadeIn 0.3s ease-in-out'
+        }}>
+          <div style={{
+            maxWidth: 600,
+            width: '100%',
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
+            border: '1px solid rgba(34, 211, 238, 0.3)',
+            borderRadius: 24,
+            padding: 48,
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+            position: 'relative',
+            animation: 'slideUp 0.4s ease-out'
+          }}>
+            <style>{`
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              @keyframes slideUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(30px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+            `}</style>
+
+            <div style={{
+              fontSize: 48,
+              textAlign: 'center',
+              marginBottom: 24
+            }}>
+              👋
+            </div>
+
+            <h2 style={{
+              fontSize: 32,
+              fontWeight: 800,
+              color: '#ffffff',
+              textAlign: 'center',
+              marginBottom: 16,
+              letterSpacing: '-0.02em'
+            }}>
+              대시보드에 오신 것을 환영합니다!
+            </h2>
+
+            <p style={{
+              fontSize: 16,
+              color: 'rgba(255,255,255,0.7)',
+              textAlign: 'center',
+              marginBottom: 32,
+              lineHeight: 1.6
+            }}>
+              헤드헌터를 위한 강력한 도구로 채용을 더 효율적으로 관리하세요
+            </p>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 20,
+              marginBottom: 32
+            }}>
+              {[
+                { icon: '🚀', title: '빠른 작업', desc: '새 이력서 분석부터 채용 프로세스까지 한 번에' },
+                { icon: '💡', title: '인사이트', desc: '이번 주 활동과 추천 작업을 확인하세요' },
+                { icon: '📊', title: '실시간 추적', desc: '후보자 진행 상황을 실시간으로 모니터링' },
+                { icon: '🔒', title: '프라이버시', desc: '익명 모드로 안전하게 정보를 보호하세요' }
+              ].map((feature, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 16,
+                  padding: '16px 20px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 12,
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  <span style={{ fontSize: 32 }}>{feature.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      marginBottom: 4
+                    }}>
+                      {feature.title}
+                    </div>
+                    <div style={{
+                      fontSize: 14,
+                      color: 'rgba(255,255,255,0.6)'
+                    }}>
+                      {feature.desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={completeOnboarding}
+              style={{
+                width: '100%',
+                padding: '16px 32px',
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 10px 30px rgba(34, 211, 238, 0.3)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 15px 40px rgba(34, 211, 238, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
+              }}
+            >
+              시작하기 →
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
