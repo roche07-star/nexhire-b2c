@@ -50,9 +50,6 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     <>
       {/* 데스크톱 메뉴 */}
       <li className="desktop-only"><a href="/#how" onClick={handleHashLink('#how')}>사용법</a></li>
-      <li className="desktop-only"><a href="/#features" onClick={handleHashLink('#features')}>기능</a></li>
-      <li className="desktop-only"><a href="/#pricing" onClick={handleHashLink('#pricing')}>가격</a></li>
-      <li className="desktop-only"><a href="/#faq" onClick={handleHashLink('#faq')}>FAQ</a></li>
 
       {/* PRO 이상이면 이력서 분석 */}
       {isPro && (
