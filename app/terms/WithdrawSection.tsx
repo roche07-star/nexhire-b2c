@@ -52,7 +52,7 @@ export default function WithdrawSection() {
           if (withdrawButtonRef.current) {
             const rect = withdrawButtonRef.current.getBoundingClientRect()
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-            setModalTop(rect.top + scrollTop - 400)
+            setModalTop(rect.top + scrollTop - 500)
           }
           setOpen(true)
           setInputEmail('')
