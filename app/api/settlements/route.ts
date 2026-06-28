@@ -15,12 +15,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '헤드헌터 전용 기능입니다.' }, { status: 403 })
     }
 
-    if (session.user.plan === 'FREE') {
-      return NextResponse.json(
-        { error: 'PRO 이상 플랜이 필요합니다.', upgrade: true },
-        { status: 402 }
-      )
-    }
+    // FREE 플랜 체크 제거 (클라이언트에서 처리)
 
     const { searchParams } = new URL(req.url)
     const year = searchParams.get('year')
@@ -57,12 +52,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '헤드헌터 전용 기능입니다.' }, { status: 403 })
     }
 
-    if (session.user.plan === 'FREE') {
-      return NextResponse.json(
-        { error: 'PRO 이상 플랜이 필요합니다.', upgrade: true },
-        { status: 402 }
-      )
-    }
+    // FREE 플랜 체크 제거 (클라이언트에서 처리)
 
     const body = await req.json()
     const {
