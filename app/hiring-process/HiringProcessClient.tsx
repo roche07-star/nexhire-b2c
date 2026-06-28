@@ -139,7 +139,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
   const [updating, setUpdating] = useState(false)
 
   const stageColor = STAGE_COLORS[process.current_stage as HiringProcessStage]
-  const progress = (process.current_stage / 4) * 100
+  const progress = (process.current_stage / 6) * 100
 
   async function updateStage(newStage: HiringProcessStage) {
     setUpdating(true)
@@ -237,7 +237,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
 
       {/* 단계 표시 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-        {[0, 1, 2, 3, 4].map((stage) => (
+        {[0, 1, 2, 3, 4, 5, 6].map((stage) => (
           <span key={stage} style={{
             fontSize: '11px',
             color: stage <= process.current_stage ? stageColor : 'var(--muted)',
@@ -272,7 +272,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
         <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>단계 변경</div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {[0, 1, 2, 3, 4, 5].map((stage) => (
+            {[0, 1, 2, 3, 4, 5, 6].map((stage) => (
               <button
                 key={stage}
                 onClick={() => updateStage(stage as HiringProcessStage)}

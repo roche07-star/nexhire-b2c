@@ -1,6 +1,6 @@
 // 채용 프로세스 관리 타입 정의
 
-export type HiringProcessStage = 0 | 1 | 2 | 3 | 4 | 5 // 0: 서류, 1: 1차, 2: 2차, 3: 최종, 4: 합격, 5: 처우협의
+export type HiringProcessStage = 0 | 1 | 2 | 3 | 4 | 5 | 6 // 0: 서류, 1: 1차, 2: 2차, 3: 최종, 4: 처우협의, 5: 합격, 6: 입사
 export type HiringProcessStatus = 'ACTIVE' | 'PASSED' | 'FAILED' | 'HIRED'
 
 export interface HiringProcess {
@@ -48,6 +48,7 @@ export const STAGE_LABELS: Record<HiringProcessStage, string> = {
   3: '최종 면접',
   4: '처우 협의',
   5: '합격',
+  6: '입사',
 }
 
 export const STATUS_LABELS: Record<HiringProcessStatus, string> = {
@@ -64,4 +65,5 @@ export const STAGE_COLORS: Record<HiringProcessStage, string> = {
   3: '#22d3ee', // 청록
   4: '#3b82f6', // 파랑 (처우 협의)
   5: '#10b981', // 녹색 (합격)
+  6: '#059669', // 진녹색 (입사)
 }
