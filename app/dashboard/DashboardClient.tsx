@@ -128,11 +128,20 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0 })
+  const [privacyMode, setPrivacyMode] = useState(false)
 
   useEffect(() => {
     fetchStats()
     fetchHiringProcessStats()
   }, [])
+
+  // 이름 마스킹 함수
+  const maskName = (name: string) => {
+    if (!privacyMode || !name || name.length === 0) return name
+    if (name.length === 1) return name
+    if (name.length === 2) return name[0] + '○'
+    return name[0] + '○'.repeat(name.length - 1)
+  }
 
   const fetchStats = async () => {
     try {
@@ -394,30 +403,63 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             </div>
           </div>
         </div>
-        <button
-          onClick={() => {
-            setStats(null)
-            setLoading(true)
-            fetchStats()
-          }}
-          style={{
-            padding: '12px 24px',
-            background: 'rgba(255,255,255,0.05)',
-            color: '#ffffff',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: 12,
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontSize: 14,
-            transition: 'all 0.3s',
-            letterSpacing: '-0.01em',
-            backdropFilter: 'blur(10px)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.5)'
-            e.currentTarget.style.transform = 'translateY(-2px)'
-          }}
+        <div style={{ display: 'flex', gap: 12 }}>
+          {/* 프라이버시 모드 토글 */}
+          <button
+            onClick={() => setPrivacyMode(!privacyMode)}
+            style={{
+              padding: '12px 24px',
+              background: privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)',
+              color: privacyMode ? '#a78bfa' : '#ffffff',
+              border: privacyMode ? '1px solid rgba(167, 139, 250, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: 14,
+              transition: 'all 0.3s',
+              letterSpacing: '-0.01em',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            <span>{privacyMode ? '🔒' : '🔓'}</span>
+            <span>익명 모드</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setStats(null)
+              setLoading(true)
+              fetchStats()
+            }}
+            style={{
+              padding: '12px 24px',
+              background: 'rgba(255,255,255,0.05)',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: 14,
+              transition: 'all 0.3s',
+              letterSpacing: '-0.01em',
+              backdropFilter: 'blur(10px)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.5)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
             e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
@@ -426,6 +468,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         >
           🔄 새로고침
         </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -438,7 +481,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         marginBottom: 56,
       }}>
         <StatCard
-          title="현재 진행 이력서"
+          title="분석한 이력서"
           value={stats.totalCandidates}
           suffix="건"
           icon="📋"
@@ -548,6 +591,160 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           suffix="점"
           icon="⭐"
         />
+      </div>
+
+      {/* Insights Card */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 56,
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(234, 88, 12, 0.1) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(251, 191, 36, 0.3)',
+          borderRadius: 24,
+          padding: 40,
+          transition: 'all 0.3s'
+        }}>
+          <h2 style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: '#ffffff',
+            marginBottom: 28,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 28 }}>💡</span>
+            인사이트
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 20
+          }}>
+            {/* 이번 주 활동 요약 */}
+            <div style={{
+              padding: '24px 28px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <div style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginBottom: 12
+              }}>
+                이번 주 활동
+              </div>
+              <div style={{
+                fontSize: 15,
+                color: 'rgba(255,255,255,0.9)',
+                lineHeight: 1.6,
+                marginBottom: 16
+              }}>
+                {stats.recentActivity.length > 0 ? (
+                  <>
+                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 활동이 있었습니다
+                  </>
+                ) : (
+                  <>
+                    아직 활동이 없습니다. 첫 이력서를 분석해보세요!
+                  </>
+                )}
+              </div>
+              {stats.avgScore > 0 && (
+                <div style={{
+                  fontSize: 14,
+                  color: 'rgba(255,255,255,0.7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}>
+                  <span>📈</span>
+                  <span>평균 적합도: <span style={{ color: '#22d3ee', fontWeight: 600 }}>{stats.avgScore}점</span></span>
+                </div>
+              )}
+            </div>
+
+            {/* 다음 할 일 추천 */}
+            <div style={{
+              padding: '24px 28px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <div style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginBottom: 12
+              }}>
+                추천 작업
+              </div>
+              <div style={{
+                fontSize: 15,
+                color: 'rgba(255,255,255,0.9)',
+                lineHeight: 1.6,
+                marginBottom: 16
+              }}>
+                {hiringStats.active > 0 ? (
+                  <>
+                    진행 중인 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{hiringStats.active}명</span>의 후보자를 확인하세요
+                  </>
+                ) : stats.totalCandidates > 0 ? (
+                  <>
+                    이력서를 채용 프로세스에 추가해보세요
+                  </>
+                ) : (
+                  <>
+                    새로운 이력서를 분석해보세요
+                  </>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  if (hiringStats.active > 0) {
+                    router.push('/hiring-process')
+                  } else if (stats.totalCandidates > 0) {
+                    router.push('/hiring-process')
+                  } else {
+                    router.push('/analyze')
+                  }
+                }}
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(251, 191, 36, 0.2)',
+                  border: '1px solid rgba(251, 191, 36, 0.4)',
+                  borderRadius: 8,
+                  color: '#fbbf24',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)'
+                }}
+              >
+                바로가기 →
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -1104,7 +1301,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                       color: '#ffffff',
                       marginBottom: 6
                     }}>
-                      {activity.name} · {activity.position}
+                      {maskName(activity.name)} · {activity.position}
                     </div>
                     <div style={{
                       fontSize: 13,
