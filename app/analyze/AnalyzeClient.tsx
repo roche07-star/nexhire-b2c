@@ -3489,7 +3489,7 @@ function AnalysisResults({
 
       {/* 채용 프로세스 추가 모달 */}
       {showHiringModal && (
-        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)}>
+        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)} style={{ alignItems: 'flex-start', paddingTop: '100px' }}>
           <div className="demo-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', padding: '24px' }}>
             <button
               className="demo-modal-close"
