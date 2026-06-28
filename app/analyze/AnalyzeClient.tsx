@@ -3017,6 +3017,8 @@ function AnalysisResults({
   const [refined, setRefined] = useState(!!result.refined)
   const [showHiringModal, setShowHiringModal] = useState(false)
   const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
+  const [hiringModalTop, setHiringModalTop] = useState(100)
+  const hiringButtonRef = useRef<HTMLButtonElement>(null)
 
   // PRO 분석 후 커리어 경로가 없으면 자동으로 expand 호출 (504 방지용 분리 설계)
   useEffect(() => {
@@ -3472,8 +3474,16 @@ function AnalysisResults({
       {userType === 'HEADHUNTER' && isPro && analysisId && (
         <div style={{ marginBottom: '16px' }}>
           <button
+            ref={hiringButtonRef}
             className="analyze-download-btn"
-            onClick={() => setShowHiringModal(true)}
+            onClick={() => {
+              if (hiringButtonRef.current) {
+                const rect = hiringButtonRef.current.getBoundingClientRect()
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+                setHiringModalTop(rect.bottom + scrollTop + 10)
+              }
+              setShowHiringModal(true)
+            }}
             style={{
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               border: 'none',
@@ -3489,7 +3499,7 @@ function AnalysisResults({
 
       {/* 채용 프로세스 추가 모달 */}
       {showHiringModal && (
-        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)} style={{ alignItems: 'flex-start', paddingTop: '100px' }}>
+        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)} style={{ alignItems: 'flex-start', paddingTop: `${hiringModalTop}px` }}>
           <div className="demo-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', padding: '24px' }}>
             <button
               className="demo-modal-close"
