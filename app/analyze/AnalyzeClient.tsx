@@ -6,8 +6,27 @@ import { useSearchParams } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
 import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
 import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
+import type {
+  CareerPath,
+  AnalysisResult,
+  SavedAnalysis,
+  JDResult,
+  InterviewGuideResult,
+  SavedInterviewGuide,
+  AnalysisListItem,
+  SavedJDAnalysis,
+  RewriteResult,
+  JDTemplate,
+  SidebarMenu,
+  toArr,
+} from '@/types/analyze'
 
-interface CareerPath {
+// Re-export toArr for use in this file
+const toArrUtil = (v: unknown): string[] =>
+  Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
+const toArr = toArrUtil
+
+interface CareerPath_OLD {
   type: 'BASELINE' | 'RECOMMENDED' | 'STRETCH'
   label: string
   title: string
