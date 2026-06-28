@@ -18,8 +18,8 @@ import type {
   RewriteResult,
   JDTemplate,
   SidebarMenu,
-  toArr,
 } from '@/types/analyze'
+import { toArr } from '@/types/analyze'
 import {
   FEATURE_LABEL,
   CAREER_COLORS,
@@ -32,167 +32,7 @@ import {
   INTERVIEW_LOADING_STEPS,
 } from '@/constants/analyze'
 
-// Re-export toArr for use in this file
-const toArrUtil = (v: unknown): string[] =>
-  Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
-const toArr = toArrUtil
-
-interface CareerPath_OLD {
-  type: 'BASELINE' | 'RECOMMENDED' | 'STRETCH'
-  label: string
-  title: string
-  salary_range: string
-  salary_bands: { period: string; min: number; max: number }[]
-  points: string[]
-}
-
-interface AnalysisResult {
-  candidate_name?: string
-  job_title?: string
-  scores: {
-    job_fit: number
-    market_competitiveness: number
-    growth_potential: number
-  }
-  careers?: string[]
-  career_paths?: CareerPath[]
-  strengths: string[]
-  improvements: string[]
-  keywords: string[]
-  summary: string
-  plan?: 'FREE' | 'PRO' | 'EXPERT'
-  _id?: string | null
-  _rewrite_saved?: boolean
-  _file_path?: string
-  refined?: boolean
-  refinement_text?: string
-}
-
-interface SavedAnalysis {
-  result: AnalysisResult
-  created_at: string
-  expires_at: string
-}
-
-interface JDResult {
-  id?: string
-  company: string
-  position?: string
-  fit_score: number
-  recommendation: 'APPLY' | 'CONSIDER' | 'SKIP'
-  verdict: string
-  company_insight?: string
-  // 상세 회사 분석 (NEW)
-  company_analysis?: {
-    introduction: string
-    revenue: string
-    current_business: string
-    recent_trends: string
-    future_value: string
-    needs_more_info: boolean
-    info_request_message?: string
-  }
-  jd_interpretation?: string
-  matching_points: string[]
-  gaps: string[]
-  pitch_points: string[]
-  resume_job_title?: string
-  resume_analyzed_at?: string
-  expires_at?: string
-}
-
-const toArr = (v: unknown): string[] =>
-  Array.isArray(v) ? v : typeof v === 'string' ? v.split('\n').filter(Boolean) : []
-
-interface InterviewGuideResult {
-  id?: string | null
-  expires_at?: string | null
-  // 회사/산업 분석 (NEW)
-  company_analysis?: {
-    industry_structure: string
-    company_background: string
-    position_context: string
-  }
-  // 매칭 점수 (NEW)
-  matching_scores?: Array<{
-    category: string
-    score: number
-    grade: string
-  }>
-  positioning_message: string
-  self_intro: string
-  qa_resign_reason: string
-  qa_domain_gap: string
-  qa_competency: string
-  qa_post_join: string
-  qa_salary: string
-  strengths: string[]
-  risks: Array<{ risk: string; response: string }>
-  reverse_questions: string[]
-  checklist: string[]
-  company?: string | null
-  position?: string | null
-  candidate_name?: string | null
-  job_title?: string | null
-}
-
-interface SavedInterviewGuide {
-  id: string
-  result: InterviewGuideResult
-  created_at: string
-  expires_at: string
-}
-
-interface AnalysisListItem {
-  id: string
-  result: AnalysisResult
-  created_at: string
-  expires_at: string
-}
-
-interface SavedJDAnalysis {
-  id: string
-  result: JDResult
-  created_at: string
-  expires_at?: string | null
-}
-
-interface RewriteResult {
-  preview: string // HTML or text preview
-  docx: string // base64 encoded DOCX
-  filename: string
-  changes: string[]
-  plan: 'FREE' | 'PRO' | 'EXPERT'
-}
-
-interface JDTemplate {
-  id: string
-  company: string
-  position?: string
-  content: string
-  created_at: string
-}
-
-const FEATURE_LABEL: Record<string, string> = {
-  resume: '이력서 분석',
-  direction: '방향성 분석',
-  jd: 'JD 매칭 분석',
-  rewrite: '이력서 생성',
-}
-
-const CAREER_COLORS: Record<string, string> = {
-  BASELINE: 'var(--muted2)',
-  RECOMMENDED: '#e8a020',
-  STRETCH: 'var(--accent)',
-}
-
-const CAREER_COLORS_HEX: Record<string, string> = {
-  BASELINE: '#888880',
-  RECOMMENDED: '#e8a020',
-  STRETCH: '#e8ff47',
-}
-
-function generateReportHTML(result: AnalysisResult, date?: string): string {
+function generateReportHTML(result: AnalysisResult, date?: string): string{
   const scores = [
     { label: '직무 적합도', value: result.scores?.job_fit },
     { label: '시장 경쟁력', value: result.scores?.market_competitiveness },
@@ -432,17 +272,6 @@ li{font-size:14px;color:#b8b8ae;display:flex;gap:10px;line-height:1.6}
 </html>`
 }
 
-const REC_LABEL_CONST: Record<string, string> = {
-  APPLY: '지원 강력 추천',
-  CONSIDER: '조건부 추천',
-  SKIP: '부적합',
-}
-const REC_COLOR_HEX: Record<string, string> = {
-  APPLY: '#4caf86',
-  CONSIDER: '#e8a020',
-  SKIP: '#ff6b6b',
-}
-
 function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
   const html = generateJDReportHTML(jd, item)
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
@@ -453,40 +282,6 @@ function downloadJDReport(jd: JDResult, item: AnalysisListItem) {
   a.click()
   URL.revokeObjectURL(url)
 }
-
-type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite' | 'interview'
-
-const LOADING_STEPS = [
-  '이력서를 읽는 중...',
-  '강점과 개선점을 분석하는 중...',
-  '커리어 경로를 설계하는 중...',
-  '마무리 검토 중...',
-]
-
-const JD_LOADING_STEPS = [
-  '채용공고를 파악하는 중...',
-  '회사 정보를 검색하는 중...',
-  '후보자 이력과 비교하는 중...',
-  '적합도 리포트를 작성하는 중...',
-]
-
-const REWRITE_LOADING_STEPS = [
-  '원본 이력서를 분석하는 중...',
-  'JD 기반 전략을 수립하는 중...',
-  '내용을 보완하고 있습니다...',
-  '서식을 정리하는 중...',
-  'DOCX 파일을 생성하는 중...',
-]
-
-const INTERVIEW_LOADING_STEPS = [
-  '면접 가이드 생성을 준비하는 중...',
-  '회사 정보를 확인하는 중...',
-  '포지션 브리핑을 작성하는 중...',
-  '예상 질문을 생성하는 중...',
-  '답변 전략을 수립하는 중...',
-  '역질문을 준비하는 중...',
-  '최종 검토 중...',
-]
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null }) {
   const {
