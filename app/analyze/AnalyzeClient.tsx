@@ -3516,12 +3516,13 @@ function AnalysisResults({
             <form onSubmit={async (e) => {
               e.preventDefault()
               const formData = new FormData(e.currentTarget)
+              const candidateName = formData.get('candidate_name') as string
               const positionTitle = formData.get('position_title') as string
               const companyName = formData.get('company_name') as string
               const nextAction = formData.get('next_action') as string
 
-              if (!positionTitle || !companyName) {
-                alert('포지션명과 회사명은 필수입니다.')
+              if (!candidateName || !positionTitle || !companyName) {
+                alert('후보자명, 포지션명, 회사명은 필수입니다.')
                 return
               }
 
@@ -3534,7 +3535,7 @@ function AnalysisResults({
                     analysis_id: analysisId,
                     position_title: positionTitle,
                     company_name: companyName,
-                    candidate_name: result.candidate_name || '후보자',
+                    candidate_name: candidateName,
                     next_action: nextAction || '서류 검토',
                     current_stage: 0,
                     status: 'ACTIVE'
@@ -3557,20 +3558,21 @@ function AnalysisResults({
             }}>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
-                  후보자명
+                  후보자명 <span style={{ color: 'red' }}>*</span>
                 </label>
                 <input
                   type="text"
-                  value={result.candidate_name || '후보자'}
-                  disabled
+                  name="candidate_name"
+                  defaultValue={result.candidate_name || '후보자'}
+                  required
+                  placeholder="예: 김대리"
                   style={{
                     width: '100%',
                     padding: '10px 12px',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
-                    background: 'var(--surface2)',
-                    fontSize: '14px',
-                    color: 'var(--muted)'
+                    background: 'var(--surface)',
+                    fontSize: '14px'
                   }}
                 />
               </div>
