@@ -52,6 +52,8 @@ export async function GET() {
           return {
             totalCandidates: stats.totalCandidates || 0,
             thisMonthAnalyses: stats.thisMonthAnalyses || 0,
+            thisMonthResumes: stats.thisMonthResumes || stats.thisMonthAnalyses || 0,
+            thisMonthJDs: stats.thisMonthJDs || 0,
             avgScore: stats.avgScore || 0,
             pipelineCounts: stats.pipelineCounts || {
               pending: 0,
@@ -68,13 +70,18 @@ export async function GET() {
         console.log('📌 Supabase Function not found, using fallback queries')
 
         // 기존 병렬 쿼리 방식 (JD 활동 포함)
-        const [totalCount, monthCount, avgScoreData, pipelineData, resumeActivity, jdActivity] = await Promise.all([
+        const [totalCount, monthCount, monthJDCount, avgScoreData, pipelineData, resumeActivity, jdActivity] = await Promise.all([
           supabase
             .from('analyses')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email),
           supabase
             .from('analyses')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_email', email)
+            .gte('created_at', firstDayOfMonth.toISOString()),
+          supabase
+            .from('jd_analyses')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email)
             .gte('created_at', firstDayOfMonth.toISOString()),
@@ -167,12 +174,16 @@ export async function GET() {
 
         console.log('📊 Fallback stats:', {
           totalCandidates: totalCount.count || 0,
+          thisMonthResumes: monthCount.count || 0,
+          thisMonthJDs: monthJDCount.count || 0,
           recentActivityCount: allActivities.length,
         })
 
         return {
           totalCandidates: totalCount.count || 0,
           thisMonthAnalyses: monthCount.count || 0,
+          thisMonthResumes: monthCount.count || 0,
+          thisMonthJDs: monthJDCount.count || 0,
           avgScore,
           pipelineCounts,
           recentActivity: Array.isArray(allActivities) ? allActivities : [],

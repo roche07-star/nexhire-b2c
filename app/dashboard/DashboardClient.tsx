@@ -7,6 +7,8 @@ import { useAnalysis } from '@/contexts/AnalysisContext'
 interface DashboardStats {
   totalCandidates: number
   thisMonthAnalyses: number
+  thisMonthResumes?: number
+  thisMonthJDs?: number
   avgScore: number
   pipelineCounts: {
     pending: number
@@ -436,19 +438,124 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         marginBottom: 56,
       }}>
         <StatCard
-          title="총 후보자"
+          title="현재 진행 이력서"
           value={stats.totalCandidates}
-          suffix="명"
-          icon="👥"
+          suffix="건"
+          icon="📋"
           trend={12}
         />
-        <StatCard
-          title="이번 달 분석"
-          value={stats.thisMonthAnalyses}
-          suffix="건"
-          icon="📊"
-          trend={8}
-        />
+
+        {/* 이번 달 이력서/JD 분석 */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 24,
+          padding: '32px 28px',
+          position: 'relative',
+          overflow: 'hidden',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          cursor: 'pointer',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)'
+          e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)'
+          e.currentTarget.style.boxShadow = '0 20px 40px rgba(34, 211, 238, 0.15)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+          e.currentTarget.style.boxShadow = 'none'
+        }}>
+          {/* Glow Effect */}
+          <div style={{
+            position: 'absolute',
+            top: -100,
+            right: -100,
+            width: 200,
+            height: 200,
+            background: 'radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%)',
+            borderRadius: '50%',
+            pointerEvents: 'none'
+          }} />
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.6)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em'
+            }}>
+              이번 달 분석
+            </span>
+            <span style={{ fontSize: 32, opacity: 0.8 }}>📊</span>
+          </div>
+
+          {/* 이력서 / JD 분리 표시 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: 4
+              }}>
+                이력서
+              </div>
+              <div style={{
+                fontSize: 32,
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.02em'
+              }}>
+                {stats.thisMonthResumes ?? stats.thisMonthAnalyses}
+              </div>
+            </div>
+
+            <div style={{
+              width: 1,
+              height: 40,
+              background: 'rgba(255,255,255,0.1)'
+            }} />
+
+            <div style={{ flex: 1 }}>
+              <div style={{
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: 4
+              }}>
+                JD
+              </div>
+              <div style={{
+                fontSize: 32,
+                fontWeight: 700,
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.02em'
+              }}>
+                {stats.thisMonthJDs ?? 0}
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: 12,
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#22d3ee',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4
+          }}>
+            <span>↗</span>
+            <span>8% vs 지난달</span>
+          </div>
+        </div>
         <StatCard
           title="평균 적합도"
           value={stats.avgScore}
