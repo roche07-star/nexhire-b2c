@@ -292,6 +292,12 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
                 {STAGE_LABELS[stage as HiringProcessStage]}
               </button>
             ))}
+            <div style={{
+              width: '1px',
+              height: '32px',
+              background: 'var(--border)',
+              margin: '0 4px'
+            }} />
             <button
               onClick={() => updateStatus('FAILED')}
               disabled={updating || process.status === 'FAILED'}
