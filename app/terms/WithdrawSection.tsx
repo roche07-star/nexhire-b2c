@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 export default function WithdrawSection() {
@@ -11,6 +11,8 @@ export default function WithdrawSection() {
   const [inputEmail, setInputEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [modalTop, setModalTop] = useState(100)
+  const withdrawButtonRef = useRef<HTMLButtonElement>(null)
 
   if (!userEmail) return null
 
@@ -43,15 +45,25 @@ export default function WithdrawSection() {
       <p>탈퇴하시면 저장된 분석 결과, JD 적합도 분석, 보유 쿠폰이 즉시 삭제됩니다. 삭제된 데이터는 복구되지 않습니다.</p>
       <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <strong>privacy@jobizic.io</strong>로 연락해 주세요.</p>
       <button
+        ref={withdrawButtonRef}
         className="withdraw-link"
         style={{ marginTop: 16, fontSize: 13 }}
-        onClick={() => { setOpen(true); setInputEmail(''); setError(null) }}
+        onClick={() => {
+          if (withdrawButtonRef.current) {
+            const rect = withdrawButtonRef.current.getBoundingClientRect()
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+            setModalTop(rect.top + scrollTop - 400)
+          }
+          setOpen(true)
+          setInputEmail('')
+          setError(null)
+        }}
       >
         계정 탈퇴 신청
       </button>
 
       {open && (
-        <div className="withdraw-overlay" onClick={() => !loading && setOpen(false)}>
+        <div className="withdraw-overlay" onClick={() => !loading && setOpen(false)} style={{ alignItems: 'flex-start', paddingTop: `${modalTop}px` }}>
           <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
             <div className="withdraw-modal-icon">⚠️</div>
             <div className="withdraw-modal-title">정말 탈퇴하시겠어요?</div>
