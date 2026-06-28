@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import type { HiringProcess, HiringProcessStage } from '@/types/hiring-process'
+import type { HiringProcess, HiringProcessStage, HiringProcessStatus } from '@/types/hiring-process'
 import { STAGE_LABELS, STAGE_COLORS, STATUS_LABELS } from '@/types/hiring-process'
 
 export default function HiringProcessClient() {
@@ -159,6 +159,24 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
     }
   }
 
+  async function updateStatus(newStatus: HiringProcessStatus) {
+    setUpdating(true)
+    try {
+      const res = await fetch(`/api/hiring-process/${process.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+      if (res.ok) {
+        onUpdate()
+      }
+    } catch (e) {
+      console.error('Failed to update status:', e)
+    } finally {
+      setUpdating(false)
+    }
+  }
+
   return (
     <div style={{
       background: 'var(--surface)',
@@ -274,6 +292,23 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
                 {STAGE_LABELS[stage as HiringProcessStage]}
               </button>
             ))}
+            <button
+              onClick={() => updateStatus('FAILED')}
+              disabled={updating || process.status === 'FAILED'}
+              style={{
+                padding: '8px 16px',
+                background: process.status === 'FAILED' ? '#ef444420' : 'var(--surface2)',
+                border: `1px solid ${process.status === 'FAILED' ? '#ef4444' : 'var(--border)'}`,
+                borderRadius: '8px',
+                cursor: process.status === 'FAILED' ? 'default' : 'pointer',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: process.status === 'FAILED' ? '#ef4444' : 'var(--text)',
+                opacity: updating ? 0.5 : 1
+              }}
+            >
+              불합격
+            </button>
           </div>
         </div>
       )}
