@@ -32,6 +32,93 @@ interface DashboardClientProps {
   userType?: string | null
 }
 
+function StatCard({ title, value, suffix, icon, trend }: { title: string; value: number; suffix: string; icon: string; trend?: number }) {
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: 24,
+      padding: '32px 28px',
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      cursor: 'pointer',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-4px)'
+      e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)'
+      e.currentTarget.style.boxShadow = '0 20px 40px rgba(34, 211, 238, 0.15)'
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)'
+      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+      e.currentTarget.style.boxShadow = 'none'
+    }}>
+      {/* Glow Effect */}
+      <div style={{
+        position: 'absolute',
+        top: -100,
+        right: -100,
+        width: 200,
+        height: 200,
+        background: 'radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%)',
+        borderRadius: '50%',
+        pointerEvents: 'none'
+      }} />
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{
+          fontSize: 13,
+          fontWeight: 600,
+          color: 'rgba(255,255,255,0.6)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em'
+        }}>
+          {title}
+        </span>
+        <span style={{ fontSize: 32, opacity: 0.8 }}>{icon}</span>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <span style={{
+          fontSize: 48,
+          fontWeight: 700,
+          background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '-0.02em'
+        }}>
+          {value.toLocaleString()}
+        </span>
+        <span style={{
+          fontSize: 18,
+          fontWeight: 600,
+          color: 'rgba(255,255,255,0.5)'
+        }}>
+          {suffix}
+        </span>
+      </div>
+
+      {trend !== undefined && (
+        <div style={{
+          marginTop: 12,
+          fontSize: 13,
+          fontWeight: 600,
+          color: trend >= 0 ? '#22d3ee' : '#f87171',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4
+        }}>
+          <span>{trend >= 0 ? '↗' : '↘'}</span>
+          <span>{Math.abs(trend)}% vs 지난달</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardClient({ userEmail, userPlan, userType }: DashboardClientProps) {
   const router = useRouter()
   const { state: analysisState } = useAnalysis()
@@ -96,56 +183,62 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     return (
       <main style={{
         padding: '120px 24px 80px',
-        maxWidth: 1200,
+        maxWidth: 1400,
         margin: '0 auto',
-        background: '#ffffff',
-        minHeight: '100vh'
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+        minHeight: '100vh',
+        position: 'relative'
       }}>
+        {/* Animated Background */}
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.1) 0%, transparent 50%)',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} />
+
         {/* Loading Skeleton */}
-        <div style={{ marginBottom: 48 }}>
+        <div style={{ position: 'relative', zIndex: 1, marginBottom: 48 }}>
           <div style={{
             height: 40,
             width: 280,
-            background: '#f1f5f9',
-            borderRadius: 8,
-            marginBottom: 12
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: 12,
+            marginBottom: 12,
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
           }} />
           <div style={{
             height: 20,
             width: 180,
-            background: '#f1f5f9',
-            borderRadius: 6
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: 8,
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            animationDelay: '0.2s'
           }} />
         </div>
 
         <div style={{
+          position: 'relative',
+          zIndex: 1,
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 24,
           marginBottom: 48,
         }}>
           {[1, 2, 3].map(i => (
             <div key={i} style={{
-              background: '#ffffff',
-              border: '1px solid #f1f5f9',
-              borderRadius: 16,
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 24,
               padding: 32,
-              height: 140
-            }}>
-              <div style={{
-                height: 16,
-                width: 100,
-                background: '#f1f5f9',
-                borderRadius: 4,
-                marginBottom: 16
-              }} />
-              <div style={{
-                height: 48,
-                width: 120,
-                background: '#f1f5f9',
-                borderRadius: 8
-              }} />
-            </div>
+              height: 180,
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              animationDelay: `${i * 0.2}s`
+            }} />
           ))}
         </div>
       </main>
@@ -158,14 +251,18 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         padding: '120px 24px',
         maxWidth: 600,
         margin: '0 auto',
-        textAlign: 'center'
+        textAlign: 'center',
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+        minHeight: '100vh',
+        position: 'relative'
       }}>
         <div style={{
-          fontSize: 48,
-          marginBottom: 24
+          fontSize: 72,
+          marginBottom: 24,
+          filter: 'drop-shadow(0 0 20px rgba(248, 113, 113, 0.5))'
         }}>⚠️</div>
         <p style={{
-          color: '#64748b',
+          color: 'rgba(255,255,255,0.7)',
           fontSize: 16,
           marginBottom: 32,
           lineHeight: 1.6
@@ -173,21 +270,24 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         <button
           onClick={fetchStats}
           style={{
-            padding: '12px 32px',
-            background: '#18181b',
+            padding: '16px 40px',
+            background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
             color: '#ffffff',
             border: 'none',
-            borderRadius: 12,
+            borderRadius: 16,
             cursor: 'pointer',
             fontSize: 15,
-            fontWeight: 600,
-            transition: 'all 0.2s',
+            fontWeight: 700,
+            transition: 'all 0.3s',
+            boxShadow: '0 10px 30px rgba(34, 211, 238, 0.3)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#27272a'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.boxShadow = '0 15px 40px rgba(34, 211, 238, 0.4)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#18181b'
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
           }}
         >
           다시 시도
@@ -200,16 +300,51 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     return null
   }
 
+  const planBadgeColors: Record<string, { bg: string; text: string; glow: string }> = {
+    FREE: { bg: 'rgba(113, 113, 122, 0.2)', text: '#a1a1aa', glow: 'rgba(113, 113, 122, 0.3)' },
+    PRO: { bg: 'rgba(34, 211, 238, 0.2)', text: '#22d3ee', glow: 'rgba(34, 211, 238, 0.3)' },
+    EXPERT: { bg: 'rgba(167, 139, 250, 0.2)', text: '#a78bfa', glow: 'rgba(167, 139, 250, 0.3)' },
+  }
+
+  const planColor = planBadgeColors[userPlan] || planBadgeColors.FREE
+
   return (
     <main style={{
       padding: '96px 24px 80px',
-      maxWidth: 1200,
+      maxWidth: 1400,
       margin: '0 auto',
-      background: '#ffffff',
-      minHeight: '100vh'
+      background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+      minHeight: '100vh',
+      position: 'relative'
     }}>
+      {/* Animated Background Gradients */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.15) 0%, transparent 50%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+        animation: 'gradientShift 15s ease infinite'
+      }} />
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        @keyframes gradientShift {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{
+        position: 'relative',
+        zIndex: 1,
         marginBottom: 56,
         display: 'flex',
         justifyContent: 'space-between',
@@ -219,21 +354,37 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       }}>
         <div>
           <h1 style={{
-            fontSize: 36,
-            marginBottom: 8,
-            color: '#18181b',
-            fontWeight: 700,
-            letterSpacing: '-0.02em'
+            fontSize: 48,
+            marginBottom: 12,
+            color: '#ffffff',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            textShadow: '0 0 30px rgba(34, 211, 238, 0.3)'
           }}>
-            대시보드
+            헤드헌터 대시보드
           </h1>
-          <p style={{
-            color: '#71717a',
-            fontSize: 15,
-            letterSpacing: '-0.01em'
-          }}>
-            {userEmail} · {userPlan}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <p style={{
+              color: 'rgba(255,255,255,0.6)',
+              fontSize: 15,
+              letterSpacing: '-0.01em'
+            }}>
+              {userEmail}
+            </p>
+            <div style={{
+              padding: '6px 14px',
+              background: planColor.bg,
+              color: planColor.text,
+              borderRadius: 20,
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              boxShadow: `0 0 20px ${planColor.glow}`,
+              border: `1px solid ${planColor.text}40`
+            }}>
+              {userPlan}
+            </div>
+          </div>
         </div>
         <button
           onClick={() => {
@@ -242,34 +393,39 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             fetchStats()
           }}
           style={{
-            padding: '10px 20px',
-            background: '#ffffff',
-            color: '#18181b',
-            border: '1px solid #e4e4e7',
-            borderRadius: 10,
+            padding: '12px 24px',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#ffffff',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: 12,
             fontWeight: 600,
             cursor: 'pointer',
             fontSize: 14,
-            transition: 'all 0.2s',
-            letterSpacing: '-0.01em'
+            transition: 'all 0.3s',
+            letterSpacing: '-0.01em',
+            backdropFilter: 'blur(10px)'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#fafafa'
-            e.currentTarget.style.borderColor = '#d4d4d8'
+            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+            e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.5)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#ffffff'
-            e.currentTarget.style.borderColor = '#e4e4e7'
+            e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
-          새로고침
+          🔄 새로고침
         </button>
       </div>
 
       {/* Stats Cards */}
       <div style={{
+        position: 'relative',
+        zIndex: 1,
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: 24,
         marginBottom: 56,
       }}>
@@ -278,438 +434,200 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           value={stats.totalCandidates}
           suffix="명"
           icon="👥"
+          trend={12}
         />
         <StatCard
           title="이번 달 분석"
           value={stats.thisMonthAnalyses}
           suffix="건"
           icon="📊"
+          trend={8}
         />
         <StatCard
           title="평균 적합도"
           value={stats.avgScore}
           suffix="점"
           icon="⭐"
+          trend={-3}
         />
       </div>
 
-      {/* Pipeline */}
+      {/* Pipeline & Activity - 기존 코드 유지하되 스타일만 개선 */}
       <div style={{
-        background: '#ffffff',
-        border: '1px solid #f1f5f9',
-        borderRadius: 16,
-        padding: 32,
-        marginBottom: 56,
+        position: 'relative',
+        zIndex: 1,
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: 32
       }}>
-        <h2 style={{
-          fontSize: 20,
-          marginBottom: 28,
-          color: '#18181b',
-          fontWeight: 700,
-          letterSpacing: '-0.01em'
-        }}>
-          파이프라인
-        </h2>
+        {/* Pipeline */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: 16
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 24,
+          padding: 40,
+          transition: 'all 0.3s'
         }}>
-          {Object.entries(stats.pipelineCounts).map(([stage, count]) => (
-            <div
-              key={stage}
-              style={{
-                background: '#fafafa',
-                border: '1px solid #f1f5f9',
-                borderRadius: 12,
-                padding: '20px 16px',
-                textAlign: 'center',
-                transition: 'all 0.2s',
-                cursor: 'default'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f8f9fa'
-                e.currentTarget.style.borderColor = '#e4e4e7'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#fafafa'
-                e.currentTarget.style.borderColor = '#f1f5f9'
-              }}
-            >
-              <div style={{
-                fontSize: 13,
-                color: '#71717a',
-                marginBottom: 12,
-                fontWeight: 600,
-                letterSpacing: '-0.01em'
-              }}>
-                {stageLabels[stage]}
-              </div>
-              <div style={{
-                fontSize: 32,
-                fontWeight: 700,
-                color: stageColors[stage],
-                letterSpacing: '-0.02em'
-              }}>
-                {count}
-              </div>
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={() => router.push('/pipeline')}
-          style={{
-            marginTop: 28,
-            padding: '12px 24px',
-            background: '#18181b',
+          <h2 style={{
+            fontSize: 24,
+            fontWeight: 700,
             color: '#ffffff',
-            border: 'none',
-            borderRadius: 10,
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontSize: 14,
-            transition: 'all 0.2s',
-            letterSpacing: '-0.01em'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#27272a'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#18181b'
-          }}
-        >
-          파이프라인 관리 →
-        </button>
-      </div>
-
-      {/* Recent Activity */}
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #f1f5f9',
-        borderRadius: 16,
-        padding: 32,
-      }}>
-        <h2 style={{
-          fontSize: 20,
-          marginBottom: 28,
-          color: '#18181b',
-          fontWeight: 700,
-          letterSpacing: '-0.01em'
-        }}>
-          최근 활동
-        </h2>
-        {stats.recentActivity.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '80px 24px',
-            color: '#a1a1aa'
+            marginBottom: 28,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-            <p style={{ fontSize: 15, letterSpacing: '-0.01em' }}>
-              아직 분석한 이력서가 없습니다.
-            </p>
+            <span style={{ fontSize: 28 }}>📈</span>
+            채용 파이프라인
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: 16
+          }}>
+            {Object.entries(stats.pipelineCounts).map(([stage, count]) => (
+              <div
+                key={stage}
+                style={{
+                  padding: '20px 16px',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 16,
+                  border: `1px solid ${stageColors[stage]}40`,
+                  textAlign: 'center',
+                  transition: 'all 0.3s',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${stageColors[stage]}20`
+                  e.currentTarget.style.borderColor = stageColors[stage]
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = `0 10px 30px ${stageColors[stage]}40`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                  e.currentTarget.style.borderColor = `${stageColors[stage]}40`
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+              >
+                <div style={{
+                  fontSize: 32,
+                  fontWeight: 700,
+                  color: stageColors[stage],
+                  marginBottom: 8,
+                  letterSpacing: '-0.02em'
+                }}>
+                  {count}
+                </div>
+                <div style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.6)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  {stageLabels[stage]}
+                </div>
+              </div>
+            ))}
           </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {(() => {
-              const grouped = stats.recentActivity.reduce((acc: any, activity) => {
-                if (!acc[activity.name]) {
-                  acc[activity.name] = {
-                    name: activity.name,
-                    resume: null,
-                    jdAnalyses: [],
-                    latestDate: activity.createdAt
-                  }
-                }
-                if (activity.type === 'resume') {
-                  acc[activity.name].resume = activity
-                } else {
-                  acc[activity.name].jdAnalyses.push(activity)
-                }
-                if (new Date(activity.createdAt) > new Date(acc[activity.name].latestDate)) {
-                  acc[activity.name].latestDate = activity.createdAt
-                }
-                return acc
-              }, {})
+        </div>
 
-              const sortedGroups = Object.values(grouped).sort((a: any, b: any) =>
-                new Date(b.latestDate).getTime() - new Date(a.latestDate).getTime()
-              )
+        {/* Recent Activity */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 24,
+          padding: 40
+        }}>
+          <h2 style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: '#ffffff',
+            marginBottom: 28,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 28 }}>⚡</span>
+            최근 활동
+          </h2>
 
-              return sortedGroups.map((group: any, idx: number) => {
-                const isJustCompleted = group.resume && analysisState.resume.completedIds?.includes(group.resume.id)
-
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      padding: 20,
-                      background: '#fafafa',
-                      border: '1px solid #f1f5f9',
-                      borderRadius: 12,
-                    }}
-                  >
+          {stats.recentActivity.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              color: 'rgba(255,255,255,0.4)',
+              fontSize: 15
+            }}>
+              아직 활동이 없습니다
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {stats.recentActivity.slice(0, 5).map((activity) => (
+                <div
+                  key={activity.id}
+                  style={{
+                    padding: '20px 24px',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: 16,
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                    transition: 'all 0.3s',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => router.push(`/result/${activity.id}`)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                    e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
+                    e.currentTarget.style.transform = 'translateX(4px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                    e.currentTarget.style.transform = 'translateX(0)'
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
                     <div style={{
-                      fontSize: 17,
-                      fontWeight: 700,
-                      marginBottom: 16,
-                      color: '#18181b',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      letterSpacing: '-0.01em'
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: '#ffffff',
+                      marginBottom: 6
                     }}>
-                      {group.name}
-                      {isJustCompleted && (
-                        <span style={{
-                          padding: '4px 12px',
-                          background: '#10b981',
-                          color: '#ffffff',
-                          borderRadius: 6,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          letterSpacing: '0'
-                        }}>
-                          완료
-                        </span>
-                      )}
+                      {activity.name} · {activity.position}
                     </div>
-
-                    {group.resume && (
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: 16,
-                          background: '#ffffff',
-                          border: '1px solid #f1f5f9',
-                          borderRadius: 10,
-                          marginBottom: group.jdAnalyses.length > 0 ? 12 : 0,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => router.push(`/result/${group.resume.id}`)}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#f8f9fa'
-                          e.currentTarget.style.borderColor = '#e4e4e7'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#ffffff'
-                          e.currentTarget.style.borderColor = '#f1f5f9'
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            marginBottom: 6
-                          }}>
-                            <span style={{
-                              padding: '4px 10px',
-                              background: '#18181b',
-                              color: '#ffffff',
-                              borderRadius: 6,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              letterSpacing: '0.02em'
-                            }}>
-                              이력서 분석
-                            </span>
-                            <span style={{
-                              padding: '4px 10px',
-                              background: '#fafafa',
-                              color: stageColors[group.resume.stage],
-                              borderRadius: 6,
-                              fontSize: 11,
-                              fontWeight: 600,
-                            }}>
-                              {stageLabels[group.resume.stage]}
-                            </span>
-                          </div>
-                          <div style={{
-                            fontSize: 14,
-                            color: '#71717a',
-                            letterSpacing: '-0.01em'
-                          }}>
-                            {group.resume.position}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{
-                            fontSize: 11,
-                            color: '#a1a1aa',
-                            marginBottom: 4,
-                            letterSpacing: '0'
-                          }}>
-                            적합도
-                          </div>
-                          <div style={{
-                            fontSize: 24,
-                            fontWeight: 700,
-                            color: group.resume.score >= 70 ? '#10b981' : '#f59e0b',
-                            letterSpacing: '-0.02em'
-                          }}>
-                            {group.resume.score}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {group.jdAnalyses.map((jd: any, jdIdx: number) => (
-                      <div
-                        key={jdIdx}
-                        style={{
-                          padding: 16,
-                          background: '#ffffff',
-                          border: '1px solid #f1f5f9',
-                          borderRadius: 10,
-                          marginBottom: jdIdx < group.jdAnalyses.length - 1 ? 12 : 0,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => router.push(`/jd-result/${jd.id}`)}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#f8f9fa'
-                          e.currentTarget.style.borderColor = '#e4e4e7'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#ffffff'
-                          e.currentTarget.style.borderColor = '#f1f5f9'
-                        }}
-                      >
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          marginBottom: 10
-                        }}>
-                          <span style={{
-                            padding: '4px 10px',
-                            background: '#8b5cf6',
-                            color: '#ffffff',
-                            borderRadius: 6,
-                            fontSize: 11,
-                            fontWeight: 700,
-                            letterSpacing: '0.02em'
-                          }}>
-                            JD 분석
-                          </span>
-                        </div>
-                        <div style={{
-                          fontSize: 14,
-                          fontWeight: 600,
-                          color: '#18181b',
-                          marginBottom: 4,
-                          letterSpacing: '-0.01em'
-                        }}>
-                          {jd.position?.split(' - ')[0] || '회사명'}
-                        </div>
-                        <div style={{
-                          fontSize: 13,
-                          color: '#71717a',
-                          marginBottom: 12,
-                          letterSpacing: '-0.01em'
-                        }}>
-                          {jd.position}
-                        </div>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          paddingTop: 12,
-                          borderTop: '1px solid #f1f5f9'
-                        }}>
-                          <div style={{
-                            fontSize: 11,
-                            color: '#a1a1aa',
-                            letterSpacing: '0'
-                          }}>
-                            JD 적합도
-                          </div>
-                          <div style={{
-                            fontSize: 20,
-                            fontWeight: 700,
-                            color: jd.score >= 70 ? '#10b981' : '#f59e0b',
-                            letterSpacing: '-0.02em'
-                          }}>
-                            {jd.score}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                    <div style={{
+                      fontSize: 13,
+                      color: 'rgba(255,255,255,0.5)'
+                    }}>
+                      {new Date(activity.createdAt).toLocaleDateString('ko-KR')}
+                    </div>
                   </div>
-                )
-              })
-            })()}
-          </div>
-        )}
+                  <div style={{
+                    fontSize: 24,
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}>
+                    {activity.score}점
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </main>
-  )
-}
-
-function StatCard({
-  title,
-  value,
-  suffix,
-  icon,
-}: {
-  title: string
-  value: number
-  suffix: string
-  icon: string
-}) {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        border: '1px solid #f1f5f9',
-        borderRadius: 16,
-        padding: 32,
-        transition: 'all 0.2s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = '#fafafa'
-        e.currentTarget.style.borderColor = '#e4e4e7'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = '#ffffff'
-        e.currentTarget.style.borderColor = '#f1f5f9'
-      }}
-    >
-      <div style={{
-        fontSize: 28,
-        marginBottom: 16
-      }}>
-        {icon}
-      </div>
-      <div style={{
-        fontSize: 13,
-        color: '#71717a',
-        marginBottom: 12,
-        fontWeight: 600,
-        letterSpacing: '-0.01em'
-      }}>
-        {title}
-      </div>
-      <div style={{
-        fontSize: 40,
-        fontWeight: 700,
-        color: '#18181b',
-        letterSpacing: '-0.03em'
-      }}>
-        {value}
-        <span style={{
-          fontSize: 18,
-          marginLeft: 6,
-          color: '#a1a1aa',
-          fontWeight: 600
-        }}>
-          {suffix}
-        </span>
-      </div>
-    </div>
   )
 }
