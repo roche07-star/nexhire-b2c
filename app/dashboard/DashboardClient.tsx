@@ -442,7 +442,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           value={stats.totalCandidates}
           suffix="건"
           icon="📋"
-          trend={12}
         />
 
         {/* 이번 달 이력서/JD 분석 */}
@@ -542,27 +541,163 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               </div>
             </div>
           </div>
-
-          <div style={{
-            marginTop: 12,
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#22d3ee',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4
-          }}>
-            <span>↗</span>
-            <span>8% vs 지난달</span>
-          </div>
         </div>
         <StatCard
           title="평균 적합도"
           value={stats.avgScore}
           suffix="점"
           icon="⭐"
-          trend={-3}
         />
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 56,
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(34, 211, 238, 0.3)',
+          borderRadius: 24,
+          padding: 40,
+          transition: 'all 0.3s'
+        }}>
+          <h2 style={{
+            fontSize: 24,
+            fontWeight: 700,
+            color: '#ffffff',
+            marginBottom: 28,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 28 }}>🚀</span>
+            빠른 작업
+          </h2>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 16
+          }}>
+            {/* 새 이력서 분석 */}
+            <button
+              onClick={() => router.push('/analyze')}
+              style={{
+                padding: '20px 24px',
+                background: 'rgba(34, 211, 238, 0.1)',
+                border: '1px solid rgba(34, 211, 238, 0.3)',
+                borderRadius: 16,
+                color: '#ffffff',
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <span style={{ fontSize: 24 }}>📋</span>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>새 이력서 분석</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>후보자 이력서 업로드</div>
+              </div>
+            </button>
+
+            {/* 채용 프로세스 추가 */}
+            <button
+              onClick={() => router.push('/hiring-process')}
+              style={{
+                padding: '20px 24px',
+                background: 'rgba(167, 139, 250, 0.1)',
+                border: '1px solid rgba(167, 139, 250, 0.3)',
+                borderRadius: 16,
+                color: '#ffffff',
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.6)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(167, 139, 250, 0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.3)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <span style={{ fontSize: 24 }}>📊</span>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>채용 프로세스 관리</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>진행 중인 채용 보기</div>
+              </div>
+            </button>
+
+            {/* 정산 확인 */}
+            <button
+              onClick={() => router.push('/settlements')}
+              style={{
+                padding: '20px 24px',
+                background: 'rgba(251, 191, 36, 0.1)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                borderRadius: 16,
+                color: '#ffffff',
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(251, 191, 36, 0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <span style={{ fontSize: 24 }}>💰</span>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>정산 확인</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>이번 달 정산 내역</div>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Quick View & Activity */}
@@ -882,11 +1017,56 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           {stats.recentActivity.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              padding: '60px 20px',
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 15
+              padding: '80px 40px',
             }}>
-              아직 활동이 없습니다
+              <div style={{
+                fontSize: 64,
+                marginBottom: 20,
+                filter: 'grayscale(0.3) opacity(0.6)'
+              }}>
+                📭
+              </div>
+              <div style={{
+                fontSize: 18,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.7)',
+                marginBottom: 12
+              }}>
+                아직 활동이 없어요
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,0.4)',
+                marginBottom: 32,
+                lineHeight: 1.6
+              }}>
+                첫 이력서를 분석하거나 채용 프로세스를 추가해보세요
+              </div>
+              <button
+                onClick={() => router.push('/analyze')}
+                style={{
+                  padding: '14px 32px',
+                  background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 10px 30px rgba(34, 211, 238, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 15px 40px rgba(34, 211, 238, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
+                }}
+              >
+                첫 이력서 분석하기 →
+              </button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
