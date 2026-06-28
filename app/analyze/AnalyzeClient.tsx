@@ -3474,7 +3474,13 @@ function AnalysisResults({
           <button
             className="analyze-download-btn"
             onClick={() => setShowHiringModal(true)}
-            style={{ background: '#22d3ee', borderColor: '#22d3ee' }}
+            style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+              color: '#ffffff',
+              fontWeight: 600
+            }}
           >
             📊 채용 프로세스 추가
           </button>
