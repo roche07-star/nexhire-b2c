@@ -3470,13 +3470,21 @@ function AnalysisResults({
         </div>
       )}
 
-      {/* 헤드헌터 + PRO 이상: 채용 프로세스 추가 */}
-      {userType === 'HEADHUNTER' && isPro && analysisId && (
+      {/* 헤드헌터: 채용 프로세스 추가 (FREE는 업그레이드 유도) */}
+      {userType === 'HEADHUNTER' && analysisId && (
         <div style={{ marginBottom: '16px' }}>
           <button
             ref={hiringButtonRef}
             className="analyze-download-btn"
             onClick={() => {
+              // FREE 사용자는 업그레이드 유도
+              if (!isPro) {
+                if (confirm('채용 프로세스 관리는 PRO 플랜 이상에서 이용 가능합니다.\n\n업그레이드 페이지로 이동하시겠습니까?')) {
+                  window.location.href = '/#pricing'
+                }
+                return
+              }
+
               if (hiringButtonRef.current) {
                 const rect = hiringButtonRef.current.getBoundingClientRect()
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop
