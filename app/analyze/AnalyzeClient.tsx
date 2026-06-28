@@ -3480,7 +3480,7 @@ function AnalysisResults({
               if (hiringButtonRef.current) {
                 const rect = hiringButtonRef.current.getBoundingClientRect()
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-                setHiringModalTop(rect.bottom + scrollTop + 10)
+                setHiringModalTop(rect.top + scrollTop - 50)
               }
               setShowHiringModal(true)
             }}
