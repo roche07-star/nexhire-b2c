@@ -125,9 +125,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0 })
 
   useEffect(() => {
     fetchStats()
+    fetchHiringProcessStats()
   }, [])
 
   const fetchStats = async () => {
@@ -160,6 +162,26 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       setError(err instanceof Error ? err.message : '알 수 없는 오류')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchHiringProcessStats = async () => {
+    try {
+      const res = await fetch('/api/hiring-process')
+      if (res.ok) {
+        const data = await res.json()
+        const processes = data.processes || []
+
+        // 실제 채용 프로세스 데이터 계산
+        const active = processes.filter((p: any) => p.current_stage <= 4 && p.status !== 'FAILED').length
+        const passed = processes.filter((p: any) => p.current_stage === 5).length
+        const hired = processes.filter((p: any) => p.current_stage === 6).length
+
+        setHiringStats({ active, passed, hired })
+      }
+    } catch (err) {
+      console.error('Failed to fetch hiring process stats:', err)
+      // 에러 시 기본값 유지
     }
   }
 
@@ -567,7 +589,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 marginBottom: 8,
                 letterSpacing: '-0.02em'
               }}>
-                {stats.pipelineCounts.pending + stats.pipelineCounts.screening + stats.pipelineCounts.interview + stats.pipelineCounts.final}
+                {hiringStats.active}
               </div>
               <div style={{
                 fontSize: 13,
@@ -632,7 +654,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 marginBottom: 8,
                 letterSpacing: '-0.02em'
               }}>
-                {Math.floor(stats.pipelineCounts.completed * 0.6) || 0}
+                {hiringStats.passed}
               </div>
               <div style={{
                 fontSize: 13,
@@ -697,7 +719,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 marginBottom: 8,
                 letterSpacing: '-0.02em'
               }}>
-                {Math.floor(stats.pipelineCounts.completed * 0.4) || 0}
+                {hiringStats.hired}
               </div>
               <div style={{
                 fontSize: 13,
