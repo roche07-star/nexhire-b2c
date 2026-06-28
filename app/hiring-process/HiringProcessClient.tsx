@@ -36,8 +36,8 @@ export default function HiringProcessClient() {
   const stats = {
     total: processes.length,
     active: processes.filter((p) => p.status === 'ACTIVE').length,
-    passed: processes.filter((p) => p.status === 'PASSED').length,
-    hired: processes.filter((p) => p.status === 'HIRED').length,
+    passed: processes.filter((p) => p.current_stage === 5).length,
+    hired: processes.filter((p) => p.current_stage === 6).length,
   }
 
   if (loading) {
