@@ -303,13 +303,13 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
               disabled={updating || process.status === 'FAILED'}
               style={{
                 padding: '8px 16px',
-                background: process.status === 'FAILED' ? '#ef444420' : 'var(--surface2)',
-                border: `1px solid ${process.status === 'FAILED' ? '#ef4444' : 'var(--border)'}`,
+                background: process.status === 'FAILED' ? '#ef444420' : '#18181b',
+                border: `1px solid ${process.status === 'FAILED' ? '#ef4444' : '#27272a'}`,
                 borderRadius: '8px',
                 cursor: process.status === 'FAILED' ? 'default' : 'pointer',
                 fontSize: '12px',
                 fontWeight: 600,
-                color: process.status === 'FAILED' ? '#ef4444' : 'var(--text)',
+                color: process.status === 'FAILED' ? '#ef4444' : '#a1a1aa',
                 opacity: updating ? 0.5 : 1
               }}
             >
