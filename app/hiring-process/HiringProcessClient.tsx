@@ -272,7 +272,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
         <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>단계 변경</div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {[0, 1, 2, 3, 4].map((stage) => (
+            {[0, 1, 2, 3, 4, 5].map((stage) => (
               <button
                 key={stage}
                 onClick={() => updateStage(stage as HiringProcessStage)}
