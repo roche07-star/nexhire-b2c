@@ -20,6 +20,17 @@ import type {
   SidebarMenu,
   toArr,
 } from '@/types/analyze'
+import {
+  FEATURE_LABEL,
+  CAREER_COLORS,
+  CAREER_COLORS_HEX,
+  REC_LABEL_CONST,
+  REC_COLOR_HEX,
+  LOADING_STEPS,
+  JD_LOADING_STEPS,
+  REWRITE_LOADING_STEPS,
+  INTERVIEW_LOADING_STEPS,
+} from '@/constants/analyze'
 
 // Re-export toArr for use in this file
 const toArrUtil = (v: unknown): string[] =>
