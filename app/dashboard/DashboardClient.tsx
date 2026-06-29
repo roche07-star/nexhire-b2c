@@ -522,9 +522,9 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             {/* 알림 드롭다운 */}
             {showNotifications && (
               <div style={{
-                position: 'absolute',
-                top: 'calc(100% + 12px)',
-                right: 0,
+                position: 'fixed',
+                top: 80,
+                right: 24,
                 width: 380,
                 maxWidth: '90vw',
                 background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
