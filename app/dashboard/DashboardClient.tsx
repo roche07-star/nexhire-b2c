@@ -794,6 +794,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               background: 'rgba(255,255,255,0.05)',
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.1)',
+              textAlign: 'center'
             }}>
               <div style={{
                 fontSize: 13,
@@ -827,6 +828,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 color: 'rgba(255,255,255,0.7)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: 8,
                 marginBottom: 8
               }}>
@@ -839,6 +841,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 color: 'rgba(255,255,255,0.7)',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: 8
               }}>
                 <span>📝</span>
@@ -852,6 +855,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               background: 'rgba(255,255,255,0.05)',
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.1)',
+              textAlign: 'center'
             }}>
               <div style={{
                 fontSize: 13,
