@@ -97,7 +97,7 @@ function PaymentFailContent() {
           fontSize: 12,
           color: 'var(--muted)',
         }}>
-          문의: support@nexhire.com
+          문의: jobizic.biz@gmail.com
         </div>
       </div>
     </div>
