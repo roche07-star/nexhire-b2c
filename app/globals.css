@@ -4211,24 +4211,24 @@ footer {
   /* FEATURE */
   .feature-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 16px;
     margin-top: 24px;
   }
-  .feature-card { padding: 14px; border-radius: 10px; }
-  .feature-icon { font-size: 28px; margin-bottom: 10px; }
-  .feature-card h3 { font-size: 14px; }
-  .feature-card p { font-size: 12px; }
-  .ftag { font-size: 10px; padding: 3px 8px; }
+  .feature-card { padding: 20px; border-radius: 12px; }
+  .feature-icon { font-size: 32px; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 16px; }
+  .feature-card p { font-size: 14px; }
+  .ftag { font-size: 11px; padding: 4px 10px; }
 
   /* HOW IT WORKS - 모바일 최적화 */
   .how-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 16px;
     margin-top: 24px;
     border-radius: 12px;
   }
   .how-card {
-    padding: 20px 16px;
+    padding: 24px 20px;
   }
   .how-num {
     font-size: 32px;
