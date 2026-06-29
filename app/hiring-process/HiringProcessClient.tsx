@@ -473,6 +473,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
                   style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface2)', cursor: 'pointer' }}
                 >
                   <option value="">선택 안함</option>
+                  <option value="서류 준비">서류 준비</option>
                   <option value="서류 검토">서류 검토</option>
                   <option value="1차 면접">1차 면접</option>
                   <option value="1차 면접 준비">1차 면접 준비</option>
