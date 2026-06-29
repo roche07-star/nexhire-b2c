@@ -1036,12 +1036,43 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             </button>
           </div>
 
+          {/* 성과 메시지 */}
+          {hiringStats.hired > 0 && (
+            <div style={{
+              padding: '20px 24px',
+              background: 'rgba(16, 185, 129, 0.2)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16
+            }}>
+              <span style={{ fontSize: 32 }}>🎉</span>
+              <div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: '#10b981',
+                  marginBottom: 4
+                }}>
+                  축하합니다!
+                </div>
+                <div style={{
+                  fontSize: 14,
+                  color: 'rgba(255,255,255,0.8)'
+                }}>
+                  이번 달 {hiringStats.hired}명이 입사했습니다. 계속해서 좋은 성과를 내고 계십니다!
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 목표 카드 */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: 20,
-            marginBottom: 32
+            marginTop: 32
           }}>
             {/* 입사 목표 */}
             {(() => {
@@ -1215,37 +1246,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
           </div>
-
-          {/* 성과 메시지 */}
-          {hiringStats.hired > 0 && (
-            <div style={{
-              padding: '20px 24px',
-              background: 'rgba(16, 185, 129, 0.2)',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              borderRadius: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16
-            }}>
-              <span style={{ fontSize: 32 }}>🎉</span>
-              <div>
-                <div style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: '#10b981',
-                  marginBottom: 4
-                }}>
-                  축하합니다!
-                </div>
-                <div style={{
-                  fontSize: 14,
-                  color: 'rgba(255,255,255,0.8)'
-                }}>
-                  이번 달 {hiringStats.hired}명이 입사했습니다. 계속해서 좋은 성과를 내고 계십니다!
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
