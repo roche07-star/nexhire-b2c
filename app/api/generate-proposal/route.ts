@@ -176,17 +176,17 @@ export async function POST(req: NextRequest) {
 - 직무 적합도: ${resumeAnalysis.scores?.job_fit || 0}점
 - 시장 경쟁력: ${resumeAnalysis.scores?.market_competitiveness || 0}점
 - 성장 가능성: ${resumeAnalysis.scores?.growth_potential || 0}점
-- 강점: ${resumeAnalysis.strengths?.join(', ') || '없음'}
-- 개선점: ${resumeAnalysis.improvements?.join(', ') || '없음'}
-- 핵심 키워드: ${resumeAnalysis.keywords?.join(', ') || '없음'}
+- 강점: ${Array.isArray(resumeAnalysis.strengths) ? resumeAnalysis.strengths.join(', ') : '없음'}
+- 개선점: ${Array.isArray(resumeAnalysis.improvements) ? resumeAnalysis.improvements.join(', ') : '없음'}
+- 핵심 키워드: ${Array.isArray(resumeAnalysis.keywords) ? resumeAnalysis.keywords.join(', ') : '없음'}
 
 ## JD 적합도 분석 결과:
 - 회사: ${jdAnalysis.company || '미상'}
 - 포지션: ${jdAnalysis.position || '미상'}
 - 적합도 점수: ${jdAnalysis.fit_score || 0}점
 - 추천도: ${jdAnalysis.recommendation || 'CONSIDER'}
-- 매칭 강점: ${jdAnalysis.matching_points?.join(', ') || '없음'}
-- 부족한 점: ${jdAnalysis.gaps?.join(', ') || '없음'}
+- 매칭 강점: ${Array.isArray(jdAnalysis.matching_points) ? jdAnalysis.matching_points.join(', ') : '없음'}
+- 부족한 점: ${Array.isArray(jdAnalysis.gaps) ? jdAnalysis.gaps.join(', ') : '없음'}
 
 다음 형식으로 프로페셔널한 후보자 추천서를 작성해 주세요:
 
