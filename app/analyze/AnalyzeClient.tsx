@@ -2170,21 +2170,32 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           ref={hiringButtonRef}
                           className="analyze-download-btn"
                           onClick={(e) => {
+                            console.log('🚨 [채용 프로세스] 버튼 클릭 시작!')
                             e.preventDefault()
                             e.stopPropagation()
-                            console.log('🚨 [채용 프로세스] 버튼 클릭!')
-                            if (hiringButtonRef.current) {
-                              const rect = hiringButtonRef.current.getBoundingClientRect()
-                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-                              setHiringModalTop(rect.top + scrollTop - 400)
+
+                            try {
+                              // JD 정보를 state에 저장
+                              setHiringJDInfo({
+                                candidateName: '',
+                                companyName: jdViewingSaved.result.company || '',
+                                positionTitle: jdViewingSaved.result.position || ''
+                              })
+                              console.log('✅ JD 정보 저장 완료')
+
+                              // 모달 위치 계산
+                              if (hiringButtonRef.current) {
+                                const rect = hiringButtonRef.current.getBoundingClientRect()
+                                const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+                                setHiringModalTop(rect.top + scrollTop - 400)
+                              }
+
+                              // 모달 표시
+                              setShowHiringModal(true)
+                              console.log('✅ 모달 표시 완료')
+                            } catch (error) {
+                              console.error('❌ 에러 발생:', error)
                             }
-                            // JD 정보를 state에 저장
-                            setHiringJDInfo({
-                              candidateName: '', // JD 분석에는 후보자 정보가 없으므로 빈 문자열
-                              companyName: jdViewingSaved.result.company || '',
-                              positionTitle: jdViewingSaved.result.position || ''
-                            })
-                            setShowHiringModal(true)
                           }}
                           style={{
                             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -2219,21 +2230,32 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           ref={hiringButtonRef}
                           className="analyze-download-btn"
                           onClick={(e) => {
+                            console.log('🚨 [채용 프로세스] 버튼 클릭 시작!')
                             e.preventDefault()
                             e.stopPropagation()
-                            console.log('🚨 [채용 프로세스] 버튼 클릭!')
-                            if (hiringButtonRef.current) {
-                              const rect = hiringButtonRef.current.getBoundingClientRect()
-                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-                              setHiringModalTop(rect.top + scrollTop - 400)
+
+                            try {
+                              // JD 정보를 state에 저장
+                              setHiringJDInfo({
+                                candidateName: jdSelectedAnalysis?.result.candidate_name || '',
+                                companyName: jdResult.company || '',
+                                positionTitle: jdResult.position || ''
+                              })
+                              console.log('✅ JD 정보 저장 완료')
+
+                              // 모달 위치 계산
+                              if (hiringButtonRef.current) {
+                                const rect = hiringButtonRef.current.getBoundingClientRect()
+                                const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+                                setHiringModalTop(rect.top + scrollTop - 400)
+                              }
+
+                              // 모달 표시
+                              setShowHiringModal(true)
+                              console.log('✅ 모달 표시 완료')
+                            } catch (error) {
+                              console.error('❌ 에러 발생:', error)
                             }
-                            // JD 정보를 state에 저장
-                            setHiringJDInfo({
-                              candidateName: jdSelectedAnalysis?.result.candidate_name || '',
-                              companyName: jdResult.company || '',
-                              positionTitle: jdResult.position || ''
-                            })
-                            setShowHiringModal(true)
                           }}
                           style={{
                             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -3994,8 +4016,8 @@ function JDResults({
                 ↓ HTML 리포트 다운로드
               </button>
 
-              {/* 수동 제안서 생성/재생성 버튼 (헤드헌터 전용) */}
-              {userType === 'HEADHUNTER' && (
+              {/* 수동 제안서 생성/재생성 버튼 (헤드헌터 전용) - 항상 표시 */}
+              {(console.log('🔍 제안서 버튼 조건:', { userType, proposalData: !!proposalData }), userType === 'HEADHUNTER') && (
                 <button
                   className="analyze-download-btn"
                   style={{
