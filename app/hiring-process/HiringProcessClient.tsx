@@ -446,11 +446,22 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--muted2)' }}>다음 액션</label>
-                <input
-                  type="text"
-                  defaultValue={process.next_action || ''}
-                  onBlur={(e) => {
-                    const val = e.target.value.trim()
+                <select
+                  defaultValue={process.next_action || (() => {
+                    // 현재 단계에 따라 다음 단계 자동 설정
+                    const nextStageMap: Record<HiringProcessStage, string> = {
+                      0: '1차 면접',
+                      1: '2차 면접',
+                      2: '최종 면접',
+                      3: '처우 협의',
+                      4: '합격',
+                      5: '입사',
+                      6: ''
+                    }
+                    return nextStageMap[process.current_stage] || ''
+                  })()}
+                  onChange={(e) => {
+                    const val = e.target.value
                     if (val !== process.next_action) {
                       fetch(`/api/hiring-process/${process.id}`, {
                         method: 'PATCH',
@@ -459,9 +470,21 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
                       }).then(() => onUpdate())
                     }
                   }}
-                  placeholder="예: 2차 면접 준비"
-                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface2)' }}
-                />
+                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface2)', cursor: 'pointer' }}
+                >
+                  <option value="">선택 안함</option>
+                  <option value="서류 검토">서류 검토</option>
+                  <option value="1차 면접">1차 면접</option>
+                  <option value="1차 면접 준비">1차 면접 준비</option>
+                  <option value="2차 면접">2차 면접</option>
+                  <option value="2차 면접 준비">2차 면접 준비</option>
+                  <option value="최종 면접">최종 면접</option>
+                  <option value="최종 면접 준비">최종 면접 준비</option>
+                  <option value="처우 협의">처우 협의</option>
+                  <option value="합격 통보">합격 통보</option>
+                  <option value="입사 준비">입사 준비</option>
+                  <option value="입사">입사</option>
+                </select>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--muted2)' }}>일정 날짜</label>
