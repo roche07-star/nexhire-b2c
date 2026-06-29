@@ -710,9 +710,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                   <span>수수료</span>
                 </div>
                 {[
-                  { name: '김OO', date: '2026-06-01', salary: '5,000만원', fee: '12,500,000원' },
-                  { name: '이OO', date: '2026-05-15', salary: '6,500만원', fee: '16,250,000원' },
-                  { name: '박OO', date: '2026-04-20', salary: '4,200만원', fee: '10,500,000원' },
+                  { name: '김OO', date: '2026-06-01', salary: '4,500만원', fee: '11,250,000원' },
+                  { name: '이OO', date: '2026-05-15', salary: '5,200만원', fee: '13,000,000원' },
+                  { name: '박OO', date: '2026-04-20', salary: '3,800만원', fee: '9,500,000원' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', padding: '6px 0' }}>
                     <span>{item.name}</span>
