@@ -9,6 +9,7 @@ interface DashboardStats {
   thisMonthAnalyses: number
   thisMonthResumes?: number
   thisMonthJDs?: number
+  thisMonthProposals?: number
   avgScore: number
   pipelineCounts: {
     pending: number
