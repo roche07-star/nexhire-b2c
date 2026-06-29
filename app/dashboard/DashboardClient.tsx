@@ -131,6 +131,31 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [privacyMode, setPrivacyMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showGoalSettings, setShowGoalSettings] = useState(false)
+  const [goals, setGoals] = useState({
+    hiredTarget: 10,
+    passedTarget: 20,
+    resumeTarget: 50
+  })
+
+  // localStorage에서 목표 불러오기
+  useEffect(() => {
+    const savedGoals = localStorage.getItem('dashboard_goals')
+    if (savedGoals) {
+      try {
+        setGoals(JSON.parse(savedGoals))
+      } catch (e) {
+        console.error('Failed to parse goals:', e)
+      }
+    }
+  }, [])
+
+  // 목표 저장
+  const saveGoals = (newGoals: typeof goals) => {
+    setGoals(newGoals)
+    localStorage.setItem('dashboard_goals', JSON.stringify(newGoals))
+    setShowGoalSettings(false)
+  }
 
   // 알림 생성 (실시간 시뮬레이션)
   const notifications = [
@@ -419,7 +444,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             letterSpacing: '-0.03em',
             textShadow: '0 0 30px rgba(34, 211, 238, 0.3)'
           }}>
-            헤드헌터 대시보드
+            대시보드
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <p style={{
@@ -445,38 +470,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          {/* 프라이버시 모드 토글 */}
-          <button
-            onClick={() => setPrivacyMode(!privacyMode)}
-            style={{
-              padding: '12px 24px',
-              background: privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)',
-              color: privacyMode ? '#a78bfa' : '#ffffff',
-              border: privacyMode ? '1px solid rgba(167, 139, 250, 0.5)' : '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: 14,
-              transition: 'all 0.3s',
-              letterSpacing: '-0.01em',
-              backdropFilter: 'blur(10px)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(255,255,255,0.1)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            <span>{privacyMode ? '🔒' : '🔓'}</span>
-            <span>익명 모드</span>
-          </button>
-
           {/* 알림 버튼 */}
           <div style={{ position: 'relative' }}>
             <button
@@ -666,6 +659,39 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             )}
           </div>
 
+          {/* 프라이버시 모드 토글 */}
+          <button
+            onClick={() => setPrivacyMode(!privacyMode)}
+            style={{
+              padding: '12px 24px',
+              background: privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)',
+              color: privacyMode ? '#a78bfa' : '#ffffff',
+              border: privacyMode ? '1px solid rgba(167, 139, 250, 0.5)' : '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: 14,
+              transition: 'all 0.3s',
+              letterSpacing: '-0.01em',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(255,255,255,0.1)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            <span>{privacyMode ? '🔒' : '🔓'}</span>
+            <span>익명 모드</span>
+          </button>
+
+          {/* 새로고침 버튼 */}
           <button
             onClick={() => {
               setStats(null)
@@ -881,19 +907,54 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           padding: 40,
           transition: 'all 0.3s'
         }}>
-          <h2 style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#ffffff',
-            marginBottom: 28,
-            letterSpacing: '-0.02em',
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12
+            justifyContent: 'space-between',
+            marginBottom: 28
           }}>
-            <span style={{ fontSize: 28 }}>📈</span>
-            이번 달 성과
-          </h2>
+            <h2 style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: '#ffffff',
+              letterSpacing: '-0.02em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              margin: 0
+            }}>
+              <span style={{ fontSize: 28 }}>📈</span>
+              이번 달 성과
+            </h2>
+            <button
+              onClick={() => setShowGoalSettings(true)}
+              style={{
+                padding: '8px 16px',
+                background: 'rgba(167, 139, 250, 0.1)',
+                border: '1px solid rgba(167, 139, 250, 0.3)',
+                borderRadius: 8,
+                color: '#a78bfa',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.2)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.1)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span>⚙️</span>
+              <span>목표 설정</span>
+            </button>
+          </div>
 
           {/* 목표 카드 */}
           <div style={{
@@ -904,7 +965,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           }}>
             {/* 입사 목표 */}
             {(() => {
-              const target = 10
+              const target = goals.hiredTarget
               const current = hiringStats.hired
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
@@ -961,7 +1022,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
             {/* 합격 목표 */}
             {(() => {
-              const target = 20
+              const target = goals.passedTarget
               const current = hiringStats.passed
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
@@ -1018,7 +1079,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
             {/* 이력서 분석 목표 */}
             {(() => {
-              const target = 50
+              const target = goals.resumeTarget
               const current = stats.thisMonthResumes ?? stats.thisMonthAnalyses
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
@@ -1829,6 +1890,213 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             >
               시작하기 →
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 목표 설정 모달 */}
+      {showGoalSettings && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: 20,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          `}</style>
+
+          <div style={{
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
+            border: '1px solid rgba(167, 139, 250, 0.3)',
+            borderRadius: 24,
+            padding: 48,
+            maxWidth: 500,
+            width: '100%',
+            boxShadow: '0 30px 80px rgba(0, 0, 0, 0.5)',
+            position: 'relative'
+          }}>
+            <h2 style={{
+              fontSize: 28,
+              fontWeight: 800,
+              color: '#ffffff',
+              marginBottom: 32,
+              textAlign: 'center',
+              letterSpacing: '-0.02em'
+            }}>
+              ⚙️ 이번 달 목표 설정
+            </h2>
+
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              saveGoals({
+                hiredTarget: Number(formData.get('hiredTarget')),
+                passedTarget: Number(formData.get('passedTarget')),
+                resumeTarget: Number(formData.get('resumeTarget'))
+              })
+            }}>
+              {/* 입사 목표 */}
+              <div style={{ marginBottom: 24 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                  marginBottom: 8
+                }}>
+                  입사 목표 (명)
+                </label>
+                <input
+                  type="number"
+                  name="hiredTarget"
+                  defaultValue={goals.hiredTarget}
+                  min="1"
+                  max="1000"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: 12,
+                    color: '#ffffff',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+
+              {/* 합격 목표 */}
+              <div style={{ marginBottom: 24 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                  marginBottom: 8
+                }}>
+                  합격 목표 (명)
+                </label>
+                <input
+                  type="number"
+                  name="passedTarget"
+                  defaultValue={goals.passedTarget}
+                  min="1"
+                  max="1000"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: 12,
+                    color: '#ffffff',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+
+              {/* 이력서 분석 목표 */}
+              <div style={{ marginBottom: 32 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                  marginBottom: 8
+                }}>
+                  이력서 분석 목표 (건)
+                </label>
+                <input
+                  type="number"
+                  name="resumeTarget"
+                  defaultValue={goals.resumeTarget}
+                  min="1"
+                  max="10000"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: 12,
+                    color: '#ffffff',
+                    fontSize: 16,
+                    fontWeight: 600
+                  }}
+                />
+              </div>
+
+              {/* 버튼 */}
+              <div style={{
+                display: 'flex',
+                gap: 12
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setShowGoalSettings(false)}
+                  style={{
+                    flex: 1,
+                    padding: '14px 24px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: 12,
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '14px 24px',
+                    background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
+                    border: 'none',
+                    borderRadius: 12,
+                    color: '#ffffff',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(167, 139, 250, 0.4)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
+                >
+                  저장
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
