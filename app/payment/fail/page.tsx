@@ -1,9 +1,10 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function PaymentFailPage() {
+function PaymentFailContent() {
   const searchParams = useSearchParams()
   const message = searchParams.get('message') || '결제에 실패했습니다.'
   const code = searchParams.get('code')
@@ -100,5 +101,13 @@ export default function PaymentFailPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PaymentFailPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>로딩 중...</div>}>
+      <PaymentFailContent />
+    </Suspense>
   )
 }
