@@ -69,8 +69,8 @@ export async function GET() {
         // Fallback: Function이 없으면 기존 방식 사용 (마이그레이션 전)
         console.log('📌 Supabase Function not found, using fallback queries')
 
-        // 기존 병렬 쿼리 방식 (JD 활동 포함)
-        const [totalCount, monthCount, monthJDCount, avgScoreData, pipelineData, resumeActivity, jdActivity] = await Promise.all([
+        // 기존 병렬 쿼리 방식 (JD 활동 + 제안서 포함)
+        const [totalCount, monthCount, monthJDCount, monthProposalCount, avgScoreData, pipelineData, resumeActivity, jdActivity] = await Promise.all([
           supabase
             .from('analyses')
             .select('*', { count: 'exact', head: true })
@@ -82,6 +82,11 @@ export async function GET() {
             .gte('created_at', firstDayOfMonth.toISOString()),
           supabase
             .from('jd_analyses')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_email', email)
+            .gte('created_at', firstDayOfMonth.toISOString()),
+          supabase
+            .from('interview_guides')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email)
             .gte('created_at', firstDayOfMonth.toISOString()),
@@ -176,6 +181,7 @@ export async function GET() {
           totalCandidates: totalCount.count || 0,
           thisMonthResumes: monthCount.count || 0,
           thisMonthJDs: monthJDCount.count || 0,
+          thisMonthProposals: monthProposalCount.count || 0,
           recentActivityCount: allActivities.length,
         })
 
@@ -184,6 +190,7 @@ export async function GET() {
           thisMonthAnalyses: monthCount.count || 0,
           thisMonthResumes: monthCount.count || 0,
           thisMonthJDs: monthJDCount.count || 0,
+          thisMonthProposals: monthProposalCount.count || 0,
           avgScore,
           pipelineCounts,
           recentActivity: Array.isArray(allActivities) ? allActivities : [],
