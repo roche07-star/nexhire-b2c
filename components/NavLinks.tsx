@@ -38,11 +38,11 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   }
 
   const menuItems = [
-    // 헤드헌터: 대시보드 → 채용프로세스 → 이력서분석 → 정산 → Store
-    // 구직자: 이력서 분석 → Store
+    // 헤드헌터: 대시보드 → 채용프로세스 → 분석&생성 → 정산 → Store
+    // 구직자: 분석&생성 → Store
     ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : []),
     ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
-    ...(isPro ? [{ href: '/analyze', label: '이력서 분석' }] : []),
+    ...(isPro ? [{ href: '/analyze', label: '분석&생성' }] : []),
     ...(isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
     { href: '/store', label: 'Store' },
   ]
@@ -50,8 +50,8 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   return (
     <>
       {/* 데스크톱 메뉴 */}
-      {/* 헤드헌터: 대시보드 → 채용프로세스 → 이력서분석 → 정산 → Store → 사용법 */}
-      {/* 구직자: 이력서 분석 → Store → 사용법 */}
+      {/* 헤드헌터: 대시보드 → 채용프로세스 → 분석&생성 → 정산 → Store → 사용법 */}
+      {/* 구직자: 분석&생성 → Store → 사용법 */}
       {isHeadhunter && (
         <li className="desktop-only"><Link href="/dashboard" style={getLinkStyle('/dashboard')}>대시보드</Link></li>
       )}
@@ -59,7 +59,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
         <li className="desktop-only"><Link href="/hiring-process" style={getLinkStyle('/hiring-process')}>채용 프로세스</Link></li>
       )}
       {isPro && (
-        <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
+        <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>분석&생성</Link></li>
       )}
       {isHeadhunter && (
         <li className="desktop-only"><Link href="/settlements" style={getLinkStyle('/settlements')}>정산</Link></li>
