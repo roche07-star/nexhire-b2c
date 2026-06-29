@@ -531,7 +531,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 border: '1px solid rgba(251, 191, 36, 0.3)',
                 borderRadius: 16,
                 boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-                zIndex: 1000,
+                zIndex: 99999,
                 animation: 'slideDown 0.3s ease-out'
               }}>
                 <style>{`
