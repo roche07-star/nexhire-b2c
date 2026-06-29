@@ -1326,14 +1326,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
             {/* 상단 탭 */}
             <div className="analyze-tab-bar">
-                {/* 헤드헌터 전용: 대시보드 버튼 */}
-                {userType === 'HEADHUNTER' && (
-                  <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                    <button className="analyze-tab-btn">
-                      <span>📊</span> 대시보드
-                    </button>
-                  </Link>
-                )}
                 <button
                   className={`analyze-tab-btn${activeMenu === 'upload' ? ' active' : ''}`}
                   onClick={() => onMenuClick('upload')}
