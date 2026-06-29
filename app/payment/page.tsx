@@ -2,20 +2,41 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
 
 export default function PaymentPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const tossPaymentsRef = useRef<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const userType = session?.user?.userType
+  const plan = searchParams.get('plan') || 'PRO' // URL 파라미터로 플랜 확인
 
-  // 가격 계산
+  // 가격 계산 (플랜 + userType 기준)
   const getPriceInfo = () => {
-    if (userType === 'HEADHUNTER') {
+    const isHeadhunter = userType === 'HEADHUNTER'
+
+    if (plan === 'EXPERT') {
+      // EXPERT 플랜
+      if (isHeadhunter) {
+        return {
+          original: 49900,
+          discounted: 34930, // 30% 할인
+          name: 'JOBIZIC EXPERT (헤드헌터)',
+        }
+      }
+      return {
+        original: 29900,
+        discounted: 20930, // 30% 할인
+        name: 'JOBIZIC EXPERT (구직자)',
+      }
+    }
+
+    // PRO 플랜 (기본)
+    if (isHeadhunter) {
       return {
         original: 19900,
         discounted: 13930,

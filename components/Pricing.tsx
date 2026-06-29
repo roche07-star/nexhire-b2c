@@ -106,7 +106,7 @@ export default function Pricing({ userType }: { userType?: UserType | null }) {
               {plan.features.map((f) => <li key={f}>{f}</li>)}
               {plan.disabled.map((f) => <li key={f} className="disabled">{f}</li>)}
             </ul>
-            <Link href={plan.name === 'Free' ? '/analyze' : '/payment'}>
+            <Link href={plan.name === 'Free' ? '/analyze' : `/payment?plan=${plan.name.toUpperCase()}`}>
               <button className={`btn-plan ${plan.btnClass}`}>{plan.btnText}</button>
             </Link>
           </div>
