@@ -5021,12 +5021,12 @@ footer {
   }
 }
 
-/* 모바일: 가로 2열, 중앙 정렬 */
+/* 모바일: 가로 2열, 좌측 정렬 */
 @media (max-width: 768px) {
   .insights-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     max-width: 60%;
-    margin-left: auto;
+    margin-left: 5%;
     margin-right: auto;
   }
 
