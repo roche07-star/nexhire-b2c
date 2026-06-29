@@ -36,8 +36,8 @@ function ConsentPageContent() {
         // 사용자가 직접 선택하도록 함
 
         if (data.hasConsent && data.hasUserType) {
-          // 이미 동의한 경우 메인으로 리다이렉트
-          const callbackUrl = searchParams.get('callbackUrl') || '/analyze'
+          // 이미 동의한 경우 callbackUrl로 리다이렉트
+          const callbackUrl = searchParams.get('callbackUrl') || '/'
           router.push(callbackUrl)
         }
       }
@@ -93,7 +93,7 @@ function ConsentPageContent() {
       }
 
       // 동의 완료 후 리다이렉트 (세션 갱신을 위해 강제 새로고침)
-      const callbackUrl = searchParams.get('callbackUrl') || '/analyze'
+      const callbackUrl = searchParams.get('callbackUrl') || '/'
       window.location.href = callbackUrl
 
     } catch (err: any) {
