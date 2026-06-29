@@ -9,6 +9,7 @@ import Faq from '@/components/Faq'
 import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
+import Link from 'next/link'
 import type { UserType } from '@/types/user'
 
 export default async function Home() {
@@ -18,6 +19,24 @@ export default async function Home() {
   return (
     <>
       <ScrollReveal />
+
+      {/* 7월 한정 할인 배너 */}
+      <div className="promo-banner">
+        <div className="promo-content">
+          <span className="promo-text">
+            ⚡ <strong>7월 한정 특가</strong> PRO 플랜 30% 할인
+            <span className="promo-price">
+              <span className="price-original">9,900원</span>
+              <span className="price-arrow">→</span>
+              <span className="price-sale">6,930원</span>
+            </span>
+          </span>
+          <Link href="/analyze" className="promo-cta">
+            지금 시작하기 →
+          </Link>
+        </div>
+      </div>
+
       <Nav />
       <Hero userType={userType} />
       <HowItWorks userType={userType} />

@@ -5033,3 +5033,108 @@ footer {
     display: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   프로모션 배너 (최상단 고정)
+   ═══════════════════════════════════════════════════════ */
+.promo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  padding: 12px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.promo-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.promo-text {
+  color: #fff;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.promo-text strong {
+  font-weight: 700;
+}
+
+.promo-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.price-original {
+  text-decoration: line-through;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.price-arrow {
+  opacity: 0.8;
+}
+
+.price-sale {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+.promo-cta {
+  background: #fff;
+  color: #dc2626;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.promo-cta:hover {
+  background: #fef3c7;
+  transform: translateY(-1px);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .promo-banner {
+    padding: 10px 16px;
+  }
+
+  .promo-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .promo-text {
+    font-size: 13px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .promo-price {
+    margin-left: 0;
+  }
+
+  .price-sale {
+    font-size: 16px;
+  }
+
+  .promo-cta {
+    width: 100%;
+    padding: 10px 20px;
+  }
+}

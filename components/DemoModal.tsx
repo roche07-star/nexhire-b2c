@@ -725,26 +725,6 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {/* 한정 할인 배너 */}
-          <div style={{
-            marginTop: 20,
-            padding: '20px',
-            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-            borderRadius: 14,
-            textAlign: 'center',
-            boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)'
-          }}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', marginBottom: 8 }}>
-              ⚡ 7월 얼리버드 특별 혜택
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 8, lineHeight: 1.2 }}>
-              프리미엄 50% 할인
-            </div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>
-              정가 <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>29,000원</span> → <strong style={{ fontSize: 18, color: '#fbbf24' }}>14,500원</strong>
-            </div>
-          </div>
-
           <Link href="/analyze">
             <button className="btn-hero" style={{ width: '100%', marginTop: 20 }}>
               내 이력서 분석하기 →
