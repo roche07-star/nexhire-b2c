@@ -132,9 +132,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
   const headhunterTabs = [
     { icon: '👤', label: '후보자 분석' },
     { icon: '📋', label: 'JD 매칭' },
-    { icon: '📊', label: '채용 프로세스' },
     { icon: '📄', label: '클라이언트 제안서' },
-    { icon: '💰', label: '정산 기능' },
+    { icon: '📊', label: '채용 프로세스', badge: '⚙️' },
+    { icon: '💰', label: '정산 기능', badge: '⚙️' },
   ]
 
   const tabs = isHeadhunter ? headhunterTabs : jobseekerTabs
@@ -405,9 +405,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {demoTab === 2 && isHeadhunter && (
+          {demoTab === 3 && isHeadhunter && (
             <>
-              <div className="results-label" style={{ marginBottom: 10 }}>📊 채용 프로세스 관리 — 후보자 진행 상황 추적</div>
+              <div className="results-label" style={{ marginBottom: 10 }}>📊 채용 프로세스 관리 (⚙️ 시스템 기능)</div>
 
               <div className="demo-summary-block">
                 <p className="result-summary">
@@ -516,7 +516,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
 
           {/* ────────────────────────────────────── */}
           {/* 개인 구직자: Tab 3 = 면접 가이드 */}
-          {/* 헤드헌터: Tab 3 = 클라이언트 제안서 */}
+          {/* 헤드헌터: Tab 2 = 클라이언트 제안서 */}
           {/* ────────────────────────────────────── */}
           {demoTab === 3 && !isHeadhunter && (
             <>
@@ -562,7 +562,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {demoTab === 3 && isHeadhunter && (
+          {demoTab === 2 && isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
@@ -634,11 +634,11 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           )}
 
           {/* ────────────────────────────────────── */}
-          {/* 헤드헌터: Tab 4 = 정산 기능 */}
+          {/* 헤드헌터: Tab 4 = 정산 기능 (시스템 관리) */}
           {/* ────────────────────────────────────── */}
           {demoTab === 4 && isHeadhunter && (
             <>
-              <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 — 매출/수수료 자동 계산</div>
+              <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 (⚙️ 시스템 기능)</div>
 
               <div className="demo-summary-block">
                 <p className="result-summary">
@@ -649,9 +649,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
               <div className="demo-scores" style={{ marginTop: 16 }}>
                 <div className="results-label">2026년 실적 요약</div>
                 {[
-                  { label: '총 매출', val: '128,500,000원' },
-                  { label: '전환액 (회수)', val: '96,200,000원' },
-                  { label: '미수금 (대기)', val: '32,300,000원' },
+                  { label: '총 매출', val: '84,000,000원' },
+                  { label: '전환액 (회수)', val: '67,000,000원' },
+                  { label: '미수금 (대기)', val: '17,000,000원' },
                 ].map((s) => (
                   <div key={s.label} className="result-score-row">
                     <div className="score-meta">
@@ -666,27 +666,27 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 <div className="results-section">
                   <div className="results-label">📊 월별 매출</div>
                   <ul className="result-list">
-                    <li>1월: 12,500,000원</li>
-                    <li>2월: 18,300,000원</li>
-                    <li>3월: 21,700,000원</li>
-                    <li>4월: 19,200,000원</li>
-                    <li>5월: 23,800,000원</li>
-                    <li>6월: 33,000,000원 (최고)</li>
+                    <li>1월: 9,500,000원</li>
+                    <li>2월: 11,800,000원</li>
+                    <li>3월: 13,200,000원</li>
+                    <li>4월: 12,500,000원</li>
+                    <li>5월: 15,000,000원</li>
+                    <li>6월: 22,000,000원 (최고)</li>
                   </ul>
                 </div>
                 <div className="results-section">
                   <div className="results-label">🎯 목표 달성률</div>
                   <div className="result-score-row">
                     <div className="score-meta">
-                      <span className="score-name">연간 목표 (1.5억)</span>
-                      <span className="score-val">86%</span>
+                      <span className="score-name">연간 목표 (1억)</span>
+                      <span className="score-val">84%</span>
                     </div>
                     <div className="score-bar-wrap">
-                      <div className="score-bar" style={{ width: '86%' }} />
+                      <div className="score-bar" style={{ width: '84%' }} />
                     </div>
                   </div>
                   <p className="result-summary" style={{ fontSize: '12px', marginTop: 8 }}>
-                    현재 진행률로 <strong>목표 달성 가능</strong> (예상: 1.62억)
+                    현재 진행률로 <strong>목표 달성 가능</strong> (예상: 1.05억)
                   </p>
                 </div>
                 <div className="results-section">
