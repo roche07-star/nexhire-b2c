@@ -1731,7 +1731,13 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     transition: 'all 0.3s',
                     cursor: 'pointer'
                   }}
-                  onClick={() => router.push(`/result/${activity.id}`)}
+                  onClick={() => {
+                    if (activity.type === 'jd') {
+                      router.push(`/analyze?tab=jd&id=${activity.id}`)
+                    } else {
+                      router.push(`/result/${activity.id}`)
+                    }
+                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
                     e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
