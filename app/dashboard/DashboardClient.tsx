@@ -783,11 +783,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             인사이트
           </h2>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 20
-          }}>
+          <div className="insights-grid">
             {/* 이번 주 활동 요약 */}
             <div style={{
               padding: '24px 28px',
