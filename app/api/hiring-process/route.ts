@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { getCached } from '@/lib/cache'
 import type { CreateHiringProcessInput, HiringProcess } from '@/types/hiring-process'
 
 export const maxDuration = 30
@@ -16,18 +17,27 @@ export async function GET() {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { data, error } = await supabase
-      .from('hiring_processes')
-      .select('*')
-      .eq('user_email', session.user.email)
-      .order('created_at', { ascending: false })
+    // 캐싱 적용 (30초 TTL)
+    const result = await getCached(
+      `hiring-process:${session.user.email}`,
+      async () => {
+        const { data, error } = await supabase
+          .from('hiring_processes')
+          .select('*')
+          .eq('user_email', session.user.email)
+          .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('[hiring-process] GET error:', error)
-      return NextResponse.json({ error: '조회 실패' }, { status: 500 })
-    }
+        if (error) {
+          console.error('[hiring-process] GET error:', error)
+          throw new Error('조회 실패')
+        }
 
-    return NextResponse.json({ processes: data as HiringProcess[] })
+        return { processes: data as HiringProcess[] }
+      },
+      30 // 30초 캐시
+    )
+
+    return NextResponse.json(result)
   } catch (e) {
     console.error('[hiring-process] GET exception:', e)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })
