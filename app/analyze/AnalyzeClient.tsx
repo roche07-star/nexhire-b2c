@@ -371,7 +371,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [showHiringModal, setShowHiringModal] = useState(false)
   const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
   const [hiringModalTop, setHiringModalTop] = useState(100)
-  const hiringButtonRef = useRef<HTMLButtonElement>(null)
+  const hiringButtonRef = useRef<HTMLButtonElement | null>(null)
   const [hiringJDInfo, setHiringJDInfo] = useState<{candidateName: string; companyName: string; positionTitle: string}>({
     candidateName: '',
     companyName: '',
@@ -2954,7 +2954,7 @@ function AnalysisResults({
   setHiringProcessCreating: (value: boolean) => void
   hiringModalTop: number
   setHiringModalTop: (value: number) => void
-  hiringButtonRef: React.RefObject<HTMLButtonElement>
+  hiringButtonRef: React.MutableRefObject<HTMLButtonElement | null>
   hiringJDInfo: {candidateName: string; companyName: string; positionTitle: string}
   setHiringJDInfo: (value: {candidateName: string; companyName: string; positionTitle: string}) => void
 }) {
