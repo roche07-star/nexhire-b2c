@@ -134,6 +134,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
+  const [proposalResetDate, setProposalResetDate] = useState<string | null>(null)
   const [goals, setGoals] = useState({
     hiredTarget: 10,
     passedTarget: 20,
@@ -166,6 +167,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       } catch (e) {
         console.error('Failed to parse notifications cleared:', e)
       }
+    }
+
+    // 제안 수 reset 날짜 불러오기
+    const resetDate = localStorage.getItem('proposal_reset_date')
+    if (resetDate) {
+      setProposalResetDate(resetDate)
     }
   }, [])
 
@@ -980,14 +987,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             </button>
             <button
               onClick={() => {
-                if (confirm('목표를 초기화하시겠습니까?\n(입사: 10명, 합격: 20명, 제안: 10건으로 초기화됩니다)')) {
-                  const defaultGoals = {
-                    hiredTarget: 10,
-                    passedTarget: 20,
-                    proposalTarget: 10
-                  }
-                  setGoals(defaultGoals)
-                  localStorage.setItem('dashboard_goals', JSON.stringify(defaultGoals))
+                if (confirm('진행 수치를 초기화하시겠습니까?\n\n제안 수가 0으로 리셋됩니다.\n(입사/합격은 채용 프로세스 데이터 유지)')) {
+                  const today = new Date().toISOString()
+                  localStorage.setItem('proposal_reset_date', today)
+                  setProposalResetDate(today)
                 }
               }}
               style={{
@@ -1015,7 +1018,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               }}
             >
               <span>🔄</span>
-              <span>목표 초기화</span>
+              <span>초기화</span>
             </button>
           </div>
 
@@ -1143,7 +1146,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             {/* 제안 목표 */}
             {(() => {
               const target = goals.proposalTarget
-              const current = stats.thisMonthProposals ?? 0
+              // Reset 날짜 체크: 이번 달 중에 reset했으면 0으로 표시
+              let current = stats.thisMonthProposals ?? 0
+              if (proposalResetDate) {
+                const resetDate = new Date(proposalResetDate)
+                const now = new Date()
+                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+                // Reset 날짜가 이번 달 1일 이후이면 0으로 표시
+                if (resetDate >= firstDayOfMonth) {
+                  current = 0
+                }
+              }
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
