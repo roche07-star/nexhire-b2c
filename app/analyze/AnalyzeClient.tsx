@@ -2165,11 +2165,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     />
                     {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
                     {userType === 'HEADHUNTER' && isPro && (
-                      <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                      <div style={{ marginBottom: '16px', marginTop: '16px', position: 'relative', zIndex: 10 }}>
                         <button
                           ref={hiringButtonRef}
                           className="analyze-download-btn"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('🚨 [채용 프로세스] 버튼 클릭!')
                             if (hiringButtonRef.current) {
                               const rect = hiringButtonRef.current.getBoundingClientRect()
                               const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -2188,7 +2191,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             border: 'none',
                             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
                             color: '#ffffff',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            position: 'relative',
+                            zIndex: 100,
+                            cursor: 'pointer',
+                            pointerEvents: 'auto'
                           }}
                         >
                           📊 채용 프로세스 추가
@@ -2207,11 +2214,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     />
                     {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
                     {userType === 'HEADHUNTER' && isPro && (
-                      <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                      <div style={{ marginBottom: '16px', marginTop: '16px', position: 'relative', zIndex: 10 }}>
                         <button
                           ref={hiringButtonRef}
                           className="analyze-download-btn"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('🚨 [채용 프로세스] 버튼 클릭!')
                             if (hiringButtonRef.current) {
                               const rect = hiringButtonRef.current.getBoundingClientRect()
                               const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -2230,7 +2240,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             border: 'none',
                             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
                             color: '#ffffff',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            position: 'relative',
+                            zIndex: 100,
+                            cursor: 'pointer',
+                            pointerEvents: 'auto'
                           }}
                         >
                           📊 채용 프로세스 추가
