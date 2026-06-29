@@ -19,9 +19,15 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${base}/consent?callbackUrl=/analyze`)
       }
 
-      const plan = data?.plan ?? 'FREE'
-      if (plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER') {
-        return NextResponse.redirect(`${base}/analyze`)
+      // 헤드헌터는 대시보드, 구직자는 이력서 분석으로
+      if (data.user_type === 'HEADHUNTER') {
+        return NextResponse.redirect(`${base}/dashboard`)
+      } else {
+        // JOBSEEKER 또는 기타
+        const plan = data?.plan ?? 'FREE'
+        if (plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER') {
+          return NextResponse.redirect(`${base}/analyze`)
+        }
       }
     }
   } catch {

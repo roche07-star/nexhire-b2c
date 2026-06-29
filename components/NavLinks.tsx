@@ -40,7 +40,8 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   const menuItems = [
     // PRO 이상이면 이력서 분석 표시
     ...(isPro ? [{ href: '/analyze', label: '이력서 분석' }] : []),
-    // 헤드헌터면 채용 프로세스, 정산 표시 (FREE도 메뉴는 보임)
+    // 헤드헌터면 대시보드, 채용 프로세스, 정산 표시 (FREE도 메뉴는 보임)
+    ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : []),
     ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
     ...(isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
     { href: '/store', label: 'Store' },
@@ -55,7 +56,10 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
       {isPro && (
         <li className="desktop-only"><Link href="/analyze" style={getLinkStyle('/analyze')}>이력서 분석</Link></li>
       )}
-      {/* 헤드헌터면 채용 프로세스, 정산 (FREE도 메뉴는 보임) */}
+      {/* 헤드헌터면 대시보드, 채용 프로세스, 정산 (FREE도 메뉴는 보임) */}
+      {isHeadhunter && (
+        <li className="desktop-only"><Link href="/dashboard" style={getLinkStyle('/dashboard')}>대시보드</Link></li>
+      )}
       {isHeadhunter && (
         <li className="desktop-only"><Link href="/hiring-process" style={getLinkStyle('/hiring-process')}>채용 프로세스</Link></li>
       )}
