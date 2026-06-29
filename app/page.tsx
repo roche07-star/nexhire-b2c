@@ -20,22 +20,43 @@ export default async function Home() {
     <>
       <ScrollReveal />
 
-      {/* 7월 한정 할인 배너 */}
-      <div className="promo-banner">
-        <div className="promo-content">
-          <span className="promo-text">
-            ⚡ <strong>7월 한정 특가</strong> PRO 플랜 30% 할인
-            <span className="promo-price">
-              <span className="price-original">9,900원</span>
-              <span className="price-arrow">→</span>
-              <span className="price-sale">6,930원</span>
+      {/* 7월 한정 할인 배너 - 일반 구직자 */}
+      {userType !== 'HEADHUNTER' && (
+        <div className="promo-banner">
+          <div className="promo-content">
+            <span className="promo-text">
+              ⚡ <strong>7월 한정 특가</strong> PRO 플랜 30% 할인
+              <span className="promo-price">
+                <span className="price-original">9,900원</span>
+                <span className="price-arrow">→</span>
+                <span className="price-sale">6,930원</span>
+              </span>
             </span>
-          </span>
-          <Link href="/analyze" className="promo-cta">
-            지금 시작하기 →
-          </Link>
+            <Link href="/analyze" className="promo-cta">
+              지금 시작하기 →
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 7월 한정 할인 배너 - 헤드헌터 */}
+      {userType === 'HEADHUNTER' && (
+        <div className="promo-banner">
+          <div className="promo-content">
+            <span className="promo-text">
+              ⚡ <strong>7월 한정 특가</strong> PRO 플랜 30% 할인
+              <span className="promo-price">
+                <span className="price-original">19,900원</span>
+                <span className="price-arrow">→</span>
+                <span className="price-sale">13,930원</span>
+              </span>
+            </span>
+            <Link href="/analyze" className="promo-cta">
+              지금 시작하기 →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <Nav />
       <Hero userType={userType} />
