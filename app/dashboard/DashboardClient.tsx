@@ -788,180 +788,137 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 20
           }}>
-            {/* 인사이트 반응형 레이아웃 */}
-            <div className="insights-grid">
-              {/* 이번 주 활동 카드 */}
+            {/* 이번 주 활동 요약 */}
+            <div style={{
+              padding: '24px 28px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.1)',
+              textAlign: 'center'
+            }}>
               <div style={{
-                padding: '20px',
-                background: 'rgba(255,255,255,0.05)',
-                borderRadius: 16,
-                border: '1px solid rgba(255,255,255,0.1)',
-                textAlign: 'center'
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginBottom: 12
               }}>
-                <div style={{
+                이번 주 활동
+              </div>
+              <div style={{
+                fontSize: 15,
+                color: 'rgba(255,255,255,0.9)',
+                lineHeight: 1.6,
+                marginBottom: 16
+              }}>
+                {stats.recentActivity.length > 0 ? (
+                  <>
+                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 분석 활동이 있었습니다
+                  </>
+                ) : (
+                  <>
+                    아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
+                  </>
+                )}
+              </div>
+              {/* 이번달 진행 */}
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                marginBottom: 8
+              }}>
+                <span>📊</span>
+                <span>이번달 진행: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {stats.thisMonthProposals ?? 0}건</span></span>
+              </div>
+              {/* 이력서 생성 건수 */}
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8
+              }}>
+                <span>📝</span>
+                <span>이력서 생성: <span style={{ color: '#10b981', fontWeight: 600 }}>{stats.thisMonthResumes ?? stats.thisMonthAnalyses ?? 0}건</span></span>
+              </div>
+            </div>
+
+            {/* 다음 할 일 추천 */}
+            <div style={{
+              padding: '24px 28px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.1)',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginBottom: 12
+              }}>
+                추천 작업
+              </div>
+              <div style={{
+                fontSize: 15,
+                color: 'rgba(255,255,255,0.9)',
+                lineHeight: 1.6,
+                marginBottom: 16
+              }}>
+                {hiringStats.active > 0 ? (
+                  <>
+                    진행 중인 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{hiringStats.active}명</span>의 후보자를 확인하세요
+                  </>
+                ) : stats.totalCandidates > 0 ? (
+                  <>
+                    이력서를 채용 프로세스에 추가해보세요
+                  </>
+                ) : (
+                  <>
+                    새로운 이력서를 분석해보세요
+                  </>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  if (hiringStats.active > 0) {
+                    router.push('/hiring-process')
+                  } else if (stats.totalCandidates > 0) {
+                    router.push('/hiring-process')
+                  } else {
+                    router.push('/analyze')
+                  }
+                }}
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(251, 191, 36, 0.2)',
+                  border: '1px solid rgba(251, 191, 36, 0.4)',
+                  borderRadius: 8,
+                  color: '#fbbf24',
                   fontSize: 13,
                   fontWeight: 600,
-                  color: 'rgba(255,255,255,0.6)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  marginBottom: 16
-                }}>
-                  📊 이번 주 활동
-                </div>
-
-                {/* 큰 숫자 강조 */}
-                <div style={{
-                  fontSize: 48,
-                  fontWeight: 700,
-                  color: '#fbbf24',
-                  lineHeight: 1,
-                  marginBottom: 8
-                }}>
-                  {stats.recentActivity.length}
-                </div>
-                <div style={{
-                  fontSize: 14,
-                  color: 'rgba(255,255,255,0.8)',
-                  marginBottom: 20
-                }}>
-                  건의 분석 활동
-                </div>
-
-                {/* 통계 아이콘 카드 */}
-                <div style={{
-                  display: 'flex',
-                  gap: '8px',
-                  justifyContent: 'center',
-                  marginTop: 16
-                }}>
-                  {/* 이력서 */}
-                  <div style={{
-                    flex: 1,
-                    padding: '12px 8px',
-                    background: 'rgba(167, 139, 250, 0.1)',
-                    border: '1px solid rgba(167, 139, 250, 0.3)',
-                    borderRadius: 12,
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: '20px', marginBottom: 4 }}>📝</div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#a78bfa', marginBottom: 2 }}>
-                      {stats.thisMonthResumes ?? stats.thisMonthAnalyses ?? 0}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>이력서</div>
-                  </div>
-
-                  {/* JD */}
-                  <div style={{
-                    flex: 1,
-                    padding: '12px 8px',
-                    background: 'rgba(34, 211, 238, 0.1)',
-                    border: '1px solid rgba(34, 211, 238, 0.3)',
-                    borderRadius: 12,
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: '20px', marginBottom: 4 }}>📋</div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#22d3ee', marginBottom: 2 }}>
-                      {stats.thisMonthJDs ?? 0}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>JD</div>
-                  </div>
-
-                  {/* 제안서 */}
-                  <div style={{
-                    flex: 1,
-                    padding: '12px 8px',
-                    background: 'rgba(251, 191, 36, 0.1)',
-                    border: '1px solid rgba(251, 191, 36, 0.3)',
-                    borderRadius: 12,
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: '20px', marginBottom: 4 }}>📄</div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#fbbf24', marginBottom: 2 }}>
-                      {stats.thisMonthProposals ?? 0}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>제안서</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 추천 작업 카드 */}
-              <div style={{
-                padding: '20px',
-                background: 'rgba(255,255,255,0.05)',
-                borderRadius: 16,
-                border: '1px solid rgba(255,255,255,0.1)',
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}>
-                <div>
-                  <div style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'rgba(255,255,255,0.6)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 16
-                  }}>
-                    💡 추천 작업
-                  </div>
-
-                  <div style={{
-                    fontSize: 15,
-                    color: 'rgba(255,255,255,0.9)',
-                    lineHeight: 1.6,
-                    marginBottom: 20
-                  }}>
-                    {hiringStats.active > 0 ? (
-                      <>
-                        진행 중인 <span style={{ fontSize: '24px', fontWeight: 700, color: '#a78bfa' }}>{hiringStats.active}명</span>의<br />후보자를 확인하세요
-                      </>
-                    ) : stats.totalCandidates > 0 ? (
-                      <>
-                        이력서를 채용<br />프로세스에 추가해보세요
-                      </>
-                    ) : (
-                      <>
-                        새로운 이력서를<br />분석해보세요
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (hiringStats.active > 0) {
-                      router.push('/hiring-process')
-                    } else if (stats.totalCandidates > 0) {
-                      router.push('/hiring-process')
-                    } else {
-                      router.push('/analyze')
-                    }
-                  }}
-                  style={{
-                    padding: '12px 20px',
-                    background: 'rgba(251, 191, 36, 0.2)',
-                    border: '1px solid rgba(251, 191, 36, 0.4)',
-                    borderRadius: 10,
-                    color: '#fbbf24',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(251, 191, 36, 0.3)'
-                    e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
-                    e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)'
-                  }}
-                >
-                  바로가기 →
-                </button>
-              </div>
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)'
+                }}
+              >
+                바로가기 →
+              </button>
             </div>
           </div>
         </div>
