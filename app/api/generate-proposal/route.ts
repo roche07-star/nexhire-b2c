@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import Anthropic from '@anthropic-ai/sdk'
+import { supabase } from '@/lib/supabase'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -306,6 +307,34 @@ export async function POST(req: NextRequest) {
 
       proposal = createFallbackProposal(resumeAnalysis, jdAnalysis)
       console.log('[generate-proposal] ✅ Fallback proposal created')
+    }
+
+    // 제안서를 interview_guides 테이블에 저장
+    try {
+      const session = await auth()
+      if (session?.user?.email) {
+        const expiresAt = new Date()
+        expiresAt.setDate(expiresAt.getDate() + 30) // 30일 후 만료
+
+        const { data: inserted, error: insertError } = await supabase
+          .from('interview_guides')
+          .insert({
+            user_email: session.user.email,
+            result: proposal,
+            expires_at: expiresAt.toISOString()
+          })
+          .select('id')
+          .single()
+
+        if (!insertError && inserted) {
+          console.log('[generate-proposal] ✅ Saved to DB, ID:', inserted.id)
+          return NextResponse.json({ proposal, id: inserted.id })
+        } else {
+          console.error('[generate-proposal] ⚠️ Failed to save to DB:', insertError?.message)
+        }
+      }
+    } catch (saveError) {
+      console.error('[generate-proposal] ⚠️ Error saving to DB:', saveError)
     }
 
     return NextResponse.json({ proposal })
