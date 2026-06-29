@@ -978,6 +978,45 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               <span>⚙️</span>
               <span>목표 설정</span>
             </button>
+            <button
+              onClick={() => {
+                if (confirm('목표를 초기화하시겠습니까?\n(입사: 10명, 합격: 20명, 제안: 10건으로 초기화됩니다)')) {
+                  const defaultGoals = {
+                    hiredTarget: 10,
+                    passedTarget: 20,
+                    proposalTarget: 10
+                  }
+                  setGoals(defaultGoals)
+                  localStorage.setItem('dashboard_goals', JSON.stringify(defaultGoals))
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '12px 20px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                letterSpacing: '-0.01em'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span>🔄</span>
+              <span>목표 초기화</span>
+            </button>
           </div>
 
           {/* 목표 카드 */}
@@ -1104,7 +1143,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             {/* 제안 목표 */}
             {(() => {
               const target = goals.proposalTarget
-              const current = stats.thisMonthProposals
+              const current = stats.thisMonthProposals ?? 0
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
