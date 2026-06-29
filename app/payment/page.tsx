@@ -19,13 +19,13 @@ export default function PaymentPage() {
       return {
         original: 19900,
         discounted: 13930,
-        name: 'NexHire PRO (헤드헌터)',
+        name: 'JOBIZIC PRO (헤드헌터)',
       }
     }
     return {
       original: 9900,
       discounted: 6930,
-      name: 'NexHire PRO (구직자)',
+      name: 'JOBIZIC PRO (구직자)',
     }
   }
 
