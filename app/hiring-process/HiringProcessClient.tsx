@@ -79,6 +79,36 @@ export default function HiringProcessClient() {
         <StatCard label="입사" value={stats.hired} color="#10b981" active={filter === 'HIRED'} onClick={() => setFilter('HIRED')} />
       </div>
 
+      {/* 다가오는 일정 */}
+      {(() => {
+        const upcoming = processes
+          .filter(p => p.next_action_date && p.status === 'ACTIVE')
+          .sort((a, b) => new Date(a.next_action_date!).getTime() - new Date(b.next_action_date!).getTime())
+          .slice(0, 3)
+
+        if (upcoming.length === 0) return null
+
+        return (
+          <div style={{ marginBottom: '32px', padding: '20px', background: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: '#fbbf24' }}>📅 다가오는 일정</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {upcoming.map(p => (
+                <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '24px' }}>📌</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{p.candidate_name} · {p.company_name}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>{p.next_action}</div>
+                  </div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#fbbf24' }}>
+                    {new Date(p.next_action_date!).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 프로세스 목록 */}
       {filteredProcesses.length === 0 ? (
         <div style={{
@@ -408,6 +438,48 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
             >
               불합격
             </button>
+          </div>
+
+          {/* 다음 일정 설정 */}
+          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>다음 일정 설정</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--muted2)' }}>다음 액션</label>
+                <input
+                  type="text"
+                  defaultValue={process.next_action || ''}
+                  onBlur={(e) => {
+                    const val = e.target.value.trim()
+                    if (val !== process.next_action) {
+                      fetch(`/api/hiring-process/${process.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ next_action: val || null })
+                      }).then(() => onUpdate())
+                    }
+                  }}
+                  placeholder="예: 2차 면접 준비"
+                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface2)' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', marginBottom: '6px', color: 'var(--muted2)' }}>일정 날짜</label>
+                <input
+                  type="date"
+                  defaultValue={process.next_action_date?.split('T')[0] || ''}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    fetch(`/api/hiring-process/${process.id}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ next_action_date: val || null })
+                    }).then(() => onUpdate())
+                  }}
+                  style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface2)' }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
