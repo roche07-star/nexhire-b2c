@@ -7,7 +7,7 @@ import { generateResumeDocx, generateStandardDocx, RewriteResult } from '@/lib/g
 import { extractDocxParagraphs, applyDocxRewrites, DocxParagraph } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
-export const maxDuration = 120
+export const maxDuration = 180 // 프롬프트 통일로 인한 길이 증가 대응
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
