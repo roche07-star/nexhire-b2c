@@ -662,7 +662,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 ))}
               </div>
 
-              <div className="demo-grid" style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="results-section">
                   <div className="results-label">📊 월별 매출</div>
                   <ul className="result-list">
