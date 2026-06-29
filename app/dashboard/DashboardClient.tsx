@@ -136,7 +136,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [goals, setGoals] = useState({
     hiredTarget: 10,
     passedTarget: 20,
-    resumeTarget: 50
+    proposalTarget: 10
   })
 
   // localStorage에서 목표 불러오기
@@ -1100,10 +1100,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
 
-            {/* 이력서 분석 목표 */}
+            {/* 제안 목표 */}
             {(() => {
-              const target = goals.resumeTarget
-              const current = stats.thisMonthResumes ?? stats.thisMonthAnalyses
+              const target = goals.proposalTarget
+              const current = stats.thisMonthProposals
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
@@ -1120,7 +1120,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    이력서 분석 목표
+                    제안 목표
                   </div>
                   <div style={{
                     fontSize: 36,
@@ -1982,7 +1982,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               saveGoals({
                 hiredTarget: Number(formData.get('hiredTarget')),
                 passedTarget: Number(formData.get('passedTarget')),
-                resumeTarget: Number(formData.get('resumeTarget'))
+                proposalTarget: Number(formData.get('proposalTarget'))
               })
             }}>
               {/* 입사 목표 */}
@@ -2047,7 +2047,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 />
               </div>
 
-              {/* 이력서 분석 목표 */}
+              {/* 제안 목표 */}
               <div style={{ marginBottom: 32 }}>
                 <label style={{
                   display: 'block',
@@ -2056,12 +2056,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   color: 'rgba(255,255,255,0.7)',
                   marginBottom: 8
                 }}>
-                  이력서 분석 목표 (건)
+                  제안 목표 (건)
                 </label>
                 <input
                   type="number"
-                  name="resumeTarget"
-                  defaultValue={goals.resumeTarget}
+                  name="proposalTarget"
+                  defaultValue={goals.proposalTarget}
                   min="1"
                   max="10000"
                   required
