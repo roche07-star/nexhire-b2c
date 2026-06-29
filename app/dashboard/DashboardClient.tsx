@@ -793,7 +793,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '16px',
-              maxWidth: '100%'
+              maxWidth: '80%',
+              margin: '0 auto'
             }}>
               {/* 이번 주 활동 카드 */}
               <div style={{
