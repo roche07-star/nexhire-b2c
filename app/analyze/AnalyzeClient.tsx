@@ -4201,8 +4201,8 @@ function JDResults({
                 ↓ HTML 리포트 다운로드
               </button>
 
-              {/* 수동 제안서 생성/재생성 버튼 (헤드헌터 전용) - 항상 표시 */}
-              {(console.log('🔍 제안서 버튼 조건:', { userType, proposalData: !!proposalData }), userType === 'HEADHUNTER') && (
+              {/* 수동 제안서 생성/재생성 버튼 - 🚨 항상 표시 (조건 제거) */}
+              {(console.log('🔍 제안서 버튼 렌더링:', { userType, proposalData: !!proposalData }), true) && (
                 <button
                   className="analyze-download-btn"
                   style={{
