@@ -249,6 +249,9 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       const safeData: DashboardStats = {
         totalCandidates: data.totalCandidates || 0,
         thisMonthAnalyses: data.thisMonthAnalyses || 0,
+        thisMonthResumes: data.thisMonthResumes,
+        thisMonthJDs: data.thisMonthJDs,
+        thisMonthProposals: data.thisMonthProposals,
         avgScore: data.avgScore || 0,
         pipelineCounts: data.pipelineCounts || {
           pending: 0,
@@ -834,7 +837,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 marginBottom: 8
               }}>
                 <span>📊</span>
-                <span>이번 달 분석: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {(stats as any).thisMonthProposals ?? 0}건</span></span>
+                <span>이번 달 분석: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {stats.thisMonthProposals ?? 0}건</span></span>
               </div>
               {stats.avgScore > 0 && (
                 <div style={{
