@@ -4119,6 +4119,38 @@ footer {
 .interview-expire-tag { color: #c8944a !important; font-size: 12px !important; }
 
 /* ═══════════════════════════════════════════════════════
+   TABLET RESPONSIVE (769px ~ 1024px)
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* HOW IT WORKS - 태블릿 2컬럼 */
+  .how-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+  .how-card {
+    padding: 28px 20px;
+  }
+  .how-num {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+  .how-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
+    margin-bottom: 14px;
+  }
+  .how-card h3 {
+    font-size: 16px;
+    margin-bottom: 9px;
+  }
+  .how-card p {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
    MOBILE RESPONSIVE (≤768px)
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
