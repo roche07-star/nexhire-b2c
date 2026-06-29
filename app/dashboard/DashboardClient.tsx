@@ -813,15 +813,15 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               }}>
                 {stats.recentActivity.length > 0 ? (
                   <>
-                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 활동이 있었습니다
+                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 분석 활동이 있었습니다
                   </>
                 ) : (
                   <>
-                    아직 활동이 없습니다. 첫 이력서를 분석해보세요!
+                    아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
                   </>
                 )}
               </div>
-              {/* 이번 달 분석 */}
+              {/* 이번달 진행 */}
               <div style={{
                 fontSize: 14,
                 color: 'rgba(255,255,255,0.7)',
@@ -831,7 +831,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 marginBottom: 8
               }}>
                 <span>📊</span>
-                <span>이번 달 분석: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {stats.thisMonthProposals ?? 0}건</span></span>
+                <span>이번달 진행: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {stats.thisMonthProposals ?? 0}건</span></span>
               </div>
               {stats.avgScore > 0 && (
                 <div style={{
