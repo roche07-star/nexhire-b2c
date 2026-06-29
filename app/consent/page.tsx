@@ -21,8 +21,13 @@ function ConsentPageContent() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    // 이미 동의했는지 확인
-    checkExistingConsent()
+    // ⚡ 임시: 결제 테스트를 위해 바로 payment로 이동
+    const callbackUrl = searchParams.get('callbackUrl')
+    if (callbackUrl) {
+      window.location.href = callbackUrl
+    } else {
+      window.location.href = '/payment'
+    }
   }, [])
 
   async function checkExistingConsent() {

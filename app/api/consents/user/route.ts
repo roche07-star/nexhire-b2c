@@ -77,7 +77,12 @@ export async function POST(req: NextRequest) {
 
     if (requiredError) {
       console.error('[consents/user] Required consent insert error:', requiredError)
-      return NextResponse.json({ error: '필수 동의 저장 실패' }, { status: 500 })
+      return NextResponse.json({
+        error: '필수 동의 저장 실패',
+        details: requiredError.message,
+        code: requiredError.code,
+        hint: requiredError.hint
+      }, { status: 500 })
     }
 
     // 3. 선택 동의 저장 (있는 경우)
