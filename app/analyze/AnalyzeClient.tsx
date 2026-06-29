@@ -367,6 +367,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [minScore, setMinScore] = useState(0) // 최소 점수 필터
   const [fileQueue, setFileQueue] = useState<File[]>([]) // 파일 큐
 
+  // ── 채용 프로세스
+  const [showHiringModal, setShowHiringModal] = useState(false)
+  const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
+  const [hiringModalTop, setHiringModalTop] = useState(100)
+  const hiringButtonRef = useRef<HTMLButtonElement>(null)
+  const [hiringJDInfo, setHiringJDInfo] = useState<{candidateName: string; companyName: string; positionTitle: string}>({
+    candidateName: '',
+    companyName: '',
+    positionTitle: ''
+  })
+
   // ── 면접 가이드
   const [interviewSelectedAnalysis, setInterviewSelectedAnalysis] = useState<AnalysisListItem | null>(null)
   const [interviewJdId, setInterviewJdId] = useState<string | null>(null)
@@ -1394,7 +1405,22 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
                       </span>
                     </div>
-                    <AnalysisResults result={savedSelectedItem.result} analysisId={savedSelectedItem.id} isPro={isPro} userType={userType} userEmail={userEmail} />
+                    <AnalysisResults
+                      result={savedSelectedItem.result}
+                      analysisId={savedSelectedItem.id}
+                      isPro={isPro}
+                      userType={userType}
+                      userEmail={userEmail}
+                      showHiringModal={showHiringModal}
+                      setShowHiringModal={setShowHiringModal}
+                      hiringProcessCreating={hiringProcessCreating}
+                      setHiringProcessCreating={setHiringProcessCreating}
+                      hiringModalTop={hiringModalTop}
+                      setHiringModalTop={setHiringModalTop}
+                      hiringButtonRef={hiringButtonRef}
+                      hiringJDInfo={hiringJDInfo}
+                      setHiringJDInfo={setHiringJDInfo}
+                    />
                   </>
                 ) : (
                   <>
@@ -2130,20 +2156,88 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {activeMenu === 'jd' && (
               <div className="jd-section" ref={jdTopRef}>
                 {jdViewingSaved ? (
-                  <JDResults
-                    result={jdViewingSaved.result}
-                    expiresAt={jdViewingSaved.expires_at ?? undefined}
-                    onReset={() => setJdViewingSaved(null)}
-                    userType={userType}
-                  />
+                  <>
+                    <JDResults
+                      result={jdViewingSaved.result}
+                      expiresAt={jdViewingSaved.expires_at ?? undefined}
+                      onReset={() => setJdViewingSaved(null)}
+                      userType={userType}
+                    />
+                    {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
+                    {userType === 'HEADHUNTER' && isPro && (
+                      <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                        <button
+                          ref={hiringButtonRef}
+                          className="analyze-download-btn"
+                          onClick={() => {
+                            if (hiringButtonRef.current) {
+                              const rect = hiringButtonRef.current.getBoundingClientRect()
+                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+                              setHiringModalTop(rect.top + scrollTop - 400)
+                            }
+                            // JD 정보를 state에 저장
+                            setHiringJDInfo({
+                              candidateName: '', // JD 분석에는 후보자 정보가 없으므로 빈 문자열
+                              companyName: jdViewingSaved.result.company || '',
+                              positionTitle: jdViewingSaved.result.position || ''
+                            })
+                            setShowHiringModal(true)
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                            color: '#ffffff',
+                            fontWeight: 600
+                          }}
+                        >
+                          📊 채용 프로세스 추가
+                        </button>
+                      </div>
+                    )}
+                  </>
                 ) : jdResult ? (
-                  <JDResults
-                    result={jdResult}
-                    analysisItem={jdSelectedAnalysis ?? undefined}
-                    expiresAt={jdResult.expires_at}
-                    onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
-                    userType={userType}
-                  />
+                  <>
+                    <JDResults
+                      result={jdResult}
+                      analysisItem={jdSelectedAnalysis ?? undefined}
+                      expiresAt={jdResult.expires_at}
+                      onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
+                      userType={userType}
+                    />
+                    {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
+                    {userType === 'HEADHUNTER' && isPro && (
+                      <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                        <button
+                          ref={hiringButtonRef}
+                          className="analyze-download-btn"
+                          onClick={() => {
+                            if (hiringButtonRef.current) {
+                              const rect = hiringButtonRef.current.getBoundingClientRect()
+                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+                              setHiringModalTop(rect.top + scrollTop - 400)
+                            }
+                            // JD 정보를 state에 저장
+                            setHiringJDInfo({
+                              candidateName: jdSelectedAnalysis?.result.candidate_name || '',
+                              companyName: jdResult.company || '',
+                              positionTitle: jdResult.position || ''
+                            })
+                            setShowHiringModal(true)
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                            color: '#ffffff',
+                            fontWeight: 600
+                          }}
+                        >
+                          📊 채용 프로세스 추가
+                        </button>
+                      </div>
+                    )}
+                  </>
                 ) : jdSelectedAnalysis ? (
                   <>
                     <button className="jd-back-btn" onClick={() => { setJdSelectedAnalysis(null); setShowJDInput(false) }}>
@@ -2587,7 +2681,22 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </button>
                 </div>
 
-                <AnalysisResults result={result} analysisId={analysisId} isPro={isPro} userType={userType} userEmail={userEmail} />
+                <AnalysisResults
+                  result={result}
+                  analysisId={analysisId}
+                  isPro={isPro}
+                  userType={userType}
+                  userEmail={userEmail}
+                  showHiringModal={showHiringModal}
+                  setShowHiringModal={setShowHiringModal}
+                  hiringProcessCreating={hiringProcessCreating}
+                  setHiringProcessCreating={setHiringProcessCreating}
+                  hiringModalTop={hiringModalTop}
+                  setHiringModalTop={setHiringModalTop}
+                  hiringButtonRef={hiringButtonRef}
+                  hiringJDInfo={hiringJDInfo}
+                  setHiringJDInfo={setHiringJDInfo}
+                />
 
                 {(result.plan === 'PRO' || result.plan === 'EXPERT') && (
                   <div className="analyze-storage-notice">
@@ -2824,12 +2933,30 @@ function AnalysisResults({
   isPro,
   userType,
   userEmail,
+  showHiringModal,
+  setShowHiringModal,
+  hiringProcessCreating,
+  setHiringProcessCreating,
+  hiringModalTop,
+  setHiringModalTop,
+  hiringButtonRef,
+  hiringJDInfo,
+  setHiringJDInfo,
 }: {
   result: AnalysisResult
   analysisId?: string | null
   isPro?: boolean
   userType?: string | null
   userEmail?: string | null
+  showHiringModal: boolean
+  setShowHiringModal: (value: boolean) => void
+  hiringProcessCreating: boolean
+  setHiringProcessCreating: (value: boolean) => void
+  hiringModalTop: number
+  setHiringModalTop: (value: number) => void
+  hiringButtonRef: React.RefObject<HTMLButtonElement>
+  hiringJDInfo: {candidateName: string; companyName: string; positionTitle: string}
+  setHiringJDInfo: (value: {candidateName: string; companyName: string; positionTitle: string}) => void
 }) {
   const [activeCareerTab, setActiveCareerTab] = useState(
     result.career_paths && result.career_paths.length > 0 ? Math.min(1, result.career_paths.length - 1) : 0
@@ -2841,10 +2968,6 @@ function AnalysisResults({
   const [expanding, setExpanding] = useState(false)
   const [expandError, setExpandError] = useState<string | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
-  const [showHiringModal, setShowHiringModal] = useState(false)
-  const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
-  const [hiringModalTop, setHiringModalTop] = useState(100)
-  const hiringButtonRef = useRef<HTMLButtonElement>(null)
 
   // PRO 분석 후 커리어 경로가 없으면 자동으로 expand 호출 (504 방지용 분리 설계)
   useEffect(() => {
@@ -3296,32 +3419,6 @@ function AnalysisResults({
         </div>
       )}
 
-      {/* 헤드헌터 + PRO: 채용 프로세스 추가 */}
-      {userType === 'HEADHUNTER' && isPro && analysisId && (
-        <div style={{ marginBottom: '16px' }}>
-          <button
-            ref={hiringButtonRef}
-            className="analyze-download-btn"
-            onClick={() => {
-              if (hiringButtonRef.current) {
-                const rect = hiringButtonRef.current.getBoundingClientRect()
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-                setHiringModalTop(rect.top + scrollTop - 400)
-              }
-              setShowHiringModal(true)
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              border: 'none',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-              color: '#ffffff',
-              fontWeight: 600
-            }}
-          >
-            📊 채용 프로세스 추가
-          </button>
-        </div>
-      )}
 
       {/* 채용 프로세스 추가 모달 */}
       {showHiringModal && (
@@ -3389,7 +3486,7 @@ function AnalysisResults({
                 <input
                   type="text"
                   name="candidate_name"
-                  defaultValue={result.candidate_name || '후보자'}
+                  defaultValue={hiringJDInfo.candidateName || result.candidate_name || '후보자'}
                   required
                   placeholder="예: 김대리"
                   style={{
@@ -3410,6 +3507,7 @@ function AnalysisResults({
                 <input
                   type="text"
                   name="company_name"
+                  defaultValue={hiringJDInfo.companyName}
                   required
                   placeholder="예: 네이버"
                   style={{
@@ -3430,6 +3528,7 @@ function AnalysisResults({
                 <input
                   type="text"
                   name="position_title"
+                  defaultValue={hiringJDInfo.positionTitle}
                   required
                   placeholder="예: Product Manager"
                   style={{
