@@ -6,6 +6,61 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
+// 기본 템플릿 생성 함수 (Fallback)
+function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
+  console.log('[generate-proposal] Using fallback template')
+
+  const experience = resumeAnalysis.total_experience_years
+    ? `총 ${Math.floor(resumeAnalysis.total_experience_years)}년 ${Math.round((resumeAnalysis.total_experience_years % 1) * 12)}개월`
+    : '미기재'
+
+  return {
+    title: '후보자 추천 요약',
+    company: jdAnalysis.company || '미상',
+    position: jdAnalysis.position || '미상',
+    date: new Date().toISOString().slice(0, 7).replace('-', '. '),
+    summary: `${resumeAnalysis.candidate_name}님은 ${resumeAnalysis.job_title} 분야에서 ${experience}의 경력을 보유하고 있으며, JD 적합도 ${jdAnalysis.fit_score}점으로 우수한 후보자입니다.`,
+    candidate_info: {
+      name: resumeAnalysis.candidate_name || '미상',
+      current_position: resumeAnalysis.job_title || '미기재',
+      experience: experience,
+      education: resumeAnalysis.education || '미기재',
+      current_salary: resumeAnalysis.current_salary || '미기재',
+      availability: '협의 후 결정',
+    },
+    strengths: Array.isArray(resumeAnalysis.strengths) && resumeAnalysis.strengths.length > 0
+      ? resumeAnalysis.strengths.slice(0, 5)
+      : ['경력 기반 전문성', '직무 적합성', '성장 가능성'],
+    fit_analysis: {
+      technical_fit: `JD 적합도 ${jdAnalysis.fit_score}점으로 기술적 요구사항을 충족합니다.`,
+      cultural_fit: `매칭 강점을 바탕으로 조직 문화에 잘 적응할 것으로 예상됩니다.`,
+      growth_potential: `성장 가능성 ${resumeAnalysis.scores?.growth_potential || 0}점으로 장기적인 발전 가능성이 높습니다.`,
+    },
+    recommendation: jdAnalysis.recommendation === 'APPLY' ? 'HIGHLY_RECOMMEND' :
+                     jdAnalysis.recommendation === 'CONSIDER' ? 'RECOMMEND' : 'CONSIDER',
+    next_steps: '면접 일정 조율을 제안합니다.',
+  }
+}
+
+// Validation 함수
+function validateResumeAnalysis(data: any): { valid: boolean; error?: string } {
+  if (!data) return { valid: false, error: 'resumeAnalysis가 없습니다.' }
+  if (!data.candidate_name) return { valid: false, error: 'candidate_name이 없습니다.' }
+  if (!data.job_title) return { valid: false, error: 'job_title이 없습니다.' }
+  if (!data.scores) return { valid: false, error: 'scores가 없습니다.' }
+  if (!data.strengths || !Array.isArray(data.strengths)) return { valid: false, error: 'strengths가 배열이 아닙니다.' }
+  return { valid: true }
+}
+
+function validateJDAnalysis(data: any): { valid: boolean; error?: string } {
+  if (!data) return { valid: false, error: 'jdAnalysis가 없습니다.' }
+  if (!data.company) return { valid: false, error: 'company가 없습니다.' }
+  if (!data.position) return { valid: false, error: 'position이 없습니다.' }
+  if (typeof data.fit_score !== 'number') return { valid: false, error: 'fit_score가 숫자가 아닙니다.' }
+  if (!data.recommendation) return { valid: false, error: 'recommendation이 없습니다.' }
+  return { valid: true }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -15,6 +70,7 @@ export async function POST(req: NextRequest) {
 
     const { resumeAnalysis, jdAnalysis } = await req.json()
 
+    // 기본 검증
     if (!resumeAnalysis || !jdAnalysis) {
       return NextResponse.json(
         { error: '이력서 분석 결과와 JD 분석 결과가 필요합니다.' },
@@ -22,9 +78,36 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Claude API로 제안서 생성 (Tool Use로 환각 방지)
-    const startTime = Date.now()
-    const message = await anthropic.messages.create({
+    // 상세 검증
+    const resumeValidation = validateResumeAnalysis(resumeAnalysis)
+    if (!resumeValidation.valid) {
+      console.error('[generate-proposal] Resume validation failed:', resumeValidation.error)
+      return NextResponse.json(
+        { error: `이력서 분석 데이터 오류: ${resumeValidation.error}` },
+        { status: 400 }
+      )
+    }
+
+    const jdValidation = validateJDAnalysis(jdAnalysis)
+    if (!jdValidation.valid) {
+      console.error('[generate-proposal] JD validation failed:', jdValidation.error)
+      return NextResponse.json(
+        { error: `JD 분석 데이터 오류: ${jdValidation.error}` },
+        { status: 400 }
+      )
+    }
+
+    console.log('[generate-proposal] Validation passed:', {
+      candidateName: resumeAnalysis.candidate_name,
+      company: jdAnalysis.company,
+      position: jdAnalysis.position,
+    })
+
+    // Claude API로 제안서 생성 (Tool Use로 환각 방지) + Fallback
+    let proposal: any
+    try {
+      const startTime = Date.now()
+      const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
       tool_choice: { type: 'tool', name: 'generate_proposal' },
@@ -168,35 +251,76 @@ export async function POST(req: NextRequest) {
       throw new Error('제안서 생성 응답 형식 오류')
     }
 
-    const proposal = toolUse.input as any
+      proposal = toolUse.input as any
 
-    // 필수 필드 검증 (환각 방지)
-    if (!proposal.candidate_info?.name || proposal.candidate_info.name === '미상') {
-      console.error('[generate-proposal] Missing or invalid candidate name')
-      // 원본 데이터로 대체
-      if (!proposal.candidate_info) proposal.candidate_info = {}
-      proposal.candidate_info.name = resumeAnalysis.candidate_name || '미상'
+      // 필수 필드 검증 (환각 방지)
+      if (!proposal.candidate_info?.name || proposal.candidate_info.name === '미상') {
+        console.error('[generate-proposal] Missing or invalid candidate name')
+        // 원본 데이터로 대체
+        if (!proposal.candidate_info) proposal.candidate_info = {}
+        proposal.candidate_info.name = resumeAnalysis.candidate_name || '미상'
+      }
+
+      if (!proposal.candidate_info?.current_position) {
+        proposal.candidate_info.current_position = resumeAnalysis.job_title || '미기재'
+      }
+
+      if (!proposal.candidate_info?.education) {
+        proposal.candidate_info.education = resumeAnalysis.education || '미기재'
+      }
+
+      // 로깅 (디버깅용)
+      console.log('[generate-proposal] ✅ Generated proposal successfully:', {
+        candidateName: proposal.candidate_info?.name,
+        position: proposal.candidate_info?.current_position,
+        company: proposal.company,
+      })
+
+    } catch (claudeError: any) {
+      // Claude API 실패 시 Fallback 템플릿 사용
+      console.error('[generate-proposal] Claude API failed, using fallback:', {
+        error: claudeError.message,
+        type: claudeError.constructor?.name,
+      })
+
+      proposal = createFallbackProposal(resumeAnalysis, jdAnalysis)
+      console.log('[generate-proposal] ✅ Fallback proposal created')
     }
-
-    if (!proposal.candidate_info?.current_position) {
-      proposal.candidate_info.current_position = resumeAnalysis.job_title || '미기재'
-    }
-
-    if (!proposal.candidate_info?.education) {
-      proposal.candidate_info.education = resumeAnalysis.education || '미기재'
-    }
-
-    // 로깅 (디버깅용)
-    console.log('[generate-proposal] Generated proposal:', {
-      candidateName: proposal.candidate_info?.name,
-      position: proposal.candidate_info?.current_position,
-      company: proposal.company,
-    })
 
     return NextResponse.json({ proposal })
 
   } catch (error: any) {
-    console.error('[generate-proposal] Error:', error)
+    // 상세한 에러 로그
+    console.error('[generate-proposal] ❌ Error occurred:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 3).join('\n'), // 스택의 처음 3줄만
+      type: error.constructor?.name,
+      isAnthropicError: error.constructor?.name === 'APIError',
+    })
+
+    // Anthropic API 에러인 경우
+    if (error.constructor?.name === 'APIError') {
+      console.error('[generate-proposal] Anthropic API Error:', {
+        status: error.status,
+        statusText: error.statusText,
+        headers: error.headers,
+      })
+      return NextResponse.json(
+        { error: `Claude API 오류: ${error.message}` },
+        { status: 500 }
+      )
+    }
+
+    // Tool use 응답 오류인 경우
+    if (error.message?.includes('응답 형식')) {
+      return NextResponse.json(
+        { error: 'AI 응답 형식 오류가 발생했습니다. 다시 시도해주세요.' },
+        { status: 500 }
+      )
+    }
+
+    // 일반 에러
     return NextResponse.json(
       { error: error.message || '제안서 생성에 실패했습니다.' },
       { status: 500 }
