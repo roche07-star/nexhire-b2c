@@ -69,8 +69,8 @@ export default function HiringProcessClient() {
       {/* 통계 카드 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '16px',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '8px',
         marginBottom: '32px'
       }}>
         <StatCard label="전체" value={stats.total} color="#a78bfa" active={filter === 'ALL'} onClick={() => setFilter('ALL')} />
