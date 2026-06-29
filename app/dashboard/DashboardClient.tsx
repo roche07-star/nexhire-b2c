@@ -1722,9 +1722,23 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                       fontSize: 15,
                       fontWeight: 600,
                       color: '#ffffff',
-                      marginBottom: 6
+                      marginBottom: 6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
                     }}>
-                      {maskName(activity.name)} · {activity.position}
+                      <span style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        background: activity.type === 'resume' ? 'rgba(167, 139, 250, 0.2)' : 'rgba(34, 211, 238, 0.2)',
+                        color: activity.type === 'resume' ? '#a78bfa' : '#22d3ee',
+                        border: activity.type === 'resume' ? '1px solid rgba(167, 139, 250, 0.3)' : '1px solid rgba(34, 211, 238, 0.3)'
+                      }}>
+                        {activity.type === 'resume' ? '📋 이력서' : '📊 JD'}
+                      </span>
+                      <span>{maskName(activity.name)} · {activity.position}</span>
                     </div>
                     <div style={{
                       fontSize: 13,
