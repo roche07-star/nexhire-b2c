@@ -701,128 +701,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: 24,
-        marginBottom: 56,
-      }}>
-        <StatCard
-          title="분석한 이력서"
-          value={stats.totalCandidates}
-          suffix="건"
-          icon="📋"
-        />
-
-        {/* 이번 달 이력서/JD 분석 */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 24,
-          padding: '32px 28px',
-          position: 'relative',
-          overflow: 'hidden',
-          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          cursor: 'pointer',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.4)'
-          e.currentTarget.style.boxShadow = '0 20px 40px rgba(34, 211, 238, 0.15)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
-          e.currentTarget.style.boxShadow = 'none'
-        }}>
-          {/* Glow Effect */}
-          <div style={{
-            position: 'absolute',
-            top: -100,
-            right: -100,
-            width: 200,
-            height: 200,
-            background: 'radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            pointerEvents: 'none'
-          }} />
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: 'rgba(255,255,255,0.6)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em'
-            }}>
-              이번 달 분석
-            </span>
-            <span style={{ fontSize: 32, opacity: 0.8 }}>📊</span>
-          </div>
-
-          {/* 이력서 / JD 분리 표시 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.5)',
-                marginBottom: 4
-              }}>
-                이력서
-              </div>
-              <div style={{
-                fontSize: 32,
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.02em'
-              }}>
-                {stats.thisMonthResumes ?? stats.thisMonthAnalyses}
-              </div>
-            </div>
-
-            <div style={{
-              width: 1,
-              height: 40,
-              background: 'rgba(255,255,255,0.1)'
-            }} />
-
-            <div style={{ flex: 1 }}>
-              <div style={{
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.5)',
-                marginBottom: 4
-              }}>
-                JD
-              </div>
-              <div style={{
-                fontSize: 32,
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.02em'
-              }}>
-                {stats.thisMonthJDs ?? 0}
-              </div>
-            </div>
-          </div>
-        </div>
-        <StatCard
-          title="평균 적합도"
-          value={stats.avgScore}
-          suffix="점"
-          icon="⭐"
-        />
-      </div>
-
       {/* Insights Card */}
       <div style={{
         position: 'relative',
@@ -888,6 +766,18 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     아직 활동이 없습니다. 첫 이력서를 분석해보세요!
                   </>
                 )}
+              </div>
+              {/* 이번 달 분석 */}
+              <div style={{
+                fontSize: 14,
+                color: 'rgba(255,255,255,0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 8
+              }}>
+                <span>📊</span>
+                <span>이번 달 분석: <span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span></span>
               </div>
               {stats.avgScore > 0 && (
                 <div style={{
