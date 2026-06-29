@@ -128,13 +128,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0 })
+  const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0, screening: 0 })
   const [privacyMode, setPrivacyMode] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
-  const [proposalResetDate, setProposalResetDate] = useState<string | null>(null)
   const [goals, setGoals] = useState({
     hiredTarget: 10,
     passedTarget: 20,
@@ -167,12 +166,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       } catch (e) {
         console.error('Failed to parse notifications cleared:', e)
       }
-    }
-
-    // 제안 수 reset 날짜 불러오기
-    const resetDate = localStorage.getItem('proposal_reset_date')
-    if (resetDate) {
-      setProposalResetDate(resetDate)
     }
   }, [])
 
@@ -282,8 +275,9 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         const active = processes.filter((p: any) => p.current_stage <= 4 && p.status !== 'FAILED').length
         const passed = processes.filter((p: any) => p.current_stage === 5).length
         const hired = processes.filter((p: any) => p.current_stage === 6).length
+        const screening = processes.filter((p: any) => p.current_stage === 0 && p.status !== 'FAILED').length  // 서류 단계
 
-        setHiringStats({ active, passed, hired })
+        setHiringStats({ active, passed, hired, screening })
       }
     } catch (err) {
       console.error('Failed to fetch hiring process stats:', err)
@@ -988,41 +982,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               <span>⚙️</span>
               <span>목표 설정</span>
             </button>
-            <button
-              onClick={() => {
-                if (confirm('진행 수치를 초기화하시겠습니까?\n\n제안 수가 0으로 리셋됩니다.\n(입사/합격은 채용 프로세스 데이터 유지)')) {
-                  const today = new Date().toISOString()
-                  localStorage.setItem('proposal_reset_date', today)
-                  setProposalResetDate(today)
-                }
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '12px 20px',
-                background: 'rgba(239, 68, 68, 0.1)',
-                color: '#ef4444',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: 12,
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                letterSpacing: '-0.01em'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              <span>🔄</span>
-              <span>초기화</span>
-            </button>
           </div>
 
           {/* 목표 카드 */}
@@ -1146,20 +1105,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
 
-            {/* 제안 목표 */}
+            {/* 제안 목표 (채용 프로세스 서류 단계 갯수) */}
             {(() => {
               const target = goals.proposalTarget
-              // Reset 날짜 체크: 이번 달 중에 reset했으면 0으로 표시
-              let current = stats.thisMonthProposals ?? 0
-              if (proposalResetDate) {
-                const resetDate = new Date(proposalResetDate)
-                const now = new Date()
-                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-                // Reset 날짜가 이번 달 1일 이후이면 0으로 표시
-                if (resetDate >= firstDayOfMonth) {
-                  current = 0
-                }
-              }
+              // 채용 프로세스의 서류 단계(current_stage === 0) 갯수
+              const current = hiringStats.screening
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
