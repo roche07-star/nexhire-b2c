@@ -173,6 +173,7 @@ function StatCard({
 function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: () => void }) {
   const [expanded, setExpanded] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const stageColor = STAGE_COLORS[process.current_stage as HiringProcessStage]
   const progress = (process.current_stage / 6) * 100
@@ -213,6 +214,29 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
     }
   }
 
+  async function deleteProcess() {
+    if (!confirm(`${process.candidate_name} 후보자를 삭제하시겠습니까?`)) {
+      return
+    }
+
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/hiring-process/${process.id}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        onUpdate()
+      } else {
+        alert('삭제에 실패했습니다.')
+      }
+    } catch (e) {
+      console.error('Failed to delete process:', e)
+      alert('삭제에 실패했습니다.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div style={{
       background: 'var(--surface)',
@@ -242,19 +266,52 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
             {process.company_name} • {process.position_title}
           </div>
         </div>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            padding: '8px 16px',
-            background: 'var(--surface2)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          {expanded ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={deleteProcess}
+            disabled={deleting}
+            title="후보자 삭제"
+            style={{
+              padding: '8px 12px',
+              background: deleting ? 'var(--surface2)' : 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              cursor: deleting ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              color: '#ef4444',
+              fontWeight: 600,
+              opacity: deleting ? 0.5 : 1,
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!deleting) {
+                e.currentTarget.style.background = '#ef444410'
+                e.currentTarget.style.borderColor = '#ef4444'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!deleting) {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'var(--border)'
+              }
+            }}
+          >
+            {deleting ? '삭제 중...' : '×'}
+          </button>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              padding: '8px 16px',
+              background: 'var(--surface2)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            {expanded ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
 
       {/* 프로세스 바 */}
