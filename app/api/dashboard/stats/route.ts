@@ -33,7 +33,7 @@ export async function GET() {
       )
     }
 
-    // 통계 데이터 조회 (캐싱 적용 - 5분 TTL)
+    // 통계 데이터 조회 (캐싱 적용 - 30초 TTL)
     const result = await getCached(
       `dashboard:stats:${email}`,
       async () => {
@@ -196,7 +196,7 @@ export async function GET() {
           recentActivity: Array.isArray(allActivities) ? allActivities : [],
         }
       },
-      300 // 5분 캐시
+      30 // 30초 캐시 (실시간 반영)
     )
 
     return NextResponse.json(result)
