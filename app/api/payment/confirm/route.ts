@@ -47,11 +47,16 @@ export async function POST(req: NextRequest) {
     }
 
     // 결제 성공 → Supabase에 사용자 플랜 업데이트
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
+
     const { error: updateError } = await supabase
       .from('users')
       .update({
         plan: 'PRO',
-        updated_at: new Date().toISOString(),
+        plan_started_at: now.toISOString(),
+        plan_expires_at: expiresAt.toISOString(),
+        updated_at: now.toISOString(),
       })
       .eq('email', session.user.email)
 
