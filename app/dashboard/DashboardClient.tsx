@@ -149,6 +149,23 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         console.error('Failed to parse goals:', e)
       }
     }
+
+    // 알림 cleared 상태 불러오기 (날짜 기반)
+    const clearedData = localStorage.getItem('notifications_cleared')
+    if (clearedData) {
+      try {
+        const { date } = JSON.parse(clearedData)
+        const today = new Date().toDateString()
+        if (date === today) {
+          setNotificationsCleared(true)
+        } else {
+          // 날짜가 다르면 삭제
+          localStorage.removeItem('notifications_cleared')
+        }
+      } catch (e) {
+        console.error('Failed to parse notifications cleared:', e)
+      }
+    }
   }, [])
 
   // 목표 저장
@@ -635,6 +652,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     <button
                       onClick={() => {
                         setNotificationsCleared(true)
+                        // localStorage에 저장 (날짜 기반)
+                        localStorage.setItem('notifications_cleared', JSON.stringify({
+                          date: new Date().toDateString()
+                        }))
                         setShowNotifications(false)
                       }}
                       style={{
