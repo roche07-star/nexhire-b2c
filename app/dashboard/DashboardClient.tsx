@@ -790,11 +790,13 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           }}>
             {/* 이번 주 활동 요약 */}
             <div style={{
-              padding: '24px 28px',
+              padding: '16px 20px',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.1)',
-              textAlign: 'center'
+              textAlign: 'center',
+              maxWidth: '90%',
+              margin: '0 auto'
             }}>
               <div style={{
                 fontSize: 13,
@@ -851,11 +853,13 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
             {/* 다음 할 일 추천 */}
             <div style={{
-              padding: '24px 28px',
+              padding: '16px 20px',
               background: 'rgba(255,255,255,0.05)',
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.1)',
-              textAlign: 'center'
+              textAlign: 'center',
+              maxWidth: '90%',
+              margin: '0 auto'
             }}>
               <div style={{
                 fontSize: 13,
