@@ -32,7 +32,7 @@ export default async function Home() {
                 <span className="price-sale">6,930원</span>
               </span>
             </span>
-            <Link href="/analyze" className="promo-cta">
+            <Link href="/payment" className="promo-cta">
               지금 시작하기 →
             </Link>
           </div>
@@ -51,7 +51,7 @@ export default async function Home() {
                 <span className="price-sale">13,930원</span>
               </span>
             </span>
-            <Link href="/analyze" className="promo-cta">
+            <Link href="/payment" className="promo-cta">
               지금 시작하기 →
             </Link>
           </div>
