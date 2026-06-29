@@ -788,14 +788,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 20
           }}>
-            {/* 인사이트 2단 카드 레이아웃 */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px',
-              maxWidth: '80%',
-              margin: '0 auto'
-            }}>
+            {/* 인사이트 반응형 레이아웃 */}
+            <div className="insights-grid">
               {/* 이번 주 활동 카드 */}
               <div style={{
                 padding: '20px',
