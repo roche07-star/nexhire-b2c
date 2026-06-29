@@ -823,7 +823,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 )}
               </div>
               {/* 이번달 진행 */}
-              <div style={{
+              <div className="hide-on-mobile" style={{
                 fontSize: 14,
                 color: 'rgba(255,255,255,0.7)',
                 display: 'flex',

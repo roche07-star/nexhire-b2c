@@ -5029,4 +5029,8 @@ footer {
     margin-left: auto;
     margin-right: auto;
   }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
