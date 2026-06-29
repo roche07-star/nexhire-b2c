@@ -1341,6 +1341,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   onClick={() => onMenuClick('jd')}
                 >
                   <span>📋</span> JD기반 분석
+                  {jdSavedList && jdSavedList.length > 0 && <span className="tab-badge">{jdSavedList.length}개</span>}
                 </button>
                 <button
                   className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
@@ -2297,7 +2298,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {/* 저장된 JD 분석 목록 */}
                     {(jdSavedList && jdSavedList.length > 0) && (
                       <div className="jd-saved-section">
-                        <div className="jd-list-title">📊 이전 JD 분석 결과</div>
+                        <div className="jd-list-title">📊 이전 JD 분석 결과 ({jdSavedList.length}건)</div>
                         <div className="jd-saved-list">
                           {jdSavedList.map((item) => {
                             const rec = item.result.recommendation
