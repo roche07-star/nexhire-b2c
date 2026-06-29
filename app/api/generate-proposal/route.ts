@@ -42,23 +42,33 @@ function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
   }
 }
 
-// Validation 함수
-function validateResumeAnalysis(data: any): { valid: boolean; error?: string } {
+// Validation 함수 (완화됨 - 경고만 출력)
+function validateResumeAnalysis(data: any): { valid: boolean; error?: string; warnings?: string[] } {
+  const warnings: string[] = []
+
   if (!data) return { valid: false, error: 'resumeAnalysis가 없습니다.' }
-  if (!data.candidate_name) return { valid: false, error: 'candidate_name이 없습니다.' }
-  if (!data.job_title) return { valid: false, error: 'job_title이 없습니다.' }
-  if (!data.scores) return { valid: false, error: 'scores가 없습니다.' }
-  if (!data.strengths || !Array.isArray(data.strengths)) return { valid: false, error: 'strengths가 배열이 아닙니다.' }
-  return { valid: true }
+
+  // 선택적 필드 검증 (경고만)
+  if (!data.candidate_name) warnings.push('candidate_name이 없습니다.')
+  if (!data.job_title) warnings.push('job_title이 없습니다.')
+  if (!data.scores) warnings.push('scores가 없습니다.')
+  if (!data.strengths || !Array.isArray(data.strengths)) warnings.push('strengths가 배열이 아닙니다.')
+
+  return { valid: true, warnings }
 }
 
-function validateJDAnalysis(data: any): { valid: boolean; error?: string } {
+function validateJDAnalysis(data: any): { valid: boolean; error?: string; warnings?: string[] } {
+  const warnings: string[] = []
+
   if (!data) return { valid: false, error: 'jdAnalysis가 없습니다.' }
-  if (!data.company) return { valid: false, error: 'company가 없습니다.' }
-  if (!data.position) return { valid: false, error: 'position이 없습니다.' }
-  if (typeof data.fit_score !== 'number') return { valid: false, error: 'fit_score가 숫자가 아닙니다.' }
-  if (!data.recommendation) return { valid: false, error: 'recommendation이 없습니다.' }
-  return { valid: true }
+
+  // 선택적 필드 검증 (경고만)
+  if (!data.company) warnings.push('company가 없습니다.')
+  if (!data.position) warnings.push('position이 없습니다.')
+  if (typeof data.fit_score !== 'number') warnings.push('fit_score가 숫자가 아닙니다.')
+  if (!data.recommendation) warnings.push('recommendation이 없습니다.')
+
+  return { valid: true, warnings }
 }
 
 export async function POST(req: NextRequest) {
@@ -78,7 +88,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 상세 검증
+    // 상세 검증 (완화됨)
     const resumeValidation = validateResumeAnalysis(resumeAnalysis)
     if (!resumeValidation.valid) {
       console.error('[generate-proposal] Resume validation failed:', resumeValidation.error)
@@ -86,6 +96,11 @@ export async function POST(req: NextRequest) {
         { error: `이력서 분석 데이터 오류: ${resumeValidation.error}` },
         { status: 400 }
       )
+    }
+
+    // 경고만 로그 (계속 진행)
+    if (resumeValidation.warnings && resumeValidation.warnings.length > 0) {
+      console.warn('[generate-proposal] Resume validation warnings:', resumeValidation.warnings)
     }
 
     const jdValidation = validateJDAnalysis(jdAnalysis)
@@ -97,10 +112,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // 경고만 로그 (계속 진행)
+    if (jdValidation.warnings && jdValidation.warnings.length > 0) {
+      console.warn('[generate-proposal] JD validation warnings:', jdValidation.warnings)
+    }
+
     console.log('[generate-proposal] Validation passed:', {
-      candidateName: resumeAnalysis.candidate_name,
-      company: jdAnalysis.company,
-      position: jdAnalysis.position,
+      candidateName: resumeAnalysis.candidate_name || '미상',
+      company: jdAnalysis.company || '미상',
+      position: jdAnalysis.position || '미상',
+      hasWarnings: (resumeValidation.warnings?.length || 0) + (jdValidation.warnings?.length || 0) > 0
     })
 
     // Claude API로 제안서 생성 (Tool Use로 환각 방지) + Fallback
