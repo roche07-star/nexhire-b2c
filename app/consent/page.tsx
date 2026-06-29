@@ -21,13 +21,9 @@ function ConsentPageContent() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    // ⚡ 임시: 결제 테스트를 위해 바로 payment로 이동
-    const callbackUrl = searchParams.get('callbackUrl')
-    if (callbackUrl) {
-      window.location.href = callbackUrl
-    } else {
-      window.location.href = '/payment'
-    }
+    // 이미 동의한 사용자인지 체크
+    checkExistingConsent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function checkExistingConsent() {
