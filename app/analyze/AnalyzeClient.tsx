@@ -2925,6 +2925,191 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         </div>
       )}
 
+      {/* 채용 프로세스 추가 모달 (AnalyzeClient 레벨) */}
+      {showHiringModal && (
+        <div className="demo-modal-overlay" onClick={() => !hiringProcessCreating && setShowHiringModal(false)} style={{ alignItems: 'flex-start', paddingTop: `${hiringModalTop}px` }}>
+          <div className="demo-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', padding: '24px' }}>
+            <button
+              className="demo-modal-close"
+              onClick={() => !hiringProcessCreating && setShowHiringModal(false)}
+              disabled={hiringProcessCreating}
+            >
+              ✕
+            </button>
+
+            <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px' }}>
+              📊 채용 프로세스 추가
+            </h2>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              const candidateName = formData.get('candidate_name') as string
+              const positionTitle = formData.get('position_title') as string
+              const companyName = formData.get('company_name') as string
+              const nextAction = formData.get('next_action') as string
+
+              if (!candidateName || !positionTitle || !companyName) {
+                alert('후보자명, 포지션명, 회사명은 필수입니다.')
+                return
+              }
+
+              setHiringProcessCreating(true)
+              try {
+                const res = await fetch('/api/hiring-process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    analysis_id: analysisId || null,
+                    position_title: positionTitle,
+                    company_name: companyName,
+                    candidate_name: candidateName,
+                    next_action: nextAction || '서류 검토',
+                    current_stage: 0,
+                    status: 'ACTIVE'
+                  })
+                })
+
+                if (res.ok) {
+                  alert('채용 프로세스가 추가되었습니다!')
+                  setShowHiringModal(false)
+                  window.location.href = '/hiring-process'
+                } else {
+                  const data = await res.json()
+                  alert(data.error || '추가 실패')
+                }
+              } catch (err) {
+                console.error('채용 프로세스 추가 에러:', err)
+                alert('서버 오류가 발생했습니다.')
+              } finally {
+                setHiringProcessCreating(false)
+              }
+            }}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  후보자명 <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="candidate_name"
+                  defaultValue={hiringJDInfo.candidateName || '후보자'}
+                  required
+                  placeholder="예: 김대리"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  회사명 <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="company_name"
+                  defaultValue={hiringJDInfo.companyName}
+                  required
+                  placeholder="예: 네이버"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  포지션명 <span style={{ color: 'red' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="position_title"
+                  defaultValue={hiringJDInfo.positionTitle}
+                  required
+                  placeholder="예: Product Manager"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+                  다음 액션 (선택)
+                </label>
+                <input
+                  type="text"
+                  name="next_action"
+                  placeholder="예: 서류 검토"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowHiringModal(false)}
+                  disabled={hiringProcessCreating}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'var(--surface2)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: hiringProcessCreating ? 'not-allowed' : 'pointer',
+                    opacity: hiringProcessCreating ? 0.5 : 1
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={hiringProcessCreating}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#22d3ee',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#000',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: hiringProcessCreating ? 'not-allowed' : 'pointer',
+                    opacity: hiringProcessCreating ? 0.5 : 1
+                  }}
+                >
+                  {hiringProcessCreating ? '추가 중...' : '추가하기'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </main>
   )
 }
