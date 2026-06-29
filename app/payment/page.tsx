@@ -44,27 +44,36 @@ export default function PaymentPage() {
       return
     }
 
-    // 로그인되어 있으면 결제 위젯 초기화
+    // 로그인되어 있으면 동의 여부 체크 후 결제 위젯 초기화
     if (status === 'authenticated' && session) {
-      const initializePayment = async () => {
+      const checkConsentAndInitialize = async () => {
         try {
+          // 1. 동의 여부 확인
+          const consentRes = await fetch('/api/consents/check')
+          const consentData = await consentRes.json()
+
+          // 동의 안 되어 있으면 동의 페이지로
+          if (!consentData.hasConsent || !consentData.hasUserType) {
+            router.push('/consent?callbackUrl=/payment')
+            return
+          }
+
+          // 2. 동의 완료 → 결제 위젯 초기화
           const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
           if (!clientKey) {
             throw new Error('토스페이먼츠 클라이언트 키가 없습니다.')
           }
 
           const tossPayments = await loadTossPayments(clientKey)
-
           tossPaymentsRef.current = tossPayments
-
           setIsLoading(false)
         } catch (error) {
-          console.error('토스페이먼츠 초기화 실패:', error)
+          console.error('초기화 실패:', error)
           alert('결제 시스템을 불러오는데 실패했습니다.')
         }
       }
 
-      initializePayment()
+      checkConsentAndInitialize()
     }
   }, [status, session, router])
 
