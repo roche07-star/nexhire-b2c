@@ -3921,20 +3921,26 @@ function JDResults({
                 📄 후보자 제안서 다운로드
               </button>
 
-              {/* 제안서 재생성 버튼 */}
+              {/* 제안서 재생성/재시도 버튼 */}
               <button
                 className="analyze-download-btn"
                 style={{
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  background: proposalData?.proposal?.error
+                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'  // 에러 시 빨간색
+                    : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',  // 정상 시 주황색
                   color: '#fff',
-                  display: userType === 'HEADHUNTER' && proposalData && !proposalData.proposal?.error ? 'block' : 'none',
+                  display: userType === 'HEADHUNTER' && proposalData ? 'block' : 'none',  // error 조건 제거
                   marginTop: '12px',
                 }}
                 onClick={() => {
                   if (proposalGenerating) return
 
-                  const confirmMsg = '제안서를 다시 생성하시겠습니까?\n\n기존 제안서는 삭제되고 새로 생성됩니다.'
-                  if (!confirm(confirmMsg)) return
+                  const isError = proposalData?.proposal?.error
+                  const confirmMsg = isError
+                    ? '제안서 생성을 다시 시도하시겠습니까?'
+                    : '제안서를 다시 생성하시겠습니까?\n\n기존 제안서는 삭제되고 새로 생성됩니다.'
+
+                  if (!isError && !confirm(confirmMsg)) return
 
                   // localStorage에서 제안서 삭제
                   const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
@@ -3948,7 +3954,11 @@ function JDResults({
                 }}
                 disabled={proposalGenerating}
               >
-                {proposalGenerating ? '⏳ 재생성 중...' : '🔄 제안서 재생성'}
+                {proposalGenerating
+                  ? '⏳ 생성 중...'
+                  : proposalData?.proposal?.error
+                  ? '🔄 다시 시도'
+                  : '🔄 제안서 재생성'}
               </button>
             </>
           )
