@@ -72,7 +72,10 @@ export default function PaymentPage() {
     if (!tossPaymentsRef.current) return
 
     try {
-      const orderId = `order_${Date.now()}_${session?.user?.email}`
+      // orderId: 영문, 숫자, -, _ 만 허용 (6-64자)
+      const timestamp = Date.now()
+      const randomStr = Math.random().toString(36).substring(2, 8)
+      const orderId = `order_${timestamp}_${randomStr}`
       const orderName = priceInfo.name
 
       await tossPaymentsRef.current.requestPayment('카드', {
