@@ -952,7 +952,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              margin: 0
+              margin: 0,
+              whiteSpace: 'nowrap'
             }}>
               <span style={{ fontSize: 28 }}>📈</span>
               이번 달 성과
@@ -971,7 +972,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 transition: 'all 0.3s',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6
+                gap: 6,
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(167, 139, 250, 0.2)'
@@ -1074,7 +1076,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   </div>
                   <div style={{
                     fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)'
+                    color: 'rgba(255,255,255,0.7)',
+                    whiteSpace: 'nowrap'
                   }}>
                     {percentage}% 달성 {current >= target ? '🎉' : '💪'}
                   </div>
@@ -1131,7 +1134,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   </div>
                   <div style={{
                     fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)'
+                    color: 'rgba(255,255,255,0.7)',
+                    whiteSpace: 'nowrap'
                   }}>
                     {percentage}% 달성 {current >= target ? '🎉' : '📊'}
                   </div>
@@ -1189,7 +1193,8 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   </div>
                   <div style={{
                     fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)'
+                    color: 'rgba(255,255,255,0.7)',
+                    whiteSpace: 'nowrap'
                   }}>
                     {percentage}% 달성 {current >= target ? '🎉' : '📋'}
                   </div>
