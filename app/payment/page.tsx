@@ -205,7 +205,7 @@ export default function PaymentPage() {
             📌 안내사항
           </div>
           • 결제 후 즉시 PRO 플랜이 활성화됩니다<br />
-          • 환불은 결제 후 7일 이내 가능합니다<br />
+          • 환불은 결제 후 7일 이내 전액 가능합니다 (이유 불문)<br />
           • 문의사항은 jobizic.biz@gmail.com
         </div>
       </div>
