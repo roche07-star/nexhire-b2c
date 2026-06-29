@@ -5025,8 +5025,8 @@ footer {
 @media (max-width: 768px) {
   .insights-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    max-width: 85%;
-    margin-left: 5%;
+    max-width: 70%;
+    margin-left: 20%;
     margin-right: auto;
   }
 }
