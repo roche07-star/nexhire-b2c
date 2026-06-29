@@ -132,6 +132,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
+  const [notificationsCleared, setNotificationsCleared] = useState(false)
   const [goals, setGoals] = useState({
     hiredTarget: 10,
     passedTarget: 20,
@@ -497,7 +498,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               }}
             >
               🔔
-              {notifications.length > 0 && (
+              {notifications.length > 0 && !notificationsCleared && (
                 <span style={{
                   position: 'absolute',
                   top: -4,
@@ -632,7 +633,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     textAlign: 'center'
                   }}>
                     <button
-                      onClick={() => setShowNotifications(false)}
+                      onClick={() => {
+                        setNotificationsCleared(true)
+                        setShowNotifications(false)
+                      }}
                       style={{
                         padding: '8px 16px',
                         background: 'rgba(255,255,255,0.05)',
@@ -729,8 +733,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
       {/* Insights Card */}
       <div style={{
-        position: 'relative',
-        zIndex: 1,
         marginBottom: 56,
       }}>
         <div style={{
