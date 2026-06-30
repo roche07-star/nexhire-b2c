@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **NexHire (adam)** — AI-powered resume analysis SaaS platform for Korean job seekers. Analyzes resumes against job descriptions, generates interview guides, and provides career insights using Claude API.
 
-**Homepage**: https://jobizic.vercel.app
+**Homepage**: https://jobizic.com (Production: https://jobizic.vercel.app)
 
 ## Commands
 
