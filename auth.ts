@@ -12,22 +12,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      // 항상 jobizic.com으로 리다이렉트
-      const targetUrl = 'https://jobizic.com'
-
-      // 상대 경로인 경우
-      if (url.startsWith('/')) {
-        return `${targetUrl}${url}`
-      }
-
-      // 같은 도메인인 경우
-      if (new URL(url).origin === baseUrl) {
-        return url.replace(baseUrl, targetUrl)
-      }
-
-      return targetUrl
-    },
     async signIn({ user }) {
       if (!user.email) return true
       const managers = (process.env.MANAGER_EMAILS ?? '')
