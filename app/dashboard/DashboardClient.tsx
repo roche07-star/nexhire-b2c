@@ -809,7 +809,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           </h2>
 
           <div className="insights-grid">
-            {/* 이번 주 활동 요약 */}
+            {/* 이번 달 활동 요약 */}
             <div style={{
               padding: '24px 28px',
               background: 'rgba(255,255,255,0.05)',
@@ -825,7 +825,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 letterSpacing: '0.1em',
                 marginBottom: 12
               }}>
-                이번 주 활동
+                이번 달 활동
               </div>
               {stats.recentActivity.length > 0 ? (
                 <>
