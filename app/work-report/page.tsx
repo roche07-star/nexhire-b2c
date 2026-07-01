@@ -7,7 +7,7 @@ import Footer from '@/components/Footer'
 import WorkReportClient from './WorkReportClient'
 
 export const metadata: Metadata = {
-  title: '업무 Report | NexHire',
+  title: '업무 Report | JOBIZIC',
   description: '주간/월간 업무 보고서 작성 및 이력서 반영',
 }
 

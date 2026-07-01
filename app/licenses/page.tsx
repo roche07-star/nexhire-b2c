@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '오픈소스 라이선스 - NexHire',
-  description: 'NexHire에서 사용하는 오픈소스 라이브러리 라이선스 정보',
+  title: '오픈소스 라이선스 - JOBIZIC',
+  description: 'JOBIZIC에서 사용하는 오픈소스 라이브러리 라이선스 정보',
 };
 
 const licenses = [
@@ -168,7 +168,7 @@ export default function LicensesPage() {
             오픈소스 라이선스
           </h1>
           <p className="mt-2 text-gray-600">
-            NexHire는 다음 오픈소스 라이브러리를 사용하고 있습니다.
+            JOBIZIC은 다음 오픈소스 라이브러리를 사용하고 있습니다.
             <br />
             각 라이브러리 개발자분들께 감사드립니다. 🙏
           </p>
