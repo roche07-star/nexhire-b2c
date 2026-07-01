@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // 2. 가장 최근 이력서 조회
     const { data: latestResume, error: resumeError } = await supabase
       .from('analyses')
-      .select('id, candidate_name, position, analysis_result')
+      .select('id, candidate_name, position, result')
       .eq('user_email', userEmail)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -58,9 +58,9 @@ export async function POST(request: NextRequest) {
     console.log('📊 최근 이력서:', { id: latestResume.id, name: latestResume.candidate_name })
 
     // 3. 이력서에 월간 리포트 추가
-    let analysisResult = typeof latestResume.analysis_result === 'string'
-      ? JSON.parse(latestResume.analysis_result)
-      : latestResume.analysis_result
+    let analysisResult = typeof latestResume.result === 'string'
+      ? JSON.parse(latestResume.result)
+      : latestResume.result
 
     if (!analysisResult.work_experience) {
       analysisResult.work_experience = []
@@ -96,8 +96,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('analyses')
       .update({
-        analysis_result: JSON.stringify(analysisResult),
-        updated_at: new Date().toISOString(),
+        result: analysisResult,  // JSONB 컬럼이므로 직접 할당 (JSON.stringify 불필요)
       })
       .eq('id', latestResume.id)
 
