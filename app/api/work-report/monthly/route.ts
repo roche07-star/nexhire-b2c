@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { monthOf } = body // YYYY-MM-01 형식
 
+    console.log('📊 월간 Report 생성 요청:', { monthOf, userEmail: session.user.email })
+
     if (!monthOf) {
       return NextResponse.json(
         { error: '월 정보가 필요합니다.' },
@@ -63,14 +65,25 @@ export async function POST(request: NextRequest) {
 
     const userEmail = session.user.email
 
-    // 해당 월의 주간 리포트 조회
+    // 해당 월의 주간 리포트 조회 (해당 월 -7일 ~ +1개월 범위로 확장하여 월경계 주 포함)
+    const monthDate = new Date(monthOf)
+    const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), monthDate.getDate() - 7)
+    const endDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1)
+
+    const startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`
+    const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
+
+    console.log('📊 주간 리포트 조회 범위:', { startDateStr, endDateStr })
+
     const { data: weeklyReports, error: fetchError } = await supabase
       .from('weekly_reports')
       .select('*')
       .eq('user_email', userEmail)
-      .gte('week_of', monthOf)
-      .lt('week_of', new Date(new Date(monthOf).setMonth(new Date(monthOf).getMonth() + 1)).toISOString().split('T')[0])
+      .gte('week_of', startDateStr)
+      .lt('week_of', endDateStr)
       .order('week_of', { ascending: true })
+
+    console.log('📊 조회된 주간 리포트:', { count: weeklyReports?.length, reports: weeklyReports?.map(r => r.week_of) })
 
     if (fetchError) {
       console.error('Weekly reports fetch error:', fetchError)
@@ -79,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     if (!weeklyReports || weeklyReports.length === 0) {
       return NextResponse.json(
-        { error: '해당 월에 주간 리포트가 없습니다.' },
+        { error: '해당 월에 주간 리포트가 없습니다. 주간 리포트를 먼저 작성해주세요.' },
         { status: 400 }
       )
     }
