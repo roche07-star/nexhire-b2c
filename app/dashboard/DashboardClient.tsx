@@ -313,7 +313,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   if (loading) {
     return (
       <main style={{
-        padding: '60px 20px 40px',
+        padding: '100px 20px 40px',
         maxWidth: 1400,
         margin: '0 auto',
         background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
@@ -379,7 +379,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   if (error) {
     return (
       <main style={{
-        padding: '60px 20px',
+        padding: '100px 20px',
         maxWidth: 600,
         margin: '0 auto',
         textAlign: 'center',
@@ -441,7 +441,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
   return (
     <main style={{
-      padding: '60px 20px 40px',
+      padding: '100px 20px 40px',
       maxWidth: 1400,
       margin: '0 auto',
       background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
