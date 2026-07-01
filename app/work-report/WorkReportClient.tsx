@@ -116,8 +116,9 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
   const [selectedResumeId, setSelectedResumeId] = useState<string>('')
   const [isMerging, setIsMerging] = useState(false)
 
-  // 현재 월 계산
-  const currentMonthOf = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+  // 현재 월 계산 (로컬 시간 기준, YYYY-MM-01 형식)
+  const now = new Date()
+  const currentMonthOf = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -279,6 +280,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
   // 월간 리포트 생성
   const handleGenerateMonthlyReport = async () => {
+    console.log('📊 월간 Report 생성 시작:', { currentMonthOf, weeklyCount: weeklyReports.length })
     setIsLoadingMonthly(true)
 
     try {
@@ -288,8 +290,11 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
         body: JSON.stringify({ monthOf: currentMonthOf }),
       })
 
+      console.log('📊 월간 API 응답:', response.status, response.statusText)
+
       if (!response.ok) {
         const error = await response.json()
+        console.error('📊 월간 API 에러:', error)
         throw new Error(error.error || '월간 Report 생성 실패')
       }
 
