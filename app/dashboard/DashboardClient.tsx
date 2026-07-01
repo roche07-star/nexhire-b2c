@@ -1047,8 +1047,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: 20,
             marginTop: 32
-          }}
-          className="mobile-horizontal-scroll">
+          }}>
             {/* 입사 목표 */}
             {(() => {
               const target = goals.hiredTarget
@@ -1452,8 +1451,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: 20
-          }}
-          className="mobile-horizontal-scroll">
+          }}>
             {/* 진행 중 */}
             <div
               style={{

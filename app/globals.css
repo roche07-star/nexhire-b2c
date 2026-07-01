@@ -5038,63 +5038,6 @@ footer {
   .hide-on-mobile {
     display: none !important;
   }
-
-  /* 모바일에서 가로 스크롤 */
-  .mobile-horizontal-scroll {
-    display: flex !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: 12px;
-    padding-bottom: 8px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .mobile-horizontal-scroll > * {
-    flex: 0 0 auto;
-    width: 160px !important;
-    scroll-snap-align: start;
-    padding: 16px 12px !important;
-  }
-
-  /* 모바일에서 폰트 크기 줄이기 */
-  .mobile-horizontal-scroll > * > div:first-child {
-    font-size: 10px !important;
-    margin-bottom: 8px !important;
-  }
-
-  .mobile-horizontal-scroll > * > div:nth-child(2) {
-    font-size: 28px !important;
-    margin-bottom: 4px !important;
-  }
-
-  .mobile-horizontal-scroll > * > div:last-child {
-    font-size: 11px !important;
-  }
-
-  /* 프로그레스 바 높이 줄이기 */
-  .mobile-horizontal-scroll > * > div[style*="height: 8px"] {
-    height: 6px !important;
-  }
-
-  /* 스크롤바 스타일링 */
-  .mobile-horizontal-scroll::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .mobile-horizontal-scroll::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 2px;
-  }
-
-  .mobile-horizontal-scroll::-webkit-scrollbar-thumb {
-    background: rgba(34, 211, 238, 0.3);
-    border-radius: 2px;
-  }
-
-  .mobile-horizontal-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 211, 238, 0.5);
-  }
 }
 
 /* ═══════════════════════════════════════════════════════
