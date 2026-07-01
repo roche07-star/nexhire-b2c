@@ -49,7 +49,7 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// GET: 이번 달 주간 리포트 목록 조회
+// GET: 최근 2개월 주간 리포트 목록 조회 (이번 주가 전달에 걸쳐있어도 표시)
 export async function GET() {
   try {
     const session = await auth()
@@ -59,22 +59,17 @@ export async function GET() {
 
     const userEmail = session.user.email
 
-    // 이번 달 첫날 계산 (KST 기준)
+    // 최근 2개월 범위 계산 (로컬 시간 기준)
     const now = new Date()
-    const kstOffset = 9 * 60 * 60 * 1000
-    const kstNow = new Date(now.getTime() + kstOffset)
-    const firstDayOfMonth = new Date(Date.UTC(
-      kstNow.getUTCFullYear(),
-      kstNow.getUTCMonth(),
-      1, 0, 0, 0, 0
-    ))
+    const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+    const startDate = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`
 
-    // 이번 달 주간 리포트 조회
+    // 최근 2개월 주간 리포트 조회
     const { data, error } = await supabase
       .from('weekly_reports')
       .select('*')
       .eq('user_email', userEmail)
-      .gte('week_of', firstDayOfMonth.toISOString().split('T')[0])
+      .gte('week_of', startDate)
       .order('week_of', { ascending: false })
 
     if (error) {

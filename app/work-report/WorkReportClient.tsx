@@ -229,12 +229,23 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       return
     }
 
-    // 이번 주 월요일 계산
+    // 이번 주 월요일 계산 (로컬 시간 기준)
     const now = new Date()
     const dayOfWeek = now.getDay()
     const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    const monday = new Date(now.setDate(now.getDate() + diff))
-    const weekOf = monday.toISOString().split('T')[0]
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff)
+
+    // 로컬 날짜를 YYYY-MM-DD 형식으로 변환 (UTC 변환 없음)
+    const weekOf = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`
+
+    console.log('📊 주간 Report 생성:', {
+      today: now.toLocaleDateString('ko-KR'),
+      dayOfWeek,
+      diff,
+      monday: monday.toLocaleDateString('ko-KR'),
+      weekOf,
+      content: weeklyInput.substring(0, 50)
+    })
 
     setIsGenerating(true)
 
@@ -245,9 +256,12 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
         body: JSON.stringify({ content: weeklyInput, weekOf }),
       })
 
+      console.log('📊 API 응답:', response.status, response.statusText)
+
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'AI 정리 실패')
+        const errorData = await response.json()
+        console.error('📊 API 에러:', errorData)
+        throw new Error(errorData.error || 'AI 정리 실패')
       }
 
       const data = await response.json()
@@ -554,7 +568,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {weeklyReports.map((report, index) => (
+              {weeklyReports.map((report) => (
                 <div
                   key={report.id}
                   style={{
@@ -576,7 +590,11 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                       fontWeight: 600,
                       color: '#e8ff47',
                     }}>
-                      Week {weeklyReports.length - index} • {report.week_of}
+                      {new Date(report.week_of + 'T00:00:00').toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })} 주간
                     </div>
                     <button
                       onClick={() => handleDeleteWeeklyReport(report.id)}
