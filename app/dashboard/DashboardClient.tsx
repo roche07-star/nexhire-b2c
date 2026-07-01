@@ -139,16 +139,34 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     proposalTarget: 10
   })
 
-  // localStorage에서 목표 불러오기
+  // 목표 불러오기 (Supabase)
   useEffect(() => {
-    const savedGoals = localStorage.getItem('dashboard_goals')
-    if (savedGoals) {
+    const fetchGoals = async () => {
       try {
-        setGoals(JSON.parse(savedGoals))
+        const res = await fetch('/api/dashboard/goals')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.goals) {
+            setGoals(data.goals)
+          }
+        } else {
+          // API 실패 시 localStorage 폴백
+          const savedGoals = localStorage.getItem('dashboard_goals')
+          if (savedGoals) {
+            setGoals(JSON.parse(savedGoals))
+          }
+        }
       } catch (e) {
-        console.error('Failed to parse goals:', e)
+        console.error('Failed to fetch goals:', e)
+        // 에러 시 localStorage 폴백
+        const savedGoals = localStorage.getItem('dashboard_goals')
+        if (savedGoals) {
+          setGoals(JSON.parse(savedGoals))
+        }
       }
     }
+
+    fetchGoals()
 
     // 알림 cleared 상태 불러오기 (날짜 기반)
     const clearedData = localStorage.getItem('notifications_cleared')
@@ -169,10 +187,29 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   }, [])
 
   // 목표 저장
-  const saveGoals = (newGoals: typeof goals) => {
-    setGoals(newGoals)
-    localStorage.setItem('dashboard_goals', JSON.stringify(newGoals))
-    setShowGoalSettings(false)
+  const saveGoals = async (newGoals: typeof goals) => {
+    try {
+      // 즉시 UI 업데이트
+      setGoals(newGoals)
+      localStorage.setItem('dashboard_goals', JSON.stringify(newGoals))
+
+      // Supabase에 저장
+      const res = await fetch('/api/dashboard/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newGoals)
+      })
+
+      if (!res.ok) {
+        console.error('Failed to save goals to database')
+        // UI에는 이미 반영되었으므로 에러 표시만
+      }
+
+      setShowGoalSettings(false)
+    } catch (error) {
+      console.error('Error saving goals:', error)
+      setShowGoalSettings(false)
+    }
   }
 
   // 알림 생성 (실시간 시뮬레이션)
