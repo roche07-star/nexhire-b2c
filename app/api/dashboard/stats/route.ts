@@ -37,8 +37,18 @@ export async function GET() {
     const result = await getCached(
       `dashboard:stats:${email}`,
       async () => {
+        // 한국 시간 기준으로 현재 날짜 계산
         const now = new Date()
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const kstOffset = 9 * 60 * 60 * 1000 // 9시간 (밀리초)
+        const kstNow = new Date(now.getTime() + kstOffset)
+
+        // 한국 시간 기준 이번 달 1일 00:00:00
+        const firstDayOfMonth = new Date(Date.UTC(
+          kstNow.getUTCFullYear(),
+          kstNow.getUTCMonth(),
+          1,
+          0, 0, 0, 0
+        ))
 
         // Supabase Function 시도 (마이그레이션 완료 후 최고 성능)
         const { data: stats, error: statsError } = await supabase.rpc('get_dashboard_stats', {
@@ -179,7 +189,10 @@ export async function GET() {
 
         console.log('📊 Fallback stats:', {
           email,
+          now: now.toISOString(),
+          kstNow: kstNow.toISOString(),
           firstDayOfMonth: firstDayOfMonth.toISOString(),
+          firstDayOfMonthKST: new Date(firstDayOfMonth.getTime() + kstOffset).toISOString(),
           totalCandidates: totalCount.count || 0,
           thisMonthResumes: monthCount.count || 0,
           thisMonthJDs: monthJDCount.count || 0,
