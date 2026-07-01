@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 interface Props {
   userEmail: string
+  isPro: boolean
 }
 
 interface WeeklyReport {
@@ -14,8 +15,63 @@ interface WeeklyReport {
   createdAt: string
 }
 
-export default function WorkReportClient({ userEmail }: Props) {
+export default function WorkReportClient({ userEmail, isPro }: Props) {
   const router = useRouter()
+
+  // FREE 플랜 업그레이드 안내
+  if (!isPro) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+        padding: '100px 20px 40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <div style={{
+          maxWidth: '600px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '16px',
+          padding: '48px 32px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>🔒</div>
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 700,
+            color: '#e8ff47',
+            marginBottom: '16px',
+          }}>
+            업무 Report
+          </h1>
+          <p style={{
+            fontSize: '18px',
+            color: '#ccc',
+            marginBottom: '32px',
+            lineHeight: '1.6',
+          }}>
+            이 기능은 <strong style={{ color: '#e8ff47' }}>PRO 플랜</strong> 이상에서 사용할 수 있습니다.
+          </p>
+          <button
+            onClick={() => router.push('/plans')}
+            style={{
+              padding: '16px 32px',
+              fontSize: '18px',
+              fontWeight: 600,
+              background: '#e8ff47',
+              color: '#000',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            플랜 업그레이드
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // 회사명/학교명
   const [organization, setOrganization] = useState('')
