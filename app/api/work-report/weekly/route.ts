@@ -7,6 +7,48 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+// DELETE: 주간 리포트 삭제
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID가 필요합니다.' },
+        { status: 400 }
+      )
+    }
+
+    const userEmail = session.user.email
+
+    const { error } = await supabase
+      .from('weekly_reports')
+      .delete()
+      .eq('id', id)
+      .eq('user_email', userEmail)
+
+    if (error) {
+      console.error('Weekly report delete error:', error)
+      throw new Error('주간 리포트 삭제 실패')
+    }
+
+    return NextResponse.json({ success: true })
+
+  } catch (error: any) {
+    console.error('Weekly report DELETE error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete weekly report' },
+      { status: 500 }
+    )
+  }
+}
+
 // GET: 이번 달 주간 리포트 목록 조회
 export async function GET() {
   try {

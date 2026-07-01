@@ -25,6 +25,13 @@ interface MonthlyReport {
   created_at: string
 }
 
+interface Resume {
+  id: string
+  candidate_name: string
+  position: string
+  created_at: string
+}
+
 export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Props) {
   const router = useRouter()
 
@@ -104,6 +111,11 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
   const [isLoadingMonthly, setIsLoadingMonthly] = useState(false)
   const [isApplying, setIsApplying] = useState(false)
 
+  // 이력서 목록 & 머지 관련
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
+  const [isMerging, setIsMerging] = useState(false)
+
   // 현재 월 계산
   const currentMonthOf = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
 
@@ -112,6 +124,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
     loadOrganization()
     loadWeeklyReports()
     loadMonthlyReport()
+    loadResumes()
   }, [])
 
   // 조직 정보 로드
@@ -185,6 +198,22 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       console.error('월간 리포트 로드 실패:', error)
     } finally {
       setIsLoadingMonthly(false)
+    }
+  }
+
+  // 이력서 목록 로드
+  const loadResumes = async () => {
+    try {
+      const response = await fetch('/api/work-report/resumes')
+      if (response.ok) {
+        const data = await response.json()
+        setResumes(data.resumes || [])
+        if (data.resumes && data.resumes.length > 0) {
+          setSelectedResumeId(data.resumes[0].id)
+        }
+      }
+    } catch (error) {
+      console.error('이력서 목록 로드 실패:', error)
     }
   }
 
@@ -263,6 +292,48 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
     }
   }
 
+  // 이력서에 머지
+  const handleMergeToResume = async () => {
+    if (!monthlyReport) {
+      alert('월간 Report가 없습니다.')
+      return
+    }
+
+    if (!selectedResumeId) {
+      alert('이력서를 선택해주세요.')
+      return
+    }
+
+    const confirmed = confirm(
+      '선택한 이력서에 월간 Report를 머지하시겠습니까?\n\n이력서 경력 사항에 추가됩니다.'
+    )
+
+    if (!confirmed) return
+
+    setIsMerging(true)
+
+    try {
+      const response = await fetch('/api/work-report/merge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          analysisId: selectedResumeId,
+          monthlyReportHtml: monthlyReport.aggregated_html,
+        }),
+      })
+
+      if (!response.ok) throw new Error('이력서 머지 실패')
+
+      alert('✅ 월간 Report가 이력서에 머지되었습니다!')
+
+    } catch (error: any) {
+      console.error('이력서 머지 실패:', error)
+      alert('머지에 실패했습니다.')
+    } finally {
+      setIsMerging(false)
+    }
+  }
+
   // 이력서 반영
   const handleApplyToResume = async () => {
     if (!monthlyReport) {
@@ -295,6 +366,34 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       alert('반영에 실패했습니다.')
     } finally {
       setIsApplying(false)
+    }
+  }
+
+  // 주간 Report 삭제
+  const handleDeleteWeeklyReport = async (id: string) => {
+    const confirmed = confirm('이 주간 Report를 삭제하시겠습니까?')
+    if (!confirmed) return
+
+    try {
+      const response = await fetch(`/api/work-report/weekly?id=${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('삭제 실패')
+
+      setWeeklyReports((prev) => prev.filter((r) => r.id !== id))
+      alert('✅ 주간 Report가 삭제되었습니다.')
+
+      // 월간 리포트 재생성
+      if (weeklyReports.length > 1) {
+        await handleGenerateMonthlyReport()
+      } else {
+        setMonthlyReport(null)
+      }
+
+    } catch (error: any) {
+      console.error('주간 Report 삭제 실패:', error)
+      alert('삭제에 실패했습니다.')
     }
   }
 
@@ -542,15 +641,43 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                     borderRadius: '12px',
                     padding: '18px',
                     border: '1px solid rgba(232, 255, 71, 0.15)',
+                    position: 'relative',
                   }}
                 >
                   <div style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: '#e8ff47',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     marginBottom: '10px',
                   }}>
-                    Week {weeklyReports.length - index} • {report.week_of}
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: '#e8ff47',
+                    }}>
+                      Week {weeklyReports.length - index} • {report.week_of}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteWeeklyReport(report.id)}
+                      style={{
+                        background: 'rgba(255, 0, 0, 0.1)',
+                        border: '1px solid rgba(255, 0, 0, 0.3)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        color: '#ff6b6b',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 0, 0, 0.2)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 0, 0, 0.1)'
+                      }}
+                    >
+                      ✕ 삭제
+                    </button>
                   </div>
                   <div
                     dangerouslySetInnerHTML={{ __html: report.ai_generated_html }}
@@ -597,6 +724,62 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                 marginBottom: '18px',
               }}
             />
+
+            {/* 이력서 선택 & 머지 */}
+            {resumes.length > 0 && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <div style={{
+                  fontSize: '14px',
+                  color: '#ccc',
+                  marginBottom: '10px',
+                }}>
+                  📄 이력서 선택 (기존 이력서에 머지)
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <select
+                    value={selectedResumeId}
+                    onChange={(e) => setSelectedResumeId(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      fontSize: '14px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(232, 255, 71, 0.2)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                    }}
+                  >
+                    {resumes.map((resume) => (
+                      <option key={resume.id} value={resume.id}>
+                        {resume.candidate_name} - {resume.position}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleMergeToResume}
+                    disabled={isMerging}
+                    style={{
+                      padding: '12px 20px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      background: isMerging ? '#555' : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: isMerging ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isMerging ? '머지 중...' : '이력서 머지'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={handleApplyToResume}
