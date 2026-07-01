@@ -255,9 +255,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       setWeeklyInput('')
       alert('주간 Report가 생성되었습니다!')
 
-      // 월간 리포트 자동 갱신
-      await handleGenerateMonthlyReport()
-
     } catch (error: any) {
       console.error('주간 Report 생성 실패:', error)
       alert(error.message || '생성에 실패했습니다.')
@@ -383,13 +380,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
       setWeeklyReports((prev) => prev.filter((r) => r.id !== id))
       alert('✅ 주간 Report가 삭제되었습니다.')
-
-      // 월간 리포트 재생성
-      if (weeklyReports.length > 1) {
-        await handleGenerateMonthlyReport()
-      } else {
-        setMonthlyReport(null)
-      }
 
     } catch (error: any) {
       console.error('주간 Report 삭제 실패:', error)
@@ -690,6 +680,31 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                 </div>
               ))}
             </div>
+
+            {/* 월간 보고 생성 버튼 */}
+            {weeklyReports.length >= 2 && (
+              <button
+                onClick={handleGenerateMonthlyReport}
+                disabled={isLoadingMonthly}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  background: isLoadingMonthly ? '#555' : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: isLoadingMonthly ? 'not-allowed' : 'pointer',
+                  marginTop: '20px',
+                  transition: 'transform 0.2s',
+                }}
+                onMouseEnter={(e) => !isLoadingMonthly && (e.currentTarget.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                {isLoadingMonthly ? '📊 월간 보고 생성 중...' : '📊 월간 보고 생성 (주간보고 정리)'}
+              </button>
+            )}
           </div>
         )}
 
