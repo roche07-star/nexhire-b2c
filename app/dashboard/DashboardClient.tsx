@@ -827,28 +827,45 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               }}>
                 이번 주 활동
               </div>
-              <div style={{
-                fontSize: 15,
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: 1.6,
-                marginBottom: 16,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 12
-              }}>
-                {(stats.thisMonthAnalyses > 0 || (stats.thisMonthJDs ?? 0) > 0) ? (
-                  <>
+              {stats.recentActivity.length > 0 ? (
+                <>
+                  {/* 총 활동 건수 */}
+                  <div style={{
+                    fontSize: 15,
+                    color: 'rgba(255,255,255,0.9)',
+                    lineHeight: 1.6,
+                    marginBottom: 12,
+                    textAlign: 'center'
+                  }}>
+                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 분석 활동이 있었습니다
+                  </div>
+                  {/* 이력서/JD 구분 */}
+                  <div style={{
+                    fontSize: 15,
+                    color: 'rgba(255,255,255,0.9)',
+                    lineHeight: 1.6,
+                    marginBottom: 16,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 12
+                  }}>
                     <span>이력서 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{stats.thisMonthAnalyses ?? 0}건</span></span>
                     <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
                     <span>JD <span style={{ color: '#22d3ee', fontWeight: 700 }}>{stats.thisMonthJDs ?? 0}건</span></span>
-                  </>
-                ) : (
-                  <>
-                    아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  fontSize: 15,
+                  color: 'rgba(255,255,255,0.9)',
+                  lineHeight: 1.6,
+                  marginBottom: 16,
+                  textAlign: 'center'
+                }}>
+                  아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
+                </div>
+              )}
               {/* 이번달 진행 */}
               <div style={{
                 fontSize: 14,
