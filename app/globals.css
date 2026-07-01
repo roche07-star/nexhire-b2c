@@ -110,10 +110,10 @@ nav {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
   z-index: 9998;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
 @keyframes fadeIn {
@@ -126,68 +126,98 @@ nav {
   to { transform: translateX(0); }
 }
 
-/* 헤드헌터 사이드바 */
+/* 헤드헌터 사이드바 - 완전히 새로운 디자인 */
 .headhunter-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 280px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%);
-  border-right: 1px solid rgba(34, 211, 238, 0.3);
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
   z-index: 9999;
-  padding: 80px 0 24px;
+  padding: 0;
   overflow-y: auto;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
-  animation: slideInLeft 0.3s ease-out;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  animation: slideInLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 사이드바 스크롤바 */
+.headhunter-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.headhunter-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.headhunter-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+.headhunter-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .sidebar-header {
-  padding: 0 24px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 8px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .sidebar-title {
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 700;
-  color: #22d3ee;
+  color: #9ca3af;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   margin-bottom: 4px;
 }
 
 .sidebar-subtitle {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
 }
 
 .sidebar-item {
-  display: block;
-  padding: 16px 24px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  margin: 4px 12px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: none;
-  border-left: 3px solid transparent;
+  border-radius: 8px;
   background: transparent;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  position: relative;
+  border: none;
 }
 
 .sidebar-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  padding-left: 28px;
+  background: #f9fafb;
+  color: #111827;
 }
 
 .sidebar-item.active {
-  color: #22d3ee;
-  font-weight: 700;
-  border-left-color: #22d3ee;
-  background: rgba(34, 211, 238, 0.1);
+  color: #0ea5e9;
+  font-weight: 600;
+  background: #f0f9ff;
 }
 
-.sidebar-item.active:hover {
-  padding-left: 24px;
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: #0ea5e9;
+  border-radius: 0 2px 2px 0;
 }
 
 .btn-ghost {

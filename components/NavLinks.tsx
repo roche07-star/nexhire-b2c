@@ -89,8 +89,8 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
           <div className="headhunter-sidebar">
             {/* 메뉴 타이틀 */}
             <div className="sidebar-header">
-              <div className="sidebar-title">헤드헌터 메뉴</div>
-              <div className="sidebar-subtitle">Headhunter Dashboard</div>
+              <div className="sidebar-title">MENU</div>
+              <div className="sidebar-subtitle">헤드헌터 대시보드</div>
             </div>
 
             {/* 메뉴 아이템 */}
