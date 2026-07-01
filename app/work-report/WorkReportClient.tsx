@@ -590,11 +590,10 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                       fontWeight: 600,
                       color: '#e8ff47',
                     }}>
-                      {new Date(report.week_of + 'T00:00:00').toLocaleDateString('ko-KR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })} 주간
+                      {(() => {
+                        const date = new Date(report.week_of + 'T00:00:00')
+                        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 주간`
+                      })()}
                     </div>
                     <button
                       onClick={() => handleDeleteWeeklyReport(report.id)}
