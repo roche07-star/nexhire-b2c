@@ -534,77 +534,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
           </div>
         </div>
 
-        {/* 주간 업무 작성 */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '20px',
-          padding: '32px',
-          marginBottom: '32px',
-          border: '1px solid rgba(232, 255, 71, 0.1)',
-        }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 600,
-            color: '#fff',
-            marginBottom: '16px',
-          }}>
-            📝 이번 주 업무 작성
-          </h2>
-
-          <textarea
-            placeholder="이번 주에 수행한 업무를 자유롭게 작성해주세요.&#10;&#10;예)&#10;- 신규 기능 개발: 사용자 대시보드 UI 개선&#10;- 버그 수정: 결제 모듈 오류 3건 해결&#10;- 회의 참석: 주간 팀 미팅, 제품 기획 회의"
-            value={weeklyInput}
-            onChange={(e) => setWeeklyInput(e.target.value)}
-            rows={8}
-            style={{
-              width: '100%',
-              padding: '18px',
-              fontSize: '15px',
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '2px solid rgba(232, 255, 71, 0.2)',
-              borderRadius: '12px',
-              color: '#fff',
-              resize: 'vertical',
-              marginBottom: '16px',
-              lineHeight: '1.8',
-            }}
-          />
-
-          <button
-            onClick={handleCreateWeeklyReport}
-            disabled={isGenerating || !organizationSaved}
-            style={{
-              width: '100%',
-              padding: '16px',
-              fontSize: '17px',
-              fontWeight: 600,
-              background: isGenerating || !organizationSaved ? '#555' : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
-              color: isGenerating || !organizationSaved ? '#999' : '#000',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: isGenerating || !organizationSaved ? 'not-allowed' : 'pointer',
-              transition: 'transform 0.2s',
-            }}
-            onMouseEnter={(e) => !isGenerating && organizationSaved && (e.currentTarget.style.transform = 'scale(1.02)')}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            {isGenerating ? '🤖 AI 정리 중...' : '✨ AI 정리하기'}
-          </button>
-
-          <div style={{
-            background: 'rgba(232, 255, 71, 0.1)',
-            borderRadius: '10px',
-            padding: '12px 16px',
-            fontSize: '13px',
-            color: '#e8ff47',
-            lineHeight: '1.6',
-            marginTop: '16px',
-          }}>
-            <strong>💡 TIP:</strong> 정량적 성과(숫자, 비율, 기간)를 포함하면 채용 담당자가 주목합니다.
-          </div>
-        </div>
-
         {/* 주간 Report 목록 */}
         {weeklyReports.length > 0 && (
           <div style={{
@@ -843,6 +772,77 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             </div>
           </div>
         )}
+
+        {/* 새 주간 업무 작성 */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '20px',
+          padding: '32px',
+          marginBottom: '32px',
+          border: '1px solid rgba(232, 255, 71, 0.1)',
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#fff',
+            marginBottom: '16px',
+          }}>
+            🆕 새 주간 업무 작성
+          </h2>
+
+          <textarea
+            placeholder="이번 주에 수행한 업무를 자유롭게 작성해주세요.&#10;&#10;예)&#10;- 신규 기능 개발: 사용자 대시보드 UI 개선&#10;- 버그 수정: 결제 모듈 오류 3건 해결&#10;- 회의 참석: 주간 팀 미팅, 제품 기획 회의"
+            value={weeklyInput}
+            onChange={(e) => setWeeklyInput(e.target.value)}
+            rows={8}
+            style={{
+              width: '100%',
+              padding: '18px',
+              fontSize: '15px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '2px solid rgba(232, 255, 71, 0.2)',
+              borderRadius: '12px',
+              color: '#fff',
+              resize: 'vertical',
+              marginBottom: '16px',
+              lineHeight: '1.8',
+            }}
+          />
+
+          <button
+            onClick={handleCreateWeeklyReport}
+            disabled={isGenerating || !organizationSaved}
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: '17px',
+              fontWeight: 600,
+              background: isGenerating || !organizationSaved ? '#555' : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
+              color: isGenerating || !organizationSaved ? '#999' : '#000',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: isGenerating || !organizationSaved ? 'not-allowed' : 'pointer',
+              transition: 'transform 0.2s',
+            }}
+            onMouseEnter={(e) => !isGenerating && organizationSaved && (e.currentTarget.style.transform = 'scale(1.02)')}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            {isGenerating ? '🤖 AI 정리 중...' : '✨ AI 정리하기'}
+          </button>
+
+          <div style={{
+            background: 'rgba(232, 255, 71, 0.1)',
+            borderRadius: '10px',
+            padding: '12px 16px',
+            fontSize: '13px',
+            color: '#e8ff47',
+            lineHeight: '1.6',
+            marginTop: '16px',
+          }}>
+            <strong>💡 TIP:</strong> 정량적 성과(숫자, 비율, 기간)를 포함하면 채용 담당자가 주목합니다.
+          </div>
+        </div>
       </div>
     </div>
   )
