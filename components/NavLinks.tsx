@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 interface NavLinksProps {
   isPro: boolean
@@ -11,7 +11,6 @@ interface NavLinksProps {
 
 export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const getLinkStyle = (path: string) => {
@@ -19,19 +18,6 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     return {
       color: isActive ? '#e8ff47' : undefined,
       fontWeight: isActive ? 600 : undefined,
-    }
-  }
-
-  const handleHashLink = (hash: string) => (e: React.MouseEvent) => {
-    e.preventDefault()
-
-    if (pathname === '/') {
-      const element = document.querySelector(hash)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
-    } else {
-      router.push(`/${hash}`)
     }
   }
 
@@ -54,11 +40,6 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
           </Link>
         </li>
       ))}
-      <li className="desktop-only">
-        <a href="/#how" onClick={handleHashLink('#how')}>
-          사용법
-        </a>
-      </li>
 
       {/* 모바일 햄버거 버튼 */}
       <li className="mobile-menu-toggle">
@@ -83,16 +64,6 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
                 {item.label}
               </Link>
             ))}
-            <a
-              href="/#how"
-              onClick={(e) => {
-                handleHashLink('#how')(e)
-                setMobileMenuOpen(false)
-              }}
-              className="mobile-menu-item"
-            >
-              사용법
-            </a>
           </div>
         )}
       </li>
