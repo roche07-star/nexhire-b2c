@@ -7,26 +7,27 @@ import { usePathname, useRouter } from 'next/navigation'
 interface NavLinksProps {
   isPro: boolean
   isHeadhunter: boolean
+  sidebarOpen?: boolean
+  setSidebarOpen?: (open: boolean) => void
 }
 
-export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
+export default function NavLinks({ isPro, isHeadhunter, sidebarOpen = false, setSidebarOpen }: NavLinksProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // ESC 키로 사이드바 닫기
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && setSidebarOpen) {
         setSidebarOpen(false)
       }
     }
-    if (sidebarOpen) {
+    if (sidebarOpen && setSidebarOpen) {
       window.addEventListener('keydown', handleEsc)
       return () => window.removeEventListener('keydown', handleEsc)
     }
-  }, [sidebarOpen])
+  }, [sidebarOpen, setSidebarOpen])
 
   const getLinkStyle = (path: string) => {
     const isActive = pathname === path || (path !== '/' && pathname?.startsWith(path))
@@ -66,33 +67,14 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   if (isHeadhunter) {
     return (
       <>
-        {/* 헤드헌터용 햄버거 버튼 */}
-        <li className="headhunter-hamburger">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="hamburger-btn"
-            aria-label="메뉴"
-          >
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
-          </button>
-        </li>
-
         {/* 오버레이 */}
-        {sidebarOpen && (
+        {sidebarOpen && setSidebarOpen && (
           <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* 사이드바 */}
-        {sidebarOpen && (
+        {sidebarOpen && setSidebarOpen && (
           <div className="headhunter-sidebar">
-            {/* 메뉴 타이틀 */}
-            <div className="sidebar-header">
-              <div className="sidebar-title">MENU</div>
-              <div className="sidebar-subtitle">헤드헌터 대시보드</div>
-            </div>
-
             {/* 메뉴 아이템 */}
             {menuItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href))
@@ -100,7 +82,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() => setSidebarOpen && setSidebarOpen(false)}
                   className={`sidebar-item ${isActive ? 'active' : ''}`}
                 >
                   {item.label}
@@ -113,7 +95,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
               href="/#how"
               onClick={(e) => {
                 handleHashLink('#how')(e)
-                setSidebarOpen(false)
+                setSidebarOpen && setSidebarOpen(false)
               }}
               className="sidebar-item"
             >

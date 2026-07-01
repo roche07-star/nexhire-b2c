@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { useSession } from 'next-auth/react'
 import MyInfoButton from './MyInfoModal'
 import LogoutButton from './LogoutButton'
 import AnalysisBadge from './AnalysisBadge'
 import NavLinks from './NavLinks'
+import { useState } from 'react'
 
 const JobizicLogo = () => (
   <svg className="nav-logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,22 +18,44 @@ const JobizicLogo = () => (
   </svg>
 )
 
-export default async function Nav({ minimal = false }: { minimal?: boolean }) {
-  const session = await auth()
+export default function Nav({ minimal = false }: { minimal?: boolean }) {
+  const { data: session } = useSession()
   const user = session?.user
 
   const isPro = !!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))
   const isHeadhunter = user?.userType === 'HEADHUNTER'
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <nav>
-      <Link className="nav-logo" href="/">
-        <JobizicLogo />
-        <span className="nav-logo-text">JOBIZIC</span>
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <Link className="nav-logo" href="/">
+          <JobizicLogo />
+          <span className="nav-logo-text">JOBIZIC</span>
+        </Link>
+
+        {/* 헤드헌터 햄버거 버튼 - 로고 바로 옆 */}
+        {isHeadhunter && !minimal && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="hamburger-btn"
+            aria-label="메뉴"
+          >
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+          </button>
+        )}
+      </div>
+
       {!minimal && (
         <ul className="nav-links">
-          <NavLinks isPro={isPro} isHeadhunter={isHeadhunter} />
+          <NavLinks
+            isPro={isPro}
+            isHeadhunter={isHeadhunter}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
         </ul>
       )}
       <div className="nav-cta">
