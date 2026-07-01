@@ -66,116 +66,31 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   if (isHeadhunter) {
     return (
       <>
-        {/* 헤드헌터용 햄버거 버튼 (좌측) */}
-        <li style={{
-          position: 'fixed',
-          left: 24,
-          top: 24,
-          zIndex: 10000
-        }}>
+        {/* 헤드헌터용 햄버거 버튼 */}
+        <li className="headhunter-hamburger">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              width: 48,
-              height: 48,
-              background: 'rgba(34, 211, 238, 0.1)',
-              border: '1px solid rgba(34, 211, 238, 0.3)',
-              borderRadius: 12,
-              color: '#22d3ee',
-              fontSize: 24,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s',
-              backdropFilter: 'blur(10px)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(34, 211, 238, 0.2)'
-              e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(34, 211, 238, 0.1)'
-              e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
-            }}
+            className="hamburger-btn"
             aria-label="메뉴"
           >
-            ☰
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
           </button>
         </li>
 
         {/* 오버레이 */}
         {sidebarOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.6)',
-              backdropFilter: 'blur(4px)',
-              zIndex: 9998,
-              animation: 'fadeIn 0.3s ease-out'
-            }}
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* 사이드바 */}
         {sidebarOpen && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: 280,
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
-            border: '1px solid rgba(34, 211, 238, 0.3)',
-            borderLeft: 'none',
-            zIndex: 9999,
-            padding: '80px 0 24px',
-            overflowY: 'auto',
-            boxShadow: '4px 0 20px rgba(0, 0, 0, 0.5)',
-            animation: 'slideInLeft 0.3s ease-out'
-          }}>
-            <style>{`
-              @keyframes slideInLeft {
-                from {
-                  transform: translateX(-100%);
-                }
-                to {
-                  transform: translateX(0);
-                }
-              }
-              @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-              }
-            `}</style>
-
+          <div className="headhunter-sidebar">
             {/* 메뉴 타이틀 */}
-            <div style={{
-              padding: '0 24px 24px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              marginBottom: 8
-            }}>
-              <div style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#22d3ee',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: 4
-              }}>
-                헤드헌터 메뉴
-              </div>
-              <div style={{
-                fontSize: 12,
-                color: 'rgba(255,255,255,0.5)'
-              }}>
-                Headhunter Dashboard
-              </div>
+            <div className="sidebar-header">
+              <div className="sidebar-title">헤드헌터 메뉴</div>
+              <div className="sidebar-subtitle">Headhunter Dashboard</div>
             </div>
 
             {/* 메뉴 아이템 */}
@@ -186,29 +101,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  style={{
-                    display: 'block',
-                    padding: '16px 24px',
-                    color: isActive ? '#22d3ee' : 'rgba(255,255,255,0.8)',
-                    fontSize: 15,
-                    fontWeight: isActive ? 700 : 600,
-                    textDecoration: 'none',
-                    borderLeft: isActive ? '3px solid #22d3ee' : '3px solid transparent',
-                    background: isActive ? 'rgba(34, 211, 238, 0.1)' : 'transparent',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                      e.currentTarget.style.paddingLeft = '28px'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent'
-                      e.currentTarget.style.paddingLeft = '24px'
-                    }
-                  }}
+                  className={`sidebar-item ${isActive ? 'active' : ''}`}
                 >
                   {item.label}
                 </Link>
@@ -222,24 +115,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
                 handleHashLink('#how')(e)
                 setSidebarOpen(false)
               }}
-              style={{
-                display: 'block',
-                padding: '16px 24px',
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: 15,
-                fontWeight: 600,
-                textDecoration: 'none',
-                borderLeft: '3px solid transparent',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                e.currentTarget.style.paddingLeft = '28px'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.paddingLeft = '24px'
-              }}
+              className="sidebar-item"
             >
               사용법
             </a>
