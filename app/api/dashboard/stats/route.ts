@@ -178,6 +178,8 @@ export async function GET() {
           .slice(0, 10)
 
         console.log('📊 Fallback stats:', {
+          email,
+          firstDayOfMonth: firstDayOfMonth.toISOString(),
           totalCandidates: totalCount.count || 0,
           thisMonthResumes: monthCount.count || 0,
           thisMonthJDs: monthJDCount.count || 0,
