@@ -281,9 +281,11 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
       const data = await response.json()
       setMonthlyReport(data.report)
+      alert('✅ 월간 Report가 생성되었습니다!')
 
     } catch (error: any) {
       console.error('월간 Report 생성 실패:', error)
+      alert('월간 Report 생성에 실패했습니다.')
     } finally {
       setIsLoadingMonthly(false)
     }
@@ -740,21 +742,22 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               }}
             />
 
-            {/* 이력서 선택 & 머지 */}
-            {resumes.length > 0 && (
+            {/* 이력서 업데이트 (머지) */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '16px',
+            }}>
               <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#e8ff47',
+                marginBottom: '10px',
               }}>
-                <div style={{
-                  fontSize: '14px',
-                  color: '#ccc',
-                  marginBottom: '10px',
-                }}>
-                  📄 이력서 선택 (기존 이력서에 머지)
-                </div>
+                📄 이력서 업데이트 (전체 업무 Report 머지)
+              </div>
+              {resumes.length > 0 ? (
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <select
                     value={selectedResumeId}
@@ -790,11 +793,21 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {isMerging ? '머지 중...' : '이력서 머지'}
+                    {isMerging ? '머지 중...' : '이력서 업데이트'}
                   </button>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(255, 152, 0, 0.1)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  color: '#FFA726',
+                }}>
+                  ⚠️ 이력서가 없습니다. 먼저 <strong>분석&생성</strong> 메뉴에서 이력서를 분석해주세요.
+                </div>
+              )}
+            </div>
 
             <button
               onClick={handleApplyToResume}
