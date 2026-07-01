@@ -93,16 +93,35 @@ export async function POST(request: NextRequest) {
     })
 
     // 4. 이력서 업데이트
-    const { error: updateError } = await supabase
+    console.log('📊 UPDATE 전:', {
+      resumeId: latestResume.id,
+      work_experience_count: analysisResult.work_experience?.length,
+      analysisResult_type: typeof analysisResult,
+      analysisResult_keys: Object.keys(analysisResult),
+    })
+
+    const { data: updateData, error: updateError } = await supabase
       .from('analyses')
       .update({
         result: analysisResult,  // JSONB 컬럼이므로 직접 할당 (JSON.stringify 불필요)
       })
       .eq('id', latestResume.id)
+      .select()  // 업데이트된 데이터 반환
+
+    console.log('📊 UPDATE 후:', {
+      updateData: updateData ? 'SUCCESS' : 'NULL',
+      updateError,
+      updatedCount: updateData?.length,
+    })
 
     if (updateError) {
-      console.error('Resume update error:', updateError)
+      console.error('❌ Resume update error:', updateError)
       throw new Error('이력서 업데이트 실패')
+    }
+
+    if (!updateData || updateData.length === 0) {
+      console.error('❌ UPDATE 실행되었지만 행이 영향받지 않음')
+      throw new Error('이력서를 찾을 수 없거나 권한이 없습니다.')
     }
 
     // 5. 월간 리포트 applied_to_resume 플래그 업데이트
