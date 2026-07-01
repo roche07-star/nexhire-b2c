@@ -831,11 +831,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 fontSize: 15,
                 color: 'rgba(255,255,255,0.9)',
                 lineHeight: 1.6,
-                marginBottom: 16
+                marginBottom: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 12
               }}>
-                {stats.recentActivity.length > 0 ? (
+                {(stats.thisMonthAnalyses > 0 || (stats.thisMonthJDs ?? 0) > 0) ? (
                   <>
-                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 분석 활동이 있었습니다
+                    <span>이력서 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{stats.thisMonthAnalyses ?? 0}건</span></span>
+                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
+                    <span>JD <span style={{ color: '#22d3ee', fontWeight: 700 }}>{stats.thisMonthJDs ?? 0}건</span></span>
                   </>
                 ) : (
                   <>
