@@ -64,7 +64,7 @@ function StatCard({ title, value, suffix, icon, trend }: { title: string; value:
         top: -100,
         right: -100,
         width: 200,
-        height: 200,
+        height: 160,
         background: 'radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%)',
         borderRadius: '50%',
         pointerEvents: 'none'
@@ -276,7 +276,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   if (loading) {
     return (
       <main style={{
-        padding: '120px 24px 80px',
+        padding: '60px 20px 40px',
         maxWidth: 1400,
         margin: '0 auto',
         background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
@@ -320,16 +320,16 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           zIndex: 1,
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 24,
-          marginBottom: 48,
+          gap: 16,
+          marginBottom: 32,
         }}>
           {[1, 2, 3].map(i => (
             <div key={i} style={{
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: 24,
-              padding: 32,
-              height: 180,
+              padding: 20,
+              height: 140,
               animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               animationDelay: `${i * 0.2}s`
             }} />
@@ -342,7 +342,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   if (error) {
     return (
       <main style={{
-        padding: '120px 24px',
+        padding: '60px 20px',
         maxWidth: 600,
         margin: '0 auto',
         textAlign: 'center',
@@ -404,7 +404,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
   return (
     <main style={{
-      padding: '96px 24px 80px',
+      padding: '60px 20px 40px',
       maxWidth: 1400,
       margin: '0 auto',
       background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
@@ -439,17 +439,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       <div style={{
         position: 'relative',
         zIndex: 1,
-        marginBottom: 56,
+        marginBottom: 32,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         flexWrap: 'wrap',
-        gap: 24
+        gap: 16
       }}>
         <div>
           <h1 style={{
-            fontSize: 48,
-            marginBottom: 12,
+            fontSize: 36,
+            marginBottom: 8,
             color: '#ffffff',
             fontWeight: 800,
             letterSpacing: '-0.03em',
@@ -754,7 +754,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(251, 191, 36, 0.3)',
           borderRadius: 24,
-          padding: 40,
+          padding: 24,
           transition: 'all 0.3s'
         }}>
           <h2 style={{
@@ -919,7 +919,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(16, 185, 129, 0.3)',
           borderRadius: 24,
-          padding: 40,
+          padding: 24,
           transition: 'all 0.3s'
         }}>
           <div style={{
@@ -1200,7 +1200,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(34, 211, 238, 0.3)',
           borderRadius: 24,
-          padding: 40,
+          padding: 24,
           transition: 'all 0.3s'
         }}>
           <h2 style={{
@@ -1353,7 +1353,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 24,
-          padding: 40,
+          padding: 24,
           transition: 'all 0.3s'
         }}>
           <div style={{
