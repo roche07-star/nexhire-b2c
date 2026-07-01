@@ -10,38 +10,31 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { monthlyReportHtml, organization, organizationType } = body
+    const { monthOf } = body
 
-    if (!monthlyReportHtml || !organization) {
+    if (!monthOf) {
       return NextResponse.json(
-        { error: '월간 Report와 소속 정보가 필요합니다.' },
+        { error: '월 정보가 필요합니다.' },
         { status: 400 }
       )
     }
 
     const userEmail = session.user.email
 
-    // work_reports 테이블에 저장
-    const { data, error } = await supabase
-      .from('work_reports')
-      .insert({
-        user_email: userEmail,
-        organization,
-        organization_type: organizationType,
-        monthly_report_html: monthlyReportHtml,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    // 월간 리포트 applied_to_resume 플래그 업데이트
+    const { error } = await supabase
+      .from('monthly_reports')
+      .update({ applied_to_resume: true })
+      .eq('user_email', userEmail)
+      .eq('month_of', monthOf)
 
     if (error) {
-      console.error('Supabase insert error:', error)
-      throw new Error('이력서 반영 중 오류가 발생했습니다.')
+      console.error('Apply to resume error:', error)
+      throw new Error('이력서 반영 실패')
     }
 
     return NextResponse.json({
       success: true,
-      reportId: data.id,
       message: '월간 Report가 이력서에 반영되었습니다.',
     })
 
