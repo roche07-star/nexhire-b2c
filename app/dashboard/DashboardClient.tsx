@@ -850,23 +850,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
-                marginBottom: 8
-              }}>
-                <span>📊</span>
-                <span><span className="hide-on-mobile">이번달 진행: </span><span style={{ color: '#a78bfa', fontWeight: 600 }}>이력서 {stats.thisMonthResumes ?? stats.thisMonthAnalyses}건</span>, <span style={{ color: '#22d3ee', fontWeight: 600 }}>JD {stats.thisMonthJDs ?? 0}건</span>, <span style={{ color: '#fbbf24', fontWeight: 600 }}>제안서 {stats.thisMonthProposals ?? 0}건</span></span>
-              </div>
-              {/* 이력서 생성 건수 */}
-              <div style={{
-                fontSize: 14,
-                color: 'rgba(255,255,255,0.7)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
                 gap: 8
               }}>
-                <span>📝</span>
-                <span>이력서 생성: <span style={{ color: '#10b981', fontWeight: 600 }}>{stats.thisMonthResumes ?? stats.thisMonthAnalyses ?? 0}건</span></span>
+                <span>📊</span>
+                <span><span className="hide-on-mobile">이번달 진행: </span><span style={{ color: '#22d3ee', fontWeight: 600 }}>JD 분석 {stats.thisMonthJDs ?? 0}건</span></span>
               </div>
             </div>
 
