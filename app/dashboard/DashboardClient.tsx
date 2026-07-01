@@ -130,7 +130,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [error, setError] = useState<string | null>(null)
   const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0, screening: 0 })
   const [privacyMode, setPrivacyMode] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
@@ -207,18 +206,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   useEffect(() => {
     fetchStats()
     fetchHiringProcessStats()
-
-    // 온보딩 체크 (첫 방문)
-    const hasSeenOnboarding = localStorage.getItem('dashboard_onboarding_seen')
-    if (!hasSeenOnboarding) {
-      setTimeout(() => setShowOnboarding(true), 1000)
-    }
   }, [])
-
-  const completeOnboarding = () => {
-    localStorage.setItem('dashboard_onboarding_seen', 'true')
-    setShowOnboarding(false)
-  }
 
   // 이름 마스킹 함수
   const maskName = (name: string) => {
@@ -1800,152 +1788,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           )}
         </div>
       </div>
-
-      {/* 온보딩 모달 */}
-      {showOnboarding && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          animation: 'fadeIn 0.3s ease-in-out'
-        }}>
-          <div style={{
-            maxWidth: 600,
-            width: '100%',
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
-            border: '1px solid rgba(34, 211, 238, 0.3)',
-            borderRadius: 24,
-            padding: 48,
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-            position: 'relative',
-            animation: 'slideUp 0.4s ease-out'
-          }}>
-            <style>{`
-              @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-              }
-              @keyframes slideUp {
-                from {
-                  opacity: 0;
-                  transform: translateY(30px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
-            `}</style>
-
-            <div style={{
-              fontSize: 48,
-              textAlign: 'center',
-              marginBottom: 24
-            }}>
-              👋
-            </div>
-
-            <h2 style={{
-              fontSize: 32,
-              fontWeight: 800,
-              color: '#ffffff',
-              textAlign: 'center',
-              marginBottom: 16,
-              letterSpacing: '-0.02em'
-            }}>
-              대시보드에 오신 것을 환영합니다!
-            </h2>
-
-            <p style={{
-              fontSize: 16,
-              color: 'rgba(255,255,255,0.7)',
-              textAlign: 'center',
-              marginBottom: 32,
-              lineHeight: 1.6
-            }}>
-              헤드헌터를 위한 강력한 도구로 채용을 더 효율적으로 관리하세요
-            </p>
-
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 20,
-              marginBottom: 32
-            }}>
-              {[
-                { icon: '🚀', title: '빠른 작업', desc: '새 이력서 분석부터 채용 프로세스까지 한 번에' },
-                { icon: '💡', title: '인사이트', desc: '이번 주 활동과 추천 작업을 확인하세요' },
-                { icon: '📊', title: '실시간 추적', desc: '후보자 진행 상황을 실시간으로 모니터링' },
-                { icon: '🔒', title: '프라이버시', desc: '익명 모드로 안전하게 정보를 보호하세요' }
-              ].map((feature, idx) => (
-                <div key={idx} style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: 16,
-                  padding: '16px 20px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: 12,
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }}>
-                  <span style={{ fontSize: 32 }}>{feature.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: '#ffffff',
-                      marginBottom: 4
-                    }}>
-                      {feature.title}
-                    </div>
-                    <div style={{
-                      fontSize: 14,
-                      color: 'rgba(255,255,255,0.6)'
-                    }}>
-                      {feature.desc}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={completeOnboarding}
-              style={{
-                width: '100%',
-                padding: '16px 32px',
-                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 12,
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 10px 30px rgba(34, 211, 238, 0.3)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 15px 40px rgba(34, 211, 238, 0.4)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
-              }}
-            >
-              시작하기 →
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* 목표 설정 모달 */}
       {showGoalSettings && (
