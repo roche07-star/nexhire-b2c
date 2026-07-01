@@ -866,18 +866,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
                 </div>
               )}
-              {/* 이번달 진행 */}
-              <div style={{
-                fontSize: 14,
-                color: 'rgba(255,255,255,0.7)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8
-              }}>
-                <span>📊</span>
-                <span><span className="hide-on-mobile">이번달 진행: </span><span style={{ color: '#22d3ee', fontWeight: 600 }}>JD 분석 {stats.thisMonthJDs ?? 0}건</span></span>
-              </div>
             </div>
 
             {/* 다음 할 일 추천 */}
