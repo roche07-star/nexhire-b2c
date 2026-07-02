@@ -11,30 +11,21 @@ export async function GET(request: NextRequest) {
 
     const userEmail = session.user.email
 
-    // 1. 오늘/이번주 일정 조회
+    // 1. 다가올 일정 조회 (오늘부터 2주)
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const todayEnd = new Date(todayStart)
-    todayEnd.setDate(todayEnd.getDate() + 1)
+    const twoWeeksLater = new Date(todayStart)
+    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
 
-    const weekEnd = new Date(todayStart)
-    weekEnd.setDate(weekEnd.getDate() + 7)
-
-    const { data: schedules } = await supabase
+    const { data: upcomingSchedules } = await supabase
       .from('job_schedules')
       .select('*')
       .eq('user_email', userEmail)
       .eq('is_completed', false)
       .gte('schedule_at', todayStart.toISOString())
-      .lt('schedule_at', weekEnd.toISOString())
+      .lt('schedule_at', twoWeeksLater.toISOString())
       .order('schedule_at', { ascending: true })
-
-    const todaySchedules = (schedules || []).filter(s => {
-      const scheduleDate = new Date(s.schedule_at)
-      return scheduleDate >= todayStart && scheduleDate < todayEnd
-    })
-
-    const weekSchedules = schedules || []
+      .limit(10)
 
     // 2. 지원 현황 조회 (최신순 10개)
     const { data: applications } = await supabase
@@ -62,16 +53,11 @@ export async function GET(request: NextRequest) {
     // 4. 통계 계산
     const stats = {
       totalApplications: applications?.length || 0,
-      selfApplications: applications?.filter(a => a.headhunter_status === 'self').length || 0,
-      requestedApplications: applications?.filter(a => a.headhunter_status === 'requested').length || 0,
-      assignedApplications: applications?.filter(a => a.headhunter_status === 'assigned').length || 0,
-      todaySchedulesCount: todaySchedules.length,
-      weekSchedulesCount: weekSchedules.length
+      upcomingSchedulesCount: upcomingSchedules?.length || 0
     }
 
     return NextResponse.json({
-      todaySchedules,
-      weekSchedules,
+      upcomingSchedules: upcomingSchedules || [],
       applications: applications || [],
       monthlyReport: latestReport,
       stats

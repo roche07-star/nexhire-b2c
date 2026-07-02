@@ -31,7 +31,7 @@ interface MonthlyReport {
 }
 
 interface DashboardData {
-  todaySchedules: Schedule[]
+  upcomingSchedules: Schedule[]
   applications: Application[]
   monthlyReport: MonthlyReport | null
 }
@@ -105,8 +105,8 @@ export default function JobSeekerDashboardClient() {
   }
 
   async function handleCreateJobRequest() {
-    if (!newJobRequest.position.trim()) {
-      alert('희망 포지션을 입력해주세요.')
+    if (!newJobRequest.position.trim() || !newJobRequest.message.trim()) {
+      alert('희망 포지션과 요청 메시지를 모두 입력해주세요.')
       return
     }
 
@@ -119,14 +119,14 @@ export default function JobSeekerDashboardClient() {
           company: '희망 회사 미정',
           position: newJobRequest.position.trim(),
           status: '구직 요청',
-          headhunter_status: 'self',
-          request_message: newJobRequest.message.trim() || undefined,
-          notes: '대시보드에서 직접 생성'
+          headhunter_status: 'requested',
+          request_message: newJobRequest.message.trim(),
+          notes: '대시보드에서 직접 생성 (자동 요청)'
         })
       })
 
       if (res.ok) {
-        alert('구직 요청이 등록되었습니다! 🟢')
+        alert('구직 요청이 접수되었습니다! 🔴\n헤드헌터 배정 후 연락드리겠습니다.')
         setShowNewJobRequestModal(false)
         setNewJobRequest({ position: '', message: '' })
         loadDashboard()
@@ -142,9 +142,8 @@ export default function JobSeekerDashboardClient() {
     }
   }
 
-  function getStatusColor(status: 'self' | 'requested' | 'assigned') {
+  function getStatusColor(status: 'requested' | 'assigned') {
     switch (status) {
-      case 'self': return { bg: 'rgba(16, 185, 129, 0.1)', border: '#10b981', icon: '🟢', label: '요청 대기 중' }
       case 'requested': return { bg: 'rgba(239, 68, 68, 0.1)', border: '#ef4444', icon: '🔴', label: '헤드헌터 요청됨' }
       case 'assigned': return { bg: 'rgba(59, 130, 246, 0.1)', border: '#3b82f6', icon: '🔵', label: '헤드헌터 배정됨' }
     }
@@ -186,16 +185,16 @@ export default function JobSeekerDashboardClient() {
         </button>
       </div>
 
-      {/* 오늘의 일정 */}
+      {/* 다가올 일정 */}
       <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>📅 오늘의 일정</div>
-        {data.todaySchedules.length === 0 ? (
+        <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>📅 다가올 일정 (2주)</div>
+        {data.upcomingSchedules.length === 0 ? (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)' }}>
-            오늘은 일정이 없습니다 😌
+            예정된 일정이 없습니다 😌
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {data.todaySchedules.map(schedule => (
+            {data.upcomingSchedules.map(schedule => (
               <div
                 key={schedule.id}
                 style={{
@@ -304,20 +303,7 @@ export default function JobSeekerDashboardClient() {
                     )}
                   </div>
 
-                  {/* 구직 요청 기능 */}
-                  {isHeadhunterRequest && app.headhunter_status === 'self' && (
-                    <button
-                      className="btn btn-ghost"
-                      style={{ width: '100%', fontSize: 'clamp(11px, 3vw, 12px)', padding: '8px' }}
-                      onClick={() => {
-                        setSelectedApp(app)
-                        setShowRequestModal(true)
-                      }}
-                    >
-                      🆘 헤드헌터 도움 요청하기
-                    </button>
-                  )}
-
+                  {/* 구직 요청 상태 표시 */}
                   {isHeadhunterRequest && app.headhunter_status === 'requested' && (
                     <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted)' }}>
                       헤드헌터가 할당되면 연락 드립니다
@@ -447,15 +433,15 @@ export default function JobSeekerDashboardClient() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                요청 메시지 (선택)
+                요청 메시지 *
               </label>
               <textarea
                 value={newJobRequest.message}
                 onChange={e => setNewJobRequest({ ...newJobRequest, message: e.target.value })}
-                placeholder="예: 면접 준비 도와주세요&#10;예: 이력서 검토 부탁드립니다"
+                placeholder="어떤 도움이 필요하신가요?&#10;예: 백엔드 개발자로 이직하고 싶습니다&#10;예: 면접 준비를 도와주세요"
                 style={{
                   width: '100%',
-                  minHeight: 80,
+                  minHeight: 100,
                   padding: 10,
                   borderRadius: 8,
                   border: '2px solid var(--border)',
@@ -467,7 +453,7 @@ export default function JobSeekerDashboardClient() {
             </div>
 
             <div style={{ fontSize: 11, color: 'var(--muted2)', marginBottom: 16 }}>
-              💡 등록 후 🟢 상태로 표시되며, "헤드헌터 도움 요청하기" 버튼을 눌러 요청을 완료하세요.
+              💡 요청 후 🔴 상태로 표시되며, 헤드헌터 배정 시 연락드립니다.
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>
@@ -477,10 +463,10 @@ export default function JobSeekerDashboardClient() {
               <button
                 className="btn btn-primary"
                 onClick={handleCreateJobRequest}
-                disabled={creatingJobRequest || !newJobRequest.position.trim()}
+                disabled={creatingJobRequest || !newJobRequest.position.trim() || !newJobRequest.message.trim()}
                 style={{ flex: 1 }}
               >
-                {creatingJobRequest ? '등록 중...' : '등록하기'}
+                {creatingJobRequest ? '요청 중...' : '요청하기'}
               </button>
             </div>
           </div>
