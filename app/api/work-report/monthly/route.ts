@@ -178,7 +178,7 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
     // 기존 월간 리포트가 있으면 업데이트, 없으면 생성
     const { data: existingReport } = await supabase
       .from('monthly_reports')
-      .select('id')
+      .select('id, aggregated_html')
       .eq('user_email', userEmail)
       .eq('month_of', monthOf)
       .single()
@@ -186,6 +186,35 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
     let data, error
 
     if (existingReport) {
+      // 중복 체크: 기존 월간 리포트와 신규 내용의 유사도 측정
+      const existingText = String(existingReport.aggregated_html || '').replace(/<[^>]*>/g, ' ').toLowerCase()
+      const newText = cleanHtml.replace(/<[^>]*>/g, ' ').toLowerCase()
+
+      const existingWords = new Set(existingText.split(/\s+/).filter((w: string) => w.length > 2))
+      const newWords = new Set(newText.split(/\s+/).filter((w: string) => w.length > 2))
+
+      const commonWords = new Set([...existingWords].filter((w: string) => newWords.has(w)))
+      const similarity = commonWords.size / Math.max(existingWords.size, newWords.size)
+
+      console.log('📊 월간 리포트 유사도:', {
+        existing: existingWords.size,
+        new: newWords.size,
+        common: commonWords.size,
+        similarity: (similarity * 100).toFixed(1) + '%'
+      })
+
+      // 70% 이상 유사하면 업데이트 거부
+      if (similarity >= 0.7) {
+        return NextResponse.json(
+          {
+            error: '신규 주간 Report 재작성 필요',
+            message: '기존 월간 Report와 70% 이상 중복됩니다.\n새로운 업무 내용으로 주간 Report를 작성해주세요.',
+            similarity: Math.round(similarity * 100)
+          },
+          { status: 409 }
+        )
+      }
+
       // 업데이트 (applied_to_analysis_id를 NULL로 리셋하여 "미반영" 상태로 전환)
       const result = await supabase
         .from('monthly_reports')
