@@ -3848,6 +3848,50 @@ function JDResults({
     ? `proposal_resume_${analysisItem.id}_jd_${result.id}`
     : `proposal_jd_${result.id}`
 
+  // 지원 버튼 상태
+  const [applyingToJob, setApplyingToJob] = useState(false)
+  const [alreadyApplied, setAlreadyApplied] = useState(false)
+
+  // 지원하기 함수
+  const handleApplyToJob = async () => {
+    if (!result.company || !result.position) {
+      alert('회사명 또는 포지션 정보가 없습니다.')
+      return
+    }
+
+    if (alreadyApplied) {
+      window.location.href = '/job-seeker'
+      return
+    }
+
+    setApplyingToJob(true)
+    try {
+      const res = await fetch('/api/job-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company: result.company,
+          position: result.position,
+          status: '지원 준비',
+          notes: `JD 매칭 점수: ${result.fit_score}% (${label})`
+        })
+      })
+
+      if (res.ok) {
+        setAlreadyApplied(true)
+        alert('구직 대시보드에 추가되었습니다!')
+      } else {
+        const error = await res.json()
+        alert(error.error || '추가 실패')
+      }
+    } catch (error) {
+      console.error('지원 추가 실패:', error)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setApplyingToJob(false)
+    }
+  }
+
   // 제안서 생성 함수 (Circuit Breaker + Rate Limiting)
   const generateProposal = useCallback(async () => {
     if (!analysisItem) return
@@ -4158,6 +4202,27 @@ function JDResults({
               <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
                 ↓ HTML 리포트 다운로드
               </button>
+
+              {/* 지원하기 버튼 */}
+              {userType !== 'HEADHUNTER' && (
+                <button
+                  className="analyze-download-btn"
+                  style={{
+                    background: alreadyApplied
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: '#fff'
+                  }}
+                  onClick={handleApplyToJob}
+                  disabled={applyingToJob}
+                >
+                  {applyingToJob
+                    ? '⏳ 추가 중...'
+                    : alreadyApplied
+                    ? '✓ 대시보드 보기'
+                    : '📋 구직 대시보드에 추가'}
+                </button>
+              )}
 
               {/* 수동 제안서 생성/재생성 버튼 - 🚨 항상 표시 (조건 제거) */}
               {(console.log('🔍 제안서 버튼 렌더링:', { userType, proposalData: !!proposalData }), true) && (
