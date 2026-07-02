@@ -589,14 +589,6 @@ export default function JobSeekerDashboardClient() {
               dangerouslySetInnerHTML={{ __html: data.monthlyReport.aggregated_html }}
             />
           </div>
-
-          {!data.monthlyReport.applied_to_analysis_id && (
-            <Link href="/analyze">
-              <button className="btn btn-primary" style={{ width: '100%', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
-                ✨ 이력서에 반영하기
-              </button>
-            </Link>
-          )}
         </div>
       )}
 
