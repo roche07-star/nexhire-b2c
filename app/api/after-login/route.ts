@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${base}/consent?callbackUrl=/analyze`)
       }
 
-      // 헤드헌터는 대시보드, 구직자는 이력서 분석으로
+      // 헤드헌터는 대시보드로
       if (data.user_type === 'HEADHUNTER') {
         return NextResponse.redirect(`${base}/dashboard`)
-      } else {
-        // JOBSEEKER 또는 기타
+      } else if (data.user_type === 'JOBSEEKER') {
+        // 구직자: PRO 이상은 대시보드, FREE는 홈
         const plan = data?.plan ?? 'FREE'
         if (plan === 'PRO' || plan === 'EXPERT' || role === 'MANAGER') {
-          return NextResponse.redirect(`${base}/analyze`)
+          return NextResponse.redirect(`${base}/job-seeker`)
         }
       }
     }
