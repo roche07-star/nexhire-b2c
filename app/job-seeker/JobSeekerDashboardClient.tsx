@@ -40,6 +40,7 @@ interface DashboardData {
   upcomingSchedules: Schedule[]
   applications: Application[]
   monthlyReport: MonthlyReport | null
+  reportIdeas: string | null
 }
 
 export default function JobSeekerDashboardClient() {
@@ -271,8 +272,17 @@ export default function JobSeekerDashboardClient() {
     }
   }
 
-  async function handleGetIdeas(reportHtml: string, monthOf: string) {
+  async function handleGetIdeas(reportHtml: string, monthOf: string, existingIdeas?: string | null) {
     setShowIdeasModal(true)
+
+    // 이미 분석된 아이디어가 있으면 바로 표시 (재분석 X)
+    if (existingIdeas) {
+      setIdeas(existingIdeas)
+      setLoadingIdeas(false)
+      return
+    }
+
+    // 아이디어가 없으면 새로 분석
     setIdeas(null)
     setLoadingIdeas(true)
 
@@ -286,6 +296,7 @@ export default function JobSeekerDashboardClient() {
       if (res.ok) {
         const data = await res.json()
         setIdeas(data.ideas)
+        loadDashboard() // 대시보드 새로고침 (아이디어 캐시)
       } else {
         alert('아이디어 생성 실패')
         setShowIdeasModal(false)
@@ -564,9 +575,9 @@ export default function JobSeekerDashboardClient() {
                   border: 'none',
                   fontWeight: 600
                 }}
-                onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of)}
+                onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of, data.reportIdeas)}
               >
-                🤖 추천 아이디어
+                {data.reportIdeas ? '아이디어 보기' : '🤖 추천 아이디어'}
               </button>
             </div>
             <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted2)' }}>

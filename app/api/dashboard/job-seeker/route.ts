@@ -78,7 +78,20 @@ export async function GET(request: NextRequest) {
 
     const latestReport = monthlyReports && monthlyReports.length > 0 ? monthlyReports[0] : null
 
-    // 4. 통계 계산
+    // 4. 월간 리포트가 있으면 해당 아이디어도 조회
+    let reportIdeas = null
+    if (latestReport) {
+      const { data: ideasData } = await supabase
+        .from('work_report_ideas')
+        .select('ideas')
+        .eq('user_email', userEmail)
+        .eq('month_of', latestReport.month_of)
+        .single()
+
+      reportIdeas = ideasData?.ideas || null
+    }
+
+    // 5. 통계 계산
     const stats = {
       totalApplications: applications?.length || 0,
       upcomingSchedulesCount: upcomingSchedules?.length || 0
@@ -88,6 +101,7 @@ export async function GET(request: NextRequest) {
       upcomingSchedules: upcomingSchedules || [],
       applications: applicationsWithSchedules || [],
       monthlyReport: latestReport,
+      reportIdeas,
       stats
     })
 
