@@ -14,6 +14,12 @@ interface Application {
   headhunter_name?: string
   headhunter_requested_at?: string
   headhunter_assigned_at?: string
+  schedules?: Array<{
+    id: string
+    title: string
+    schedule_at: string
+    type: 'interview' | 'deadline' | 'other'
+  }>
   created_at: string
 }
 
@@ -282,8 +288,33 @@ export default function JobSeekerDashboardClient() {
                       <div style={{ fontSize: 'clamp(16px, 4.5vw, 18px)', flexShrink: 0 }}>{color.icon}</div>
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 'clamp(13px, 3.5vw, 14px)', fontWeight: 600, marginBottom: 2 }}>
-                        {app.company}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: 'clamp(13px, 3.5vw, 14px)', fontWeight: 600, color: 'var(--accent)' }}>
+                          {app.company}
+                        </div>
+                        {app.schedules && app.schedules.length > 0 && (
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            {app.schedules.map(schedule => {
+                              const scheduleDate = new Date(schedule.schedule_at)
+                              const icon = schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'
+                              return (
+                                <div
+                                  key={schedule.id}
+                                  style={{
+                                    fontSize: 'clamp(9px, 2.5vw, 10px)',
+                                    padding: '2px 6px',
+                                    borderRadius: 4,
+                                    background: 'var(--surface2)',
+                                    color: 'var(--muted2)',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  {icon} {scheduleDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} {scheduleDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
                       <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: 'var(--muted2)' }}>
                         {app.position}

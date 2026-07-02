@@ -35,6 +35,24 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(10)
 
+    // 2-1. 각 지원의 모든 일정 조회 (미완료만)
+    const applicationsWithSchedules = await Promise.all(
+      (applications || []).map(async (app) => {
+        const { data: schedules } = await supabase
+          .from('job_schedules')
+          .select('*')
+          .eq('application_id', app.id)
+          .eq('is_completed', false)
+          .gte('schedule_at', todayStart.toISOString())
+          .order('schedule_at', { ascending: true })
+
+        return {
+          ...app,
+          schedules: schedules || []
+        }
+      })
+    )
+
     // 3. 월간 리포트 조회 (최근 1개월)
     const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
     const lastMonth = new Date(now)
@@ -58,7 +76,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       upcomingSchedules: upcomingSchedules || [],
-      applications: applications || [],
+      applications: applicationsWithSchedules || [],
       monthlyReport: latestReport,
       stats
     })
