@@ -84,22 +84,23 @@ function parseBoldText(text: string): TextRun[] {
   return parts.length > 0 ? parts : [new TextRun({ text, size: 22, color: '333344' })]
 }
 
-function bodyLine(text: string): Paragraph {
+function bodyLine(text: string, alignment?: any): Paragraph {
   return new Paragraph({
     children: parseBoldText(text),
     spacing: { after: 120, line: 240 },
-    indent: { left: 140 },
+    indent: alignment ? undefined : { left: 140 },
+    alignment,
   })
 }
 
-function contentLines(content: string): Paragraph[] {
+function contentLines(content: string, alignment?: any): Paragraph[] {
   const lines = content.split('\n').filter(l => l.trim())
   return lines.map(line => {
     const trimmed = line.trimStart()
     if (/^[-•*▪▸]\s/.test(trimmed)) {
       return bulletLine(trimmed.replace(/^[-•*▪▸]\s*/, ''))
     }
-    return bodyLine(line.trimEnd())
+    return bodyLine(line.trimEnd(), alignment)
   })
 }
 
@@ -237,6 +238,10 @@ export async function generateStandardDocx(
   for (const section of sections) {
     children.push(standardSectionHeading(section.title))
 
+    // 확인 문구는 우측 정렬
+    const isConfirmation = section.content.includes('상기 기재 사항')
+    const alignment = isConfirmation ? AlignmentType.RIGHT : undefined
+
     // 학력 사항, 경력 사항은 표 형식으로
     if (section.title.includes('학력') || section.title.includes('경력')) {
       const table = parseTable(section.content)
@@ -245,13 +250,13 @@ export async function generateStandardDocx(
         // 표가 아닌 나머지 텍스트 (예: "총 경력: 13년 8개월")
         const nonTableLines = section.content.split('\n').filter(l => l.trim() && !l.trim().startsWith('|'))
         if (nonTableLines.length > 0) {
-          children.push(...contentLines(nonTableLines.join('\n')))
+          children.push(...contentLines(nonTableLines.join('\n'), alignment))
         }
       } else {
-        children.push(...contentLines(section.content))
+        children.push(...contentLines(section.content, alignment))
       }
     } else {
-      children.push(...contentLines(section.content))
+      children.push(...contentLines(section.content, alignment))
     }
   }
 

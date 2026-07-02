@@ -849,9 +849,10 @@ export async function POST(req: NextRequest) {
 
 3. 업무상 강점 및 핵심 역량
 
-4. 경력 사항 (표 형식, 총 경력 표시)
+4. 경력 사항(총 경력: OO년 OO개월)
    형식: |재직기간|회사명|직무|재직 여부|소재지|
    예시: |2016.11 ~ 재직중|애경산업|AGE20'S BM|재직중|서울|
+   (표 아래에 "총 경력: OO년 OO개월" 형식으로 표시)
 
 5. 세부 경력사항
    형식:
@@ -869,9 +870,10 @@ export async function POST(req: NextRequest) {
 
 8. 지원사유 및 포부 및 자기소개
 
-9. 마지막 서명 (반드시 포함)
-   2026년 07월 02일
-   지원자 : (성명)
+(마지막에 반드시 포함)
+상기 기재 사항은 허위 사실이 없음을 확인합니다.
+2026년 07월 02일
+지원자 : (성명)
 
 ${jdContext ? `[JD 최적화]
 강점: ${toArr(jdContext.matching_points).slice(0, 2).join(', ')}
