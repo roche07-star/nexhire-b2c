@@ -8,6 +8,7 @@ import {
   convertInchesToTwip,
   HeadingLevel,
   UnderlineType,
+  Header,
 } from 'docx'
 
 export interface RewriteResult {
@@ -174,6 +175,24 @@ export async function generateStandardDocx(
               left: convertInchesToTwip(0.8),
             },
           },
+        },
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "JOBIZIC",
+                    bold: true,
+                    size: 28,
+                    color: "1a1a2e",
+                  }),
+                ],
+                alignment: AlignmentType.RIGHT,
+                spacing: { after: 100 },
+              }),
+            ],
+          }),
         },
         children,
       },
