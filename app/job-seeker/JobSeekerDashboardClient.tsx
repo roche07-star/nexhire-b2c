@@ -197,7 +197,7 @@ export default function JobSeekerDashboardClient() {
 
       {/* 다가올 일정 */}
       <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>📅 다가올 일정 (2주)</div>
+        <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>📅 다가올 일정</div>
         {data.upcomingSchedules.length === 0 ? (
           <div style={{ padding: '20px', textAlign: 'center', color: 'var(--muted)' }}>
             예정된 일정이 없습니다 😌
@@ -297,6 +297,10 @@ export default function JobSeekerDashboardClient() {
                             {app.schedules.map(schedule => {
                               const scheduleDate = new Date(schedule.schedule_at)
                               const icon = schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'
+                              const month = scheduleDate.getMonth() + 1
+                              const day = scheduleDate.getDate()
+                              const hours = String(scheduleDate.getHours()).padStart(2, '0')
+                              const minutes = String(scheduleDate.getMinutes()).padStart(2, '0')
                               return (
                                 <div
                                   key={schedule.id}
@@ -309,7 +313,7 @@ export default function JobSeekerDashboardClient() {
                                     whiteSpace: 'nowrap'
                                   }}
                                 >
-                                  {icon} {scheduleDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} {scheduleDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                                  {icon} {month}월 {day}일 {hours}:{minutes}
                                 </div>
                               )
                             })}
