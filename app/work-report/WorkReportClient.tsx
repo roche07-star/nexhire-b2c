@@ -316,7 +316,8 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
     } catch (error: any) {
       console.error('월간 Report 생성 실패:', error)
-      alert('월간 Report 생성에 실패했습니다.')
+      const errorMessage = error.message || '월간 Report 생성에 실패했습니다.'
+      alert(`❌ ${errorMessage}`)
     } finally {
       setIsLoadingMonthly(false)
     }
