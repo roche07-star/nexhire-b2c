@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
 
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_job_applications_user_email
-ON job_applications(user_email, created_at DESC);
+ON job_applications(user_email, created_at);
 
 CREATE INDEX IF NOT EXISTS idx_job_applications_headhunter_status
 ON job_applications(user_email, headhunter_status);
@@ -59,11 +59,11 @@ CREATE TABLE IF NOT EXISTS job_schedules (
 
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_job_schedules_user_email
-ON job_schedules(user_email, schedule_at DESC);
+ON job_schedules(user_email, schedule_at);
 
 CREATE INDEX IF NOT EXISTS idx_job_schedules_date
 ON job_schedules(user_email, schedule_at)
-WHERE is_completed = FALSE;
+WHERE is_completed = false;
 
 -- updated_at 자동 업데이트 트리거 함수
 CREATE OR REPLACE FUNCTION update_updated_at_column()
