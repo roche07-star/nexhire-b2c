@@ -63,6 +63,55 @@ export async function POST(req: NextRequest) {
       })
       .eq('email', userEmail)
 
+    // Eve로 후보자 정보 전송 (phone이 있는 경우)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('name, phone, email')
+      .eq('email', userEmail)
+      .single()
+
+    if (userData?.phone) {
+      try {
+        console.log('[consents/headhunter] Eve 전송 시작:', {
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone
+        })
+
+        const eveResponse = await fetch(`${process.env.EVE_API_URL}/api/super-admin/candidates`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': process.env.ADAM_TO_EVE_API_KEY || ''
+          },
+          body: JSON.stringify({
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            source: 'adam_consent', // 나중에 동의한 경우
+            adam_user_email: userData.email
+          })
+        })
+
+        if (eveResponse.ok) {
+          const { candidate_id } = await eveResponse.json()
+
+          // eve_candidate_id 저장
+          await supabase.from('users').update({
+            eve_candidate_id: candidate_id
+          }).eq('email', userEmail)
+
+          console.log('[consents/headhunter] Eve 전송 성공:', candidate_id)
+        } else {
+          const errorText = await eveResponse.text()
+          console.error('[consents/headhunter] Eve 전송 실패:', eveResponse.status, errorText)
+        }
+      } catch (err) {
+        console.error('[consents/headhunter] Eve 전송 실패 (non-fatal):', err)
+        // Eve 전송 실패는 치명적이지 않으므로 계속 진행
+      }
+    }
+
     // 감사 로그
     await supabase.from('audit_logs').insert({
       action: 'headhunter_consent',
