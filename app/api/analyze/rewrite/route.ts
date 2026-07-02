@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
 import { generateResumeDocx, generateStandardDocx, RewriteResult } from '@/lib/generateDocx'
 import { extractDocxParagraphs, applyDocxRewrites, DocxParagraph } from '@/lib/rewriteDocxInPlace'
+import { insertWorkExperienceToDocx } from '@/lib/insertWorkExperience'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { buildCoreCompetencyRules, buildFactPreservationRules, buildBasicSupplementRules } from '@/lib/prompts/rewrite-common'
 
@@ -1125,7 +1126,30 @@ ${maskedText}
       }
 
       // PRO+ 플랜: DOCX + HTML 생성
-      const docxBuffer = await applyDocxRewrites(buffer, allRewrites)
+      let docxBuffer = await applyDocxRewrites(buffer, allRewrites)
+
+      // 🔄 work_experience 직접 삽입 (월간 Report 반영)
+      if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('organization')
+          .eq('email', email)
+          .single()
+
+        const organization = userData?.organization
+        if (organization) {
+          console.log('[rewrite:docx] 🔧 work_experience DOCX 직접 삽입:', {
+            organization,
+            expCount: finalResult.work_experience.length
+          })
+          docxBuffer = await insertWorkExperienceToDocx(
+            docxBuffer,
+            finalResult.work_experience,
+            organization
+          )
+        }
+      }
+
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
 
