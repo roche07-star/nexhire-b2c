@@ -408,12 +408,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       .catch(() => {})
   }, [initialIsPro])
 
-  useEffect(() => {
-    fetch('/api/coupons/mine')
-      .then((r) => r.json())
-      .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
-      .catch(() => {})
-  }, [])
+  // 쿠폰은 필요 시에만 로드 (초기 로딩 최적화 - lazy loading)
+  const loadCouponsOnce = useCallback(() => {
+    if (myCoupons.length === 0) {
+      fetch('/api/coupons/mine')
+        .then((r) => r.json())
+        .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
+        .catch(() => {})
+    }
+  }, [myCoupons.length])
 
   // 자동 큐 처리: 분석 완료 후 다음 파일 자동 분석
   useEffect(() => {
@@ -444,25 +447,29 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [])
 
-  // Load saved JD templates from database
+  // JD 템플릿은 JD 탭 열 때 로드 (초기 로딩 최적화)
   useEffect(() => {
-    fetch('/api/jd-templates')
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setSavedJDTemplates(data)
-        }
-      })
-      .catch(() => {})
-  }, [])
+    if (activeMenu === 'jd' && savedJDTemplates.length === 0) {
+      fetch('/api/jd-templates')
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setSavedJDTemplates(data)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [activeMenu])
 
-  // 마운트 시 분석 목록 미리 로드 (모든 플랜 - 파일 보존 체크용)
+  // 분석 목록은 PRO 플랜만 초기 로드 (초기 로딩 최적화)
   useEffect(() => {
-    fetch('/api/analyze/list')
-      .then((r) => r.json())
-      .then(({ analyses }) => setAnalysisList(analyses ?? []))
-      .catch(() => setAnalysisList([]))
-  }, [])
+    if (initialIsPro) {
+      fetch('/api/analyze/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setAnalysisList(analyses ?? []))
+        .catch(() => setAnalysisList([]))
+    }
+  }, [initialIsPro])
 
   // URL parameter로 JD 탭으로 직접 진입
   useEffect(() => {
