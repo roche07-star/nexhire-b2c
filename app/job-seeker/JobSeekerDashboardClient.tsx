@@ -291,9 +291,10 @@ export default function JobSeekerDashboardClient() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.applications.slice(0, 10).map(app => {
               // 구직 요청인지 직접 지원인지 구분
-              const isHeadhunterRequest = app.headhunter_status === 'requested' || app.headhunter_status === 'assigned'
-              const color = isHeadhunterRequest && app.headhunter_status
-                ? getStatusColor(app.headhunter_status as 'requested' | 'assigned')
+              const status = app.headhunter_status
+              const isHeadhunterRequest = status === 'requested' || status === 'assigned'
+              const color = isHeadhunterRequest && (status === 'requested' || status === 'assigned')
+                ? getStatusColor(status)
                 : null
 
               return (
