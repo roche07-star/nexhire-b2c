@@ -10,7 +10,7 @@ interface Application {
   position: string
   status: string
   applied_at?: string
-  headhunter_status?: 'self' | 'requested' | 'assigned' | null
+  headhunter_status?: 'requested' | 'assigned' | null
   headhunter_name?: string
   headhunter_requested_at?: string
   headhunter_assigned_at?: string
@@ -52,6 +52,17 @@ export default function JobSeekerDashboardClient() {
     message: ''
   })
   const [creatingJobRequest, setCreatingJobRequest] = useState(false)
+
+  // 일정 추가 모달
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [selectedAppForSchedule, setSelectedAppForSchedule] = useState<Application | null>(null)
+  const [newSchedule, setNewSchedule] = useState({
+    date: '',
+    time: '',
+    type: 'interview' as 'interview' | 'deadline' | 'other',
+    title: ''
+  })
+  const [creatingSchedule, setCreatingSchedule] = useState(false)
 
   useEffect(() => {
     loadDashboard()
@@ -139,6 +150,47 @@ export default function JobSeekerDashboardClient() {
       alert('오류가 발생했습니다.')
     } finally {
       setCreatingJobRequest(false)
+    }
+  }
+
+  async function handleCreateSchedule() {
+    if (!selectedAppForSchedule || !newSchedule.date || !newSchedule.time) {
+      alert('날짜와 시간을 모두 입력해주세요.')
+      return
+    }
+
+    setCreatingSchedule(true)
+    try {
+      const scheduleAt = new Date(`${newSchedule.date}T${newSchedule.time}`)
+      const title = newSchedule.title.trim() ||
+        `${selectedAppForSchedule.company} - ${newSchedule.type === 'interview' ? '면접' : newSchedule.type === 'deadline' ? '마감' : '일정'}`
+
+      const res = await fetch('/api/job-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          application_id: selectedAppForSchedule.id,
+          title,
+          schedule_at: scheduleAt.toISOString(),
+          type: newSchedule.type
+        })
+      })
+
+      if (res.ok) {
+        alert('일정이 추가되었습니다! 📅')
+        setShowScheduleModal(false)
+        setNewSchedule({ date: '', time: '', type: 'interview', title: '' })
+        setSelectedAppForSchedule(null)
+        loadDashboard()
+      } else {
+        const error = await res.json()
+        alert(error.error || '추가 실패')
+      }
+    } catch (error) {
+      console.error('일정 추가 실패:', error)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setCreatingSchedule(false)
     }
   }
 
@@ -239,8 +291,8 @@ export default function JobSeekerDashboardClient() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.applications.slice(0, 10).map(app => {
               // 구직 요청인지 직접 지원인지 구분
-              const isHeadhunterRequest = app.headhunter_status != null
-              const color = isHeadhunterRequest ? getStatusColor(app.headhunter_status!) : null
+              const isHeadhunterRequest = app.headhunter_status === 'requested' || app.headhunter_status === 'assigned'
+              const color = isHeadhunterRequest ? getStatusColor(app.headhunter_status) : null
 
               return (
                 <div
@@ -291,6 +343,18 @@ export default function JobSeekerDashboardClient() {
                       </div>
                     )}
                   </div>
+
+                  {/* 일정 추가 버튼 */}
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ width: '100%', fontSize: 'clamp(10px, 2.5vw, 11px)', marginTop: 8, padding: '6px' }}
+                    onClick={() => {
+                      setSelectedAppForSchedule(app)
+                      setShowScheduleModal(true)
+                    }}
+                  >
+                    📅 일정 추가
+                  </button>
 
                   {/* 구직 요청 상태 표시 */}
                   {isHeadhunterRequest && app.headhunter_status === 'requested' && (
@@ -485,6 +549,126 @@ export default function JobSeekerDashboardClient() {
                 style={{ flex: 1 }}
               >
                 {creatingJobRequest ? '요청 중...' : '요청하기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 일정 추가 모달 */}
+      {showScheduleModal && selectedAppForSchedule && (
+        <div className="overlay" onClick={() => !creatingSchedule && setShowScheduleModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400, width: '90%' }}>
+            <div className="modal-header">
+              <div className="modal-title">📅 일정 추가</div>
+              <button className="modal-close" onClick={() => setShowScheduleModal(false)} disabled={creatingSchedule}>✕</button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                {selectedAppForSchedule.company} · {selectedAppForSchedule.position}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                일정 유형 *
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[
+                  { value: 'interview', label: '🎤 면접', color: '#3b82f6' },
+                  { value: 'deadline', label: '⏰ 마감', color: '#ef4444' },
+                  { value: 'other', label: '📌 기타', color: '#8b5cf6' }
+                ].map(type => (
+                  <button
+                    key={type.value}
+                    className="btn btn-ghost"
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      padding: '8px',
+                      border: newSchedule.type === type.value ? `2px solid ${type.color}` : '1px solid var(--border)',
+                      background: newSchedule.type === type.value ? `${type.color}15` : 'transparent'
+                    }}
+                    onClick={() => setNewSchedule({ ...newSchedule, type: type.value as any })}
+                    disabled={creatingSchedule}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                날짜 *
+              </label>
+              <input
+                type="date"
+                value={newSchedule.date}
+                onChange={e => setNewSchedule({ ...newSchedule, date: e.target.value })}
+                min={new Date().toISOString().split('T')[0]}
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13
+                }}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                시간 *
+              </label>
+              <input
+                type="time"
+                value={newSchedule.time}
+                onChange={e => setNewSchedule({ ...newSchedule, time: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13
+                }}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                제목 (선택)
+              </label>
+              <input
+                type="text"
+                value={newSchedule.title}
+                onChange={e => setNewSchedule({ ...newSchedule, title: e.target.value })}
+                placeholder="자동: 회사명 - 면접/마감/일정"
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13
+                }}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-ghost" onClick={() => setShowScheduleModal(false)} disabled={creatingSchedule} style={{ flex: 1 }}>
+                취소
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleCreateSchedule}
+                disabled={creatingSchedule || !newSchedule.date || !newSchedule.time}
+                style={{ flex: 1 }}
+              >
+                {creatingSchedule ? '추가 중...' : '추가하기'}
               </button>
             </div>
           </div>
