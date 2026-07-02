@@ -354,7 +354,7 @@ ${candidateProfile}`
           company,
           position: position || '포지션 미정',
           status: '지원 준비',
-          headhunter_status: 'self'
+          applied_at: new Date().toISOString()
         })
         console.log('✅ 구직 대시보드에 자동 추가:', { company, position })
       } else {
