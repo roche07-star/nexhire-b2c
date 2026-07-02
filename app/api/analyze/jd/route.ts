@@ -353,7 +353,7 @@ ${candidateProfile}`
           user_email: session.user.email,
           company,
           position: position || '포지션 미정',
-          status: '지원 준비',
+          status: '지원 완료',
           applied_at: new Date().toISOString()
         })
         console.log('✅ 구직 대시보드에 자동 추가:', { company, position })

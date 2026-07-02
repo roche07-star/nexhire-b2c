@@ -3872,7 +3872,7 @@ function JDResults({
         body: JSON.stringify({
           company: result.company,
           position: result.position,
-          status: '지원 준비',
+          status: '지원 완료',
           applied_at: new Date().toISOString(),
           notes: `JD 매칭 점수: ${result.fit_score}% (${label})`
         })
