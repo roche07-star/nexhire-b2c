@@ -96,27 +96,9 @@ export default function JobSeekerDashboardClient() {
   }
 
   async function handleOpenJobRequest() {
-    // 헤드헌터 추천 동의 확인
-    try {
-      const res = await fetch('/api/consents/check')
-      if (res.ok) {
-        const result = await res.json()
-        if (result.headhunterConsent) {
-          // 동의했으면 바로 모달 오픈
-          setHasHeadhunterConsent(true)
-          setShowNewJobRequestModal(true)
-        } else {
-          // 동의 안했으면 동의 팝업 표시
-          setHasHeadhunterConsent(false)
-          setShowHeadhunterConsentModal(true)
-        }
-      } else {
-        setShowNewJobRequestModal(true)
-      }
-    } catch (error) {
-      console.error('동의 확인 실패:', error)
-      setShowNewJobRequestModal(true)
-    }
+    // 구직 요청 = 헤드헌터 도움 필요 → 바로 모달 오픈
+    // 실제 동의는 구직 요청 생성 시 자동 처리
+    setShowNewJobRequestModal(true)
   }
 
   async function handleAgreeConsent() {
@@ -152,6 +134,7 @@ export default function JobSeekerDashboardClient() {
 
     setCreatingJobRequest(true)
     try {
+      // 1. 구직 요청 생성
       const res = await fetch('/api/job-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,6 +149,18 @@ export default function JobSeekerDashboardClient() {
       })
 
       if (res.ok) {
+        // 2. 헤드헌터 추천 자동 enable (구직 요청 = 헤드헌터 도움 필요)
+        try {
+          await fetch('/api/consents/headhunter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          console.log('✅ 헤드헌터 추천 자동 enable 완료')
+        } catch (consentError) {
+          console.error('헤드헌터 추천 enable 실패 (non-fatal):', consentError)
+          // 실패해도 구직 요청은 생성됨
+        }
+
         alert('구직 요청이 접수되었습니다! 🔴\n헤드헌터 배정 후 연락드리겠습니다.')
         setShowNewJobRequestModal(false)
         setNewJobRequest({ position: '', message: '' })
