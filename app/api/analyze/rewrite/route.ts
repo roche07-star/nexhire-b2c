@@ -703,9 +703,9 @@ export async function POST(req: NextRequest) {
 
         console.log('[rewrite] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
 
-        // resumeText 앞에 추가
+        // resumeText 앞에 자연스럽게 추가 (마커 없이)
         if (latestWorkExp) {
-          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+          resumeText = `${latestWorkExp}\n\n${resumeText}`
         }
       } else {
         console.log('[rewrite] ⚠️ work_experience 없음')
