@@ -71,6 +71,11 @@ export default function JobSeekerDashboardClient() {
   const [ideas, setIdeas] = useState<string | null>(null)
   const [loadingIdeas, setLoadingIdeas] = useState(false)
 
+  // 헤드헌터 추천 동의 모달
+  const [showHeadhunterConsentModal, setShowHeadhunterConsentModal] = useState(false)
+  const [hasHeadhunterConsent, setHasHeadhunterConsent] = useState(false)
+  const [agreeingConsent, setAgreeingConsent] = useState(false)
+
   useEffect(() => {
     loadDashboard()
   }, [])
@@ -86,6 +91,55 @@ export default function JobSeekerDashboardClient() {
       console.error('대시보드 로드 실패:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleOpenJobRequest() {
+    // 헤드헌터 추천 동의 확인
+    try {
+      const res = await fetch('/api/consents/check')
+      if (res.ok) {
+        const result = await res.json()
+        if (result.headhunterConsent) {
+          // 동의했으면 바로 모달 오픈
+          setHasHeadhunterConsent(true)
+          setShowNewJobRequestModal(true)
+        } else {
+          // 동의 안했으면 동의 팝업 표시
+          setHasHeadhunterConsent(false)
+          setShowHeadhunterConsentModal(true)
+        }
+      } else {
+        setShowNewJobRequestModal(true)
+      }
+    } catch (error) {
+      console.error('동의 확인 실패:', error)
+      setShowNewJobRequestModal(true)
+    }
+  }
+
+  async function handleAgreeConsent() {
+    setAgreeingConsent(true)
+    try {
+      const res = await fetch('/api/consents/headhunter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (res.ok) {
+        setHasHeadhunterConsent(true)
+        setShowHeadhunterConsentModal(false)
+        setShowNewJobRequestModal(true)
+        alert('헤드헌터 추천 동의가 완료되었습니다.')
+      } else {
+        const error = await res.json()
+        alert(error.error || '동의 처리 실패')
+      }
+    } catch (error) {
+      console.error('동의 저장 실패:', error)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setAgreeingConsent(false)
     }
   }
 
@@ -549,7 +603,7 @@ export default function JobSeekerDashboardClient() {
         <button
           className="btn btn-primary"
           style={{ width: '100%', fontSize: 'clamp(13px, 3.5vw, 15px)', padding: 'clamp(10px, 3vw, 12px)' }}
-          onClick={() => setShowNewJobRequestModal(true)}
+          onClick={handleOpenJobRequest}
         >
           🔴 구직 요청하기 (헤드헌터 도움)
         </button>
@@ -814,6 +868,75 @@ export default function JobSeekerDashboardClient() {
                 아이디어를 불러올 수 없습니다.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 헤드헌터 추천 동의 모달 */}
+      {showHeadhunterConsentModal && (
+        <div className="overlay" onClick={() => !agreeingConsent && setShowHeadhunterConsentModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, width: '90%' }}>
+            <div className="modal-header">
+              <div className="modal-title">🤝 헤드헌터 추천 동의</div>
+              <button className="modal-close" onClick={() => setShowHeadhunterConsentModal(false)} disabled={agreeingConsent}>✕</button>
+            </div>
+
+            <div style={{ fontSize: 14, lineHeight: 1.8, marginBottom: 20 }}>
+              <p style={{ marginBottom: 16 }}>
+                <strong>헤드헌터 추천 서비스</strong>를 이용하시려면 다음 사항에 동의가 필요합니다:
+              </p>
+
+              <div style={{
+                background: 'var(--background)',
+                padding: 16,
+                borderRadius: 8,
+                marginBottom: 16,
+                fontSize: 13
+              }}>
+                <p style={{ marginBottom: 12 }}><strong>📋 수집·이용 목적</strong></p>
+                <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
+                  <li>헤드헌터에게 귀하의 이력서 및 구직 정보 제공</li>
+                  <li>적합한 채용 기회 매칭 및 추천</li>
+                  <li>헤드헌터와의 커뮤니케이션 지원</li>
+                </ul>
+
+                <p style={{ marginBottom: 12 }}><strong>📦 제공 항목</strong></p>
+                <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
+                  <li>이름, 이메일, 연락처</li>
+                  <li>이력서 분석 결과</li>
+                  <li>희망 포지션 및 요청 메시지</li>
+                </ul>
+
+                <p style={{ marginBottom: 12 }}><strong>⏱️ 보유·이용 기간</strong></p>
+                <ul style={{ paddingLeft: 20 }}>
+                  <li>동의 철회 시 또는 채용 활동 종료 시까지</li>
+                </ul>
+              </div>
+
+              <p style={{ fontSize: 12, color: 'var(--muted)' }}>
+                * 동의를 거부하실 수 있으나, 헤드헌터 추천 서비스 이용이 제한됩니다.<br/>
+                * 내 정보에서 언제든지 동의를 철회할 수 있습니다.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                className="btn"
+                onClick={() => setShowHeadhunterConsentModal(false)}
+                disabled={agreeingConsent}
+                style={{ flex: 1 }}
+              >
+                취소
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleAgreeConsent}
+                disabled={agreeingConsent}
+                style={{ flex: 1 }}
+              >
+                {agreeingConsent ? '처리 중...' : '동의하고 계속'}
+              </button>
+            </div>
           </div>
         </div>
       )}

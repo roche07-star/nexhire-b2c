@@ -54,6 +54,18 @@ export async function GET(req: NextRequest) {
 
     console.log('[consents/check] Optional consent:', optionalConsent, 'Error:', optionalError)
 
+    // 헤드헌터 추천 동의 확인
+    const { data: headhunterConsent, error: headhunterError } = await supabase
+      .from('consents')
+      .select('id, agreed_at')
+      .eq('user_email', userEmail)
+      .eq('consent_type', 'headhunter_sharing')
+      .eq('is_agreed', true)
+      .is('withdrawn_at', null)
+      .maybeSingle()
+
+    console.log('[consents/check] Headhunter consent:', headhunterConsent, 'Error:', headhunterError)
+
     // 에러가 발생한 경우에도 명확히 처리
     if (requiredError) {
       console.error('[consents/check] Required consent query error:', requiredError)
@@ -74,6 +86,10 @@ export async function GET(req: NextRequest) {
       optionalConsent: optionalConsent && !optionalError ? {
         id: optionalConsent.id,
         agreedAt: optionalConsent.agreed_at
+      } : null,
+      headhunterConsent: headhunterConsent && !headhunterError ? {
+        id: headhunterConsent.id,
+        agreedAt: headhunterConsent.agreed_at
       } : null
     })
 

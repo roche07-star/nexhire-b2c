@@ -518,6 +518,105 @@ export default function MyInfoButton() {
                       </div>
                     </Section>
                   )}
+
+                  {/* 헤드헌터 추천 동의 */}
+                  {info.headhunterSharing && info.userType === 'JOBSEEKER' && (
+                    <Section title="헤드헌터 추천 서비스">
+                      <div style={{
+                        background: '#fafafa',
+                        border: '1px solid #f1f5f9',
+                        borderRadius: 12,
+                        padding: 16
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: 12
+                        }}>
+                          <div>
+                            <div style={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: '#18181b',
+                              marginBottom: 4,
+                              letterSpacing: '-0.01em'
+                            }}>
+                              헤드헌터 추천 동의
+                            </div>
+                            {info.headhunterSharing.enabled && info.headhunterSharing.consentedAt && (
+                              <div style={{
+                                fontSize: 12,
+                                color: '#71717a',
+                                letterSpacing: '-0.01em'
+                              }}>
+                                동의일: {info.headhunterSharing.consentedAt}
+                              </div>
+                            )}
+                          </div>
+                          <label style={{
+                            position: 'relative',
+                            display: 'inline-block',
+                            width: 50,
+                            height: 28,
+                            cursor: headhunterToggling ? 'not-allowed' : 'pointer'
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={info.headhunterSharing.enabled}
+                              onChange={toggleHeadhunterSharing}
+                              disabled={headhunterToggling}
+                              style={{ display: 'none' }}
+                            />
+                            <span style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              background: info.headhunterSharing.enabled ? '#10b981' : '#d4d4d8',
+                              borderRadius: 14,
+                              transition: 'background 0.3s',
+                              cursor: headhunterToggling ? 'not-allowed' : 'pointer',
+                              opacity: headhunterToggling ? 0.5 : 1
+                            }}>
+                              <span style={{
+                                position: 'absolute',
+                                content: '',
+                                height: 22,
+                                width: 22,
+                                left: info.headhunterSharing.enabled ? 25 : 3,
+                                bottom: 3,
+                                background: 'white',
+                                borderRadius: '50%',
+                                transition: 'left 0.3s',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                              }} />
+                            </span>
+                          </label>
+                        </div>
+
+                        <div style={{
+                          fontSize: 12,
+                          color: '#71717a',
+                          lineHeight: 1.6,
+                          letterSpacing: '-0.01em'
+                        }}>
+                          {info.headhunterSharing.enabled ? (
+                            <>
+                              ✅ 헤드헌터 추천 서비스를 이용 중입니다.<br/>
+                              귀하의 이력서 정보가 헤드헌터에게 공유됩니다.
+                            </>
+                          ) : (
+                            <>
+                              ⚠️ 헤드헌터 추천 서비스가 비활성화되어 있습니다.<br/>
+                              구직 요청 시 동의가 필요합니다.
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </Section>
+                  )}
                 </>
               )}
             </div>
