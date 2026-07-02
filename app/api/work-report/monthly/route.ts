@@ -7,7 +7,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-// GET: 월간 리포트 조회
+// GET: 월간 리포트 조회 (monthOf 있으면 단건, 없으면 전체)
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
@@ -20,19 +20,41 @@ export async function GET(request: NextRequest) {
 
     const userEmail = session.user.email
 
-    const { data, error } = await supabase
-      .from('monthly_reports')
-      .select('*')
-      .eq('user_email', userEmail)
-      .eq('month_of', monthOf)
-      .single()
+    if (monthOf) {
+      // 특정 월 조회 (단건)
+      const { data, error } = await supabase
+        .from('monthly_reports')
+        .select('*')
+        .eq('user_email', userEmail)
+        .eq('month_of', monthOf)
+        .single()
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = not found
-      console.error('Monthly report fetch error:', error)
-      throw new Error('월간 리포트 조회 실패')
+      if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+        console.error('Monthly report fetch error:', error)
+        throw new Error('월간 리포트 조회 실패')
+      }
+
+      return NextResponse.json({ report: data || null })
+    } else {
+      // 전체 월간 리포트 조회 (최근 6개월)
+      const sixMonthsAgo = new Date()
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+      const startDate = `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`
+
+      const { data, error } = await supabase
+        .from('monthly_reports')
+        .select('*')
+        .eq('user_email', userEmail)
+        .gte('month_of', startDate)
+        .order('month_of', { ascending: false })
+
+      if (error) {
+        console.error('Monthly reports fetch error:', error)
+        throw new Error('월간 리포트 조회 실패')
+      }
+
+      return NextResponse.json({ reports: data || [] })
     }
-
-    return NextResponse.json({ report: data || null })
 
   } catch (error: any) {
     console.error('Monthly report GET error:', error)

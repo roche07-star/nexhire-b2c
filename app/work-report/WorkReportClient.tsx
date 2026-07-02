@@ -97,20 +97,52 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
   const [isGenerating, setIsGenerating] = useState(false)
 
   const [weeklyReports, setWeeklyReports] = useState<WeeklyReport[]>([])
-  const [monthlyReport, setMonthlyReport] = useState<MonthlyReport | null>(null)
+  const [monthlyReports, setMonthlyReports] = useState<MonthlyReport[]>([])
 
   const [isLoadingWeekly, setIsLoadingWeekly] = useState(true)
   const [isLoadingMonthly, setIsLoadingMonthly] = useState(false)
 
-  // 현재 월 계산 (로컬 시간 기준, YYYY-MM-01 형식)
+  // 선택된 월 (YYYY-MM 형식)
   const now = new Date()
-  const currentMonthOf = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  const [selectedMonth, setSelectedMonth] = useState(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`)
+
+  // 사용 가능한 월 목록 생성 (데이터가 있는 월 + 현재 월)
+  const getAvailableMonths = (): string[] => {
+    const months = new Set<string>()
+
+    // 현재 월 추가
+    months.add(selectedMonth)
+
+    // 주간 Report가 있는 월 추가
+    weeklyReports.forEach(report => {
+      months.add(report.week_of.substring(0, 7))
+    })
+
+    // 월간 Report가 있는 월 추가
+    monthlyReports.forEach(report => {
+      months.add(report.month_of.substring(0, 7))
+    })
+
+    // 정렬 (최신순)
+    return Array.from(months).sort((a, b) => b.localeCompare(a))
+  }
+
+  const availableMonths = getAvailableMonths()
+
+  // 선택된 월의 데이터 필터링
+  const currentMonthOf = `${selectedMonth}-01`
+  const filteredWeeklyReports = weeklyReports.filter(
+    r => r.week_of.substring(0, 7) === selectedMonth
+  )
+  const monthlyReport = monthlyReports.find(
+    r => r.month_of.substring(0, 7) === selectedMonth
+  ) || null
 
   // 초기 데이터 로드
   useEffect(() => {
     loadOrganization()
     loadWeeklyReports()
-    loadMonthlyReport()
+    loadMonthlyReports()
   }, [])
 
   // 조직 정보 로드
@@ -172,13 +204,13 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
   }
 
   // 월간 리포트 로드
-  const loadMonthlyReport = async () => {
+  const loadMonthlyReports = async () => {
     setIsLoadingMonthly(true)
     try {
-      const response = await fetch(`/api/work-report/monthly?monthOf=${currentMonthOf}`)
+      const response = await fetch('/api/work-report/monthly') // 전체 조회
       if (response.ok) {
         const data = await response.json()
-        setMonthlyReport(data.report)
+        setMonthlyReports(data.reports || [])
       }
     } catch (error) {
       console.error('월간 리포트 로드 실패:', error)
@@ -269,7 +301,10 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       }
 
       const data = await response.json()
-      setMonthlyReport(data.report)
+      setMonthlyReports(prev => {
+        const filtered = prev.filter(r => r.month_of !== data.report.month_of)
+        return [data.report, ...filtered].sort((a, b) => b.month_of.localeCompare(a.month_of))
+      })
       alert('✅ 월간 Report가 생성되었습니다!')
 
     } catch (error: any) {
@@ -456,17 +491,65 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             marginBottom: '32px',
             border: '1px solid rgba(232, 255, 71, 0.1)',
           }}>
+            {/* 월별 탭 */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '24px',
+              overflowX: 'auto',
+              paddingBottom: '8px',
+            }}>
+              {availableMonths.map(month => {
+                const date = new Date(month + '-01')
+                const label = `${date.getFullYear()}년 ${date.getMonth() + 1}월`
+                const isSelected = month === selectedMonth
+
+                return (
+                  <button
+                    key={month}
+                    onClick={() => setSelectedMonth(month)}
+                    style={{
+                      padding: '10px 20px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      background: isSelected
+                        ? 'linear-gradient(135deg, #e8ff47 0%, #d4e82f 100%)'
+                        : 'rgba(255, 255, 255, 0.1)',
+                      color: isSelected ? '#000' : '#fff',
+                      border: isSelected ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                      }
+                    }}
+                  >
+                    📅 {label}
+                  </button>
+                )
+              })}
+            </div>
+
             <h2 style={{
               fontSize: '20px',
               fontWeight: 600,
               color: '#fff',
               marginBottom: '20px',
             }}>
-              📋 이번 달 주간 Report ({weeklyReports.length}건)
+              📋 {selectedMonth.substring(0, 4)}년 {parseInt(selectedMonth.substring(5, 7))}월 주간 Report ({filteredWeeklyReports.length}건)
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {weeklyReports.map((report) => (
+              {filteredWeeklyReports.map((report) => (
                 <div
                   key={report.id}
                   style={{
@@ -528,7 +611,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             </div>
 
             {/* 월간 보고 생성 버튼 */}
-            {weeklyReports.length >= 2 && (
+            {filteredWeeklyReports.length >= 2 && !monthlyReport && (
               <button
                 onClick={handleGenerateMonthlyReport}
                 disabled={isLoadingMonthly}
