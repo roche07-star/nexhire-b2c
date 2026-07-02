@@ -1,4 +1,8 @@
 -- 구직자 대시보드: 지원 정보 및 일정 테이블
+
+-- UUID 확장 활성화
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 BEGIN;
 
 -- 1. 구직 활동 테이블
