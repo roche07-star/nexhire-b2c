@@ -16,10 +16,6 @@ export async function GET(request: NextRequest) {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const twoWeeksLater = new Date(todayStart)
     twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
-    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-    const lastMonth = new Date(now)
-    lastMonth.setMonth(lastMonth.getMonth() - 1)
-    const lastMonthStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, '0')}-01`
 
     // 병렬 쿼리 실행 (3개 쿼리를 동시에)
     const [
@@ -46,13 +42,13 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false })
         .limit(10),
 
-      // 3. 월간 리포트 조회
+      // 3. 월간 리포트 조회 (가장 최근 1개)
       supabase
         .from('monthly_reports')
         .select('*')
         .eq('user_email', userEmail)
-        .in('month_of', [thisMonth, lastMonthStr])
         .order('month_of', { ascending: false })
+        .limit(1)
     ])
 
     // 2-1. 모든 application의 일정을 한 번에 조회 (N+1 문제 해결)
