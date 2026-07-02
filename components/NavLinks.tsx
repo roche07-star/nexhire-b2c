@@ -22,7 +22,7 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
   }
 
   const menuItems = [
-    ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : []),
+    ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : [{ href: '/job-seeker', label: '대시보드' }]),
     ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
     ...(isPro ? [{ href: '/analyze', label: '분석&생성' }] : []),
     ...(!isHeadhunter ? [{ href: '/work-report', label: isPro ? '업무 Report' : '업무 Report 🔒' }] : []),
