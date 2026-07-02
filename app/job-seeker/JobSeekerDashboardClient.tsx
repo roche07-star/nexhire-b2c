@@ -148,7 +148,7 @@ export default function JobSeekerDashboardClient() {
       })
 
       if (res.ok) {
-        alert('구직 요청이 접수되었습니다! 🔴\n관리자 검토 후 헤드헌터 배정 예정입니다.')
+        alert('구직 요청이 접수되었습니다! 🔴\n헤드헌터 배정 후 적절한 포지션이 오픈되어 매칭 되면 바로 연락 드립니다.')
         setShowNewJobRequestModal(false)
         setNewJobRequest({ position: '', message: '' })
         loadDashboard()
