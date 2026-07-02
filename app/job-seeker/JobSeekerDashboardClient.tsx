@@ -510,7 +510,7 @@ export default function JobSeekerDashboardClient() {
                 }}
                 onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of)}
               >
-                추천 아이디어
+                🤖 추천 아이디어
               </button>
             </div>
             <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted2)' }}>
@@ -756,7 +756,7 @@ export default function JobSeekerDashboardClient() {
         <div className="overlay" onClick={() => !loadingIdeas && setShowIdeasModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 600, width: '90%', maxHeight: '80vh', overflow: 'auto' }}>
             <div className="modal-header">
-              <div className="modal-title">추천 아이디어</div>
+              <div className="modal-title">🤖 추천 아이디어</div>
               <button className="modal-close" onClick={() => setShowIdeasModal(false)} disabled={loadingIdeas}>✕</button>
             </div>
 
