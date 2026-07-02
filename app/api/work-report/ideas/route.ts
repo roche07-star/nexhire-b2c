@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
+import { supabase } from '@/lib/supabase'
 import { Anthropic } from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({
@@ -23,7 +24,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Claude API 호출
+    const userEmail = session.user.email
+
+    // 1. 먼저 DB에서 기존 아이디어 확인
+    const { data: existingIdea } = await supabase
+      .from('work_report_ideas')
+      .select('ideas')
+      .eq('user_email', userEmail)
+      .eq('month_of', monthOf)
+      .single()
+
+    // 2. 기존 아이디어가 있으면 바로 반환
+    if (existingIdea) {
+      return NextResponse.json({ ideas: existingIdea.ideas, cached: true })
+    }
+
+    // 3. 없으면 Claude API 호출
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2048,
@@ -55,7 +71,16 @@ ${reportHtml.replace(/<[^>]*>/g, '')}
 
     const ideas = response.content[0].type === 'text' ? response.content[0].text : ''
 
-    return NextResponse.json({ ideas })
+    // 4. DB에 저장
+    await supabase
+      .from('work_report_ideas')
+      .insert({
+        user_email: userEmail,
+        month_of: monthOf,
+        ideas
+      })
+
+    return NextResponse.json({ ideas, cached: false })
 
   } catch (error: any) {
     console.error('아이디어 생성 오류:', error)
