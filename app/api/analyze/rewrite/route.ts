@@ -4,8 +4,7 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
 import { generateResumeDocx, generateStandardDocx, RewriteResult } from '@/lib/generateDocx'
-import { extractDocxParagraphs, applyDocxRewrites, DocxParagraph } from '@/lib/rewriteDocxInPlace'
-import { insertWorkExperienceToDocx } from '@/lib/insertWorkExperience'
+import { extractDocxParagraphs, DocxParagraph } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { buildCoreCompetencyRules, buildFactPreservationRules, buildBasicSupplementRules } from '@/lib/prompts/rewrite-common'
 
@@ -840,24 +839,28 @@ export async function POST(req: NextRequest) {
 
 [작성 방식]
 원본 이력서 내용을 아래 섹션으로 재구성하세요:
-1. 포지션명 (헤더)
-2. 인적사항 (성명, 생년월일, 주소, 학력, 병역)
-3. 학력사항 (표 형식)
-4. 경력사항 (총 경력 표시, 표 형식)
-5. 연봉정보 (현재/희망연봉, 입사가능일)
-6. 핵심역량 (주요 강점 5개)
-7. 경력상세 (각 회사별 상세 업무/성과)
-8. 지원동기
+1. 개인 정보 (성명, 생년월일, 성별, 주소, 이메일, 연락처)
+2. 학력 사항 (대학교, 고등학교 등)
+3. 업무상 강점 및 핵심 역량 (주요 강점 5개)
+4. 경력 사항 (총 경력 표시, 회사명, 직무, 재직 여부, 소재지)
+5. 세부 경력사항 (각 회사별 상세 업무/성과, **최신 업무 활동 포함**)
+6. 기타 사항 (어학, 관련 교육 및 연수, 자격 사항, 기타 경력)
+7. 연봉 사항 (현재연봉, 희망연봉, 출근 가능시기)
+8. 지원사유 및 포부 및 자기소개
 
 ${jdContext ? `[JD 최적화]
 강점: ${toArr(jdContext.matching_points).slice(0, 2).join(', ')}
 보완: ${toArr(jdContext.gaps).slice(0, 1).join(', ')}
 키워드: ${toArr(jdContext.pitch_points).slice(0, 2).join(', ')}` : ''}
 
-[중요]
-• 원본 사실만 사용
-• 간결하게 작성
-• 각 섹션 content에 \\n 사용`
+[중요 - 반드시 준수]
+• 원본 이력서의 사실만 사용 (추측 금지)
+• [중요] 표시가 있는 최신 업무 활동은 반드시 세부 경력사항에 포함
+• 가독성 있고 깔끔한 포맷으로 작성
+• 적절한 줄바꿈과 간격으로 읽기 쉽게 구성
+• 각 섹션 content에 줄바꿈은 \\n 사용
+• 불렛 기호(•, ·, -, *, 1. 등) 사용하지 말 것
+• 간결하고 명확하게, 불필요한 장식 없이`
 
       const userPrompt = `${jdContext ? buildJDSection(jdContext) : '[JD 미선택 — 일반 관점으로 작성]'}
 
@@ -1126,41 +1129,15 @@ ${maskedText}
       }
 
       // PRO+ 플랜: DOCX + HTML 생성
-      let docxBuffer = await applyDocxRewrites(buffer, allRewrites)
+      // (DOCX 직접 수정 방식은 실패 → 주석 처리)
+      // const docxBuffer = await applyDocxRewrites(buffer, allRewrites)
 
-      // 🔄 work_experience 직접 삽입 (월간 Report 반영)
-      if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('organization')
-          .eq('email', email)
-          .single()
-
-        const organization = userData?.organization
-        if (organization) {
-          console.log('[rewrite:docx] 🔧 work_experience DOCX 직접 삽입:', {
-            organization,
-            expCount: finalResult.work_experience.length
-          })
-          docxBuffer = await insertWorkExperienceToDocx(
-            docxBuffer,
-            finalResult.work_experience,
-            organization
-          )
-        }
-      }
-
-      const suffix = jdContext ? `_${jdContext.company}` : ''
-      const downloadName = `jobizic_rewrite_${candidateName}${suffix}_${dateStr}.docx`
-
+      // ⚠️ DOCX 서식 보존 방식 비활성화
+      // 사용자에게 기본이력서 방식 사용 권장
       return NextResponse.json({
-        docx: (docxBuffer as Buffer).toString('base64'),
-        filename: downloadName,
-        changes: allChanges,
-        preview: generatePreviewHTML(undefined, rewrites),
-        originalPreview,
-        plan,
-      })
+        error: 'DOCX 서식 보존 방식은 현재 지원되지 않습니다. "기본 이력서" 방식을 사용해주세요.',
+        suggestion: 'formatMode를 "standard"로 변경하여 다시 시도하세요.'
+      }, { status: 400 })
     }
 
     // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX
