@@ -256,7 +256,16 @@ export default function JobSeekerDashboardClient() {
   }
 
   async function handleDeleteApplication(appId: string) {
-    if (!confirm('지원 정보를 삭제하시겠습니까?')) return
+    // 해당 application 찾기
+    const app = data?.applications?.find(a => a.id === appId)
+
+    // 구직요청/헤드헌터접수인 경우 특별한 메시지
+    const isJobRequest = app?.status === '구직요청' || app?.status === '헤드헌터접수'
+    const confirmMessage = isJobRequest
+      ? '⚠️ 삭제시 헤드헌터 구직 요청이 취소됩니다.\n\n정말 삭제하시겠습니까?'
+      : '지원 정보를 삭제하시겠습니까?'
+
+    if (!confirm(confirmMessage)) return
 
     try {
       const res = await fetch(`/api/job-applications/${appId}`, { method: 'DELETE' })
