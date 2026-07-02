@@ -677,7 +677,17 @@ export async function POST(req: NextRequest) {
       const nonEmpty = templateParas.filter(p => p.text.trim().length > 2 && !piiIndexes.has(p.index)).slice(0, 60)
       const paraList = nonEmpty.map((p, i) => `[${i + 1}] ${p.text}`).join('\n')
 
-      const resumeText = await extractText(buffer, originalFilename)
+      let resumeText = await extractText(buffer, originalFilename)
+
+      // 🔄 work_experience 통합 (월간 Report 반영)
+      if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
+        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
+          finalResult.work_experience.map((exp: any) => {
+            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
+          }).join('\n---\n')
+        resumeText = workExpSection + '\n\n' + resumeText
+      }
+
       const originalPreview = generateOriginalPreviewHTML(resumeText)
       const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
 
@@ -762,7 +772,17 @@ export async function POST(req: NextRequest) {
 
     // ── 기본 이력서 (standard): Claude 추천 포맷으로 적극 재구성
     if (formatMode === 'standard') {
-      const resumeText = await extractText(buffer, originalFilename)
+      let resumeText = await extractText(buffer, originalFilename)
+
+      // 🔄 work_experience 통합 (월간 Report 반영)
+      if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
+        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
+          finalResult.work_experience.map((exp: any) => {
+            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
+          }).join('\n---\n')
+        resumeText = workExpSection + '\n\n' + resumeText
+      }
+
       const originalPreview = generateOriginalPreviewHTML(resumeText)
 
       // 기본 이력서는 섹션별로 완전히 재구성
@@ -888,7 +908,17 @@ ${maskedText}
 
     // ── 기존 이력서 DOCX: 서식 완전 보존 (XML 직접 수정)
     if (ext === 'docx') {
-      const resumeText = await extractText(buffer, originalFilename)
+      let resumeText = await extractText(buffer, originalFilename)
+
+      // 🔄 work_experience 통합 (월간 Report 반영)
+      if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
+        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
+          finalResult.work_experience.map((exp: any) => {
+            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
+          }).join('\n---\n')
+        resumeText = workExpSection + '\n\n' + resumeText
+      }
+
       const originalPreview = generateOriginalPreviewHTML(resumeText)
 
       const paras = await extractDocxParagraphs(buffer)
@@ -1043,7 +1073,17 @@ ${maskedText}
     }
 
     // ── PDF / 기타: 텍스트 추출 후 섹션 기반 새 DOCX
-    const resumeText = await extractText(buffer, originalFilename)
+    let resumeText = await extractText(buffer, originalFilename)
+
+    // 🔄 work_experience 통합 (월간 Report 반영)
+    if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
+      const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
+        finalResult.work_experience.map((exp: any) => {
+          return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
+        }).join('\n---\n')
+      resumeText = workExpSection + '\n\n' + resumeText
+    }
+
     const originalPreview = generateOriginalPreviewHTML(resumeText)
     // PII 마스킹 후 Claude에 전송, 응답에서 원본값으로 복원
     const piiValues = extractPIIValues(resumeText)
