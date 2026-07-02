@@ -173,8 +173,8 @@ export async function POST(req: NextRequest) {
       })
       .eq('email', userEmail)
 
-    // 7. Eve Super Admin에 기본 정보 전송 (개인 구직자 + headhunterSharing = true + phone 있는 경우)
-    if (userType === 'JOBSEEKER' && headhunterSharing && phone) {
+    // 7. Eve Super Admin에 기본 정보 전송 (개인 구직자 + headhunterSharing = true)
+    if (userType === 'JOBSEEKER' && headhunterSharing) {
       try {
         console.log('[consents/user] Eve 전송 시작:', {
           name: session.user.name,

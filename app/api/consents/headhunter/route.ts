@@ -63,19 +63,19 @@ export async function POST(req: NextRequest) {
       })
       .eq('email', userEmail)
 
-    // Eve로 후보자 정보 전송 (phone이 있는 경우)
+    // Eve로 후보자 정보 전송 (phone 선택)
     const { data: userData } = await supabase
       .from('users')
       .select('name, phone, email')
       .eq('email', userEmail)
       .single()
 
-    if (userData?.phone) {
+    if (userData) {
       try {
         console.log('[consents/headhunter] Eve 전송 시작:', {
           name: userData.name,
           email: userData.email,
-          phone: userData.phone
+          phone: userData.phone || '미입력'
         })
 
         const eveResponse = await fetch(`${process.env.EVE_API_URL}/api/super-admin/candidates`, {
@@ -85,9 +85,9 @@ export async function POST(req: NextRequest) {
             'X-API-Key': process.env.ADAM_TO_EVE_API_KEY || ''
           },
           body: JSON.stringify({
-            name: userData.name,
+            name: userData.name || '이름 미입력',
             email: userData.email,
-            phone: userData.phone,
+            phone: userData.phone || null,
             source: 'adam_consent', // 나중에 동의한 경우
             adam_user_email: userData.email
           })
