@@ -53,8 +53,10 @@ export async function insertWorkExperienceToDocx(
 
   console.log('[insertWorkExp] 대상 경력 발견:', {
     company: targetExp.company,
-    descLength: targetExp.description.length
+    descLength: targetExp.description.length,
+    descPreview: targetExp.description.substring(0, 200)
   })
+  console.log('[insertWorkExp] 전체 description:', targetExp.description)
 
   // 3. 경력 섹션에 삽입할 내용 준비
   // description을 줄 단위로 분리 (불렛 포인트별로)
