@@ -35,14 +35,14 @@ function bulletLine(text: string): Paragraph {
   return new Paragraph({
     children: [new TextRun({ text: `• ${text}`, size: 22, color: '333344' })],
     indent: { left: 280 },
-    spacing: { after: 100, line: 360 },
+    spacing: { after: 100, line: 240 },
   })
 }
 
 function bodyLine(text: string): Paragraph {
   return new Paragraph({
     children: [new TextRun({ text, size: 22, color: '333344' })],
-    spacing: { after: 120, line: 360 },
+    spacing: { after: 120, line: 240 },
     indent: { left: 140 },
   })
 }
