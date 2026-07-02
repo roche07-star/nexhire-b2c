@@ -27,7 +27,7 @@ interface Schedule {
   id: string
   title: string
   schedule_at: string
-  type: string
+  type: 'interview' | 'deadline' | 'other'
 }
 
 interface MonthlyReport {
@@ -65,6 +65,11 @@ export default function JobSeekerDashboardClient() {
     title: ''
   })
   const [creatingSchedule, setCreatingSchedule] = useState(false)
+
+  // 아이디어 모달
+  const [showIdeasModal, setShowIdeasModal] = useState(false)
+  const [ideas, setIdeas] = useState<string | null>(null)
+  const [loadingIdeas, setLoadingIdeas] = useState(false)
 
   useEffect(() => {
     loadDashboard()
@@ -209,6 +214,34 @@ export default function JobSeekerDashboardClient() {
     } catch (error) {
       console.error('삭제 실패:', error)
       alert('오류가 발생했습니다.')
+    }
+  }
+
+  async function handleGetIdeas(reportHtml: string, monthOf: string) {
+    setShowIdeasModal(true)
+    setIdeas(null)
+    setLoadingIdeas(true)
+
+    try {
+      const res = await fetch('/api/work-report/ideas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportHtml, monthOf })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setIdeas(data.ideas)
+      } else {
+        alert('아이디어 생성 실패')
+        setShowIdeasModal(false)
+      }
+    } catch (error) {
+      console.error('아이디어 생성 실패:', error)
+      alert('오류가 발생했습니다.')
+      setShowIdeasModal(false)
+    } finally {
+      setLoadingIdeas(false)
     }
   }
 
@@ -460,9 +493,25 @@ export default function JobSeekerDashboardClient() {
       {/* 월간 리포트 */}
       {data.monthlyReport && (
         <div className="card" style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>
-              📝 업무 리포트
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>
+                📝 업무 리포트
+              </div>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{
+                  fontSize: 'clamp(10px, 2.5vw, 11px)',
+                  padding: '4px 8px',
+                  background: 'var(--accent)',
+                  color: '#000',
+                  border: 'none',
+                  fontWeight: 600
+                }}
+                onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of)}
+              >
+                💡 아이디어
+              </button>
             </div>
             <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted2)' }}>
               {new Date(data.monthlyReport.month_of).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
@@ -698,6 +747,73 @@ export default function JobSeekerDashboardClient() {
                 {creatingSchedule ? '추가 중...' : '추가하기'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 아이디어 모달 */}
+      {showIdeasModal && (
+        <div className="overlay" onClick={() => !loadingIdeas && setShowIdeasModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 600, width: '90%', maxHeight: '80vh', overflow: 'auto' }}>
+            <div className="modal-header">
+              <div className="modal-title">💡 업무 리포트 개선 아이디어</div>
+              <button className="modal-close" onClick={() => setShowIdeasModal(false)} disabled={loadingIdeas}>✕</button>
+            </div>
+
+            {loadingIdeas ? (
+              <div style={{ padding: '40px', textAlign: 'center' }}>
+                <div className="spinner" style={{ margin: '0 auto 16px' }} />
+                <div style={{ fontSize: 14, color: 'var(--muted)' }}>AI가 분석 중입니다...</div>
+              </div>
+            ) : ideas ? (
+              <div>
+                {session?.user?.plan === 'FREE' ? (
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      fontSize: 13,
+                      lineHeight: 1.8,
+                      color: 'var(--text)',
+                      whiteSpace: 'pre-wrap',
+                      marginBottom: 16
+                    }}>
+                      {ideas.substring(0, 200)}...
+                    </div>
+                    <div style={{
+                      background: 'linear-gradient(180deg, transparent 0%, var(--surface) 100%)',
+                      padding: '40px 20px 20px',
+                      textAlign: 'center',
+                      marginTop: -40
+                    }}>
+                      <div style={{ fontSize: 24, marginBottom: 8 }}>🔒</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                        PRO 플랜에서 전체 아이디어 확인
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>
+                        더 상세한 분석과 실행 가능한 아이디어를 받아보세요
+                      </div>
+                      <Link href="/pricing">
+                        <button className="btn btn-primary" style={{ fontSize: 14 }}>
+                          업그레이드 →
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    fontSize: 13,
+                    lineHeight: 1.8,
+                    color: 'var(--text)',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {ideas}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)' }}>
+                아이디어를 불러올 수 없습니다.
+              </div>
+            )}
           </div>
         </div>
       )}
