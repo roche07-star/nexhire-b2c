@@ -617,8 +617,8 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               ))}
             </div>
 
-            {/* 월간 보고 생성 버튼 */}
-            {filteredWeeklyReports.length >= 2 && !monthlyReport && (
+            {/* 월간 보고 생성/업데이트 버튼 */}
+            {filteredWeeklyReports.length >= 2 && (
               <button
                 onClick={handleGenerateMonthlyReport}
                 disabled={isLoadingMonthly}
@@ -627,7 +627,9 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                   padding: '16px',
                   fontSize: '16px',
                   fontWeight: 600,
-                  background: isLoadingMonthly ? '#555' : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                  background: isLoadingMonthly ? '#555' : monthlyReport
+                    ? 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
+                    : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '12px',
@@ -638,7 +640,11 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                 onMouseEnter={(e) => !isLoadingMonthly && (e.currentTarget.style.transform = 'scale(1.02)')}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
-                {isLoadingMonthly ? '📊 월간 보고 생성 중...' : '📊 월간 보고 생성 (주간보고 정리)'}
+                {isLoadingMonthly
+                  ? '📊 월간 보고 처리 중...'
+                  : monthlyReport
+                    ? '🔄 월간 보고 업데이트 (주간보고 재정리)'
+                    : '📊 월간 보고 생성 (주간보고 정리)'}
               </button>
             )}
           </div>
