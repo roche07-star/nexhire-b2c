@@ -21,7 +21,6 @@ interface MonthlyReport {
   id: string
   month_of: string
   aggregated_html: string
-  applied_to_resume: boolean
   created_at: string
 }
 
@@ -102,7 +101,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
   const [isLoadingWeekly, setIsLoadingWeekly] = useState(true)
   const [isLoadingMonthly, setIsLoadingMonthly] = useState(false)
-  const [isApplying, setIsApplying] = useState(false)
 
   // 현재 월 계산 (로컬 시간 기준, YYYY-MM-01 형식)
   const now = new Date()
@@ -279,46 +277,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       alert('월간 Report 생성에 실패했습니다.')
     } finally {
       setIsLoadingMonthly(false)
-    }
-  }
-
-  // 이력서 반영
-  const handleApplyToResume = async () => {
-    if (!monthlyReport) {
-      alert('월간 Report가 없습니다.')
-      return
-    }
-
-    const confirmed = confirm(
-      '월간 Report를 가장 최근 이력서에 반영하시겠습니까?\n\n이력서 경력 사항이 업데이트됩니다.'
-    )
-
-    if (!confirmed) return
-
-    setIsApplying(true)
-
-    try {
-      const response = await fetch('/api/work-report/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ monthOf: currentMonthOf }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || '이력서 반영 실패')
-      }
-
-      const data = await response.json()
-
-      setMonthlyReport((prev) => prev ? { ...prev, applied_to_resume: true } : null)
-      alert(`✅ 월간 Report가 "${data.resumeName}" 이력서에 반영되었습니다!`)
-
-    } catch (error: any) {
-      console.error('이력서 반영 실패:', error)
-      alert(`반영 실패: ${error.message}`)
-    } finally {
-      setIsApplying(false)
     }
   }
 
@@ -628,27 +586,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               }}
             />
 
-            <button
-              onClick={handleApplyToResume}
-              disabled={isApplying || monthlyReport.applied_to_resume}
-              style={{
-                width: '100%',
-                padding: '18px',
-                fontSize: '17px',
-                fontWeight: 600,
-                background: monthlyReport.applied_to_resume ? 'rgba(76, 175, 80, 0.2)' : 'linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)',
-                color: monthlyReport.applied_to_resume ? '#4CAF50' : '#fff',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: monthlyReport.applied_to_resume ? 'not-allowed' : 'pointer',
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) => !monthlyReport.applied_to_resume && (e.currentTarget.style.transform = 'scale(1.02)')}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              {isApplying ? '📝 이력서 반영 중...' : monthlyReport.applied_to_resume ? '✓ 이력서에 반영됨' : '📝 이력서에 반영하기'}
-            </button>
-
             <div style={{
               background: 'rgba(76, 175, 80, 0.1)',
               borderRadius: '10px',
@@ -656,9 +593,8 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               fontSize: '13px',
               color: '#4CAF50',
               lineHeight: '1.6',
-              marginTop: '16px',
             }}>
-              <strong>💡 TIP:</strong> 월간 Report는 이력서 "경력 사항"에 바로 사용할 수 있도록 전문적으로 정리되었습니다.
+              <strong>💡 TIP:</strong> 월간 Report는 <strong>이력서 분석 시 자동으로 반영</strong>됩니다. 이력서를 생성/분석하면 해당 회사의 경력 사항에 업무 내역이 추가됩니다.
             </div>
           </div>
         )}

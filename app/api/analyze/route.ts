@@ -623,6 +623,21 @@ ${maskedText.slice(0, 3000)}
       return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
     }
 
+    // 월간 업무 Report 자동 통합
+    let monthlyReportMessage: string | null = null
+    if (insertData?.id) {
+      const { integrateMonthlyReports } = await import('@/lib/integrateMonthlyReports')
+      const { changeMessage } = await integrateMonthlyReports(
+        insertData.id,
+        email,
+        resultToSave
+      )
+      monthlyReportMessage = changeMessage
+      if (changeMessage) {
+        console.log('[analyze] ✅ 월간 Report 통합:', changeMessage)
+      }
+    }
+
     // 캐시 무효화 (Dashboard 통계 갱신)
     await invalidateCache(`dashboard:stats:${email}`)
 
@@ -768,6 +783,7 @@ ${maskedText.slice(0, 3000)}
       _id: insertData?.id ?? null,
       _rewrite_saved: rewriteSaved,
       ...(rewriteFilePath ? { _file_path: rewriteFilePath } : {}),
+      ...(monthlyReportMessage ? { _monthly_report_integrated: monthlyReportMessage } : {}),
     })
   } catch (e) {
     console.error('[analyze]', e)
