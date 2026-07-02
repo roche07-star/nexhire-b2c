@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
         // 최신 이력서 분석 결과 조회
         const { data: analysisData } = await supabase
           .from('analyses')
-          .select('id, analyzed_json')
-          .eq('email', session.user.email)
+          .select('id, result')
+          .eq('user_email', session.user.email)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
             adam_user_email: session.user.email,
             adam_application_id: application.id,
             adam_analysis_id: analysisData?.id || null,
-            adam_analysis_data: analysisData?.analyzed_json || null
+            adam_analysis_data: analysisData?.result || null
           })
         })
 
