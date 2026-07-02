@@ -703,9 +703,10 @@ export async function POST(req: NextRequest) {
 
         console.log('[rewrite] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
 
-        // resumeText 앞에 자연스럽게 추가 (마커 없이)
+        // resumeText 앞에 명확한 지시와 함께 추가
         if (latestWorkExp) {
-          resumeText = `${latestWorkExp}\n\n${resumeText}`
+          const instruction = `[중요] 다음은 이 후보자의 최신 업무 활동 내역입니다. 반드시 해당 회사의 경력 사항에 포함하여 작성하세요.\n\n${latestWorkExp}\n\n[원본 이력서 - 위의 최신 업무 내역을 해당 회사 경력에 통합할 것]\n\n`
+          resumeText = instruction + resumeText
         }
       } else {
         console.log('[rewrite] ⚠️ work_experience 없음')
@@ -821,7 +822,8 @@ export async function POST(req: NextRequest) {
         console.log('[rewrite:standard] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
 
         if (latestWorkExp) {
-          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+          const instruction = `[중요] 다음은 이 후보자의 최신 업무 활동 내역입니다. 반드시 해당 회사의 경력 사항에 포함하여 작성하세요.\n\n${latestWorkExp}\n\n[원본 이력서 - 위의 최신 업무 내역을 해당 회사 경력에 통합할 것]\n\n`
+          resumeText = instruction + resumeText
         }
       } else {
         console.log('[rewrite:standard] ⚠️ work_experience 없음')
@@ -977,7 +979,8 @@ ${maskedText}
         console.log('[rewrite:docx] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
 
         if (latestWorkExp) {
-          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+          const instruction = `[중요] 다음은 이 후보자의 최신 업무 활동 내역입니다. 반드시 해당 회사의 경력 사항에 포함하여 작성하세요.\n\n${latestWorkExp}\n\n[원본 이력서 - 위의 최신 업무 내역을 해당 회사 경력에 통합할 것]\n\n`
+          resumeText = instruction + resumeText
         }
       } else {
         console.log('[rewrite:docx] ⚠️ work_experience 없음')
