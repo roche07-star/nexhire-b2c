@@ -616,7 +616,20 @@ export async function POST(req: NextRequest) {
 
     if (!row) return NextResponse.json({ error: '분석을 찾을 수 없습니다.' }, { status: 404 })
 
-    const filePath: string | undefined = row.result?._file_path
+    // 🔄 생성 시 월간 Report 최종 통합 (분석 이후 새로 추가된 Report 반영)
+    let finalResult = row.result
+    const { integrateMonthlyReports } = await import('@/lib/integrateMonthlyReports')
+    const { updatedResult, changeMessage } = await integrateMonthlyReports(
+      analysisId,
+      email,
+      row.result
+    )
+    finalResult = updatedResult
+    if (changeMessage) {
+      console.log('[rewrite] ✅ 월간 Report 최종 통합:', changeMessage)
+    }
+
+    const filePath: string | undefined = finalResult?._file_path
     if (!filePath) {
       return NextResponse.json(
         { error: '원본 파일이 저장되어 있지 않습니다. 이 기능은 이후 업로드된 이력서부터 사용 가능합니다.' },
@@ -650,7 +663,7 @@ export async function POST(req: NextRequest) {
     const originalFilename = filePath.split('/').pop() ?? 'resume'
     const ext = originalFilename.split('.').pop()?.toLowerCase() ?? ''
 
-    const candidateName = (row.result?.candidate_name as string | undefined) ?? '이력서'
+    const candidateName = (finalResult?.candidate_name as string | undefined) ?? '이력서'
     const dateStr = new Date().toISOString().slice(0, 10)
 
     // ── 업데이트 이력서 기능 제거됨 (2026-06-19)
