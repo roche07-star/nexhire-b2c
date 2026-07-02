@@ -184,10 +184,13 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
     let data, error
 
     if (existingReport) {
-      // 업데이트
+      // 업데이트 (applied_to_analysis_id를 NULL로 리셋하여 "미반영" 상태로 전환)
       const result = await supabase
         .from('monthly_reports')
-        .update({ aggregated_html: cleanHtml })
+        .update({
+          aggregated_html: cleanHtml,
+          applied_to_analysis_id: null
+        })
         .eq('id', existingReport.id)
         .select()
         .single()
