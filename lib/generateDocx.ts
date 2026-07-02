@@ -32,16 +32,57 @@ function sectionHeading(text: string): Paragraph {
 }
 
 function bulletLine(text: string): Paragraph {
+  // bullet 추가하고 bold 파싱
+  const bulletText = `• ${text}`
+  const children = parseBoldText(bulletText)
   return new Paragraph({
-    children: [new TextRun({ text: `• ${text}`, size: 22, color: '333344' })],
+    children,
     indent: { left: 280 },
     spacing: { after: 100, line: 240 },
   })
 }
 
+// **텍스트** 패턴을 실제 bold TextRun으로 변환
+function parseBoldText(text: string): TextRun[] {
+  const parts: TextRun[] = []
+  const regex = /\*\*(.+?)\*\*/g
+  let lastIndex = 0
+  let match
+
+  while ((match = regex.exec(text)) !== null) {
+    // ** 앞의 일반 텍스트
+    if (match.index > lastIndex) {
+      parts.push(new TextRun({
+        text: text.substring(lastIndex, match.index),
+        size: 22,
+        color: '333344'
+      }))
+    }
+    // bold 텍스트
+    parts.push(new TextRun({
+      text: match[1],
+      bold: true,
+      size: 22,
+      color: '333344'
+    }))
+    lastIndex = regex.lastIndex
+  }
+
+  // 남은 일반 텍스트
+  if (lastIndex < text.length) {
+    parts.push(new TextRun({
+      text: text.substring(lastIndex),
+      size: 22,
+      color: '333344'
+    }))
+  }
+
+  return parts.length > 0 ? parts : [new TextRun({ text, size: 22, color: '333344' })]
+}
+
 function bodyLine(text: string): Paragraph {
   return new Paragraph({
-    children: [new TextRun({ text, size: 22, color: '333344' })],
+    children: parseBoldText(text),
     spacing: { after: 120, line: 240 },
     indent: { left: 140 },
   })
