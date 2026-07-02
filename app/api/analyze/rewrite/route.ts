@@ -680,15 +680,39 @@ export async function POST(req: NextRequest) {
       let resumeText = await extractText(buffer, originalFilename)
 
       // 🔄 work_experience 통합 (월간 Report 반영)
+      let latestWorkExp = ''
       if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
-        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
-          finalResult.work_experience.map((exp: any) => {
-            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
-          }).join('\n---\n')
-        resumeText = workExpSection + '\n\n' + resumeText
+        console.log('[rewrite] 🔄 work_experience 통합:', {
+          count: finalResult.work_experience.length,
+          companies: finalResult.work_experience.map((e: any) => e.company)
+        })
+
+        // 최신 경력 정보를 자연스러운 형식으로 변환 (마커 없이)
+        latestWorkExp = finalResult.work_experience
+          .map((exp: any) => {
+            if (!exp.description) return ''
+            // Markdown 제거하고 순수 텍스트만
+            const cleanDesc = exp.description
+              .replace(/\*\*/g, '')
+              .replace(/^#+ /gm, '')
+              .trim()
+            return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
+          })
+          .filter(Boolean)
+          .join('\n\n')
+
+        console.log('[rewrite] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
+
+        // resumeText 앞에 추가
+        if (latestWorkExp) {
+          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+        }
+      } else {
+        console.log('[rewrite] ⚠️ work_experience 없음')
       }
 
       const originalPreview = generateOriginalPreviewHTML(resumeText)
+      const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
       const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
 
       const message = await client.messages.create({
@@ -775,12 +799,32 @@ export async function POST(req: NextRequest) {
       let resumeText = await extractText(buffer, originalFilename)
 
       // 🔄 work_experience 통합 (월간 Report 반영)
+      let latestWorkExp = ''
       if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
-        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
-          finalResult.work_experience.map((exp: any) => {
-            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
-          }).join('\n---\n')
-        resumeText = workExpSection + '\n\n' + resumeText
+        console.log('[rewrite:standard] 🔄 work_experience 통합:', {
+          count: finalResult.work_experience.length,
+          companies: finalResult.work_experience.map((e: any) => e.company)
+        })
+
+        latestWorkExp = finalResult.work_experience
+          .map((exp: any) => {
+            if (!exp.description) return ''
+            const cleanDesc = exp.description
+              .replace(/\*\*/g, '')
+              .replace(/^#+ /gm, '')
+              .trim()
+            return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
+          })
+          .filter(Boolean)
+          .join('\n\n')
+
+        console.log('[rewrite:standard] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
+
+        if (latestWorkExp) {
+          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+        }
+      } else {
+        console.log('[rewrite:standard] ⚠️ work_experience 없음')
       }
 
       const originalPreview = generateOriginalPreviewHTML(resumeText)
@@ -911,12 +955,32 @@ ${maskedText}
       let resumeText = await extractText(buffer, originalFilename)
 
       // 🔄 work_experience 통합 (월간 Report 반영)
+      let latestWorkExp = ''
       if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
-        const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
-          finalResult.work_experience.map((exp: any) => {
-            return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
-          }).join('\n---\n')
-        resumeText = workExpSection + '\n\n' + resumeText
+        console.log('[rewrite:docx] 🔄 work_experience 통합:', {
+          count: finalResult.work_experience.length,
+          companies: finalResult.work_experience.map((e: any) => e.company)
+        })
+
+        latestWorkExp = finalResult.work_experience
+          .map((exp: any) => {
+            if (!exp.description) return ''
+            const cleanDesc = exp.description
+              .replace(/\*\*/g, '')
+              .replace(/^#+ /gm, '')
+              .trim()
+            return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
+          })
+          .filter(Boolean)
+          .join('\n\n')
+
+        console.log('[rewrite:docx] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
+
+        if (latestWorkExp) {
+          resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+        }
+      } else {
+        console.log('[rewrite:docx] ⚠️ work_experience 없음')
       }
 
       const originalPreview = generateOriginalPreviewHTML(resumeText)
@@ -1076,12 +1140,32 @@ ${maskedText}
     let resumeText = await extractText(buffer, originalFilename)
 
     // 🔄 work_experience 통합 (월간 Report 반영)
+    let latestWorkExp = ''
     if (finalResult?.work_experience && Array.isArray(finalResult.work_experience) && finalResult.work_experience.length > 0) {
-      const workExpSection = '\n\n=== 최신 업데이트된 경력 사항 (우선 반영) ===\n' +
-        finalResult.work_experience.map((exp: any) => {
-          return `\n회사: ${exp.company}\n직급/역할: ${exp.position || ''}\n상세 내용:\n${exp.description || ''}`
-        }).join('\n---\n')
-      resumeText = workExpSection + '\n\n' + resumeText
+      console.log('[rewrite:pdf] 🔄 work_experience 통합:', {
+        count: finalResult.work_experience.length,
+        companies: finalResult.work_experience.map((e: any) => e.company)
+      })
+
+      latestWorkExp = finalResult.work_experience
+        .map((exp: any) => {
+          if (!exp.description) return ''
+          const cleanDesc = exp.description
+            .replace(/\*\*/g, '')
+            .replace(/^#+ /gm, '')
+            .trim()
+          return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
+        })
+        .filter(Boolean)
+        .join('\n\n')
+
+      console.log('[rewrite:pdf] ✅ work_experience 추가 완료 (길이:', latestWorkExp.length, ')')
+
+      if (latestWorkExp) {
+        resumeText = `【최신 경력 업데이트】\n${latestWorkExp}\n\n【원본 이력서】\n${resumeText}`
+      }
+    } else {
+      console.log('[rewrite:pdf] ⚠️ work_experience 없음')
     }
 
     const originalPreview = generateOriginalPreviewHTML(resumeText)
