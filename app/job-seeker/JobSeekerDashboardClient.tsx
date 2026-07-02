@@ -511,8 +511,8 @@ export default function JobSeekerDashboardClient() {
                     )}
                   </div>
 
-                  {/* 일정 추가 버튼 - 구직요청 상태가 아닐 때만 표시 */}
-                  {!['구직요청', '구직활동', '헤드헌터접수'].includes(app.status) && (
+                  {/* 일정 추가 버튼 - 구직요청/헤드헌터접수 제외 */}
+                  {!['구직요청', '헤드헌터접수'].includes(app.status) && (
                     <button
                       className="btn btn-ghost btn-sm"
                       style={{ width: '100%', fontSize: 'clamp(10px, 2.5vw, 11px)', marginTop: 8, padding: '6px' }}
