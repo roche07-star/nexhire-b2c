@@ -45,6 +45,15 @@ export default function JobSeekerDashboardClient() {
   const [requestMessage, setRequestMessage] = useState('')
   const [requesting, setRequesting] = useState(false)
 
+  // 새 구직 요청 모달
+  const [showNewJobRequestModal, setShowNewJobRequestModal] = useState(false)
+  const [newJobRequest, setNewJobRequest] = useState({
+    company: '',
+    position: '',
+    message: ''
+  })
+  const [creatingJobRequest, setCreatingJobRequest] = useState(false)
+
   useEffect(() => {
     loadDashboard()
   }, [])
@@ -96,6 +105,44 @@ export default function JobSeekerDashboardClient() {
     }
   }
 
+  async function handleCreateJobRequest() {
+    if (!newJobRequest.company.trim() || !newJobRequest.position.trim()) {
+      alert('회사명과 포지션을 입력해주세요.')
+      return
+    }
+
+    setCreatingJobRequest(true)
+    try {
+      const res = await fetch('/api/job-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company: newJobRequest.company.trim(),
+          position: newJobRequest.position.trim(),
+          status: '구직 요청',
+          headhunter_status: 'self',
+          request_message: newJobRequest.message.trim() || undefined,
+          notes: '대시보드에서 직접 생성'
+        })
+      })
+
+      if (res.ok) {
+        alert('구직 요청이 등록되었습니다! 🟢')
+        setShowNewJobRequestModal(false)
+        setNewJobRequest({ company: '', position: '', message: '' })
+        loadDashboard()
+      } else {
+        const error = await res.json()
+        alert(error.error || '등록 실패')
+      }
+    } catch (error) {
+      console.error('구직 요청 생성 실패:', error)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setCreatingJobRequest(false)
+    }
+  }
+
   function getStatusColor(status: 'self' | 'requested' | 'assigned') {
     switch (status) {
       case 'self': return { bg: 'rgba(16, 185, 129, 0.1)', border: '#10b981', icon: '🟢', label: '요청 대기 중' }
@@ -127,6 +174,17 @@ export default function JobSeekerDashboardClient() {
         <div style={{ fontSize: 'clamp(12px, 3vw, 14px)', color: 'var(--muted2)' }}>
           {today}
         </div>
+      </div>
+
+      {/* 구직 요청하기 버튼 */}
+      <div style={{ marginBottom: 16 }}>
+        <button
+          className="btn btn-primary"
+          style={{ width: '100%', fontSize: 'clamp(13px, 3.5vw, 15px)', padding: 'clamp(10px, 3vw, 12px)' }}
+          onClick={() => setShowNewJobRequestModal(true)}
+        >
+          🟢 구직 요청하기 (헤드헌터 도움)
+        </button>
       </div>
 
       {/* 오늘의 일정 */}
@@ -348,6 +406,102 @@ export default function JobSeekerDashboardClient() {
               </button>
               <button className="btn btn-primary" onClick={handleRequestHelp} disabled={requesting || !requestMessage.trim()} style={{ flex: 1 }}>
                 {requesting ? '요청 중...' : '요청하기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 새 구직 요청 모달 */}
+      {showNewJobRequestModal && (
+        <div className="overlay" onClick={() => !creatingJobRequest && setShowNewJobRequestModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400, width: '90%' }}>
+            <div className="modal-header">
+              <div className="modal-title">🟢 구직 요청하기</div>
+              <button className="modal-close" onClick={() => setShowNewJobRequestModal(false)} disabled={creatingJobRequest}>✕</button>
+            </div>
+
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.5 }}>
+              헤드헌터의 도움이 필요한 구직 활동을 등록하세요.<br />
+              요청 후 전문 헤드헌터가 배정됩니다.
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                회사명 *
+              </label>
+              <input
+                type="text"
+                value={newJobRequest.company}
+                onChange={e => setNewJobRequest({ ...newJobRequest, company: e.target.value })}
+                placeholder="예: 네이버"
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13
+                }}
+                disabled={creatingJobRequest}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                포지션 *
+              </label>
+              <input
+                type="text"
+                value={newJobRequest.position}
+                onChange={e => setNewJobRequest({ ...newJobRequest, position: e.target.value })}
+                placeholder="예: 백엔드 개발자"
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13
+                }}
+                disabled={creatingJobRequest}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                요청 메시지 (선택)
+              </label>
+              <textarea
+                value={newJobRequest.message}
+                onChange={e => setNewJobRequest({ ...newJobRequest, message: e.target.value })}
+                placeholder="예: 면접 준비 도와주세요&#10;예: 이력서 검토 부탁드립니다"
+                style={{
+                  width: '100%',
+                  minHeight: 80,
+                  padding: 10,
+                  borderRadius: 8,
+                  border: '2px solid var(--border)',
+                  fontSize: 13,
+                  resize: 'vertical'
+                }}
+                disabled={creatingJobRequest}
+              />
+            </div>
+
+            <div style={{ fontSize: 11, color: 'var(--muted2)', marginBottom: 16 }}>
+              💡 등록 후 🟢 상태로 표시되며, "헤드헌터 도움 요청하기" 버튼을 눌러 요청을 완료하세요.
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-ghost" onClick={() => setShowNewJobRequestModal(false)} disabled={creatingJobRequest} style={{ flex: 1 }}>
+                취소
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleCreateJobRequest}
+                disabled={creatingJobRequest || !newJobRequest.company.trim() || !newJobRequest.position.trim()}
+                style={{ flex: 1 }}
+              >
+                {creatingJobRequest ? '등록 중...' : '등록하기'}
               </button>
             </div>
           </div>
