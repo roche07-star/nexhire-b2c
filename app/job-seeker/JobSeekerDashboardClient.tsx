@@ -204,32 +204,40 @@ export default function JobSeekerDashboardClient() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {data.upcomingSchedules.map(schedule => (
-              <div
-                key={schedule.id}
-                style={{
-                  padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
-                  borderRadius: 8,
-                  background: 'var(--bg3)',
-                  border: '1px solid var(--border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10
-                }}
-              >
-                <div style={{ fontSize: 'clamp(14px, 4vw, 16px)', flexShrink: 0 }}>
-                  {schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 'clamp(12px, 3.5vw, 13px)', fontWeight: 600, marginBottom: 2 }}>
-                    {new Date(schedule.schedule_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+            {data.upcomingSchedules.map(schedule => {
+              const scheduleDate = new Date(schedule.schedule_at)
+              const month = scheduleDate.getMonth() + 1
+              const day = scheduleDate.getDate()
+              const hours = String(scheduleDate.getHours()).padStart(2, '0')
+              const minutes = String(scheduleDate.getMinutes()).padStart(2, '0')
+
+              return (
+                <div
+                  key={schedule.id}
+                  style={{
+                    padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
+                    borderRadius: 8,
+                    background: 'var(--bg3)',
+                    border: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  }}
+                >
+                  <div style={{ fontSize: 'clamp(14px, 4vw, 16px)', flexShrink: 0 }}>
+                    {schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'}
                   </div>
-                  <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {schedule.title}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 'clamp(12px, 3.5vw, 13px)', fontWeight: 600, marginBottom: 2 }}>
+                      {month}월 {day}일 {hours}:{minutes}
+                    </div>
+                    <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {schedule.title}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
