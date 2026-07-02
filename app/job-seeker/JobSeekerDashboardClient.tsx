@@ -629,21 +629,33 @@ export default function JobSeekerDashboardClient() {
           )
 
           return (
-            <button
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                fontSize: 'clamp(13px, 3.5vw, 15px)',
-                padding: 'clamp(10px, 3vw, 12px)',
-                opacity: hasActiveRequest ? 0.5 : 1,
-                cursor: hasActiveRequest ? 'not-allowed' : 'pointer'
-              }}
-              onClick={hasActiveRequest ? undefined : handleOpenJobRequest}
-              disabled={hasActiveRequest}
-              title={hasActiveRequest ? '이미 진행 중인 구직 요청이 있습니다' : ''}
-            >
-              🔴 구직 요청하기 (헤드헌터 도움)
-            </button>
+            <>
+              <button
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  fontSize: 'clamp(13px, 3.5vw, 15px)',
+                  padding: 'clamp(10px, 3vw, 12px)',
+                  opacity: hasActiveRequest ? 0.5 : 1,
+                  cursor: hasActiveRequest ? 'not-allowed' : 'pointer'
+                }}
+                onClick={hasActiveRequest ? undefined : handleOpenJobRequest}
+                disabled={hasActiveRequest}
+                title={hasActiveRequest ? '이미 진행 중인 구직 요청이 있습니다' : ''}
+              >
+                🔴 구직 요청하기 (헤드헌터 도움)
+              </button>
+              {hasActiveRequest && (
+                <div style={{
+                  marginTop: 8,
+                  fontSize: 'clamp(10px, 2.5vw, 12px)',
+                  color: 'var(--muted2)',
+                  textAlign: 'center'
+                }}>
+                  💡 구직요청 삭제시 활성화
+                </div>
+              )}
+            </>
           )
         })()}
       </div>
