@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('job_applications')
       .update({
+        status: '헤드헌터접수',
         headhunter_status: 'assigned',
         headhunter_id,
         headhunter_name,

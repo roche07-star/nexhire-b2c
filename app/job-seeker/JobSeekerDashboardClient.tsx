@@ -157,7 +157,7 @@ export default function JobSeekerDashboardClient() {
         body: JSON.stringify({
           company: '희망 회사 미정',
           position: newJobRequest.position.trim(),
-          status: '구직 요청',
+          status: '구직요청',
           headhunter_status: 'requested',
           request_message: newJobRequest.message.trim(),
           notes: '대시보드에서 직접 생성 (자동 요청)'
@@ -383,10 +383,10 @@ export default function JobSeekerDashboardClient() {
         )}
       </div>
 
-      {/* 지원 중인 회사 */}
+      {/* 진행상황 */}
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 10, flexWrap: 'wrap' }}>
-          <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>📋 지원 중인 회사</div>
+          <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>📋 진행상황</div>
           <Link href="/analyze">
             <button className="btn btn-ghost btn-sm" style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', padding: '6px 12px', whiteSpace: 'nowrap' }}>
               + 새 지원
@@ -439,7 +439,7 @@ export default function JobSeekerDashboardClient() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
                         <div style={{ fontSize: 'clamp(13px, 3.5vw, 14px)', fontWeight: 600, color: 'var(--accent)' }}>
-                          {app.company}
+                          {app.status}
                         </div>
                         {app.schedules && app.schedules.length > 0 && (
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
