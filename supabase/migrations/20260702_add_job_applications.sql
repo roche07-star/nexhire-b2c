@@ -65,15 +65,20 @@ CREATE INDEX IF NOT EXISTS idx_job_schedules_date
 ON job_schedules(user_email, schedule_at)
 WHERE is_completed = FALSE;
 
--- updated_at 자동 업데이트 트리거
+-- updated_at 자동 업데이트 트리거 함수
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE plpgsql;
 
+-- 기존 트리거 삭제 (있다면)
+DROP TRIGGER IF EXISTS update_job_applications_updated_at ON job_applications;
+DROP TRIGGER IF EXISTS update_job_schedules_updated_at ON job_schedules;
+
+-- 트리거 생성
 CREATE TRIGGER update_job_applications_updated_at
   BEFORE UPDATE ON job_applications
   FOR EACH ROW
