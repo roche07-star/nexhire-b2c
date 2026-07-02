@@ -130,9 +130,16 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
   const availableMonths = getAvailableMonths()
 
   // 선택된 월의 데이터 필터링
+  // 주간 보고는 해당 주의 목요일(week_of + 3일) 기준으로 월 분류
+  const getMonthForWeek = (weekOf: string) => {
+    const date = new Date(weekOf)
+    date.setDate(date.getDate() + 3) // 목요일 기준
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  }
+
   const currentMonthOf = `${selectedMonth}-01`
   const filteredWeeklyReports = weeklyReports.filter(
-    r => r.week_of.substring(0, 7) === selectedMonth
+    r => getMonthForWeek(r.week_of) === selectedMonth
   )
   const monthlyReport = monthlyReports.find(
     r => r.month_of.substring(0, 7) === selectedMonth
