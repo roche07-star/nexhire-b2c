@@ -250,9 +250,25 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
       throw new Error('월간 리포트 저장 실패')
     }
 
+    // 월간 Report 생성 성공 후 해당 주간 Report 삭제
+    const { error: deleteError } = await supabase
+      .from('weekly_reports')
+      .delete()
+      .eq('user_email', userEmail)
+      .gte('week_of', startDateStr)
+      .lt('week_of', endDateStr)
+
+    if (deleteError) {
+      console.error('주간 Report 삭제 실패 (non-fatal):', deleteError)
+      // 삭제 실패는 치명적이지 않으므로 계속 진행
+    } else {
+      console.log('✅ 주간 Report 삭제 완료:', weeklyReports?.length, '개')
+    }
+
     return NextResponse.json({
       success: true,
       report: data,
+      deletedWeeklyReports: weeklyReports?.length || 0
     })
 
   } catch (error: any) {
