@@ -693,7 +693,7 @@ export async function POST(req: NextRequest) {
             if (!exp.description) return ''
             // Markdown 제거하고 순수 텍스트만
             const cleanDesc = exp.description
-              .replace(/\*\*/g, '')
+              .replaceAll('**', '')
               .replace(/^#+ /gm, '')
               .trim()
             return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
@@ -810,7 +810,7 @@ export async function POST(req: NextRequest) {
           .map((exp: any) => {
             if (!exp.description) return ''
             const cleanDesc = exp.description
-              .replace(/\*\*/g, '')
+              .replaceAll('**', '')
               .replace(/^#+ /gm, '')
               .trim()
             return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
@@ -966,7 +966,7 @@ ${maskedText}
           .map((exp: any) => {
             if (!exp.description) return ''
             const cleanDesc = exp.description
-              .replace(/\*\*/g, '')
+              .replaceAll('**', '')
               .replace(/^#+ /gm, '')
               .trim()
             return `${exp.company} 최신 업무 내역:\n${cleanDesc}`
