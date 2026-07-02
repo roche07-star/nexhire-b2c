@@ -7,7 +7,6 @@ import {
   BorderStyle,
   convertInchesToTwip,
   HeadingLevel,
-  UnderlineType,
   Header,
   Table,
   TableRow,
@@ -196,7 +195,7 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
   return Packer.toBuffer(doc)
 }
 
-// 헤드헌터 표준 양식 섹션 헤더 (개선된 스타일)
+// 헤드헌터 표준 양식 섹션 헤더 (깔끔한 스타일, 밑줄 없음)
 function standardSectionHeading(text: string): Paragraph {
   return new Paragraph({
     children: [
@@ -205,13 +204,9 @@ function standardSectionHeading(text: string): Paragraph {
         bold: true,
         size: 28,
         color: '1a1a2e',
-        underline: { type: UnderlineType.SINGLE, color: '1a1a2e' }
       }),
     ],
     spacing: { before: 480, after: 200 },
-    border: {
-      bottom: { style: BorderStyle.SINGLE, size: 12, color: '1a1a2e', space: 8 },
-    },
   })
 }
 
