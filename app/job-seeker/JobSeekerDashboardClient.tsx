@@ -292,17 +292,19 @@ export default function JobSeekerDashboardClient() {
                   </div>
 
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: color ? 8 : 0 }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      padding: '3px 8px',
-                      borderRadius: 10,
-                      background: color ? 'rgba(255,255,255,0.6)' : 'var(--accent)',
-                      color: color ? color.border : 'white',
-                      fontSize: 'clamp(9px, 2.5vw, 10px)',
-                      fontWeight: 600
-                    }}>
-                      {color ? color.label : (app.status === '지원 준비' ? '지원 완료' : app.status)}
-                    </div>
+                    {color && (
+                      <div style={{
+                        display: 'inline-flex',
+                        padding: '3px 8px',
+                        borderRadius: 10,
+                        background: 'rgba(255,255,255,0.6)',
+                        color: color.border,
+                        fontSize: 'clamp(9px, 2.5vw, 10px)',
+                        fontWeight: 600
+                      }}>
+                        {color.label}
+                      </div>
+                    )}
                     {!color && app.applied_at && (
                       <div style={{ fontSize: 'clamp(9px, 2.5vw, 10px)', color: 'var(--muted2)' }}>
                         지원일: {new Date(app.applied_at).toLocaleDateString('ko-KR')}
