@@ -1532,11 +1532,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 </div>
 
-                <div className="jd-list-title">생성할 이력서를 선택하세요</div>
+                <div className="jd-list-title">이력서 생성</div>
                 <p className="rewrite-desc">
-                  <strong>업로드 양식 기반</strong>: 업로드한 이력서 파일의 양식/서식을 거의 비슷하게 유지하며 JD 기반으로 내용을 보완합니다.<br />
-                  <strong>기본 이력서</strong>: JOBIZIC이 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조입니다.<br />
-                  JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 반영됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
+                  JOBIZIC이 추천하는 <strong>깔끔하고 전문적인 포맷</strong>으로 이력서를 생성합니다.<br />
+                  가독성이 뛰어나고 채용 담당자가 선호하는 구조로 자동 구성되며, 최신 업무 활동 내역도 자동으로 반영됩니다.<br />
+                  JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 최적화됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
                 </p>
                 {rewriteError && <div className="analyze-error">{rewriteError}</div>}
                 {rewriteChanges.length > 0 && (
@@ -2586,11 +2586,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <div className="preserve-checkbox-desc">
                           FREE 플랜은 이력서 1개가 자동으로 저장됩니다. 저장된 이력서로 <strong>이력서 생성</strong> 기능을 사용할 수 있습니다.
                           {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
-                          {analysisList && analysisList.filter(item => item.result?._file_path).length > 0 && (
-                            <span className="preserve-checkbox-replace">
-                              {' '}새 분석 시 기존 이력서가 교체됩니다.
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -2629,20 +2624,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           </div>
                         </div>
                       </label>
-                      {preserveChecked && preserved.length > 0 && rewriteCouponCount > 0 && (
-                        <label className="preserve-add-wrap">
-                          <input
-                            type="checkbox"
-                            className="consent-checkbox"
-                            checked={preserveAddWithCoupon}
-                            onChange={e => setPreserveAddWithCoupon(e.target.checked)}
-                          />
-                          <span className="preserve-add-desc">
-                            기존 이력서 유지하고 추가 저장
-                            <span className="preserve-option-badge coupon">쿠폰 {rewriteCouponCount}장</span>
-                          </span>
-                        </label>
-                      )}
                     </div>
                   )
                 })()}
@@ -2824,34 +2805,19 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       {formatSelectModal && (
         <div className="withdraw-overlay" onClick={() => resolveFormatSelect('cancel')}>
           <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="preserve-choice-title">이력서 양식 선택</div>
+            <div className="preserve-choice-title">이력서 생성</div>
             <div className="preserve-choice-desc">
-              {isTextPasteRewrite
-                ? '텍스트 붙여넣기로 분석된 이력서입니다. 원본 파일 포맷이 없으므로 자율 포맷 생성 또는 양식 업로드 중 선택해 주세요.'
-                : '생성할 이력서의 양식을 선택해 주세요.'}
+              JOBIZIC이 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다.
             </div>
-
-            <button className="preserve-option-card" onClick={() => resolveFormatSelect('original')}>
-              <div className="preserve-option-top">
-                <span className="preserve-option-icon">{isTextPasteRewrite ? '📝' : '📄'}</span>
-                <span className="preserve-option-label">{isTextPasteRewrite ? '자율 포맷 생성' : '업로드 양식 기반'}</span>
-                <span className="preserve-option-badge none">{isTextPasteRewrite ? 'AI 구성' : '업로드 포맷 유지'}</span>
-              </div>
-              <div className="preserve-option-desc">
-                {isTextPasteRewrite
-                  ? 'AI가 이력서 내용을 섹션별로 분석하여 깔끔한 DOCX 형식으로 새로 구성합니다.'
-                  : '업로드한 이력서 파일의 양식/서식을 거의 비슷하게 유지하며 내용을 보완하여 생성합니다. DOCX는 서식 최대한 보존, PDF는 업로드 파일 기반 새 DOCX로 생성됩니다.'}
-              </div>
-            </button>
 
             <button className="preserve-option-card" onClick={() => resolveFormatSelect('standard')}>
               <div className="preserve-option-top">
                 <span className="preserve-option-icon">✨</span>
-                <span className="preserve-option-label">기본 이력서</span>
+                <span className="preserve-option-label">이력서 생성</span>
                 <span className="preserve-option-badge coupon">JOBIZIC 추천</span>
               </div>
               <div className="preserve-option-desc">
-                JOBIZIC이 추천하는 깔끔하고 전문적인 포맷으로 이력서를 생성합니다. 가독성이 뛰어나고 채용 담당자가 선호하는 구조로 작성됩니다.
+                가독성이 뛰어나고 채용 담당자가 선호하는 구조로 작성되며, 최신 업무 활동 내역도 자동으로 반영됩니다.
               </div>
             </button>
 
