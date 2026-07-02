@@ -338,6 +338,33 @@ ${candidateProfile}`
     // 캐시 무효화 (Dashboard 통계 갱신)
     await invalidateCache(`dashboard:stats:${session.user.email}`)
 
+    // 구직 대시보드에 자동 추가 (JD 매칭 완료 시)
+    try {
+      const { data: existingApp } = await supabase
+        .from('job_applications')
+        .select('id')
+        .eq('user_email', session.user.email)
+        .eq('company', company)
+        .eq('position', position || '')
+        .single()
+
+      if (!existingApp) {
+        await supabase.from('job_applications').insert({
+          user_email: session.user.email,
+          company,
+          position: position || '포지션 미정',
+          status: '지원 준비',
+          headhunter_status: 'self'
+        })
+        console.log('✅ 구직 대시보드에 자동 추가:', { company, position })
+      } else {
+        console.log('ℹ️ 이미 등록된 지원 정보:', { company, position })
+      }
+    } catch (appError) {
+      console.error('구직 대시보드 추가 실패 (무시):', appError)
+      // 실패해도 JD 분석 결과는 정상 반환
+    }
+
     return NextResponse.json(resultPayload)
   } catch (e) {
     console.error('[analyze/jd]', e)
