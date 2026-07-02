@@ -565,20 +565,38 @@ export default function JobSeekerDashboardClient() {
               <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>
                 📝 업무 리포트
               </div>
-              <button
-                className="btn btn-ghost btn-sm"
-                style={{
-                  fontSize: 'clamp(10px, 2.5vw, 11px)',
-                  padding: '4px 8px',
-                  background: 'var(--accent)',
-                  color: '#000',
-                  border: 'none',
-                  fontWeight: 600
-                }}
-                onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of, data.reportIdeas)}
-              >
-                {data.reportIdeas ? '아이디어 보기' : '🤖 추천 아이디어'}
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  style={{
+                    fontSize: 'clamp(10px, 2.5vw, 11px)',
+                    padding: '4px 8px',
+                    background: 'var(--accent)',
+                    color: '#000',
+                    border: 'none',
+                    fontWeight: 600
+                  }}
+                  onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of, null)}
+                >
+                  🤖 추천 아이디어
+                </button>
+                {data.reportIdeas && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{
+                      fontSize: 'clamp(10px, 2.5vw, 11px)',
+                      padding: '4px 8px',
+                      background: 'var(--bg3)',
+                      color: 'var(--text)',
+                      border: '1px solid var(--border)',
+                      fontWeight: 600
+                    }}
+                    onClick={() => handleGetIdeas(data.monthlyReport!.aggregated_html, data.monthlyReport!.month_of, data.reportIdeas)}
+                  >
+                    아이디어 보기
+                  </button>
+                )}
+              </div>
             </div>
             <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted2)' }}>
               {new Date(data.monthlyReport.month_of).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
