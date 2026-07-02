@@ -756,7 +756,7 @@ export default function JobSeekerDashboardClient() {
         <div className="overlay" onClick={() => !loadingIdeas && setShowIdeasModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 600, width: '90%', maxHeight: '80vh', overflow: 'auto' }}>
             <div className="modal-header">
-              <div className="modal-title">💡 업무 리포트 개선 아이디어</div>
+              <div className="modal-title">💡 업무 개선 아이디어</div>
               <button className="modal-close" onClick={() => setShowIdeasModal(false)} disabled={loadingIdeas}>✕</button>
             </div>
 
