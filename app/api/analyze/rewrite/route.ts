@@ -856,6 +856,11 @@ export async function POST(req: NextRequest) {
 6. 기타 사항 (어학, 관련 교육 및 연수, 자격 사항, 기타 경력)
 7. 연봉 사항 (현재연봉, 희망연봉, 출근 가능시기)
 8. 지원사유 및 포부 및 자기소개
+9. 확인 문구 (마지막에 반드시 포함)
+   형식:
+   상기 기재 사항은 허위 사실이 없음을 확인합니다.
+   (오늘 날짜 - YYYY년 MM월 DD일)
+   지원자 : (성명)
 
 ${jdContext ? `[JD 최적화]
 강점: ${toArr(jdContext.matching_points).slice(0, 2).join(', ')}
