@@ -48,7 +48,6 @@ export default function JobSeekerDashboardClient() {
   // 새 구직 요청 모달
   const [showNewJobRequestModal, setShowNewJobRequestModal] = useState(false)
   const [newJobRequest, setNewJobRequest] = useState({
-    company: '',
     position: '',
     message: ''
   })
@@ -106,8 +105,8 @@ export default function JobSeekerDashboardClient() {
   }
 
   async function handleCreateJobRequest() {
-    if (!newJobRequest.company.trim() || !newJobRequest.position.trim()) {
-      alert('회사명과 포지션을 입력해주세요.')
+    if (!newJobRequest.position.trim()) {
+      alert('희망 포지션을 입력해주세요.')
       return
     }
 
@@ -117,7 +116,7 @@ export default function JobSeekerDashboardClient() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          company: newJobRequest.company.trim(),
+          company: '희망 회사 미정',
           position: newJobRequest.position.trim(),
           status: '구직 요청',
           headhunter_status: 'self',
@@ -129,7 +128,7 @@ export default function JobSeekerDashboardClient() {
       if (res.ok) {
         alert('구직 요청이 등록되었습니다! 🟢')
         setShowNewJobRequestModal(false)
-        setNewJobRequest({ company: '', position: '', message: '' })
+        setNewJobRequest({ position: '', message: '' })
         loadDashboard()
       } else {
         const error = await res.json()
@@ -428,33 +427,13 @@ export default function JobSeekerDashboardClient() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                회사명 *
-              </label>
-              <input
-                type="text"
-                value={newJobRequest.company}
-                onChange={e => setNewJobRequest({ ...newJobRequest, company: e.target.value })}
-                placeholder="예: 네이버"
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  borderRadius: 8,
-                  border: '2px solid var(--border)',
-                  fontSize: 13
-                }}
-                disabled={creatingJobRequest}
-              />
-            </div>
-
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                포지션 *
+                희망 포지션 *
               </label>
               <input
                 type="text"
                 value={newJobRequest.position}
                 onChange={e => setNewJobRequest({ ...newJobRequest, position: e.target.value })}
-                placeholder="예: 백엔드 개발자"
+                placeholder="예: 백엔드 개발자, 프론트엔드 개발자 등"
                 style={{
                   width: '100%',
                   padding: 10,
@@ -498,7 +477,7 @@ export default function JobSeekerDashboardClient() {
               <button
                 className="btn btn-primary"
                 onClick={handleCreateJobRequest}
-                disabled={creatingJobRequest || !newJobRequest.company.trim() || !newJobRequest.position.trim()}
+                disabled={creatingJobRequest || !newJobRequest.position.trim()}
                 style={{ flex: 1 }}
               >
                 {creatingJobRequest ? '등록 중...' : '등록하기'}
