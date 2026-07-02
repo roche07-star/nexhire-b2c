@@ -301,7 +301,7 @@ export default function JobSeekerDashboardClient() {
                       fontSize: 'clamp(9px, 2.5vw, 10px)',
                       fontWeight: 600
                     }}>
-                      {color ? color.label : app.status}
+                      {color ? color.label : (app.status === '지원 준비' ? '지원 완료' : app.status)}
                     </div>
                     {!color && app.applied_at && (
                       <div style={{ fontSize: 'clamp(9px, 2.5vw, 10px)', color: 'var(--muted2)' }}>
