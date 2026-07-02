@@ -107,7 +107,13 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
 // 표 형식 텍스트를 Table로 변환
 function parseTable(content: string): Table | null {
   const lines = content.split('\n').filter(l => l.trim())
-  const tableLines = lines.filter(l => l.trim().startsWith('|'))
+  const tableLines = lines
+    .filter(l => l.trim().startsWith('|'))
+    // 마크다운 테이블 구분선(|---|---|) 제외
+    .filter(line => {
+      const cells = line.split('|').filter(c => c.trim()).map(c => c.trim())
+      return !cells.every(cell => /^-+$/.test(cell))
+    })
 
   if (tableLines.length === 0) return null
 
