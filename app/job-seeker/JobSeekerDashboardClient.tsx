@@ -174,17 +174,6 @@ export default function JobSeekerDashboardClient() {
         </div>
       </div>
 
-      {/* 구직 요청하기 버튼 */}
-      <div style={{ marginBottom: 16 }}>
-        <button
-          className="btn btn-primary"
-          style={{ width: '100%', fontSize: 'clamp(13px, 3.5vw, 15px)', padding: 'clamp(10px, 3vw, 12px)' }}
-          onClick={() => setShowNewJobRequestModal(true)}
-        >
-          🟢 구직 요청하기 (헤드헌터 도움)
-        </button>
-      </div>
-
       {/* 다가올 일정 */}
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>📅 다가올 일정 (2주)</div>
@@ -326,23 +315,52 @@ export default function JobSeekerDashboardClient() {
 
       {/* 월간 리포트 */}
       {data.monthlyReport && (
-        <div className="card">
-          <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600, marginBottom: 12 }}>
-            📝 업무 리포트 ({new Date(data.monthlyReport.month_of).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })})
+        <div className="card" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 'clamp(15px, 4vw, 16px)', fontWeight: 600 }}>
+              📝 업무 리포트
+            </div>
+            <div style={{ fontSize: 'clamp(10px, 2.5vw, 11px)', color: 'var(--muted2)' }}>
+              {new Date(data.monthlyReport.month_of).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
+            </div>
           </div>
-          <div
-            style={{ fontSize: 'clamp(12px, 3vw, 13px)', lineHeight: 1.6, color: 'var(--muted)' }}
-            dangerouslySetInnerHTML={{ __html: data.monthlyReport.aggregated_html }}
-          />
+
+          <div style={{
+            background: 'var(--bg3)',
+            borderRadius: 8,
+            padding: 'clamp(12px, 3vw, 16px)',
+            marginBottom: 12
+          }}>
+            <div
+              style={{
+                fontSize: 'clamp(11px, 3vw, 12px)',
+                lineHeight: 1.7,
+                color: 'var(--text)'
+              }}
+              dangerouslySetInnerHTML={{ __html: data.monthlyReport.aggregated_html }}
+            />
+          </div>
+
           {!data.monthlyReport.applied_to_analysis_id && (
             <Link href="/analyze">
-              <button className="btn btn-primary" style={{ marginTop: 12, width: '100%', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
+              <button className="btn btn-primary" style={{ width: '100%', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
                 ✨ 이력서에 반영하기
               </button>
             </Link>
           )}
         </div>
       )}
+
+      {/* 구직 요청하기 버튼 */}
+      <div style={{ marginBottom: 16 }}>
+        <button
+          className="btn btn-primary"
+          style={{ width: '100%', fontSize: 'clamp(13px, 3.5vw, 15px)', padding: 'clamp(10px, 3vw, 12px)' }}
+          onClick={() => setShowNewJobRequestModal(true)}
+        >
+          🔴 구직 요청하기 (헤드헌터 도움)
+        </button>
+      </div>
 
       {/* 헤드헌터 요청 모달 */}
       {showRequestModal && selectedApp && (
