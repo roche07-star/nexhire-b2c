@@ -511,17 +511,19 @@ export default function JobSeekerDashboardClient() {
                     )}
                   </div>
 
-                  {/* 일정 추가 버튼 */}
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    style={{ width: '100%', fontSize: 'clamp(10px, 2.5vw, 11px)', marginTop: 8, padding: '6px' }}
-                    onClick={() => {
-                      setSelectedAppForSchedule(app)
-                      setShowScheduleModal(true)
-                    }}
-                  >
-                    📅 일정 추가
-                  </button>
+                  {/* 일정 추가 버튼 - 구직요청 상태가 아닐 때만 표시 */}
+                  {!['구직요청', '구직활동', '헤드헌터접수'].includes(app.status) && (
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ width: '100%', fontSize: 'clamp(10px, 2.5vw, 11px)', marginTop: 8, padding: '6px' }}
+                      onClick={() => {
+                        setSelectedAppForSchedule(app)
+                        setShowScheduleModal(true)
+                      }}
+                    >
+                      📅 일정 추가
+                    </button>
+                  )}
 
                   {/* 구직 요청 상태 표시 */}
                   {isHeadhunterRequest && app.headhunter_status === 'requested' && (
