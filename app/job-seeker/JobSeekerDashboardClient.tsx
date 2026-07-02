@@ -134,7 +134,6 @@ export default function JobSeekerDashboardClient() {
 
     setCreatingJobRequest(true)
     try {
-      // 1. 구직 요청 생성
       const res = await fetch('/api/job-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,24 +143,12 @@ export default function JobSeekerDashboardClient() {
           status: '구직요청',
           headhunter_status: 'requested',
           request_message: newJobRequest.message.trim(),
-          notes: '대시보드에서 직접 생성 (자동 요청)'
+          notes: '대시보드에서 직접 생성 (관리자 검토 대기)'
         })
       })
 
       if (res.ok) {
-        // 2. 헤드헌터 추천 자동 enable (구직 요청 = 헤드헌터 도움 필요)
-        try {
-          await fetch('/api/consents/headhunter', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          })
-          console.log('✅ 헤드헌터 추천 자동 enable 완료')
-        } catch (consentError) {
-          console.error('헤드헌터 추천 enable 실패 (non-fatal):', consentError)
-          // 실패해도 구직 요청은 생성됨
-        }
-
-        alert('구직 요청이 접수되었습니다! 🔴\n헤드헌터 배정 후 연락드리겠습니다.')
+        alert('구직 요청이 접수되었습니다! 🔴\n관리자 검토 후 헤드헌터 배정 예정입니다.')
         setShowNewJobRequestModal(false)
         setNewJobRequest({ position: '', message: '' })
         loadDashboard()
