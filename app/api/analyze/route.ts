@@ -625,13 +625,15 @@ ${maskedText.slice(0, 3000)}
 
     // 월간 업무 Report 자동 통합
     let monthlyReportMessage: string | null = null
+    let integratedResult = resultToSave
     if (insertData?.id) {
       const { integrateMonthlyReports } = await import('@/lib/integrateMonthlyReports')
-      const { changeMessage } = await integrateMonthlyReports(
+      const { updatedResult, changeMessage } = await integrateMonthlyReports(
         insertData.id,
         email,
         resultToSave
       )
+      integratedResult = updatedResult
       monthlyReportMessage = changeMessage
       if (changeMessage) {
         console.log('[analyze] ✅ 월간 Report 통합:', changeMessage)
@@ -749,7 +751,7 @@ ${maskedText.slice(0, 3000)}
           .upload(filePath, uploadBuffer, { contentType, upsert: false })
         if (!storageErr) {
           const { error: updateErr } = await supabase.from('analyses')
-            .update({ result: JSON.parse(JSON.stringify({ ...resultPayload, _file_path: filePath })) })
+            .update({ result: JSON.parse(JSON.stringify({ ...integratedResult, _file_path: filePath })) })
             .eq('id', insertData.id)
           if (updateErr) {
             console.error('[analyze] 이력서 보존 실패 - DB 업데이트 오류:', updateErr)
