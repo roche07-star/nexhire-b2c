@@ -170,6 +170,48 @@ export default function JobSeekerDashboardClient() {
     }
   }
 
+  function getScheduleTypeText(type: 'interview' | 'deadline' | 'other') {
+    switch (type) {
+      case 'interview': return '면접'
+      case 'deadline': return '마감'
+      case 'other': return '일정'
+    }
+  }
+
+  async function handleDeleteSchedule(scheduleId: string) {
+    if (!confirm('일정을 삭제하시겠습니까?')) return
+
+    try {
+      const res = await fetch(`/api/job-schedules/${scheduleId}`, { method: 'DELETE' })
+      if (res.ok) {
+        alert('일정이 삭제되었습니다.')
+        loadDashboard()
+      } else {
+        alert('삭제 실패')
+      }
+    } catch (error) {
+      console.error('삭제 실패:', error)
+      alert('오류가 발생했습니다.')
+    }
+  }
+
+  async function handleDeleteApplication(appId: string) {
+    if (!confirm('지원 정보를 삭제하시겠습니까?')) return
+
+    try {
+      const res = await fetch(`/api/job-applications/${appId}`, { method: 'DELETE' })
+      if (res.ok) {
+        alert('지원 정보가 삭제되었습니다.')
+        loadDashboard()
+      } else {
+        alert('삭제 실패')
+      }
+    } catch (error) {
+      console.error('삭제 실패:', error)
+      alert('오류가 발생했습니다.')
+    }
+  }
+
   if (loading) {
     return (
       <main className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -224,17 +266,29 @@ export default function JobSeekerDashboardClient() {
                     gap: 10
                   }}
                 >
-                  <div style={{ fontSize: 'clamp(14px, 4vw, 16px)', flexShrink: 0 }}>
-                    {schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'}
-                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 'clamp(12px, 3.5vw, 13px)', fontWeight: 600, marginBottom: 2 }}>
-                      {month}월 {day}일 {hours}:{minutes}
+                      {getScheduleTypeText(schedule.type)}: {month}월 {day}일 {hours}:{minutes}
                     </div>
                     <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {schedule.title}
                     </div>
                   </div>
+                  <button
+                    onClick={() => handleDeleteSchedule(schedule.id)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--muted)',
+                      cursor: 'pointer',
+                      fontSize: 18,
+                      padding: 4,
+                      lineHeight: 1,
+                      flexShrink: 0
+                    }}
+                  >
+                    ✕
+                  </button>
                 </div>
               )
             })}
@@ -304,7 +358,6 @@ export default function JobSeekerDashboardClient() {
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             {app.schedules.map(schedule => {
                               const scheduleDate = new Date(schedule.schedule_at)
-                              const icon = schedule.type === 'interview' ? '🎤' : schedule.type === 'deadline' ? '⏰' : '📌'
                               const month = scheduleDate.getMonth() + 1
                               const day = scheduleDate.getDate()
                               const hours = String(scheduleDate.getHours()).padStart(2, '0')
@@ -321,7 +374,7 @@ export default function JobSeekerDashboardClient() {
                                     whiteSpace: 'nowrap'
                                   }}
                                 >
-                                  {icon} {month}월 {day}일 {hours}:{minutes}
+                                  {getScheduleTypeText(schedule.type)}: {month}월 {day}일 {hours}:{minutes}
                                 </div>
                               )
                             })}
@@ -332,6 +385,22 @@ export default function JobSeekerDashboardClient() {
                         {app.position}
                       </div>
                     </div>
+                    <button
+                      onClick={() => handleDeleteApplication(app.id)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--muted)',
+                        cursor: 'pointer',
+                        fontSize: 18,
+                        padding: 4,
+                        lineHeight: 1,
+                        flexShrink: 0,
+                        alignSelf: 'flex-start'
+                      }}
+                    >
+                      ✕
+                    </button>
                   </div>
 
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: color ? 8 : 0 }}>
