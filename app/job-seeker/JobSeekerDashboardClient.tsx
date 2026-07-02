@@ -650,7 +650,7 @@ export default function JobSeekerDashboardClient() {
               <textarea
                 value={newJobRequest.message}
                 onChange={e => setNewJobRequest({ ...newJobRequest, message: e.target.value })}
-                placeholder="어떤 도움이 필요하신가요?&#10;예: 백엔드 개발자로 이직하고 싶습니다&#10;예: 면접 준비를 도와주세요"
+                placeholder="포지션, 재직여부, 이직가능일 명시&#10;예) 프로젝트 매니저, 쿠팡재직, 한달내 이직원함"
                 style={{
                   width: '100%',
                   minHeight: 100,
