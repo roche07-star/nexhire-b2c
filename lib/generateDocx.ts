@@ -9,6 +9,11 @@ import {
   HeadingLevel,
   UnderlineType,
   Header,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  VerticalAlign,
 } from 'docx'
 
 export interface RewriteResult {
@@ -99,6 +104,48 @@ function contentLines(content: string): Paragraph[] {
   })
 }
 
+// 표 형식 텍스트를 Table로 변환
+function parseTable(content: string): Table | null {
+  const lines = content.split('\n').filter(l => l.trim())
+  const tableLines = lines.filter(l => l.trim().startsWith('|'))
+
+  if (tableLines.length === 0) return null
+
+  const rows = tableLines.map(line => {
+    const cells = line.split('|').filter(c => c.trim()).map(c => c.trim())
+    return new TableRow({
+      children: cells.map(cell =>
+        new TableCell({
+          children: [new Paragraph({
+            children: parseBoldText(cell),
+            spacing: { after: 60, line: 240 },
+          })],
+          verticalAlign: VerticalAlign.CENTER,
+          margins: {
+            top: 100,
+            bottom: 100,
+            left: 100,
+            right: 100,
+          },
+        })
+      ),
+    })
+  })
+
+  return new Table({
+    rows,
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+      bottom: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+      left: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+      right: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 6, color: '999999' },
+    },
+  })
+}
+
 export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
   const children: Paragraph[] = []
 
@@ -173,7 +220,7 @@ export async function generateStandardDocx(
   sections: Array<{ title: string; content: string }>,
   candidateName?: string
 ): Promise<Buffer> {
-  const children: Paragraph[] = []
+  const children: (Paragraph | Table)[] = []
 
   // 이름 헤더 (중앙 정렬, 더 크게)
   if (candidateName) {
@@ -194,7 +241,23 @@ export async function generateStandardDocx(
   // 섹션 순서 그대로
   for (const section of sections) {
     children.push(standardSectionHeading(section.title))
-    children.push(...contentLines(section.content))
+
+    // 학력 사항, 경력 사항은 표 형식으로
+    if (section.title.includes('학력') || section.title.includes('경력')) {
+      const table = parseTable(section.content)
+      if (table) {
+        children.push(table)
+        // 표가 아닌 나머지 텍스트 (예: "총 경력: 13년 8개월")
+        const nonTableLines = section.content.split('\n').filter(l => l.trim() && !l.trim().startsWith('|'))
+        if (nonTableLines.length > 0) {
+          children.push(...contentLines(nonTableLines.join('\n')))
+        }
+      } else {
+        children.push(...contentLines(section.content))
+      }
+    } else {
+      children.push(...contentLines(section.content))
+    }
   }
 
   const doc = new Document({
