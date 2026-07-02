@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
 
     const userEmail = session.user.email
 
-    // 해당 월의 주간 리포트 조회 (해당 월 -7일 ~ +1개월 범위로 확장하여 월경계 주 포함)
+    // 해당 월의 주간 리포트 조회 (해당 월 1일 ~ 말일만 포함, 월 경계 주간 제외)
     const monthDate = new Date(monthOf)
-    const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), monthDate.getDate() - 7)
+    const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
     const endDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1)
 
     const startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`
