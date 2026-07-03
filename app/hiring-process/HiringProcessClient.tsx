@@ -276,14 +276,14 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
       transition: 'all 0.2s'
     }}>
       {/* 헤더 */}
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
         {/* 후보자 이름 - 강조 표시 */}
         <div style={{
           fontSize: '16px',
           fontWeight: 700,
           color: '#fff',
-          marginBottom: '12px',
-          padding: '8px 12px',
+          marginBottom: '16px',
+          padding: '10px 14px',
           background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)',
           borderRadius: '8px',
           border: '1px solid rgba(167, 139, 250, 0.3)',
@@ -311,10 +311,11 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          padding: '8px 0'
         }}>
-          <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
-            {process.company_name} • {process.position_title}
+          <div style={{ fontSize: '14px', color: 'var(--muted)', fontWeight: 500 }}>
+            🏢 {process.company_name} • {process.position_title}
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
           <button
@@ -365,22 +366,25 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
         </div>
       </div>
 
-      {/* 프로세스 바 */}
-      <div style={{ position: 'relative', height: '8px', background: 'var(--border)', borderRadius: '4px', marginBottom: '12px' }}>
-        <div style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          height: '100%',
-          width: `${progress}%`,
-          background: stageColor,
-          borderRadius: '4px',
-          transition: 'width 0.3s'
-        }} />
-      </div>
+      {/* 프로세스 섹션 */}
+      <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+        {/* 프로세스 바 */}
+        <div style={{ position: 'relative', height: '10px', background: 'var(--border)', borderRadius: '5px', marginBottom: '16px' }}>
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            height: '100%',
+            width: `${progress}%`,
+            background: stageColor,
+            borderRadius: '5px',
+            transition: 'width 0.3s',
+            boxShadow: `0 0 10px ${stageColor}40`
+          }} />
+        </div>
 
-      {/* 단계 표시 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+        {/* 단계 표시 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         {[0, 1, 2, 3, 4, 5, 6].map((stage) => (
           <span key={stage} style={{
             fontSize: '11px',
@@ -390,6 +394,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
             {STAGE_LABELS[stage as HiringProcessStage]}
           </span>
         ))}
+        </div>
       </div>
 
       {/* 다음 액션 */}
