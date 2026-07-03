@@ -42,6 +42,9 @@ const FEATURE_LABELS: Record<string, string> = {
   direction: '방향성 분석',
   jd: 'JD 매칭 분석',
   rewrite: '이력서 생성',
+  interview: '면접 가이드',
+  proposal: '클라이언트 제안서',
+  package: '🎁 올인원 패키지',
 }
 
 type AdminTab = 'users' | 'coupons' | 'tokens' | 'audit-logs'

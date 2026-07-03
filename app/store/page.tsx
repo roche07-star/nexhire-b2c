@@ -4,7 +4,7 @@ import StoreClient from './StoreClient'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-export const metadata = { title: 'Store — Jobizic' }
+export const metadata = { title: 'STORE — Jobizic' }
 
 export default async function StorePage() {
   let isManager = false
