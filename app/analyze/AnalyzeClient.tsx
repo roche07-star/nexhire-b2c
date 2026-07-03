@@ -570,14 +570,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       return
     }
 
-    if (!savedSelectedItem?.id) {
+    // upload 메뉴: analysisId 사용, saved 메뉴: savedSelectedItem.id 사용
+    const targetId = analysisId || savedSelectedItem?.id
+    if (!targetId) {
       alert('분석 ID를 찾을 수 없습니다.')
       return
     }
 
     setSavingCandidateName(true)
     try {
-      const res = await fetch(`/api/analyze/${savedSelectedItem.id}`, {
+      const res = await fetch(`/api/analyze/${targetId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ candidate_name: name })
