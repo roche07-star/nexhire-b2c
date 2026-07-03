@@ -173,8 +173,8 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
   }
 
   const result = data.result
-  const name = result.candidate_name || result.name || '미정'
-  const position = result.job_title || result.position || '미정'
+  const name = result.candidate_name || result.name || '미상'
+  const position = result.job_title || result.position || '미상'
   const score = result.scores?.job_fit || 0
 
   return (

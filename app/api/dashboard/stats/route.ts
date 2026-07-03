@@ -153,8 +153,8 @@ export async function GET() {
         const resumeActivities = resumeActivity.data?.map((item: any) => ({
           id: item.id,
           type: 'resume' as const,
-          name: item.candidate_name || '미정',
-          position: item.position || '미정',
+          name: item.candidate_name || '미상',
+          position: item.position || '미상',
           score: item.score || 0,
           stage: item.pipeline_stage || 'pending',
           createdAt: item.created_at,
@@ -167,8 +167,8 @@ export async function GET() {
             return {
               id: item.id,
               type: 'jd' as const,
-              name: result?.candidate_name || '미정',
-              position: `${result?.company || '미정'} - ${result?.position || '미정'}`,
+              name: result?.candidate_name || '미상',
+              position: `${result?.company || '미상'} - ${result?.position || '미상'}`,
               score: result?.fit_score || 0,
               stage: 'jd',
               createdAt: item.created_at,

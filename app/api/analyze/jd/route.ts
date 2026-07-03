@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
           .join(' | ')
       : ''
 
-    const candidateName = (a.candidate_name as string) ?? (a.name as string) ?? '미정'
+    const candidateName = (a.candidate_name as string) ?? (a.name as string) ?? '미상'
 
     const candidateProfile = `
 후보자: ${candidateName}

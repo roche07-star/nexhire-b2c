@@ -116,10 +116,10 @@ export async function GET(request: Request) {
         try {
           const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
           if (!name) {
-            name = result?.candidate_name || result?.name || result?.candidateName || '미정'
+            name = result?.candidate_name || result?.name || result?.candidateName || '미상'
           }
           if (!position) {
-            position = result?.position || result?.targetPosition || result?.job_title || '미정'
+            position = result?.position || result?.targetPosition || result?.job_title || '미상'
           }
           if (score === null || score === undefined) {
             score = result?.scores?.job_fit || result?.score || result?.totalScore || 0
@@ -132,8 +132,8 @@ export async function GET(request: Request) {
           }
         } catch {
           // 파싱 실패 시 기본값 유지
-          name = name || '미정'
-          position = position || '미정'
+          name = name || '미상'
+          position = position || '미상'
           score = score || 0
           phone = phone || ''
           candidateEmail = candidateEmail || ''

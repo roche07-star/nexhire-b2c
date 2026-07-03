@@ -1494,7 +1494,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div className="analyze-candidate-name">{result?.candidate_name || '후보자 미정'}</div>
+                      <div className="analyze-candidate-name">{result?.candidate_name || '후보자 미상'}</div>
                       <button
                         onClick={() => {
                           setEditingCandidateName(true)
