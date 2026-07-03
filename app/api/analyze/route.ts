@@ -20,6 +20,7 @@ const baseTool: Anthropic.Tool = {
   input_schema: {
     type: 'object' as const,
     properties: {
+      candidate_name: { type: 'string', description: '후보자 이름 (이력서에서 추출, "이름:", "성명:", "Name:" 레이블이 있으면 해당 값, 없으면 맥락상 이름으로 추정되는 한국어 2~4글자 또는 영문 이름 추출. 회사명/직무명과 혼동 금지. 확실하지 않으면 빈 문자열)' },
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명' },
       total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
       education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
@@ -67,7 +68,7 @@ const baseTool: Anthropic.Tool = {
         },
       },
     },
-    required: ['job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
+    required: ['candidate_name', 'job_title', 'scores', 'career_paths', 'strengths', 'improvements', 'keywords', 'summary'],
   },
 }
 const proBasicTool: Anthropic.Tool = {
@@ -76,6 +77,7 @@ const proBasicTool: Anthropic.Tool = {
   input_schema: {
     type: 'object' as const,
     properties: {
+      candidate_name: { type: 'string', description: '후보자 이름 (이력서에서 추출, "이름:", "성명:", "Name:" 레이블이 있으면 해당 값, 없으면 맥락상 이름으로 추정되는 한국어 2~4글자 또는 영문 이름 추출. 회사명/직무명과 혼동 금지. 확실하지 않으면 빈 문자열)' },
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)' },
       total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
       education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
@@ -95,7 +97,7 @@ const proBasicTool: Anthropic.Tool = {
       improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (최대 4개). ⚠️ 연차별 현실적 기준: 1-3년차는 실무, 4-7년차는 리딩, 8년차+ 팀 관리. 6년차에게 관리자급 경험 요구 절대 금지!' },
       keywords: { type: 'array', items: { type: 'string' }, description: '이력서에서 발견된 핵심 키워드 (최대 8개)' },
     },
-    required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
+    required: ['candidate_name', 'job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
   },
 }
 
@@ -282,11 +284,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: '이력서에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
       }
     }
-
-    const nameMatch = resumeText.match(
-      /(이름|성명|Name|성 명|성함)\s*[:：]?\s*([가-힣]{2,5}|[a-zA-Z]{2,30}(?:\s[a-zA-Z]{1,20})?)/i
-    )
-    const candidateName = nameMatch ? nameMatch[2].trim() : undefined
 
     const maskedText = maskPII(resumeText)
 
@@ -494,7 +491,6 @@ ${maskedText.slice(0, 3000)}
         ...basicInput,
         career_paths: careerPaths,
         plan,
-        ...(candidateName ? { candidate_name: candidateName } : {}),
       }
     } else {
       // FREE: 단일 call, BASELINE 1개
@@ -602,7 +598,6 @@ ${maskedText.slice(0, 3000)}
       resultPayload = {
         ...(toolUse.input as object),
         plan,
-        ...(candidateName ? { candidate_name: candidateName } : {}),
       }
     }
 
