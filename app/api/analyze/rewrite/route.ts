@@ -82,6 +82,15 @@ function restorePIIValues(text: string, pii: ReturnType<typeof extractPIIValues>
   return out
 }
 
+// 단락 뒤 공백 제거 함수
+function cleanTrailingSpaces(text: string): string {
+  return text
+    .split('\n')
+    .map(line => line.trimEnd())
+    .join('\n')
+    .trim()
+}
+
 const CL_KEYWORDS = ['자기소개', '지원사유', '지원동기', '지원 사유', '지원 동기', '포부']
 
 function isCoverLetterSection(title: string): boolean {
@@ -966,10 +975,10 @@ ${maskedText}
         return NextResponse.json({ error: '이력서 섹션 생성 실패' }, { status: 500 })
       }
 
-      // PII 복원
+      // PII 복원 + 단락 뒤 공백 제거
       const restoredSections = sections.map(s => ({
         title: restorePIIValues(s.title, piiVals),
-        content: restorePIIValues(s.content, piiVals),
+        content: cleanTrailingSpaces(restorePIIValues(s.content, piiVals)),
       }))
 
       if (role !== 'MANAGER') await incrementUsage(email, 'rewrite')
@@ -1084,8 +1093,8 @@ ${maskedText}
                 if (clTool?.type === 'tool_use') {
                   const inp = clTool.input as { application_reason: string; self_introduction: string }
                   return {
-                    application_reason: restorePIIValues(inp.application_reason, piiValsCL),
-                    self_introduction: restorePIIValues(inp.self_introduction, piiValsCL),
+                    application_reason: cleanTrailingSpaces(restorePIIValues(inp.application_reason, piiValsCL)),
+                    self_introduction: cleanTrailingSpaces(restorePIIValues(inp.self_introduction, piiValsCL)),
                   }
                 }
               } catch (e) { console.error('[rewrite] CL call failed (non-fatal):', e) }
@@ -1145,13 +1154,13 @@ ${maskedText}
         if (clContentIndexSet.has(p.index)) {
           if (clContent) {
             const slotIdx = clContentIndices.indexOf(p.index)
-            if (slotIdx === 0) return clContent.application_reason
-            if (slotIdx === 1) return clContent.self_introduction
+            if (slotIdx === 0) return cleanTrailingSpaces(clContent.application_reason)
+            if (slotIdx === 1) return cleanTrailingSpaces(clContent.self_introduction)
           }
           return p.text  // fallback: 원본 유지
         }
         const nonEmptyIdx = nonEmpty.findIndex(ne => ne.index === p.index)
-        return nonEmptyIdx !== -1 ? (rewrites[nonEmptyIdx] ?? p.text) : p.text
+        return nonEmptyIdx !== -1 ? cleanTrailingSpaces(rewrites[nonEmptyIdx] ?? p.text) : p.text
       })
 
       const allChanges = [
@@ -1278,9 +1287,9 @@ ${maskedText}
       return NextResponse.json({ error: '이력서 섹션 데이터를 받지 못했습니다. 다시 시도해 주세요.' }, { status: 500 })
     }
 
-    // PII 복원: Claude가 마스킹된 값으로 작성한 경우 원본 이메일/연락처/이름으로 치환
+    // PII 복원 + 단락 뒤 공백 제거: Claude가 마스킹된 값으로 작성한 경우 원본 이메일/연락처/이름으로 치환
     for (const sec of rewriteData.sections) {
-      sec.content = restorePIIValues(sec.content, piiValues)
+      sec.content = cleanTrailingSpaces(restorePIIValues(sec.content, piiValues))
     }
 
     // 자기소개서/지원사유 섹션: 전문 프롬프트로 대체 (JD가 있을 때)
@@ -1321,9 +1330,9 @@ ${maskedText}
             for (const sec of rewriteData.sections) {
               if (!isCoverLetterSection(sec.title)) continue
               const t = coverLetterSectionType(sec.title)
-              if (t === 'application') sec.content = application_reason
-              else if (t === 'selfintro') sec.content = self_introduction
-              else sec.content = `${application_reason}\n\n${self_introduction}`
+              if (t === 'application') sec.content = cleanTrailingSpaces(application_reason)
+              else if (t === 'selfintro') sec.content = cleanTrailingSpaces(self_introduction)
+              else sec.content = cleanTrailingSpaces(`${application_reason}\n\n${self_introduction}`)
             }
           }
         } catch (err) {
