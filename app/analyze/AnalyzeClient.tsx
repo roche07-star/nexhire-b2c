@@ -2483,6 +2483,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           >
                             <div className="jd-card-top">
                               <span className="jd-card-title">
+                                {item.result.candidate_name && (
+                                  <span style={{ color: '#a78bfa', marginRight: '8px' }}>
+                                    👤 {item.result.candidate_name}
+                                  </span>
+                                )}
                                 {item.result.job_title ?? '이력서 분석'}
                               </span>
                               <span className="jd-card-date">

@@ -175,7 +175,10 @@ export async function POST(req: NextRequest) {
           .join(' | ')
       : ''
 
+    const candidateName = (a.candidate_name as string) ?? (a.name as string) ?? '미정'
+
     const candidateProfile = `
+후보자: ${candidateName}
 직무: ${(a.job_title as string) ?? '미상'}
 종합 요약: ${(a.summary as string) ?? ''}
 핵심 강점: ${toArr(a.strengths).join(' / ')}
@@ -311,7 +314,7 @@ ${candidateProfile}`
       ...(toolUse.input as object),
       company,
       position: position?.trim() || null,
-      candidate_name: (a.candidate_name as string) ?? (a.name as string) ?? '미정',
+      candidate_name: candidateName,
       resume_job_title: (a.job_title as string) ?? null,
       resume_analyzed_at: new Date().toISOString(),
     }
