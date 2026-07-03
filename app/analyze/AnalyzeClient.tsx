@@ -356,6 +356,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [isTextPasteRewrite, setIsTextPasteRewrite] = useState(false)
   const [savedJDTemplates, setSavedJDTemplates] = useState<JDTemplate[]>([])
   const [showJDInput, setShowJDInput] = useState(false)
+  const [editingCandidateName, setEditingCandidateName] = useState(false)
+  const [candidateNameInput, setCandidateNameInput] = useState('')
+  const [savingCandidateName, setSavingCandidateName] = useState(false)
   const formatSelectResolveRef = useRef<((choice: 'original' | 'standard' | 'cancel') => void) | null>(null)
   const [templateUploadModal, setTemplateUploadModal] = useState(false)
   const templateUploadResolveRef = useRef<((file: File | 'cancel') => void) | null>(null)
@@ -557,6 +560,53 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       alert('공유 URL 생성 중 오류가 발생했습니다.')
     } finally {
       setSharingId(null)
+    }
+  }
+
+  async function saveCandidateName() {
+    const name = candidateNameInput.trim()
+    if (!name) {
+      alert('후보자 이름을 입력해 주세요.')
+      return
+    }
+
+    if (!savedSelectedItem?.id) {
+      alert('분석 ID를 찾을 수 없습니다.')
+      return
+    }
+
+    setSavingCandidateName(true)
+    try {
+      const res = await fetch(`/api/analyze/${savedSelectedItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidate_name: name })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || '저장 실패')
+        return
+      }
+
+      // 로컬 state 업데이트
+      if (result) {
+        setResult({ ...result, candidate_name: name })
+      }
+      if (savedSelectedItem) {
+        setSavedSelectedItem({
+          ...savedSelectedItem,
+          result: { ...savedSelectedItem.result, candidate_name: name }
+        })
+      }
+
+      setEditingCandidateName(false)
+      alert('✅ 후보자 이름이 저장되었습니다.')
+    } catch (err) {
+      console.error('[saveCandidateName] Error:', err)
+      alert('저장 중 오류가 발생했습니다.')
+    } finally {
+      setSavingCandidateName(false)
     }
   }
 
@@ -1373,10 +1423,97 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 )}
               </div>
             <div className={`analyze-header${activeMenu === 'saved' && result ? ' analyze-header--saved' : ''}`}>
-              {activeMenu === 'saved' && result?.candidate_name ? (
+              {activeMenu === 'saved' && (result?.candidate_name || editingCandidateName) ? (
                 <div className="analyze-candidate-header">
-                  <div className="analyze-candidate-name">{result.candidate_name}</div>
-                  {result.job_title && <div className="analyze-candidate-job">{result.job_title}</div>}
+                  {editingCandidateName ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                      <input
+                        type="text"
+                        value={candidateNameInput}
+                        onChange={(e) => setCandidateNameInput(e.target.value)}
+                        placeholder="후보자 이름 입력"
+                        disabled={savingCandidateName}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveCandidateName()
+                          if (e.key === 'Escape') {
+                            setEditingCandidateName(false)
+                            setCandidateNameInput('')
+                          }
+                        }}
+                        style={{
+                          fontSize: '36px',
+                          fontWeight: 800,
+                          color: '#fff',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '2px solid #a78bfa',
+                          borderRadius: '12px',
+                          padding: '8px 16px',
+                          outline: 'none',
+                          flex: 1,
+                        }}
+                      />
+                      <button
+                        onClick={saveCandidateName}
+                        disabled={savingCandidateName}
+                        style={{
+                          padding: '8px 16px',
+                          background: '#a78bfa',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: savingCandidateName ? 'not-allowed' : 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          opacity: savingCandidateName ? 0.5 : 1,
+                        }}
+                      >
+                        {savingCandidateName ? '저장 중...' : '저장'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingCandidateName(false)
+                          setCandidateNameInput('')
+                        }}
+                        disabled={savingCandidateName}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'rgba(255,255,255,0.1)',
+                          color: '#fff',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '8px',
+                          cursor: savingCandidateName ? 'not-allowed' : 'pointer',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className="analyze-candidate-name">{result?.candidate_name || '후보자 미정'}</div>
+                      <button
+                        onClick={() => {
+                          setEditingCandidateName(true)
+                          setCandidateNameInput(result?.candidate_name || '')
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          background: 'rgba(167, 139, 250, 0.2)',
+                          color: '#a78bfa',
+                          border: '1px solid rgba(167, 139, 250, 0.4)',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        ✏️ 수정
+                      </button>
+                    </div>
+                  )}
+                  {!editingCandidateName && result?.job_title && <div className="analyze-candidate-job">{result.job_title}</div>}
                 </div>
               ) : (
                 <>
