@@ -276,27 +276,47 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
       transition: 'all 0.2s'
     }}>
       {/* 헤더 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700 }}>{process.candidate_name}</h3>
-            <span style={{
-              padding: '4px 10px',
-              background: stageColor + '20',
-              color: stageColor,
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 600,
-              border: `1px solid ${stageColor}40`
-            }}>
-              {STAGE_LABELS[process.current_stage as HiringProcessStage]}
-            </span>
-          </div>
+      <div style={{ marginBottom: '16px' }}>
+        {/* 후보자 이름 - 강조 표시 */}
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 700,
+          color: '#fff',
+          marginBottom: '12px',
+          padding: '8px 12px',
+          background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)',
+          borderRadius: '8px',
+          border: '1px solid rgba(167, 139, 250, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <span>👤</span>
+          <span>{process.candidate_name}</span>
+          <span style={{
+            padding: '4px 10px',
+            background: stageColor + '20',
+            color: stageColor,
+            borderRadius: '6px',
+            fontSize: '11px',
+            fontWeight: 600,
+            border: `1px solid ${stageColor}40`,
+            marginLeft: 'auto'
+          }}>
+            {STAGE_LABELS[process.current_stage as HiringProcessStage]}
+          </span>
+        </div>
+
+        {/* 회사명 • 포지션 */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
           <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
             {process.company_name} • {process.position_title}
           </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={deleteProcess}
             disabled={deleting}
@@ -341,6 +361,7 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
           >
             {expanded ? '▲' : '▼'}
           </button>
+          </div>
         </div>
       </div>
 
