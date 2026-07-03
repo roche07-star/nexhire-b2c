@@ -39,6 +39,7 @@ export interface SavedAnalysis {
 
 export interface JDResult {
   id?: string
+  candidate_name?: string
   company: string
   position?: string
   fit_score: number

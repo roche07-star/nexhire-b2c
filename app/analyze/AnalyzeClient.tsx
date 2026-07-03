@@ -3409,11 +3409,27 @@ function AnalysisResults({
     <div className="results-wrap">
       <div className="results-section">
         <div className="results-label">MATCH SCORE</div>
+        {result.candidate_name && (
+          <div style={{
+            fontSize: 16,
+            color: '#a78bfa',
+            marginBottom: 8,
+            fontWeight: 700,
+            padding: '8px 12px',
+            background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)',
+            borderRadius: '8px',
+            border: '1px solid rgba(167, 139, 250, 0.3)',
+            display: 'inline-block',
+          }}>
+            👤 {result.candidate_name}
+          </div>
+        )}
         {result.job_title && (
           <div style={{
             fontSize: 14,
             color: '#8b8b7a',
             marginBottom: 12,
+            marginTop: result.candidate_name ? 8 : 0,
             fontWeight: 500
           }}>
             📌 분석 직무: {result.job_title}
@@ -4162,6 +4178,25 @@ function JDResults({
       </button>
 
       <div className="jd-results-header">
+        {/* 후보자 이름 */}
+        {(() => {
+          const candidateName = result.candidate_name || analysisItem?.result?.candidate_name
+          return candidateName ? (
+            <div style={{
+              fontSize: '18px',
+              fontWeight: 700,
+              color: '#a78bfa',
+              marginBottom: '12px',
+              padding: '10px 14px',
+              background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)',
+              borderRadius: '8px',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
+              display: 'inline-block',
+            }}>
+              👤 {candidateName}
+            </div>
+          ) : null
+        })()}
         <div className="jd-company-name">
           {result.company}
           {result.position && <span className="jd-position-tag">{result.position}</span>}
