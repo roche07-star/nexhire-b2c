@@ -47,10 +47,19 @@ export function generateInterviewHTML(guide: InterviewGuideResult): string {
   }
 
   const lines = (s: string) => {
-    return esc(s).split('\n').filter(l => l.trim()).map(l => `<p class="body">${l}</p>`).join('')
+    return esc(s).split('\n').filter(l => l.trim()).map(l => {
+      const trimmed = l.trim()
+      if (trimmed.startsWith('Q:') || trimmed.startsWith('Q.') || /^Q\d+[:.]/.test(trimmed)) {
+        return `<p class="body question">${l}</p>`
+      } else if (trimmed.startsWith('A:') || trimmed.startsWith('A.')) {
+        return `<p class="body answer">${l}</p>`
+      } else {
+        return `<p class="body">${l}</p>`
+      }
+    }).join('')
   }
 
-  const candidateName = guide.job_title || guide.candidate_name || '후보자'
+  const candidateName = guide.candidate_name || guide.job_title || '후보자'
   const company = guide.company ?? '회사명'
   const position = guide.position ?? '포지션'
 
@@ -208,6 +217,8 @@ body {
 
 /* ── 본문 */
 p.body { color: var(--text2); margin-bottom: 8px; font-size: 13px; }
+p.body.question { color: #e8ff47; font-weight: 700; margin-top: 16px; margin-bottom: 8px; }
+p.body.answer { color: rgba(255,255,255,0.9); margin-left: 16px; margin-top: 8px; }
 .hint { font-size: 12px; color: var(--text3); font-style: italic; margin-top: 4px; }
 
 /* ── 인용 박스 */
