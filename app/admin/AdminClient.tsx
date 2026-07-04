@@ -38,7 +38,7 @@ const PLAN_LIMITS: Record<string, Record<string, number>> = {
 }
 
 const FEATURE_LABELS: Record<string, string> = {
-  resume: '이력서 분석',
+  resume: '이력서 추가 저장',
   direction: '방향성 분석',
   jd: 'JD 매칭 분석',
   rewrite: '이력서 생성',
