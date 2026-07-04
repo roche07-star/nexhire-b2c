@@ -290,7 +290,7 @@ export async function POST(req: NextRequest) {
         .from('coupons')
         .select('id', { count: 'exact', head: true })
         .eq('claimed_by', email)
-        .eq('feature', 'resume')
+        .eq('feature', 'storage')
         .is('deleted_at', null)
 
       const allowedCount = 1 + (resumeCouponCount ?? 0) // 기본 1개 + 쿠폰 개수

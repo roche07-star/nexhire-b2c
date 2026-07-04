@@ -2717,9 +2717,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {activeMenu === 'upload' && !result && (
               <>
                 {/* 이력서 추가 저장 쿠폰 보유 배지 */}
-                {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length > 0 && (
+                {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length > 0 && (
                   <div className="coupon-active-badge">
-                    🎟 이력서 추가 저장 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 추가 저장이 가능합니다
+                    🎟 이력서 추가 저장 쿠폰 {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length}개 보유 — 추가 저장이 가능합니다
                   </div>
                 )}
 
@@ -2824,7 +2824,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
                             <br />
                             {(() => {
-                              const resumeCouponCount = myCoupons.filter(c => c.feature === 'resume').length
+                              const resumeCouponCount = myCoupons.filter(c => c.feature === 'storage').length
                               const maxCount = 1 + resumeCouponCount
                               const currentCount = preserved.length
 

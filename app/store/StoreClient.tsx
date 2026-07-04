@@ -8,7 +8,7 @@ interface Product {
   nameEn: string
   price: number
   originalPrice?: number
-  feature: 'resume' | 'jd' | 'interview' | 'proposal' | 'package'
+  feature: 'storage' | 'resume' | 'jd' | 'rewrite' | 'proposal' | 'interview' | 'package'
   icon: string
   gradient: string
   description: string[]
@@ -36,7 +36,7 @@ const PRODUCTS: Product[] = [
     name: '💾 이력서 추가 저장',
     nameEn: 'Extra Resume Storage',
     price: 10000,
-    feature: 'resume',
+    feature: 'storage',
     icon: '💾',
     gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
     description: [
