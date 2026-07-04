@@ -213,7 +213,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   }
 
   // 알림 생성 (실시간 시뮬레이션)
-  const notifications = [
+  const notifications = notificationsCleared ? [] : [
     ...(hiringStats.hired > 0 ? [{
       id: 1,
       type: 'success' as const,
