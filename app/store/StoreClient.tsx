@@ -32,6 +32,22 @@ const PRODUCTS: Product[] = [
     ],
   },
   {
+    id: '1-1',
+    name: '💾 이력서 추가 저장',
+    nameEn: 'Extra Resume Storage',
+    price: 10000,
+    feature: 'resume',
+    icon: '💾',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    description: [
+      '✅ 이력서 1개 추가 저장 슬롯',
+      '✅ 여러 버전 관리로 전략적 지원',
+      '✅ JD별 맞춤 이력서 생성 활용',
+      '✅ 영구 사용 (1회 구매로 계속)',
+    ],
+    badge: 'NEW',
+  },
+  {
     id: '2',
     name: 'JD 적합도 분석',
     nameEn: 'Job Description Match',
