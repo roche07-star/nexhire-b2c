@@ -1097,11 +1097,16 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
           {/* 목표 카드 */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: 20,
-            marginTop: 32
+            marginTop: 32,
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch'
           }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
+              gap: 20,
+              minWidth: 'fit-content'
+            }}>
             {/* 입사 목표 */}
             {(() => {
               const target = goals.hiredTarget
@@ -1276,6 +1281,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 </div>
               )
             })()}
+          </div>
           </div>
         </div>
       </div>
@@ -1502,10 +1508,15 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
           {/* Quick Summary Cards */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 20
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch'
           }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, minmax(220px, 1fr))',
+              gap: 20,
+              minWidth: 'fit-content'
+            }}>
             {/* 진행 중 */}
             <div
               style={{
@@ -1700,6 +1711,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 온보딩 완료
               </div>
             </div>
+          </div>
           </div>
 
           {/* 안내 메시지 */}
