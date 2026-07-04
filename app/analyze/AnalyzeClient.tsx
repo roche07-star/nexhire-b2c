@@ -1089,24 +1089,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     // 파일 보존 모드 결정 (모든 플랜)
     let preserveMode = 'skip'
     const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
+    const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+    const maxCount = 1 + storageCouponCount
 
-    if (isPro || isExpert) {
-      // PRO/EXPERT: 체크박스 값으로 결정
-      if (preserveChecked) {
-        if (preserveAddWithCoupon && preservedCount > 0) {
-          preserveMode = 'add'
-        } else if (preservedCount > 0) {
-          preserveMode = 'replace'
-        } else {
-          preserveMode = 'auto'
-        }
-      }
-    } else {
-      // FREE: 항상 보존 (1개 제한, 교체 방식)
-      if (preservedCount > 0) {
-        preserveMode = 'replace'  // 기존 이력서 교체
+    if (preserveChecked) {
+      if (preservedCount === 0) {
+        preserveMode = 'auto'  // 첫 저장
+      } else if (preservedCount < maxCount) {
+        preserveMode = 'add'  // 추가 저장 (공간 있음)
       } else {
-        preserveMode = 'auto'  // 첫 보존
+        preserveMode = 'replace'  // 교체 (공간 가득)
       }
     }
 
