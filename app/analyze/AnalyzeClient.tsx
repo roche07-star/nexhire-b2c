@@ -2812,11 +2812,51 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div className="preserve-checkbox-desc">
                             저장해두면 <strong>이력서 생성</strong> 탭에서 JOBIZIC이 JD 맞춤으로 재작성해 드립니다.
                             {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
-                            {preserved.length > 0 && (
-                              <span className="preserve-checkbox-replace">
-                                {' '}현재 저장: {preserved[0].result.job_title ?? '(제목 없음)'} → 새 이력서로 교체됩니다.
-                              </span>
-                            )}
+                            <br />
+                            {(() => {
+                              const resumeCouponCount = myCoupons.filter(c => c.feature === 'resume').length
+                              const maxCount = 1 + resumeCouponCount
+                              const currentCount = preserved.length
+
+                              if (currentCount === 0) {
+                                return (
+                                  <>
+                                    📊 <strong>저장 현황:</strong> 0개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                  </>
+                                )
+                              } else if (currentCount < maxCount) {
+                                return (
+                                  <>
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                    <br />
+                                    {preserved.map((p, idx) => (
+                                      <span key={p.id}>
+                                        {idx === 0 ? '├─ ' : '└─ '}{p.result.job_title ?? '(제목 없음)'}
+                                        {idx < preserved.length - 1 && <br />}
+                                      </span>
+                                    ))}
+                                    <br />
+                                    ✅ 추가 저장 가능합니다.
+                                  </>
+                                )
+                              } else {
+                                return (
+                                  <>
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                    <br />
+                                    {preserved.map((p, idx) => (
+                                      <span key={p.id}>
+                                        {idx === 0 ? '├─ ' : idx === preserved.length - 1 ? '└─ ' : '├─ '}{p.result.job_title ?? '(제목 없음)'}
+                                        <br />
+                                      </span>
+                                    ))}
+                                    <span className="preserve-checkbox-replace">
+                                      ⚠️ 저장 공간이 가득 찼습니다. 새 이력서를 분석하려면 기존 이력서를 교체해야 합니다.
+                                    </span>
+                                  </>
+                                )
+                              }
+                            })()}
                             <br />
                             💡 <strong>추가 저장을 원하시면</strong> '이력서 추가 저장 쿠폰'을 구매하세요. 사용 방법: 쿠폰 구매 후 <strong>내정보</strong>에서 등록!
                           </div>
