@@ -14,6 +14,7 @@ interface InterviewGuideResult {
   qa_resign_reason: string
   qa_domain_gap: string
   qa_competency: string
+  qa_project_experience: string
   qa_post_join: string
   qa_salary: string
   strengths: string[] | string
@@ -377,8 +378,9 @@ p.body { color: var(--text2); margin-bottom: 8px; font-size: 13px; }
     <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qa').scrollIntoView({behavior:'smooth'}),100)" href="#">A. 이직 사유</a>
     <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qb').scrollIntoView({behavior:'smooth'}),100)" href="#">B. 도메인 갭</a>
     <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qc').scrollIntoView({behavior:'smooth'}),100)" href="#">C. 역량 검증</a>
-    <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qd').scrollIntoView({behavior:'smooth'}),100)" href="#">D. 입사 후 계획</a>
-    <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qe').scrollIntoView({behavior:'smooth'}),100)" href="#">E. 희망 연봉</a>
+    <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qd').scrollIntoView({behavior:'smooth'}),100)" href="#">D. 프로젝트 경험</a>
+    <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qe').scrollIntoView({behavior:'smooth'}),100)" href="#">E. 입사 후 계획</a>
+    <a class="sidebar-item" onclick="showSection('s3',null,this);setTimeout(()=>document.getElementById('qf').scrollIntoView({behavior:'smooth'}),100)" href="#">F. 희망 연봉</a>
     <div class="sidebar-label" style="padding-top:4px">더 보기</div>
     <a class="sidebar-item" onclick="showSection('s4',null,this)" href="#">S4 강점·리스크</a>
     <a class="sidebar-item" onclick="showSection('s5',null,this)" href="#">S5 역질문</a>
@@ -450,17 +452,25 @@ p.body { color: var(--text2); margin-bottom: 8px; font-size: 13px; }
 
       <hr class="divider">
 
-      <!-- D. 입사 후 계획 -->
+      <!-- D. 프로젝트 경험 심화 질문 -->
       <div id="qd">
-        <div class="sub">D. 입사 후 계획</div>
+        <div class="sub">D. 프로젝트 경험 심화 질문</div>
+        ${lines(guide.qa_project_experience)}
+      </div>
+
+      <hr class="divider">
+
+      <!-- E. 입사 후 계획 -->
+      <div id="qe">
+        <div class="sub">E. 입사 후 계획</div>
         ${lines(guide.qa_post_join)}
       </div>
 
       <hr class="divider">
 
-      <!-- E. 희망 연봉 -->
-      <div id="qe">
-        <div class="sub">E. 희망 연봉</div>
+      <!-- F. 희망 연봉 -->
+      <div id="qf">
+        <div class="sub">F. 희망 연봉</div>
         ${lines(guide.qa_salary)}
       </div>
     </div>

@@ -41,8 +41,9 @@ const interviewTool: Anthropic.Tool = {
       qa_resign_reason: { type: 'string', description: 'SECTION 3A — 이직 사유' },
       qa_domain_gap: { type: 'string', description: 'SECTION 3B — 도메인 갭 대응' },
       qa_competency: { type: 'string', description: 'SECTION 3C — 역량 검증 (STAR)' },
-      qa_post_join: { type: 'string', description: 'SECTION 3D — 입사 후 계획' },
-      qa_salary: { type: 'string', description: 'SECTION 3E — 희망 연봉' },
+      qa_project_experience: { type: 'string', description: 'SECTION 3D — 프로젝트 경험 심화 질문 (후보자 이력서의 실제 프로젝트/업무 경험 기반, 구체적인 기술/상황 질문 3-4개)' },
+      qa_post_join: { type: 'string', description: 'SECTION 3E — 입사 후 계획' },
+      qa_salary: { type: 'string', description: 'SECTION 3F — 희망 연봉' },
       strengths: {
         type: 'array',
         items: { type: 'string' },
@@ -73,7 +74,7 @@ const interviewTool: Anthropic.Tool = {
     },
     required: [
       'matching_scores', 'positioning_message', 'self_intro',
-      'qa_resign_reason', 'qa_domain_gap', 'qa_competency', 'qa_post_join', 'qa_salary',
+      'qa_resign_reason', 'qa_domain_gap', 'qa_competency', 'qa_project_experience', 'qa_post_join', 'qa_salary',
       'strengths', 'risks', 'reverse_questions', 'checklist',
     ],
   },
@@ -171,7 +172,17 @@ ${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
 2. 모든 섹션 필수: SECTION 1-6 모두 반드시 작성 (빠뜨리지 말 것!)
 3. 균형 있게: 앞 섹션을 너무 길게 쓰지 말고 모든 섹션 균등하게
 4. 마크다운 금지: ** * ~~ 등 마크다운 문법 절대 사용 금지
-5. 항목 수 준수: strengths 3-5개, risks 2-3개, reverse_questions 3-5개, checklist 5-7개`
+5. 항목 수 준수: strengths 3-5개, risks 2-3개, reverse_questions 3-5개, checklist 5-7개
+
+📋 SECTION 3D — 프로젝트 경험 심화 질문 작성 가이드
+- 후보자 이력서의 **실제 프로젝트/업무 경험**을 기반으로 구체적인 질문 생성
+- 기술 스택, 아키텍처, 트러블슈팅, 의사결정 과정 등 실무 깊이 검증
+- 일반적인 질문 금지, 반드시 후보자의 이력서에 명시된 내용 기반으로 작성
+- 예시 형식:
+  Q1. [후보자가 경험한 구체적 프로젝트명/기술]에서 [구체적 상황/문제] 어떻게 해결했나요?
+  Q2. [후보자의 기술 스택]을 사용하면서 가장 어려웠던 기술적 도전은?
+  Q3. [프로젝트에서 한 역할]을 수행하면서 [구체적 의사결정]은 어떤 기준으로 했나요?
+- 3-4개 질문 생성, 각 질문은 후보자의 실제 경험에서 추출`
 
     const userContent = `[후보자 이력서 분석 결과]
 ${candidateProfile}

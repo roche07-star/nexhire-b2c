@@ -85,6 +85,7 @@ export interface InterviewGuideResult {
   qa_resign_reason: string
   qa_domain_gap: string
   qa_competency: string
+  qa_project_experience: string
   qa_post_join: string
   qa_salary: string
   strengths: string[]
