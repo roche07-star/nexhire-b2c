@@ -1977,11 +1977,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       <div className="interview-text">{(g.qa_competency ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                     <div className="interview-qa-block">
-                      <div className="interview-qa-label">D. 입사 후 계획</div>
+                      <div className="interview-qa-label">D. 프로젝트 경험 심화 질문</div>
+                      <div className="interview-text">{(g.qa_project_experience ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                    </div>
+                    <div className="interview-qa-block">
+                      <div className="interview-qa-label">E. 입사 후 계획</div>
                       <div className="interview-text">{(g.qa_post_join ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                     <div className="interview-qa-block">
-                      <div className="interview-qa-label">E. 희망 연봉</div>
+                      <div className="interview-qa-label">F. 희망 연봉</div>
                       <div className="interview-text">{(g.qa_salary ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
                     </div>
                   </div>
