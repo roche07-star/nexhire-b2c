@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <main className="privacy-page">
         <div className="privacy-container">
           <h1 className="privacy-title">개인정보처리방침</h1>
-          <p className="privacy-date">시행일: 2026년 6월 13일</p>
+          <p className="privacy-date">시행일: 2026년 7월 1일</p>
 
           <div className="privacy-intro">
             <p>
