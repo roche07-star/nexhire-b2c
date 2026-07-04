@@ -3,8 +3,8 @@ import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -12,7 +12,7 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const couponId = params.id
+    const { id: couponId } = await params
 
     // 쿠폰 소유 확인
     const { data: coupon } = await supabase
