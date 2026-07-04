@@ -2820,9 +2820,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                               if (preserved.length === 0) {
                                 return <span className="preserve-option-badge free">무료</span>
+                              } else if (storageCouponCount === 0) {
+                                // 쿠폰 없음: 항상 교체
+                                return <span className="preserve-option-badge free">교체, 무료</span>
                               } else if (preserved.length < maxCount) {
+                                // 쿠폰 있음 + 추가 가능
                                 return <span className="preserve-option-badge free">추가, 무료</span>
                               } else {
+                                // 쿠폰 있음 + 가득 참
                                 return <span className="preserve-option-badge free">교체, 무료</span>
                               }
                             })()}
