@@ -260,22 +260,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 쿠폰 체크 (MANAGER 제외)
-    let resumeCouponId: string | null = null
+    // 사용량 체크 (MANAGER 제외)
     if (role !== 'MANAGER') {
-      const { data: coupons } = await supabase
-        .from('coupons')
-        .select('id, expires_at')
-        .eq('claimed_by', email)
-        .eq('feature', 'resume')
-        .is('used_at', null)
-        .is('deleted_at', null)
-      const now = new Date()
-      const valid = (coupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
-      if (valid) resumeCouponId = valid.id
-    }
-
-    if (role !== 'MANAGER' && !resumeCouponId) {
       const { allowed, limit } = await checkUsage(email, 'analyze')
       if (!allowed) {
         return NextResponse.json(
@@ -286,15 +272,26 @@ export async function POST(req: NextRequest) {
     }
 
     // 이력서 저장 개수 체크 (MANAGER 제외)
-    if (role !== 'MANAGER' && !resumeCouponId) {
-      const { count } = await supabase
+    if (role !== 'MANAGER') {
+      // 현재 저장된 이력서 개수
+      const { count: savedCount } = await supabase
         .from('analyses')
         .select('id', { count: 'exact', head: true })
         .eq('user_email', email)
 
-      if ((count ?? 0) >= 1) {
+      // 보유한 이력서 추가 저장 쿠폰 개수 (사용 여부 무관)
+      const { count: resumeCouponCount } = await supabase
+        .from('coupons')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by', email)
+        .eq('feature', 'resume')
+        .is('deleted_at', null)
+
+      const allowedCount = 1 + (resumeCouponCount ?? 0) // 기본 1개 + 쿠폰 개수
+
+      if ((savedCount ?? 0) >= allowedCount) {
         return NextResponse.json(
-          { error: '이력서는 기본 1개만 저장됩니다. 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!' },
+          { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다. 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
           { status: 403 }
         )
       }
@@ -646,9 +643,8 @@ ${maskedText.slice(0, 3000)}
       }
     }
 
-    if (resumeCouponId) {
-      await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', resumeCouponId)
-    } else if (role !== 'MANAGER') {
+    // 사용량 증가 (MANAGER 제외)
+    if (role !== 'MANAGER') {
       await incrementUsage(email, 'analyze')
     }
 
