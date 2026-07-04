@@ -34,13 +34,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { company, position, content } = await req.json()
+    const { company, position, content, company_url } = await req.json()
     if (!company?.trim() || !content?.trim()) {
       return NextResponse.json({ error: '회사명과 JD 내용을 입력해 주세요.' }, { status: 400 })
     }
 
     const trimmedCompany = company.trim()
     const trimmedPosition = position?.trim() || null
+    const trimmedCompanyUrl = company_url?.trim() || null
 
     // 중복 체크: 동일 사용자의 동일 회사+포지션 조합 확인
     console.log('[jd-templates] Checking duplicates:', {
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
         company: trimmedCompany,
         position: trimmedPosition,
         content: content.trim(),
+        company_url: trimmedCompanyUrl,
       })
       .select()
       .single()

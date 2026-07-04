@@ -123,12 +123,50 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { company, position, jd, analysisResult, client_comment } = await req.json()
+    const { company, position, jd, analysisResult, client_comment, company_url } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })
     }
     if (!analysisResult) {
       return NextResponse.json({ error: '분석할 이력서를 선택해 주세요.' }, { status: 400 })
+    }
+
+    // 채용사 URL이 있으면 웹페이지 정보 가져오기
+    let companyWebInfo = ''
+    if (company_url?.trim()) {
+      try {
+        const urlToFetch = company_url.trim()
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 10000) // 10초 타임아웃
+
+        const response = await fetch(urlToFetch, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        })
+        clearTimeout(timeout)
+
+        if (response.ok) {
+          const html = await response.text()
+
+          // 간단한 HTML 텍스트 추출 (태그 제거)
+          const textContent = html
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // script 제거
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // style 제거
+            .replace(/<[^>]+>/g, ' ') // 모든 태그 제거
+            .replace(/\s+/g, ' ') // 연속 공백 제거
+            .trim()
+            .substring(0, 3000) // 최대 3000자 (토큰 절약)
+
+          if (textContent.length > 100) {
+            companyWebInfo = `\n\n[채용사 웹사이트 정보]\nURL: ${urlToFetch}\n내용: ${textContent}\n\n💡 위 웹사이트 정보를 활용하여 회사의 사업방향, 비전, 핵심가치, 조직문화 등을 파악하고, company_analysis와 pitch_points에 반영하세요.`
+          }
+        }
+      } catch (error) {
+        console.error('[analyze/jd] company_url fetch error:', error)
+        // 에러 시 무시하고 계속 진행
+      }
     }
 
     // 중복 방지: 동일한 회사/포지션 조합으로 최근 1시간 내 생성된 것이 있는지 확인
@@ -270,7 +308,7 @@ ${company}
 ${positionLine}
 [JD]
 ${jd}
-
+${companyWebInfo}
 [후보자 이력서 분석 결과]
 ${candidateProfile}
 
@@ -288,7 +326,7 @@ ${company}
 ${positionLine}
 [JD]
 ${jd}
-
+${companyWebInfo}
 [후보자 이력서 분석 결과]
 ${candidateProfile}`
 
@@ -317,6 +355,7 @@ ${candidateProfile}`
       candidate_name: candidateName,
       resume_job_title: (a.job_title as string) ?? null,
       resume_analyzed_at: new Date().toISOString(),
+      company_url: company_url?.trim() || null,
     }
 
     if (jdCouponId) {
