@@ -1286,13 +1286,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         </div>
       </div>
 
-      {/* Quick View & Activity */}
+      {/* 채용 프로세스 */}
       <div style={{
         position: 'relative',
         zIndex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gap: 32
+        marginBottom: 56,
       }}>
         {/* 채용 프로세스 */}
         <div style={{
@@ -1541,8 +1539,14 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           </div>
           </div>
         </div>
+      </div>
 
-        {/* Recent Activity */}
+      {/* Recent Activity */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 56,
+      }}>
         <div style={{
           background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
           backdropFilter: 'blur(20px)',

@@ -5540,40 +5540,14 @@ footer {
    ======================================== */
 
 @media (max-width: 768px) {
-  /* Quick Actions 모바일 - 세로 배치 */
-  main [style*="gridTemplateColumns"][style*="240px"] {
-    grid-template-columns: 1fr !important;
-  }
-
   /* 대시보드 헤더 */
   main h1 {
     font-size: 28px !important;
   }
 
-  /* 알림/설정 버튼 */
-  main > div > div:first-child > div:last-child {
-    width: 100%;
-    justify-content: flex-start !important;
-  }
-
   /* Insights 인라인 카드 */
   main > div[style*="flexWrap"] {
     justify-content: center !important;
-  }
-
-  /* 통계 카드 패딩 축소 */
-  main > div > div[style*="padding"] {
-    padding: 20px 16px !important;
-  }
-
-  /* 이번 달 성과 & 채용 프로세스 카드 - horizontal scroll 유지 */
-  main [style*="gridTemplateColumns"][style*="280px"] {
-    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
-  }
-
-  /* 최근 활동 카드 반응형 */
-  main [style*="flexDirection: column"] > div {
-    padding: 16px !important;
   }
 }
 
@@ -5581,21 +5555,6 @@ footer {
   /* 더 작은 화면 */
   main {
     padding: 80px 12px 20px !important;
-  }
-
-  /* 버튼 텍스트 크기 */
-  button {
-    font-size: 13px !important;
-  }
-
-  /* 카드 간격 축소 */
-  main > div {
-    margin-bottom: 24px !important;
-  }
-
-  /* 이번 달 성과 & 채용 프로세스 카드 - 작은 화면 */
-  main [style*="gridTemplateColumns"][style*="280px"] {
-    grid-template-columns: repeat(3, minmax(200px, 1fr)) !important;
   }
 }
 
