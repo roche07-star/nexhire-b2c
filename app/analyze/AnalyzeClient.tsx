@@ -2793,7 +2793,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {/* 이력서 파일 저장 옵션 (모든 플랜) */}
                 {(() => {
                   const preserved = (analysisList ?? []).filter(item => item.result?._file_path)
-                  const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
                   return (
                     <div className="preserve-checkbox-section">
                       <label className="preserve-checkbox-wrap">
