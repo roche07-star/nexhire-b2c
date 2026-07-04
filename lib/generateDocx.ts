@@ -101,10 +101,12 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
     }
     // 【】로 시작하는 회사명 줄: 13pt, Bold
     if (trimmed.includes('【') && trimmed.includes('】')) {
+      // ** 제거
+      const cleanText = line.trimEnd().replace(/\*\*/g, '')
       return new Paragraph({
         children: [
           new TextRun({
-            text: line.trimEnd(),
+            text: cleanText,
             bold: true,
             size: 26, // 13pt = 26 half-points
             color: '333344'
@@ -115,7 +117,32 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
         alignment,
       })
     }
-    return bodyLine(line.trimEnd(), alignment)
+    // [담당업무], [상세업무], [성과]로 시작하는 줄: Bold
+    if (/^\[담당업무\]$|^\[상세업무\]$|^\[성과\]$/.test(trimmed)) {
+      // ** 제거
+      const cleanText = line.trimEnd().replace(/\*\*/g, '')
+      return new Paragraph({
+        children: [
+          new TextRun({
+            text: cleanText,
+            bold: true,
+            size: 22,
+            color: '333344'
+          }),
+        ],
+        spacing: { after: 120, line: 240 },
+        indent: { left: 140 },
+        alignment,
+      })
+    }
+    // ** 제거하고 일반 텍스트로 처리
+    const cleanLine = line.trimEnd().replace(/\*\*/g, '')
+    return new Paragraph({
+      children: [new TextRun({ text: cleanLine, size: 22, color: '333344' })],
+      spacing: { after: 120, line: 240 },
+      indent: alignment ? undefined : { left: 140 },
+      alignment,
+    })
   })
 }
 
@@ -222,7 +249,7 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
                     shading: { fill: '18181b', type: 'solid' }
                   }),
                 ],
-                alignment: AlignmentType.LEFT,
+                alignment: AlignmentType.RIGHT,
                 spacing: { before: 200 },
               }),
             ],
@@ -333,7 +360,7 @@ export async function generateStandardDocx(
                     shading: { fill: '18181b', type: 'solid' }
                   }),
                 ],
-                alignment: AlignmentType.LEFT,
+                alignment: AlignmentType.RIGHT,
                 spacing: { before: 200 },
               }),
             ],
