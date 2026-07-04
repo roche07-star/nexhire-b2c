@@ -208,7 +208,7 @@ export default function PrivacyPage() {
                 </tr>
                 <tr>
                   <td>Anthropic PBC</td>
-                  <td>JOBIZIC 이력서 분석</td>
+                  <td>JOBIZIC 이력서 분석<br /><span style={{ fontSize: '13px', color: '#666' }}>(성명/연락처/이메일은 자동 마스킹되어 전송되지 않음)</span></td>
                   <td className="highlight">즉시 삭제 (미저장 보장)</td>
                 </tr>
               </tbody>
