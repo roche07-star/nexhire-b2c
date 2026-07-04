@@ -271,8 +271,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 이력서 저장 개수 체크 (MANAGER 제외)
-    if (role !== 'MANAGER') {
+    const formData = await req.formData()
+    const file = formData.get('resume') as File | null
+    const pastedText = ((formData.get('resumeText') as string | null) ?? '').trim()
+    const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
+
+    // 이력서 저장 개수 체크 (MANAGER 제외, 새로 추가하는 경우만)
+    if (role !== 'MANAGER' && preserveMode !== 'replace') {
       // 현재 저장된 이력서 개수
       const { count: savedCount } = await supabase
         .from('analyses')
@@ -291,16 +296,11 @@ export async function POST(req: NextRequest) {
 
       if ((savedCount ?? 0) >= allowedCount) {
         return NextResponse.json(
-          { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다. 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
+          { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다 (현재 ${savedCount}개 저장됨). 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
           { status: 403 }
         )
       }
     }
-
-    const formData = await req.formData()
-    const file = formData.get('resume') as File | null
-    const pastedText = ((formData.get('resumeText') as string | null) ?? '').trim()
-    const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
 
     let resumeText: string
     let buffer: Buffer | null = null
