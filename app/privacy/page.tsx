@@ -224,7 +224,7 @@ export default function PrivacyPage() {
               <li>개인정보 처리정지 요구</li>
             </ul>
             <p className="privacy-contact">
-              권리 행사는 이메일(<strong>roche07he@gmail.com</strong>)을 통하여 하실 수 있으며, 회사는 이에 대해 지체 없이 조치하겠습니다.
+              권리 행사는 이메일(<strong>jobizic.biz@gmail.com</strong>)을 통하여 하실 수 있으며, 회사는 이에 대해 지체 없이 조치하겠습니다.
             </p>
           </div>
 
@@ -256,7 +256,7 @@ export default function PrivacyPage() {
               피해구제 등을 위하여 개인정보 보호책임자를 지정하고 있습니다.
             </p>
             <p className="privacy-contact">
-              <strong>이메일:</strong> roche07he@gmail.com
+              <strong>이메일:</strong> jobizic.biz@gmail.com
             </p>
             <p>
               정보주체는 회사의 서비스를 이용하시면서 발생한 모든 개인정보 보호 관련 문의, 불만처리, 피해구제 등에 관한
