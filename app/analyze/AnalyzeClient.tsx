@@ -2798,8 +2798,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </div>
                 )}
 
-                {/* PRO/EXPERT: 체크박스로 선택 */}
-                {(isPro || isExpert) && (() => {
+                {/* 이력서 파일 저장 옵션 (모든 플랜) */}
+                {(() => {
                   const preserved = (analysisList ?? []).filter(item => item.result?._file_path)
                   const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
                   return (
