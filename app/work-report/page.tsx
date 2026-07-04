@@ -15,7 +15,7 @@ export default async function WorkReportPage() {
   const session = await auth()
 
   if (!session?.user?.email) {
-    redirect('/auth/signin')
+    redirect('/login')
   }
 
   // 사용자 플랜 조회
