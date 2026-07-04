@@ -279,11 +279,12 @@ export async function POST(req: NextRequest) {
 
     // 이력서 저장 개수 체크 (MANAGER 제외, 새로 추가하는 경우만)
     if (role !== 'MANAGER' && preserveMode !== 'replace') {
-      // 현재 저장된 이력서 개수
+      // 현재 저장된 이력서 개수 (_file_path가 있는 것만)
       const { count: savedCount } = await supabase
         .from('analyses')
         .select('id', { count: 'exact', head: true })
         .eq('user_email', email)
+        .not('result->_file_path', 'is', null)
 
       // 보유한 이력서 추가 저장 쿠폰 개수 (사용 여부 무관)
       const { count: resumeCouponCount } = await supabase
