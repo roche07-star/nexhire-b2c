@@ -328,6 +328,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
   const [jdClientComment, setJdClientComment] = useState('')
+  const [jdCompanyUrl, setJdCompanyUrl] = useState('')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null) // 선택한 템플릿 ID
   const [jdResult, setJdResult] = useState<JDResult | null>(null)
   const [jdLoading, setJdLoading] = useState(false)
@@ -1284,6 +1285,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           company: jdCompany,
           position: jdPosition || null,
           content: jdContent,
+          company_url: jdCompanyUrl || null,
         }),
       })
 
@@ -1345,7 +1347,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           position: jdPosition,
           jd: jdContent,
           analysisResult: jdSelectedAnalysis?.result,
-          client_comment: jdClientComment.trim() || undefined
+          client_comment: jdClientComment.trim() || undefined,
+          company_url: jdCompanyUrl.trim() || undefined
         }),
       })
       const data = await res.json()
@@ -2535,6 +2538,28 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           onChange={(e) => setJdContent(e.target.value)}
                           rows={10}
                         />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">채용사 URL <span className="jd-label-optional">(선택)</span></label>
+                        <input
+                          type="url"
+                          className="form-input"
+                          placeholder="예) https://www.company.com 또는 https://www.company.com/about"
+                          value={jdCompanyUrl}
+                          onChange={(e) => setJdCompanyUrl(e.target.value)}
+                          style={{ marginBottom: 12 }}
+                        />
+                        <div style={{ fontSize: 13, color: '#e8ff47', background: 'rgba(232, 255, 71, 0.05)', padding: '12px', borderRadius: '8px', marginBottom: 12, lineHeight: '1.5' }}>
+                          ✨ <strong>채용사 URL을 입력하면 회사에 대해 더 잘 분석할 수 있습니다!</strong>
+                          <br />
+                          <span style={{ fontSize: 12, color: '#999' }}>
+                            • 홈페이지, About 페이지, IR 자료 등에서 회사의 사업방향, 비전, 핵심가치를 파악
+                            <br />
+                            • JD 매칭 분석 시 회사 특성에 맞춘 강점 강조
+                            <br />
+                            • 면접 가이드 생성 시 회사 문화와 방향성을 고려한 질문/답변 제공
+                          </span>
+                        </div>
                       </div>
                       <div className="jd-field">
                         <label className="jd-label">클라이언트 코멘트 <span className="jd-label-optional">(선택)</span></label>
