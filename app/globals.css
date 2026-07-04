@@ -5533,3 +5533,60 @@ footer {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+
+/* ========================================
+   대시보드 모바일 반응형
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Quick Actions 모바일 */
+  main [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 대시보드 헤더 */
+  main h1 {
+    font-size: 28px !important;
+  }
+
+  /* 알림/설정 버튼 */
+  main > div > div:first-child > div:last-child {
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+
+  /* Insights 인라인 카드 */
+  main > div[style*="flexWrap"] {
+    justify-content: center !important;
+  }
+
+  /* 통계 카드 패딩 축소 */
+  main > div > div[style*="padding"] {
+    padding: 20px 16px !important;
+  }
+
+  /* 목표 진행률 카드 */
+  main [style*="gridTemplateColumns"][style*="250px"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 더 작은 화면 */
+  main {
+    padding: 80px 12px 20px !important;
+  }
+
+  /* 버튼 텍스트 크기 */
+  button {
+    font-size: 13px !important;
+  }
+
+  /* 카드 간격 축소 */
+  main > div {
+    margin-bottom: 24px !important;
+  }
+}
+

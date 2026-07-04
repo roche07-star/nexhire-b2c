@@ -932,165 +932,71 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         </div>
       </div>
 
-      {/* Insights Card */}
+      {/* Insights - Compact Inline */}
       <div style={{
-        marginBottom: 56,
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 32,
+        padding: '12px 20px',
+        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(234, 88, 12, 0.08) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(251, 191, 36, 0.2)',
+        borderRadius: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        flexWrap: 'wrap'
       }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(234, 88, 12, 0.1) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          borderRadius: 24,
-          padding: 24,
-          transition: 'all 0.3s'
-        }}>
-          <h2 style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#ffffff',
-            marginBottom: 28,
-            letterSpacing: '-0.02em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12
-          }}>
-            <span style={{ fontSize: 28 }}>💡</span>
-            인사이트
-          </h2>
-
-          <div className="insights-grid">
-            {/* 이번 달 활동 요약 */}
-            <div style={{
-              padding: '24px 28px',
-              background: 'rgba(255,255,255,0.05)',
-              borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.6)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: 12
-              }}>
-                이번 달 활동
-              </div>
-              {stats.recentActivity.length > 0 ? (
-                <>
-                  {/* 총 활동 건수 */}
-                  <div style={{
-                    fontSize: 15,
-                    color: 'rgba(255,255,255,0.9)',
-                    lineHeight: 1.6,
-                    marginBottom: 12,
-                    textAlign: 'center'
-                  }}>
-                    최근 <span style={{ color: '#fbbf24', fontWeight: 700 }}>{stats.recentActivity.length}건</span>의 분석 활동이 있었습니다
-                  </div>
-                  {/* 이력서/JD 구분 */}
-                  <div style={{
-                    fontSize: 15,
-                    color: 'rgba(255,255,255,0.9)',
-                    lineHeight: 1.6,
-                    marginBottom: 16,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 12
-                  }}>
-                    <span>이력서 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{stats.thisMonthAnalyses ?? 0}건</span></span>
-                    <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
-                    <span>JD <span style={{ color: '#22d3ee', fontWeight: 700 }}>{stats.thisMonthJDs ?? 0}건</span></span>
-                  </div>
-                </>
-              ) : (
-                <div style={{
-                  fontSize: 15,
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: 1.6,
-                  marginBottom: 16,
-                  textAlign: 'center'
-                }}>
-                  아직 분석 활동이 없습니다. 첫 이력서를 분석해보세요!
-                </div>
-              )}
-            </div>
-
-            {/* 다음 할 일 추천 */}
-            <div style={{
-              padding: '24px 28px',
-              background: 'rgba(255,255,255,0.05)',
-              borderRadius: 16,
-              border: '1px solid rgba(255,255,255,0.1)',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.6)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: 12
-              }}>
-                추천 작업
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'rgba(255,255,255,0.9)',
-                lineHeight: 1.6,
-                marginBottom: 16
-              }}>
-                {hiringStats.active > 0 ? (
-                  <>
-                    진행 중인 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{hiringStats.active}명</span>의 후보자를 확인하세요
-                  </>
-                ) : stats.totalCandidates > 0 ? (
-                  <>
-                    이력서를 채용 프로세스에 추가해보세요
-                  </>
-                ) : (
-                  <>
-                    새로운 이력서를 분석해보세요
-                  </>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  if (hiringStats.active > 0) {
-                    router.push('/hiring-process')
-                  } else if (stats.totalCandidates > 0) {
-                    router.push('/hiring-process')
-                  } else {
-                    router.push('/analyze')
-                  }
-                }}
-                style={{
-                  padding: '8px 16px',
-                  background: 'rgba(251, 191, 36, 0.2)',
-                  border: '1px solid rgba(251, 191, 36, 0.4)',
-                  borderRadius: 8,
-                  color: '#fbbf24',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.3)'
-                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
-                  e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.4)'
-                }}
-              >
-                바로가기 →
-              </button>
-            </div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 18 }}>💡</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>
+            이번 달
+          </span>
+          {stats.recentActivity.length > 0 ? (
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>
+              이력서 <span style={{ color: '#a78bfa', fontWeight: 700 }}>{stats.thisMonthAnalyses ?? 0}</span> ·
+              JD <span style={{ color: '#22d3ee', fontWeight: 700, marginLeft: 6 }}>{stats.thisMonthJDs ?? 0}</span>
+            </span>
+          ) : (
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              분석 활동이 없습니다
+            </span>
+          )}
         </div>
+        <button
+          onClick={() => {
+            if (hiringStats.active > 0) {
+              router.push('/hiring-process')
+            } else if (stats.totalCandidates > 0) {
+              router.push('/hiring-process')
+            } else {
+              router.push('/analyze')
+            }
+          }}
+          style={{
+            padding: '6px 14px',
+            background: 'rgba(251, 191, 36, 0.15)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            borderRadius: 8,
+            color: '#fbbf24',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            whiteSpace: 'nowrap'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(251, 191, 36, 0.25)'
+            e.currentTarget.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(251, 191, 36, 0.15)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          {hiringStats.active > 0 ? '프로세스 확인 →' : stats.totalCandidates > 0 ? '프로세스 추가 →' : '이력서 분석 →'}
+        </button>
       </div>
 
       {/* 성과 시각화 */}
