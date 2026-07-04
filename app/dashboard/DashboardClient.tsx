@@ -798,10 +798,15 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           ⚡ 빠른 작업
         </h2>
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 16
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(240px, 1fr))',
+            gap: 16,
+            minWidth: 'fit-content'
+          }}>
           <button
             onClick={() => router.push('/analyze?tab=upload')}
             style={{
@@ -929,6 +934,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               이번 달 정산 내역
             </div>
           </button>
+          </div>
         </div>
       </div>
 
