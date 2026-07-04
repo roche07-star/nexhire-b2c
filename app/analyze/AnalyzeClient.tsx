@@ -2814,10 +2814,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <div className="preserve-checkbox-body">
                           <div className="preserve-checkbox-label">
                             이력서 파일 저장
-                            {preserved.length === 0
-                              ? <span className="preserve-option-badge free">무료</span>
-                              : <span className="preserve-option-badge free">교체, 무료</span>
-                            }
+                            {(() => {
+                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+                              const maxCount = 1 + storageCouponCount
+
+                              if (preserved.length === 0) {
+                                return <span className="preserve-option-badge free">무료</span>
+                              } else if (preserved.length < maxCount) {
+                                return <span className="preserve-option-badge free">추가, 무료</span>
+                              } else {
+                                return <span className="preserve-option-badge free">교체, 무료</span>
+                              }
+                            })()}
                           </div>
                           <div className="preserve-checkbox-desc">
                             저장해두면 <strong>이력서 생성</strong> 탭에서 JOBIZIC이 JD 맞춤으로 재작성해 드립니다.
