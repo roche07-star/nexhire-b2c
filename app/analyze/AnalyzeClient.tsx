@@ -1523,7 +1523,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 Report' : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
-                    <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 AI가 3분 안에 커리어 방향을 제시합니다.</p>
+                    <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 JOBIZIC이 3분 안에 커리어 방향을 제시합니다.</p>
                   )}
                 </>
               )}
@@ -2062,7 +2062,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             🎤 면접 가이드 생성
                           </div>
                           <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
-                            선택한 이력서를 기반으로 맞춤형 면접 준비 가이드를 AI가 생성합니다
+                            선택한 이력서를 기반으로 맞춤형 면접 준비 가이드를 JOBIZIC이 생성합니다
                           </div>
                         </div>
 
@@ -2137,7 +2137,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             color: 'var(--muted)',
                             marginBottom: '16px'
                           }}>
-                            💡 AI가 약 60-90초 동안 맞춤형 면접 가이드를 생성합니다
+                            💡 JOBIZIC이 약 60-90초 동안 맞춤형 면접 가이드를 생성합니다
                           </div>
                           <button
                             className="jd-analyze-btn"
@@ -2785,7 +2785,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             }
                           </div>
                           <div className="preserve-checkbox-desc">
-                            저장해두면 <strong>이력서 생성</strong> 탭에서 AI가 JD 맞춤으로 재작성해 드립니다.
+                            저장해두면 <strong>이력서 생성</strong> 탭에서 JOBIZIC이 JD 맞춤으로 재작성해 드립니다.
                             {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
                             {preserved.length > 0 && (
                               <span className="preserve-checkbox-replace">
@@ -2838,7 +2838,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </div>
                       <div className="loading-progress-text">{Math.round(progress)}%</div>
                     </div>
-                    <div className="loading-text">{loadingMsg || '헤드헌터 AI가 이력서를 검토하고 있습니다...'}</div>
+                    <div className="loading-text">{loadingMsg || 'JOBIZIC 헤드헌터가 이력서를 검토하고 있습니다...'}</div>
                     <div className="loading-time">약 {estimatedTime}초 소요 예상</div>
                     <div className="loading-background-notice">
                       💡 <strong>백그라운드로 실행 중</strong> - 다른 탭으로 이동하셔도 됩니다. 완료 시 알림을 보내드립니다.
@@ -3642,7 +3642,7 @@ function AnalysisResults({
               {expanding && (
                 <div className="career-lock-loading">
                   <div className="analyze-spinner" />
-                  <span>AI가 커리어 경로를 분석 중입니다...</span>
+                  <span>JOBIZIC이 커리어 경로를 분석 중입니다...</span>
                 </div>
               )}
               {expandError && <div className="analyze-error">{expandError}</div>}
@@ -3681,7 +3681,7 @@ function AnalysisResults({
                     <div className="career-lock-cta-icon">⏳</div>
                     <div className="career-lock-cta-title">경로 생성 중...</div>
                     <p className="career-lock-cta-desc">
-                      AI가 RECOMMENDED/STRETCH 경로를 분석하고 있습니다. 잠시만 기다려 주세요.
+                      JOBIZIC이 RECOMMENDED/STRETCH 경로를 분석하고 있습니다. 잠시만 기다려 주세요.
                     </p>
                   </>
                 ) : (
@@ -3749,7 +3749,7 @@ function AnalysisResults({
               <div className="refine-intro">
                 <div className="refine-intro-title">보완 재분석</div>
                 <div className="refine-intro-desc">
-                  이력서에 빠진 정보를 직접 입력하면 AI가 반영해서 다시 분석합니다.
+                  이력서에 빠진 정보를 직접 입력하면 JOBIZIC이 반영해서 다시 분석합니다.
                   <span className="refine-free-badge">1회 무료, 기존 횟수 차감 없음</span>
                 </div>
               </div>
@@ -4373,7 +4373,7 @@ function JDResults({
       </div>
 
       <div className="jd-disclaimer">
-        ※ 본 분석 결과는 입력된 채용공고(JD) 기준으로 AI가 평가한 것이며, 실제 채용 회사의 내부 기준 및 평가에 따라 결과가 다를 수 있습니다.
+        ※ 본 분석 결과는 입력된 채용공고(JD) 기준으로 JOBIZIC이 평가한 것이며, 실제 채용 회사의 내부 기준 및 평가에 따라 결과가 다를 수 있습니다.
       </div>
 
       <div className="jd-ai-notice">
