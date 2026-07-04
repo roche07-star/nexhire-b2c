@@ -12,7 +12,7 @@ const licenses = [
     license: 'Apache License 2.0',
     copyright: 'Copyright (c) 2024 Anthropic, Inc.',
     repository: 'https://github.com/anthropics/anthropic-sdk-typescript',
-    description: 'AI 기반 이력서 분석 핵심 라이브러리',
+    description: 'JOBIZIC 이력서 분석 핵심 라이브러리',
     color: 'border-blue-500',
   },
   {

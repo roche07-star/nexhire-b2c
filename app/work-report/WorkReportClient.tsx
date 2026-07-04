@@ -271,7 +271,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
       if (!response.ok) {
         const errorData = await response.json()
         console.error('📊 API 에러:', errorData)
-        throw new Error(errorData.error || 'AI 정리 실패')
+        throw new Error(errorData.error || 'JOBIZIC 정리 실패')
       }
 
       const data = await response.json()
@@ -368,7 +368,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             color: '#999',
             marginBottom: '8px',
           }}>
-            주간 업무 기록 → AI 정리 → 월간 집계 → 이력서 반영
+            주간 업무 기록 → JOBIZIC 정리 → 월간 집계 → 이력서 반영
           </p>
           <p style={{
             fontSize: '13px',
@@ -751,7 +751,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             onMouseEnter={(e) => !isGenerating && organizationSaved && (e.currentTarget.style.transform = 'scale(1.02)')}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            {isGenerating ? '🤖 AI 정리 중...' : '✨ AI 정리하기'}
+            {isGenerating ? '🤖 JOBIZIC 정리 중...' : '✨ JOBIZIC 정리하기'}
           </button>
 
           <div style={{

@@ -25,7 +25,7 @@ const PRODUCTS: Product[] = [
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
     description: [
-      '✅ AI 기반 이력서 종합 분석',
+      '✅ JOBIZIC 기반 이력서 종합 분석',
       '✅ 직무 적합도 점수 (3개 항목)',
       '✅ 커리어 경로 제안',
       '✅ 핵심 강점 & 개선점',
@@ -70,7 +70,7 @@ const PRODUCTS: Product[] = [
     icon: '📊',
     gradient: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
     description: [
-      '✅ AI 생성 후보자 제안서',
+      '✅ JOBIZIC 생성 후보자 제안서',
       '✅ 전문적인 HTML 리포트',
       '✅ 회사 맞춤형 어필 포인트',
       '✅ 즉시 클라이언트 전송 가능',
@@ -136,9 +136,9 @@ export default function StoreClient({ isManager }: Props) {
         <div className="store-header">
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
-            <p className="store-subtitle">AI 커리어 부스터 팩</p>
+            <p className="store-subtitle">JOBIZIC 커리어 부스터 팩</p>
             <p className="store-description">
-              당신의 커리어를 한 단계 업그레이드할 프리미엄 AI 분석 서비스
+              당신의 커리어를 한 단계 업그레이드할 프리미엄 JOBIZIC 분석 서비스
             </p>
           </div>
         </div>

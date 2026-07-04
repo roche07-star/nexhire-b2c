@@ -16,7 +16,7 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
   // 개인/헤드헌터 맞춤 콘텐츠
   const content = {
     JOBSEEKER: {
-      badge: '재직 중 이직 준비 직장인을 위한 AI 커리어 코치',
+      badge: '재직 중 이직 준비 직장인을 위한 JOBIZIC 커리어 코치',
       headline: (
         <>
           이력서 하나로,<br />
@@ -26,12 +26,12 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
       sub: (
         <>
           현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
+          JOBIZIC 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
         </>
       ),
     },
     HEADHUNTER: {
-      badge: '헤드헌터를 위한 AI 후보자 분석 플랫폼',
+      badge: '헤드헌터를 위한 JOBIZIC 후보자 분석 플랫폼',
       headline: (
         <>
           후보자 이력서를,<br />
@@ -41,12 +41,12 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
       sub: (
         <>
           후보자 강점 분석부터 JD 적합도, 클라이언트 제안 전략까지.<br />
-          AI가 10분 만에 완성합니다. 헤드헌터의 시간은 관계 구축에 집중하세요.
+          JOBIZIC이 10분 만에 완성합니다. 헤드헌터의 시간은 관계 구축에 집중하세요.
         </>
       ),
     },
     DEFAULT: {
-      badge: '재직 중 이직 준비 직장인을 위한 AI 커리어 코치',
+      badge: '재직 중 이직 준비 직장인을 위한 JOBIZIC 커리어 코치',
       headline: (
         <>
           이력서 하나로,<br />
@@ -56,7 +56,7 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
       sub: (
         <>
           현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          AI 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
+          JOBIZIC 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
         </>
       ),
     },
@@ -114,7 +114,7 @@ export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTE
                   <strong>이력서를 드래그하거나 클릭</strong><br />
                   PDF, DOCX / 최대 10MB
                 </div>
-                <div className="typewriter">AI 분석 중...</div>
+                <div className="typewriter">JOBIZIC 분석 중...</div>
               </div>
               <div className="demo-result">
                 <div className="result-tag">✦ 분석 완료</div>

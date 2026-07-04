@@ -26,7 +26,7 @@ export default function PrivacyPage() {
             <p>회사는 다음의 목적을 위하여 개인정보를 처리합니다.</p>
             <ul>
               <li>회원 가입 및 관리</li>
-              <li>AI 이력서 분석 서비스 제공</li>
+              <li>JOBIZIC 이력서 분석 서비스 제공</li>
               <li>JD(직무기술서) 적합도 분석 서비스 제공</li>
               <li>이력서 생성 및 다운로드 서비스 제공</li>
               <li>유료 서비스 이용에 따른 요금 결제 및 정산</li>
@@ -208,7 +208,7 @@ export default function PrivacyPage() {
                 </tr>
                 <tr>
                   <td>Anthropic PBC</td>
-                  <td>AI 이력서 분석</td>
+                  <td>JOBIZIC 이력서 분석</td>
                   <td className="highlight">즉시 삭제 (미저장 보장)</td>
                 </tr>
               </tbody>

@@ -524,7 +524,7 @@ p.body { color: var(--text2); margin-bottom: 8px; font-size: 13px; }
 
       <div class="quote-box" style="margin-top:20px">
         ■ 면접 전후 궁금한 점은 언제든 연락 주세요.<br>
-        &nbsp;&nbsp;Jobizic | AI 면접 가이드<br><br>
+        &nbsp;&nbsp;Jobizic | 면접 가이드<br><br>
         &nbsp;&nbsp;<em style="color:#93c5fd">"채용은 사람이고, 사람은 맥락입니다. 끝까지 책임집니다."</em>
       </div>
     </div>
@@ -533,7 +533,7 @@ p.body { color: var(--text2); margin-bottom: 8px; font-size: 13px; }
 </div><!-- /layout -->
 
 <div class="footer">
-  <span>Jobizic · AI 면접 가이드</span>
+  <span>Jobizic · 면접 가이드</span>
   <span>${dateStr} · ${esc(candidateName)} / ${esc(company)}</span>
 </div>
 

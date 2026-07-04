@@ -17,7 +17,7 @@ export default function TermsPage() {
 
           <div className="privacy-section">
             <h2>제1조 (목적)</h2>
-            <p>이 약관은 Jobizic(이하 "회사")가 제공하는 AI 이력서 분석 및 커리어 방향 제시 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 이용자 간의 권리/의무를 규정함을 목적으로 합니다.</p>
+            <p>이 약관은 Jobizic(이하 "회사")가 제공하는 JOBIZIC 이력서 분석 및 커리어 방향 제시 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 이용자 간의 권리/의무를 규정함을 목적으로 합니다.</p>
           </div>
 
           <div className="privacy-section">
@@ -26,7 +26,7 @@ export default function TermsPage() {
 
             <h3 style={{ marginTop: 16, fontSize: '16px', fontWeight: 600 }}>2.1 기본 서비스 (모든 회원)</h3>
             <ul>
-              <li>이력서 파일(PDF, DOCX) 업로드 및 AI 기반 분석</li>
+              <li>이력서 파일(PDF, DOCX) 업로드 및 JOBIZIC 기반 분석</li>
               <li>직무 적합도, 시장 경쟁력, 성장 가능성 점수 산출</li>
               <li>강점/개선점/추천 커리어 방향 제시</li>
             </ul>
@@ -91,7 +91,7 @@ export default function TermsPage() {
           <div className="privacy-section">
             <h2>제6조 (면책 조항)</h2>
             <ul>
-              <li>AI 분석 결과는 통계적 모델에 기반한 참고 정보이며, 정확성/완전성을 보증하지 않습니다.</li>
+              <li>JOBIZIC 분석 결과는 통계적 모델에 기반한 참고 정보이며, 정확성/완전성을 보증하지 않습니다.</li>
               <li>분석 결과를 기반으로 한 이용자의 결정(이직, 진로 변경 등)에 대해 회사는 법적 책임을 지지 않습니다.</li>
               <li>천재지변, 서비스 장애, 제3자 사정 등 불가항력으로 인한 서비스 중단에 대해 회사는 책임을 지지 않습니다.</li>
               <li>이용자가 제공한 이력서 정보의 진위 여부에 대해 회사는 책임을 지지 않습니다.</li>

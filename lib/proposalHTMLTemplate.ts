@@ -241,7 +241,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     </div>
 
     <div class="footer">
-      <div>본 추천서는 JOBIZIC AI 헤드헌터 시스템으로 생성되었습니다.</div>
+      <div>본 추천서는 JOBIZIC 헤드헌터 시스템으로 생성되었습니다.</div>
       <div>생성일시: ${new Date().toLocaleString('ko-KR')}</div>
     </div>
   </div>

@@ -122,7 +122,7 @@ ul.improve li::before{color:#888880}
 <body>
 <div class="wrap">
   <div class="report-header">
-    <div class="report-logo">JOBIZIC, AI 이력서 분석</div>
+    <div class="report-logo">JOBIZIC 이력서 분석</div>
     ${titleLine}
     <div class="report-date">분석일: ${dateStr}</div>
   </div>
