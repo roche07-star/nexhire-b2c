@@ -475,7 +475,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       {/* Header */}
       <div style={{
         position: 'relative',
-        zIndex: 1,
+        zIndex: 100,
         marginBottom: 32,
         display: 'flex',
         justifyContent: 'space-between',
