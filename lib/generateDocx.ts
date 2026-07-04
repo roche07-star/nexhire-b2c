@@ -117,8 +117,8 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
         alignment,
       })
     }
-    // [담당업무], [상세업무], [성과]로 시작하는 줄: Bold
-    if (/^\[담당업무\]$|^\[상세업무\]$|^\[성과\]$/.test(trimmed)) {
+    // [담당업무], [상세업무], [성과], [이직사유]로 시작하는 줄: Bold
+    if (/^\[담당업무\]$|^\[상세업무\]$|^\[성과\]$|^\[이직사유\]$/.test(trimmed)) {
       // ** 제거
       const cleanText = line.trimEnd().replace(/\*\*/g, '')
       return new Paragraph({
