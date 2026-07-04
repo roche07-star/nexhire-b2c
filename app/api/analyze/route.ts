@@ -284,6 +284,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 이력서 저장 개수 체크 (MANAGER 제외)
+    if (role !== 'MANAGER' && !resumeCouponId) {
+      const { count } = await supabase
+        .from('analyses')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_email', email)
+
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json(
+          { error: '이력서는 기본 1개만 저장됩니다. 추가 저장을 원하시면 "이력서 저장 쿠폰"을 구매하세요.' },
+          { status: 403 }
+        )
+      }
+    }
+
     const formData = await req.formData()
     const file = formData.get('resume') as File | null
     const pastedText = ((formData.get('resumeText') as string | null) ?? '').trim()
