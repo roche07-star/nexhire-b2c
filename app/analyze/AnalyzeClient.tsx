@@ -2755,6 +2755,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         <div className="preserve-checkbox-desc">
                           FREE 플랜은 이력서 1개가 자동으로 저장됩니다. 저장된 이력서로 <strong>이력서 생성</strong> 기능을 사용할 수 있습니다.
                           {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
+                          <br /><br />
+                          💡 <strong>추가 저장을 원하시면</strong> '이력서 추가 저장 쿠폰'을 구매하세요. 사용 방법: 쿠폰 구매 후 <strong>내정보</strong>에서 등록!
                         </div>
                       </div>
                     </div>
@@ -2790,6 +2792,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 {' '}현재 저장: {preserved[0].result.job_title ?? '(제목 없음)'} → 새 이력서로 교체됩니다.
                               </span>
                             )}
+                            <br />
+                            💡 <strong>추가 저장을 원하시면</strong> '이력서 추가 저장 쿠폰'을 구매하세요. 사용 방법: 쿠폰 구매 후 <strong>내정보</strong>에서 등록!
                           </div>
                         </div>
                       </label>

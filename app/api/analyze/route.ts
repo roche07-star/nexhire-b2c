@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
 
       if ((count ?? 0) >= 1) {
         return NextResponse.json(
-          { error: '이력서는 기본 1개만 저장됩니다. 추가 저장을 원하시면 "이력서 저장 쿠폰"을 구매하세요.' },
+          { error: '이력서는 기본 1개만 저장됩니다. 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!' },
           { status: 403 }
         )
       }
