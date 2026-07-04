@@ -99,6 +99,22 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
     if (/^[-•*▪▸]\s/.test(trimmed)) {
       return bulletLine(trimmed.replace(/^[-•*▪▸]\s*/, ''))
     }
+    // 【】로 시작하는 회사명 줄: 13pt, Bold
+    if (trimmed.includes('【') && trimmed.includes('】')) {
+      return new Paragraph({
+        children: [
+          new TextRun({
+            text: line.trimEnd(),
+            bold: true,
+            size: 26, // 13pt = 26 half-points
+            color: '333344'
+          }),
+        ],
+        spacing: { after: 120, before: 240, line: 240 },
+        indent: { left: 140 },
+        alignment,
+      })
+    }
     return bodyLine(line.trimEnd(), alignment)
   })
 }
