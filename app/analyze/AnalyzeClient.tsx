@@ -2892,8 +2892,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 )
                               }
                             })()}
-                            <br />
-                            💡 <strong>추가 저장을 원하시면</strong> '이력서 추가 저장 쿠폰'을 구매하세요. 사용 방법: 쿠폰 구매 후 <strong>내정보</strong>에서 등록!
+                            {(() => {
+                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+                              if (storageCouponCount === 0) {
+                                return (
+                                  <>
+                                    <br />
+                                    💡 <strong>추가 저장을 원하시면</strong> '이력서 추가 저장 쿠폰'을 구매하세요. 사용 방법: 쿠폰 구매 후 <strong>내정보</strong>에서 등록!
+                                  </>
+                                )
+                              }
+                              return null
+                            })()}
                           </div>
                         </div>
                       </label>
