@@ -269,6 +269,7 @@ export async function POST(req: NextRequest) {
         .eq('claimed_by', email)
         .eq('feature', 'resume')
         .is('used_at', null)
+        .is('deleted_at', null)
       const now = new Date()
       const valid = (coupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
       if (valid) resumeCouponId = valid.id
