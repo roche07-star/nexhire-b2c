@@ -345,7 +345,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
   const [deletingAnalysisId, setDeletingAnalysisId] = useState<string | null>(null)
   const [deletingJdId, setDeletingJdId] = useState<string | null>(null)
-  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string }[]>([])
+  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string; claimed_at?: string; used_at?: string; expires_at?: string }[]>([])
   const [analysisId, setAnalysisId] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveChecked, setPreserveChecked] = useState(true)
@@ -2681,10 +2681,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* 업로드 모드 */}
             {activeMenu === 'upload' && !result && (
               <>
-                {/* 이력서 분석 쿠폰 보유 배지 */}
+                {/* 이력서 추가 저장 쿠폰 보유 배지 */}
                 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length > 0 && (
                   <div className="coupon-active-badge">
-                    🎟 이력서 분석 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 이번 분석이 무료로 진행됩니다
+                    🎟 이력서 추가 저장 쿠폰 {myCoupons.filter(c => c.feature === 'resume' && c.status === 'active').length}개 보유 — 추가 저장이 가능합니다
                   </div>
                 )}
 

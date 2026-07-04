@@ -646,6 +646,8 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       <th>단가</th>
                       <th>지정 이메일</th>
                       <th>등록자</th>
+                      <th>등록일</th>
+                      <th>사용일</th>
                       <th>유효기간</th>
                       <th>상태</th>
                     </tr>
@@ -664,13 +666,15 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                               ? <button className="admin-detail-link" onClick={() => openUserDetail(c.claimed_by!)}>{c.claimed_by}</button>
                               : '—'}
                           </td>
+                          <td className="admin-date">{c.claimed_at ? new Date(c.claimed_at).toLocaleDateString('ko-KR') : '—'}</td>
+                          <td className="admin-date">{c.used_at ? new Date(c.used_at).toLocaleDateString('ko-KR') : '—'}</td>
                           <td className="admin-date">{c.expires_at ? new Date(c.expires_at).toLocaleDateString('ko-KR') : '무제한'}</td>
                           <td><span className={`coupon-status-badge ${st.cls}`}>{st.label}</span></td>
                         </tr>
                       )
                     })}
                     {(coupons ?? []).length === 0 && (
-                      <tr><td colSpan={7} className="admin-empty">발급된 쿠폰이 없습니다.</td></tr>
+                      <tr><td colSpan={9} className="admin-empty">발급된 쿠폰이 없습니다.</td></tr>
                     )}
                   </tbody>
                 </table>
