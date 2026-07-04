@@ -768,19 +768,19 @@ ${maskedText.slice(0, 3000)}
         // 첫 번째 보존 — 무료
         canPreserve = true
       } else {
-        // 추가 보존 — storage 쿠폰 필요
-        const { data: storageCoupons } = await supabase
+        // 추가 보존 — storage 쿠폰으로 슬롯 확보되어 있는지 확인
+        const { count: storageCouponCount } = await supabase
           .from('coupons')
-          .select('id, expires_at')
+          .select('id', { count: 'exact', head: true })
           .eq('claimed_by', email)
           .eq('feature', 'storage')
-          .is('used_at', null)
-        const validStorage = (storageCoupons ?? []).find(
-          (c) => !c.expires_at || new Date(c.expires_at) > new Date()
-        )
-        if (validStorage) {
-          rewriteCouponUsed = validStorage.id
+          .is('deleted_at', null)
+
+        const maxCount = 1 + (storageCouponCount ?? 0)  // 기본 1개 + 쿠폰 개수
+
+        if (preserved.length < maxCount) {
           canPreserve = true
+          // storage 쿠폰은 영구 슬롯이므로 used_at 업데이트 안 함
         }
       }
 
