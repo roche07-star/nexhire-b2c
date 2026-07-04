@@ -1444,22 +1444,20 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         gridTemplateColumns: '1fr',
         gap: 32
       }}>
-        {/* Quick View - 채용 프로세스 한눈에 */}
+        {/* 채용 프로세스 */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+          background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid rgba(34, 211, 238, 0.3)',
           borderRadius: 24,
           padding: 24,
           transition: 'all 0.3s'
         }}>
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 28,
-            flexWrap: 'wrap',
-            gap: 16
+            justifyContent: 'space-between',
+            marginBottom: 28
           }}>
             <h2 style={{
               fontSize: 24,
@@ -1469,40 +1467,39 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              margin: 0
+              margin: 0,
+              whiteSpace: 'nowrap'
             }}>
               <span style={{ fontSize: 28 }}>⚡</span>
-              채용 프로세스 한눈에
+              채용 프로세스
             </h2>
             <button
               onClick={() => router.push('/hiring-process')}
               style={{
-                padding: '10px 20px',
-                background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%)',
-                color: '#22d3ee',
+                padding: '8px 16px',
+                background: 'rgba(34, 211, 238, 0.1)',
                 border: '1px solid rgba(34, 211, 238, 0.3)',
-                borderRadius: 12,
+                borderRadius: 8,
+                color: '#22d3ee',
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
-                fontSize: 14,
                 transition: 'all 0.3s',
-                letterSpacing: '-0.01em',
-                backdropFilter: 'blur(10px)'
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 211, 238, 0.3) 0%, rgba(167, 139, 250, 0.3) 100%)'
-                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
+                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.2)'
                 e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%)'
-                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
+                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.1)'
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              전체 보기 →
+              <span>전체 보기 →</span>
             </button>
           </div>
 
