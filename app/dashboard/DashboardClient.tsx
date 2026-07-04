@@ -899,11 +899,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           </button>
 
           <button
-            onClick={() => router.push('/hiring-process')}
+            onClick={() => router.push('/settlements')}
             style={{
-              background: 'linear-gradient(135deg, rgba(244, 114, 182, 0.15) 0%, rgba(244, 114, 182, 0.05) 100%)',
+              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(244, 114, 182, 0.3)',
+              border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: 16,
               padding: '20px',
               cursor: 'pointer',
@@ -912,21 +912,21 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.borderColor = 'rgba(244, 114, 182, 0.6)'
-              e.currentTarget.style.boxShadow = '0 12px 24px rgba(244, 114, 182, 0.2)'
+              e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(251, 191, 36, 0.2)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(244, 114, 182, 0.3)'
+              e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
               e.currentTarget.style.boxShadow = 'none'
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#f472b6', marginBottom: 4 }}>
-              채용 프로세스
+            <div style={{ fontSize: 32, marginBottom: 8 }}>💰</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
+              정산
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-              진행 중인 후보자 현황 확인
+              이번 달 정산 내역
             </div>
           </button>
         </div>
@@ -1282,156 +1282,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
           </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        marginBottom: 56,
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(34, 211, 238, 0.3)',
-          borderRadius: 24,
-          padding: 24,
-          transition: 'all 0.3s'
-        }}>
-          <h2 style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#ffffff',
-            marginBottom: 28,
-            letterSpacing: '-0.02em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12
-          }}>
-            <span style={{ fontSize: 28 }}>🚀</span>
-            빠른 작업
-          </h2>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 16
-          }}>
-            {/* 새 이력서 분석 */}
-            <button
-              onClick={() => router.push('/analyze')}
-              style={{
-                padding: '20px 24px',
-                background: 'rgba(34, 211, 238, 0.1)',
-                border: '1px solid rgba(34, 211, 238, 0.3)',
-                borderRadius: 16,
-                color: '#ffffff',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.2)'
-                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.2)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <span style={{ fontSize: 24 }}>📋</span>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>새 이력서 분석</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>후보자 이력서 업로드</div>
-              </div>
-            </button>
-
-            {/* 채용 프로세스 추가 */}
-            <button
-              onClick={() => router.push('/hiring-process')}
-              style={{
-                padding: '20px 24px',
-                background: 'rgba(167, 139, 250, 0.1)',
-                border: '1px solid rgba(167, 139, 250, 0.3)',
-                borderRadius: 16,
-                color: '#ffffff',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.2)'
-                e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.6)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(167, 139, 250, 0.2)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(167, 139, 250, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.3)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <span style={{ fontSize: 24 }}>📊</span>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>채용 프로세스 관리</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>진행 중인 채용 보기</div>
-              </div>
-            </button>
-
-            {/* 정산 확인 */}
-            <button
-              onClick={() => router.push('/settlements')}
-              style={{
-                padding: '20px 24px',
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: 16,
-                color: '#ffffff',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'
-                e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(251, 191, 36, 0.2)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(251, 191, 36, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <span style={{ fontSize: 24 }}>💰</span>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>정산 확인</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>이번 달 정산 내역</div>
-              </div>
-            </button>
           </div>
         </div>
       </div>
