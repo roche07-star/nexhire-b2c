@@ -1917,6 +1917,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               )
 
               const renderGuide = (g: InterviewGuideResult) => {
+                // Q&A 텍스트 렌더링 함수 (질문과 답변 색상 구분)
+                const renderQA = (text: string) => {
+                  return (text ?? '').split('\n').map((l, i) => {
+                    const trimmed = l.trim()
+                    if (trimmed.startsWith('Q:') || trimmed.startsWith('Q.') || /^Q\d+[:.]/.test(trimmed)) {
+                      return <p key={i} style={{ color: '#e8ff47', fontWeight: 700, marginTop: i > 0 ? '16px' : '0' }}>{l}</p>
+                    } else if (trimmed.startsWith('A:') || trimmed.startsWith('A.')) {
+                      return <p key={i} style={{ color: 'rgba(255,255,255,0.9)', marginLeft: '16px', marginTop: '8px' }}>{l}</p>
+                    } else {
+                      return <p key={i}>{l}</p>
+                    }
+                  })
+                }
+
                 // 디버깅: 데이터 확인
                 console.log('🎤 Interview Guide Data:', {
                   candidate_name: g.candidate_name,
@@ -1964,29 +1978,29 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     <div className="interview-section-title">SECTION 3 — 예상 질문 & 답변 가이드</div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">A. 이직 사유</div>
-                      <div className="interview-text">{(g.qa_resign_reason ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{renderQA(g.qa_resign_reason ?? '')}</div>
                     </div>
                     {g.qa_domain_gap && g.qa_domain_gap !== '해당없음' && (
                       <div className="interview-qa-block">
                         <div className="interview-qa-label">B. 도메인 갭 대응</div>
-                        <div className="interview-text">{(g.qa_domain_gap ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                        <div className="interview-text">{renderQA(g.qa_domain_gap ?? '')}</div>
                       </div>
                     )}
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">C. 역량 검증 (STAR)</div>
-                      <div className="interview-text">{(g.qa_competency ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{renderQA(g.qa_competency ?? '')}</div>
                     </div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">D. 프로젝트 경험 심화 질문</div>
-                      <div className="interview-text">{(g.qa_project_experience ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{renderQA(g.qa_project_experience ?? '')}</div>
                     </div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">E. 입사 후 계획</div>
-                      <div className="interview-text">{(g.qa_post_join ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{renderQA(g.qa_post_join ?? '')}</div>
                     </div>
                     <div className="interview-qa-block">
                       <div className="interview-qa-label">F. 희망 연봉</div>
-                      <div className="interview-text">{(g.qa_salary ?? '').split('\n').map((l, i) => <p key={i}>{l}</p>)}</div>
+                      <div className="interview-text">{renderQA(g.qa_salary ?? '')}</div>
                     </div>
                   </div>
                   <div className="interview-section">

@@ -41,7 +41,7 @@ const interviewTool: Anthropic.Tool = {
       qa_resign_reason: { type: 'string', description: 'SECTION 3A — 이직 사유' },
       qa_domain_gap: { type: 'string', description: 'SECTION 3B — 도메인 갭 대응' },
       qa_competency: { type: 'string', description: 'SECTION 3C — 역량 검증 (STAR)' },
-      qa_project_experience: { type: 'string', description: 'SECTION 3D — 프로젝트 경험 심화 질문 (후보자 이력서의 실제 프로젝트/업무 경험 기반, 구체적인 기술/상황 질문 3-4개)' },
+      qa_project_experience: { type: 'string', description: 'SECTION 3D — 프로젝트 경험 심화 질문 (후보자 이력서의 실제 프로젝트/업무 경험 기반, 구체적인 기술/상황 질문 8개, 각 질문마다 답변 예시 포함)' },
       qa_post_join: { type: 'string', description: 'SECTION 3E — 입사 후 계획' },
       qa_salary: { type: 'string', description: 'SECTION 3F — 희망 연봉' },
       strengths: {
@@ -178,11 +178,19 @@ ${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
 - 후보자 이력서의 **실제 프로젝트/업무 경험**을 기반으로 구체적인 질문 생성
 - 기술 스택, 아키텍처, 트러블슈팅, 의사결정 과정 등 실무 깊이 검증
 - 일반적인 질문 금지, 반드시 후보자의 이력서에 명시된 내용 기반으로 작성
+- 각 질문마다 **모범 답변 예시**를 함께 제공 (후보자의 실제 경험 기반)
 - 예시 형식:
-  Q1. [후보자가 경험한 구체적 프로젝트명/기술]에서 [구체적 상황/문제] 어떻게 해결했나요?
-  Q2. [후보자의 기술 스택]을 사용하면서 가장 어려웠던 기술적 도전은?
-  Q3. [프로젝트에서 한 역할]을 수행하면서 [구체적 의사결정]은 어떤 기준으로 했나요?
-- 3-4개 질문 생성, 각 질문은 후보자의 실제 경험에서 추출
+  Q: [후보자가 경험한 구체적 프로젝트명/기술]에서 [구체적 상황/문제] 어떻게 해결했나요?
+  A: [후보자의 이력서 내용을 바탕으로 한 구체적인 답변 예시 - STAR 형식 권장]
+
+  Q: [후보자의 기술 스택]을 사용하면서 가장 어려웠던 기술적 도전은?
+  A: [기술적 도전과 해결 과정을 담은 답변 예시]
+
+  Q: [프로젝트에서 한 역할]을 수행하면서 [구체적 의사결정]은 어떤 기준으로 했나요?
+  A: [의사결정 기준과 근거를 담은 답변 예시]
+- **8개 질문** 생성, 각 질문은 후보자의 실제 경험에서 추출
+- 각 질문마다 모범 답변 예시 필수 (Q:/A: 형식)
+- 답변은 2-3문장으로 간결하게, 후보자가 실제로 말할 수 있는 수준으로 작성
 
 💰 SECTION 3F — 희망 연봉 답변 가이드
 - 기본 원칙: 현재 연봉 대비 **10% 선에서 상향 검토** 제시
