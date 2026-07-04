@@ -485,7 +485,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       }}>
         <div>
           <h1 style={{
-            fontSize: 36,
+            fontSize: 32,
             marginBottom: 8,
             color: '#ffffff',
             fontWeight: 800,
@@ -1109,7 +1109,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
+              gridTemplateColumns: 'repeat(3, minmax(240px, 1fr))',
               gap: 20,
               minWidth: 'fit-content'
             }}>
@@ -1120,7 +1120,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1136,7 +1136,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     입사 목표
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#10b981',
                     marginBottom: 8,
@@ -1178,7 +1178,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1194,7 +1194,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     합격 목표
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#22d3ee',
                     marginBottom: 8,
@@ -1237,7 +1237,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1253,7 +1253,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     제안 목표
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#a78bfa',
                     marginBottom: 8,
@@ -1365,7 +1365,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
+              gridTemplateColumns: 'repeat(3, minmax(240px, 1fr))',
               gap: 20,
               minWidth: 'fit-content'
             }}>
@@ -1376,7 +1376,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1392,7 +1392,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     진행 중
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#fbbf24',
                     marginBottom: 8,
@@ -1434,7 +1434,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1450,7 +1450,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     합격
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#22d3ee',
                     marginBottom: 8,
@@ -1492,7 +1492,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
-                  padding: '24px 28px',
+                  padding: '20px 24px',
                   background: 'rgba(255,255,255,0.05)',
                   borderRadius: 16,
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -1508,7 +1508,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     입사
                   </div>
                   <div style={{
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#10b981',
                     marginBottom: 8,
