@@ -155,23 +155,6 @@ function parseTable(content: string): Table | null {
 export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
   const children: Paragraph[] = []
 
-  // JOBIZIC 로고 (좌측 상단)
-  children.push(
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: 'JOBIZIC',
-          bold: true,
-          size: 20,
-          color: 'e8ff47',
-          shading: { fill: '18181b', type: 'solid' }
-        }),
-      ],
-      alignment: AlignmentType.LEFT,
-      spacing: { after: 180 },
-    })
-  )
-
   // 이름 헤더
   if (data.candidate_name) {
     children.push(
@@ -204,12 +187,31 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
         properties: {
           page: {
             margin: {
-              top: convertInchesToTwip(1),
+              top: convertInchesToTwip(1.2),
               right: convertInchesToTwip(1),
               bottom: convertInchesToTwip(1),
               left: convertInchesToTwip(1),
             },
           },
+        },
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'JOBIZIC',
+                    bold: true,
+                    size: 28,
+                    color: 'e8ff47',
+                    shading: { fill: '18181b', type: 'solid' }
+                  }),
+                ],
+                alignment: AlignmentType.LEFT,
+                spacing: { after: 200 },
+              }),
+            ],
+          }),
         },
         children,
       },
@@ -240,23 +242,6 @@ export async function generateStandardDocx(
   candidateName?: string
 ): Promise<Buffer> {
   const children: (Paragraph | Table)[] = []
-
-  // JOBIZIC 로고 (좌측 상단)
-  children.push(
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: 'JOBIZIC',
-          bold: true,
-          size: 20,
-          color: 'e8ff47',
-          shading: { fill: '18181b', type: 'solid' }
-        }),
-      ],
-      alignment: AlignmentType.LEFT,
-      spacing: { after: 180 },
-    })
-  )
 
   // 이름 헤더 (중앙 정렬, 더 크게)
   if (candidateName) {
@@ -326,14 +311,15 @@ export async function generateStandardDocx(
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: "JOBIZIC",
+                    text: 'JOBIZIC',
                     bold: true,
                     size: 28,
-                    color: "1a1a2e",
+                    color: 'e8ff47',
+                    shading: { fill: '18181b', type: 'solid' }
                   }),
                 ],
-                alignment: AlignmentType.RIGHT,
-                spacing: { after: 100 },
+                alignment: AlignmentType.LEFT,
+                spacing: { after: 200 },
               }),
             ],
           }),
