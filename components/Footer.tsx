@@ -22,7 +22,7 @@ export default function Footer() {
         <a href="/terms">이용약관</a>
         <a href="/privacy">개인정보처리방침</a>
         <a href="/licenses">오픈소스 라이선스</a>
-        <a href="mailto:privacy@jobizic.io">문의하기</a>
+        <a href="mailto:jobizic.biz@gmail.com">문의하기</a>
       </div>
     </footer>
   )

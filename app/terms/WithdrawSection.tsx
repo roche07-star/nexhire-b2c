@@ -43,7 +43,7 @@ export default function WithdrawSection() {
     <div className="privacy-section" style={{ borderTop: '1px solid rgba(255,107,107,0.15)', marginTop: 40, paddingTop: 32 }}>
       <h2 style={{ color: '#ff6b6b' }}>계정 탈퇴</h2>
       <p>탈퇴하시면 저장된 분석 결과, JD 적합도 분석, 보유 쿠폰이 즉시 삭제됩니다. 삭제된 데이터는 복구되지 않습니다.</p>
-      <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <strong>privacy@jobizic.io</strong>로 연락해 주세요.</p>
+      <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <strong>jobizic.biz@gmail.com</strong>으로 연락해 주세요.</p>
       <button
         ref={withdrawButtonRef}
         className="withdraw-link"
