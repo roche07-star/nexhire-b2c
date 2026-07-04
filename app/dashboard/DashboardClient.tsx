@@ -782,6 +782,156 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        marginBottom: 32
+      }}>
+        <h2 style={{
+          fontSize: 18,
+          fontWeight: 700,
+          color: 'rgba(255,255,255,0.9)',
+          marginBottom: 16,
+          letterSpacing: '-0.02em'
+        }}>
+          ⚡ 빠른 작업
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 16
+        }}>
+          <button
+            onClick={() => router.push('/analyze?tab=upload')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(34, 211, 238, 0.05) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(34, 211, 238, 0.3)',
+              borderRadius: 16,
+              padding: '20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              textAlign: 'left'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.6)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(34, 211, 238, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(34, 211, 238, 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>
+              이력서 분석
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              새 후보자 이력서 업로드 및 분석
+            </div>
+          </button>
+
+          <button
+            onClick={() => router.push('/analyze?tab=jd')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.05) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: 16,
+              padding: '20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              textAlign: 'left'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.6)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(251, 191, 36, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
+              JD 매칭 분석
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              JD와 후보자 적합도 분석
+            </div>
+          </button>
+
+          <button
+            onClick={() => router.push('/analyze?tab=interview')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(167, 139, 250, 0.05) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
+              borderRadius: 16,
+              padding: '20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              textAlign: 'left'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.6)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(167, 139, 250, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🎤</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#a78bfa', marginBottom: 4 }}>
+              면접 가이드
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              맞춤형 면접 준비 가이드 생성
+            </div>
+          </button>
+
+          <button
+            onClick={() => router.push('/hiring-process')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(244, 114, 182, 0.15) 0%, rgba(244, 114, 182, 0.05) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(244, 114, 182, 0.3)',
+              borderRadius: 16,
+              padding: '20px',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              textAlign: 'left'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.borderColor = 'rgba(244, 114, 182, 0.6)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(244, 114, 182, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(244, 114, 182, 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#f472b6', marginBottom: 4 }}>
+              채용 프로세스
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              진행 중인 후보자 현황 확인
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Insights Card */}
       <div style={{
         marginBottom: 56,
