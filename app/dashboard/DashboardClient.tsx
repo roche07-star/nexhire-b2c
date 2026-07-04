@@ -803,7 +803,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(240px, 1fr))',
+            gridTemplateColumns: 'repeat(4, minmax(200px, 1fr))',
             gap: 16,
             minWidth: 'fit-content'
           }}>
@@ -814,7 +814,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(34, 211, 238, 0.3)',
               borderRadius: 16,
-              padding: '20px',
+              padding: '16px',
               cursor: 'pointer',
               transition: 'all 0.3s',
               textAlign: 'left'
@@ -830,11 +830,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               e.currentTarget.style.boxShadow = 'none'
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>📄</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#22d3ee', marginBottom: 4 }}>
               이력서 분석
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               새 후보자 이력서 업로드 및 분석
             </div>
           </button>
@@ -846,7 +846,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: 16,
-              padding: '20px',
+              padding: '16px',
               cursor: 'pointer',
               transition: 'all 0.3s',
               textAlign: 'left'
@@ -862,11 +862,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               e.currentTarget.style.boxShadow = 'none'
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🎯</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>🎯</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
               JD 매칭 분석
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               JD와 후보자 적합도 분석
             </div>
           </button>
@@ -878,7 +878,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(167, 139, 250, 0.3)',
               borderRadius: 16,
-              padding: '20px',
+              padding: '16px',
               cursor: 'pointer',
               transition: 'all 0.3s',
               textAlign: 'left'
@@ -894,11 +894,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               e.currentTarget.style.boxShadow = 'none'
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🎤</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#a78bfa', marginBottom: 4 }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>🎤</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#a78bfa', marginBottom: 4 }}>
               면접 가이드
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               맞춤형 면접 준비 가이드 생성
             </div>
           </button>
@@ -910,7 +910,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               backdropFilter: 'blur(20px)',
               border: '1px solid rgba(251, 191, 36, 0.3)',
               borderRadius: 16,
-              padding: '20px',
+              padding: '16px',
               cursor: 'pointer',
               transition: 'all 0.3s',
               textAlign: 'left'
@@ -926,11 +926,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               e.currentTarget.style.boxShadow = 'none'
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 8 }}>💰</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
+            <div style={{ fontSize: 28, marginBottom: 6 }}>💰</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
               정산
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               이번 달 정산 내역
             </div>
           </button>
