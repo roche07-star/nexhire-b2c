@@ -6,8 +6,7 @@ import {
   AlignmentType,
   BorderStyle,
   convertInchesToTwip,
-  HeadingLevel,
-  Header,
+  Footer,
   Table,
   TableRow,
   TableCell,
@@ -187,15 +186,15 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
         properties: {
           page: {
             margin: {
-              top: convertInchesToTwip(1.2),
+              top: convertInchesToTwip(1),
               right: convertInchesToTwip(1),
-              bottom: convertInchesToTwip(1),
+              bottom: convertInchesToTwip(1.2),
               left: convertInchesToTwip(1),
             },
           },
         },
-        headers: {
-          default: new Header({
+        footers: {
+          default: new Footer({
             children: [
               new Paragraph({
                 children: [
@@ -208,7 +207,7 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
                   }),
                 ],
                 alignment: AlignmentType.LEFT,
-                spacing: { after: 200 },
+                spacing: { before: 200 },
               }),
             ],
           }),
@@ -300,13 +299,13 @@ export async function generateStandardDocx(
             margin: {
               top: convertInchesToTwip(0.8),
               right: convertInchesToTwip(0.8),
-              bottom: convertInchesToTwip(0.8),
+              bottom: convertInchesToTwip(1.2),
               left: convertInchesToTwip(0.8),
             },
           },
         },
-        headers: {
-          default: new Header({
+        footers: {
+          default: new Footer({
             children: [
               new Paragraph({
                 children: [
@@ -319,7 +318,7 @@ export async function generateStandardDocx(
                   }),
                 ],
                 alignment: AlignmentType.LEFT,
-                spacing: { after: 200 },
+                spacing: { before: 200 },
               }),
             ],
           }),
