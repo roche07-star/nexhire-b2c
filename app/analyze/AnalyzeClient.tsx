@@ -473,6 +473,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .then((r) => r.json())
         .then(({ analyses }) => setAnalysisList(analyses ?? []))
         .catch(() => setAnalysisList([]))
+
+      // 쿠폰도 함께 로드 (저장 개수 계산에 필요)
+      fetch('/api/coupons/mine')
+        .then((r) => r.json())
+        .then(({ coupons }) => { if (coupons) setMyCoupons(coupons) })
+        .catch(() => {})
     }
   }, [initialIsPro])
 
