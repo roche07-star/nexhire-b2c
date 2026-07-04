@@ -275,6 +275,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('resume') as File | null
     const pastedText = ((formData.get('resumeText') as string | null) ?? '').trim()
     const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
+    const replaceTargetId = (formData.get('replaceTargetId') as string | null) ?? null
 
     // 이력서 저장 개수 체크 (MANAGER 제외, 새로 추가하는 경우만)
     if (role !== 'MANAGER' && preserveMode !== 'replace') {
@@ -747,14 +748,20 @@ ${maskedText.slice(0, 3000)}
       let canPreserve = false
 
       if (preserveMode === 'replace') {
-        // 기존 보존 이력서 모두 삭제 후 교체 (무료)
+        // 기존 보존 이력서 교체 (무료)
         canPreserve = true
-        for (const a of preserved) {
-          const oldPath = a.result._file_path as string
+
+        // 교체 대상 결정: replaceTargetId가 있으면 해당 이력서, 없으면 첫 번째 이력서
+        const targetToReplace = replaceTargetId
+          ? preserved.find(a => a.id === replaceTargetId)
+          : preserved[0]
+
+        if (targetToReplace) {
+          const oldPath = targetToReplace.result._file_path as string
           await supabase.storage.from('resumes').remove([oldPath])
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { _file_path: _fp, ...restResult } = a.result as Record<string, unknown>
-          await supabase.from('analyses').update({ result: restResult }).eq('id', a.id)
+          const { _file_path: _fp, ...restResult } = targetToReplace.result as Record<string, unknown>
+          await supabase.from('analyses').update({ result: restResult }).eq('id', targetToReplace.id)
         }
       } else if (!hasPreserved) {
         // 첫 번째 보존 — 무료

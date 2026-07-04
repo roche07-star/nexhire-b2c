@@ -351,6 +351,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveChecked, setPreserveChecked] = useState(true)
   const [preserveAddWithCoupon, setPreserveAddWithCoupon] = useState(false)
+  const [replaceTargetId, setReplaceTargetId] = useState<string | null>(null)
   const [jdSelectModal, setJdSelectModal] = useState(false)
   const jdSelectResolveRef = useRef<((jdId: string | null | 'cancel') => void) | null>(null)
   const [formatSelectModal, setFormatSelectModal] = useState(false)
@@ -1142,6 +1143,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         fd.append('resume', file!)
       }
       fd.append('preserveMode', preserveMode)
+      if (replaceTargetId) {
+        fd.append('replaceTargetId', replaceTargetId)
+      }
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
@@ -2853,6 +2857,27 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                     <span className="preserve-checkbox-replace">
                                       ⚠️ 저장 공간이 가득 찼습니다. 새 이력서를 분석하려면 기존 이력서를 교체해야 합니다.
                                     </span>
+                                    <br />
+                                    <br />
+                                    <strong>교체 대상 선택:</strong>{' '}
+                                    <select
+                                      value={replaceTargetId || preserved[0]?.id || ''}
+                                      onChange={(e) => setReplaceTargetId(e.target.value)}
+                                      style={{
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        border: '1px solid #444',
+                                        background: '#2a2a2a',
+                                        color: '#e8e8de',
+                                        fontSize: '13px',
+                                      }}
+                                    >
+                                      {preserved.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                          {p.result.job_title ?? '(제목 없음)'}
+                                        </option>
+                                      ))}
+                                    </select>
                                   </>
                                 )
                               }
