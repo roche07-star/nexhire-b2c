@@ -30,6 +30,7 @@ export async function GET() {
     supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
       .eq('claimed_by', email)
+      .is('deleted_at', null)
       .order('claimed_at', { ascending: false }),
     supabase.from('consents')
       .select('consent_type, agreed_at, withdrawn_at')

@@ -13,6 +13,7 @@ export async function GET() {
       .from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
       .eq('claimed_by', session.user.email)
+      .is('deleted_at', null)
       .order('claimed_at', { ascending: false })
 
     const now = new Date()

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 const FEATURE_LABEL: Record<string, string> = {
-  resume: '이력서 분석', direction: '방향성 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
+  resume: '이력서 추가 저장', direction: '방향성 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
 }
 const USAGE_LABEL: Record<string, string> = {
   analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
@@ -12,7 +12,7 @@ const USAGE_LABEL: Record<string, string> = {
 interface CouponItem {
   id: string; code: string; feature: string
   status: 'active' | 'used' | 'expired'
-  expires_at?: string | null; claimed_at?: string | null
+  expires_at?: string | null; claimed_at?: string | null; used_at?: string | null
 }
 interface UsageItem { used: number; limit: number }
 interface ConsentInfo {
@@ -94,6 +94,31 @@ export default function MyInfoButton() {
       }
     } finally {
       setCouponClaiming(false)
+    }
+  }
+
+  async function handleDeleteCoupon(couponId: string) {
+    if (!confirm('쿠폰을 삭제하시겠습니까?\n\n관리자에게는 삭제 기록이 남습니다.')) {
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/coupons/${couponId}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        // 쿠폰 목록 새로고침
+        const res2 = await fetch('/api/my-info')
+        setInfo(await res2.json())
+        setCouponMsg({ text: '쿠폰이 삭제되었습니다.', ok: true })
+      } else {
+        const data = await res.json()
+        alert(data.error ?? '삭제에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
     }
   }
 
@@ -411,9 +436,10 @@ export default function MyInfoButton() {
                             padding: 16,
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'center',
+                            alignItems: 'flex-start',
                             flexWrap: 'wrap',
-                            gap: 12
+                            gap: 12,
+                            position: 'relative'
                           }}>
                             <div style={{ flex: 1, minWidth: 200 }}>
                               <code style={{
@@ -434,6 +460,22 @@ export default function MyInfoButton() {
                                 letterSpacing: '-0.01em'
                               }}>
                                 {FEATURE_LABEL[c.feature] ?? c.feature}
+                              </div>
+                              {/* 등록일/사용일 */}
+                              <div style={{
+                                fontSize: 11,
+                                color: '#a1a1aa',
+                                marginTop: 6,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2
+                              }}>
+                                {c.claimed_at && (
+                                  <div>등록: {new Date(c.claimed_at).toLocaleDateString('ko-KR')}</div>
+                                )}
+                                {c.used_at && (
+                                  <div>사용: {new Date(c.used_at).toLocaleDateString('ko-KR')}</div>
+                                )}
                               </div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
@@ -459,6 +501,36 @@ export default function MyInfoButton() {
                                 </div>
                               )}
                             </div>
+                            {/* 삭제 버튼 */}
+                            <button
+                              onClick={() => handleDeleteCoupon(c.id)}
+                              style={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                                width: 24,
+                                height: 24,
+                                borderRadius: 6,
+                                border: 'none',
+                                background: '#fef2f2',
+                                color: '#991b1b',
+                                fontSize: 16,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#fee2e2'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '#fef2f2'
+                              }}
+                              title="쿠폰 삭제"
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
                       </div>
