@@ -768,18 +768,18 @@ ${maskedText.slice(0, 3000)}
         // 첫 번째 보존 — 무료
         canPreserve = true
       } else {
-        // 추가 보존 — rewrite 쿠폰 필요
-        const { data: rewriteCoupons } = await supabase
+        // 추가 보존 — storage 쿠폰 필요
+        const { data: storageCoupons } = await supabase
           .from('coupons')
           .select('id, expires_at')
           .eq('claimed_by', email)
-          .eq('feature', 'rewrite')
+          .eq('feature', 'storage')
           .is('used_at', null)
-        const validRewrite = (rewriteCoupons ?? []).find(
+        const validStorage = (storageCoupons ?? []).find(
           (c) => !c.expires_at || new Date(c.expires_at) > new Date()
         )
-        if (validRewrite) {
-          rewriteCouponUsed = validRewrite.id
+        if (validStorage) {
+          rewriteCouponUsed = validStorage.id
           canPreserve = true
         }
       }
