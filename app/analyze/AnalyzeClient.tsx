@@ -1659,7 +1659,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* Re-Writing 모드 */}
             {activeMenu === 'rewrite' && (() => {
               const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
-              const rewriteCouponCount = myCoupons.filter(c => c.feature === 'rewrite').length
+              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
               return (
               <div className="jd-section">
                 <div className="rewrite-status-bar">
@@ -1677,8 +1677,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="rewrite-status-divider" />
                   <div className="rewrite-status-item">
                     <span className="rewrite-status-label">보존 쿠폰</span>
-                    <span className={`rewrite-status-value${rewriteCouponCount > 0 ? ' available' : ''}`}>
-                      {rewriteCouponCount > 0 ? `${rewriteCouponCount}장` : '없음'}
+                    <span className={`rewrite-status-value${storageCouponCount > 0 ? ' available' : ''}`}>
+                      {storageCouponCount > 0 ? `${storageCouponCount}장` : '없음'}
                     </span>
                   </div>
                 </div>
