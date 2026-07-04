@@ -5540,8 +5540,8 @@ footer {
    ======================================== */
 
 @media (max-width: 768px) {
-  /* Quick Actions 모바일 */
-  main [style*="gridTemplateColumns"] {
+  /* Quick Actions 모바일 - 세로 배치 */
+  main [style*="gridTemplateColumns"][style*="240px"] {
     grid-template-columns: 1fr !important;
   }
 
@@ -5566,10 +5566,14 @@ footer {
     padding: 20px 16px !important;
   }
 
-  /* 목표 진행률 카드 */
-  main [style*="gridTemplateColumns"][style*="250px"] {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
+  /* 이번 달 성과 & 채용 프로세스 카드 - horizontal scroll 유지 */
+  main [style*="gridTemplateColumns"][style*="280px"] {
+    grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
+  }
+
+  /* 최근 활동 카드 반응형 */
+  main [style*="flexDirection: column"] > div {
+    padding: 16px !important;
   }
 }
 
@@ -5587,6 +5591,11 @@ footer {
   /* 카드 간격 축소 */
   main > div {
     margin-bottom: 24px !important;
+  }
+
+  /* 이번 달 성과 & 채용 프로세스 카드 - 작은 화면 */
+  main [style*="gridTemplateColumns"][style*="280px"] {
+    grid-template-columns: repeat(3, minmax(200px, 1fr)) !important;
   }
 }
 
