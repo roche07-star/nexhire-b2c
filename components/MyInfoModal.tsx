@@ -340,6 +340,7 @@ export default function MyInfoButton() {
               ) : info && (
                 <>
                   {/* 플랜 + 사용량 */}
+                  {info.userType !== 'MANAGER' && (
                   <Section title="플랜 및 사용량">
                     <div style={{
                       display: 'flex',
@@ -437,8 +438,10 @@ export default function MyInfoButton() {
                       })}
                     </div>
                   </Section>
+                  )}
 
                   {/* 쿠폰 등록 */}
+                  {info.userType !== 'MANAGER' && (
                   <Section title="쿠폰 등록">
                     <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                       <input
@@ -503,8 +506,10 @@ export default function MyInfoButton() {
                       </div>
                     )}
                   </Section>
+                  )}
 
                   {/* 쿠폰 현황 */}
+                  {info.userType !== 'MANAGER' && (
                   <Section title="보유 쿠폰">
                     {info.coupons.length === 0 ? (
                       <div style={{
@@ -625,6 +630,7 @@ export default function MyInfoButton() {
                       </div>
                     )}
                   </Section>
+                  )}
 
                   {/* 사용자 유형 */}
                   {info.userType && (
