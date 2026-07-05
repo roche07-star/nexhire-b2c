@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -14,6 +15,12 @@ interface NavLinksProps {
 export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin }: NavLinksProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const getLinkStyle = (path: string) => {
     const isActive = pathname === path || (path !== '/' && pathname?.startsWith(path))
@@ -63,6 +70,7 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
       {/* 모바일 햄버거 버튼 */}
       <li className="mobile-menu-toggle">
         <button
+          ref={buttonRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="mobile-menu-btn"
           aria-label="메뉴"
@@ -70,23 +78,36 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
           ☰
         </button>
 
-        {/* 모바일 드롭다운 메뉴 */}
-        {mobileMenuOpen && (
+        {/* 모바일 드롭다운 메뉴 - Portal로 렌더링 */}
+        {mounted && mobileMenuOpen && createPortal(
           <>
             {/* Overlay */}
             <div
               style={{
                 position: 'fixed',
                 inset: 0,
-                zIndex: 9998,
-                background: 'transparent'
+                zIndex: 99998,
+                background: 'rgba(0, 0, 0, 0.3)',
+                backdropFilter: 'blur(2px)'
               }}
               onClick={() => setMobileMenuOpen(false)}
             />
             {/* Menu Dropdown */}
             <div
               className="mobile-menu-dropdown"
-              style={{ position: 'absolute', zIndex: 9999 }}
+              style={{
+                position: 'fixed',
+                top: '60px',
+                right: '24px',
+                zIndex: 99999,
+                background: 'rgba(10,10,15,0.95)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '8px',
+                minWidth: '180px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+              }}
             >
               {menuItems.map((item) => (
                 <Link
@@ -94,12 +115,23 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
                   href={item.href}
                   className="mobile-menu-item"
                   onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#e5e5e5',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    transition: 'background 0.2s',
+                    fontSize: '14px',
+                    fontWeight: 500
+                  }}
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
-          </>
+          </>,
+          document.body
         )}
       </li>
     </>
