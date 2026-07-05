@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import SupportModal from '@/components/SupportModal'
+import ChatbotModal from '@/components/ChatbotModal'
 
 interface SupportMessage {
   id: string
@@ -29,6 +30,7 @@ export default function SupportClient() {
   const [messages, setMessages] = useState<SupportMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showChatbot, setShowChatbot] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -83,31 +85,58 @@ export default function SupportClient() {
           }}>
             문의하신 내용은 순차적으로 답변드립니다
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            style={{
-              padding: '14px 28px',
-              background: '#ffffff',
-              color: '#667eea',
-              border: 'none',
-              borderRadius: 12,
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-            }}
-          >
-            ✉️ 새 문의하기
-          </button>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowChatbot(true)}
+              style={{
+                padding: '14px 28px',
+                background: '#ffffff',
+                color: '#667eea',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+            >
+              💬 AI 상담
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              style={{
+                padding: '14px 28px',
+                background: 'rgba(255,255,255,0.2)',
+                color: '#ffffff',
+                border: '2px solid rgba(255,255,255,0.5)',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+            >
+              ✉️ 문의하기
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -282,6 +311,11 @@ export default function SupportClient() {
       </div>
 
       <SupportModal open={showModal} onClose={handleModalClose} />
+      <ChatbotModal
+        open={showChatbot}
+        onClose={() => setShowChatbot(false)}
+        onRequestSupport={() => setShowModal(true)}
+      />
     </main>
   )
 }
