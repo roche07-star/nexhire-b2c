@@ -724,7 +724,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                       <td>
                         {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
-                        ) : (
+                        ) : isSuperAdmin ? (
                           <select
                             value={u.plan}
                             onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
@@ -744,6 +744,18 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                             <option value="PRO">PRO</option>
                             <option value="EXPERT">EXPERT</option>
                           </select>
+                        ) : (
+                          <span style={{
+                            padding: '6px 10px',
+                            borderRadius: 6,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
+                            color: '#ffffff',
+                            display: 'inline-block',
+                          }}>
+                            {u.plan}
+                          </span>
                         )}
                       </td>
                       <td>

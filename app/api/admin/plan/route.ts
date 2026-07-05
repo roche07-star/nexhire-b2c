@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isSuperAdmin } from '@/lib/auth-helpers'
 
 const PLAN_PRIORITY = { FREE: 0, PRO: 1, EXPERT: 2 }
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session?.user || session.user.role !== 'MANAGER') {
-    return NextResponse.json({ error: '권한 없음' }, { status: 403 })
+  if (!session?.user || !isSuperAdmin(session)) {
+    return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
   }
 
   const { email, plan } = await req.json()
