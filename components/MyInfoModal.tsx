@@ -43,6 +43,10 @@ export default function MyInfoButton() {
   const [couponMsg, setCouponMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [couponClaiming, setCouponClaiming] = useState(false)
   const [headhunterToggling, setHeadhunterToggling] = useState(false)
+  const [restorableData, setRestorableData] = useState<any>(null)
+  const [withdrawModal, setWithdrawModal] = useState(false)
+  const [withdrawing, setWithdrawing] = useState(false)
+  const [restoring, setRestoring] = useState(false)
   const modalContentRef = useRef<HTMLDivElement>(null)
 
   // 모달 열릴 때 스크롤 맨 위로
@@ -150,6 +154,86 @@ export default function MyInfoButton() {
       alert('오류가 발생했습니다.')
     } finally {
       setHeadhunterToggling(false)
+    }
+  }
+
+  // 복원 가능 데이터 확인
+  useEffect(() => {
+    async function checkRestorable() {
+      try {
+        const res = await fetch('/api/user/restore')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.restorable) {
+            setRestorableData(data)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check restorable data:', err)
+      }
+    }
+    if (open) {
+      checkRestorable()
+    }
+  }, [open])
+
+  async function handleRestore() {
+    if (!confirm('기존 데이터를 복원하시겠습니까?\n\nFREE 플랜으로 시작하며, 복원 후에는 되돌릴 수 없습니다.')) {
+      return
+    }
+
+    setRestoring(true)
+    try {
+      const res = await fetch('/api/user/restore', { method: 'POST' })
+      const data = await res.json()
+
+      if (res.ok) {
+        alert(`✅ 데이터 복원 완료!\n\n이력서 분석: ${data.restored.analyses}건\nJD 분석: ${data.restored.jdAnalyses}건\n면접 가이드: ${data.restored.interviewGuides}건\n쿠폰: ${data.restored.coupons}개`)
+        setRestorableData(null)
+        // 페이지 새로고침
+        window.location.reload()
+      } else {
+        alert(data.error ?? '복원에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setRestoring(false)
+    }
+  }
+
+  async function handleWithdraw() {
+    setWithdrawModal(true)
+  }
+
+  async function confirmWithdraw() {
+    setWithdrawing(true)
+    try {
+      const res = await fetch('/api/user/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmed: true }),
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        if (data.status === 'withdrawing') {
+          alert(`탈퇴 신청이 완료되었습니다.\n\n${data.plan_end_date}까지 서비스를 이용할 수 있습니다.\n이후 6개월간 데이터가 보존됩니다.`)
+        } else {
+          alert('탈퇴가 완료되었습니다.\n\n데이터는 6개월간 보존되며, 재가입 시 복원할 수 있습니다.')
+        }
+        // 로그아웃 또는 홈으로 이동
+        window.location.href = '/'
+      } else {
+        alert(data.error ?? '탈퇴에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setWithdrawing(false)
+      setWithdrawModal(false)
     }
   }
 
@@ -689,8 +773,157 @@ export default function MyInfoButton() {
                       </div>
                     </Section>
                   )}
+
+                  {/* 복원 UI */}
+                  {restorableData && (
+                    <Section title="📦 데이터 복원">
+                      <div style={{
+                        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        marginBottom: '16px'
+                      }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: '8px' }}>
+                          복원 가능한 데이터가 있습니다!
+                        </div>
+                        <div style={{ fontSize: 13, color: '#78716c', marginBottom: '12px' }}>
+                          • 이력서 분석: {restorableData.data.analyses}건<br/>
+                          • JD 분석: {restorableData.data.jdAnalyses}건<br/>
+                          • 면접 가이드: {restorableData.data.interviewGuides}건<br/>
+                          • 쿠폰: {restorableData.data.coupons}개
+                        </div>
+                        <div style={{ fontSize: 12, color: '#78716c', marginBottom: '12px' }}>
+                          ⚠️ 데이터 삭제 예정일: {new Date(restorableData.data_delete_at).toLocaleDateString()}
+                        </div>
+                        <button
+                          onClick={handleRestore}
+                          disabled={restoring}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            background: '#f59e0b',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: 14,
+                            fontWeight: 600,
+                            cursor: restoring ? 'not-allowed' : 'pointer',
+                            opacity: restoring ? 0.6 : 1,
+                          }}
+                        >
+                          {restoring ? '복원 중...' : '데이터 복원하기'}
+                        </button>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#71717a', lineHeight: 1.6 }}>
+                        ℹ️ 복원 후 안내:<br/>
+                        • FREE 플랜으로 시작합니다<br/>
+                        • 월 사용량: 이력서 3회 / JD 3회<br/>
+                        • 과거 결과는 열람만 가능합니다<br/>
+                        • 새로운 분석은 FREE 한도 내에서 가능
+                      </div>
+                    </Section>
+                  )}
+
+                  {/* 탈퇴 UI */}
+                  <Section title="⚠️ 회원 탈퇴">
+                    <button
+                      onClick={handleWithdraw}
+                      style={{
+                        padding: '10px 16px',
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        border: '1px solid #fecaca',
+                        borderRadius: '8px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      회원 탈퇴
+                    </button>
+                  </Section>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 탈퇴 확인 모달 */}
+      {withdrawModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10001,
+          }}
+          onClick={() => setWithdrawModal(false)}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '90%',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: '16px' }}>
+              정말 탈퇴하시겠습니까?
+            </h3>
+            <div style={{ fontSize: 14, color: '#71717a', marginBottom: '20px', lineHeight: 1.8 }}>
+              ⚠️ 안내사항<br/><br/>
+              {info?.plan !== 'FREE' && (
+                <>
+                  • 현재 플랜: {info?.plan}<br/>
+                  • 플랜 종료일까지 정상 이용 가능<br/><br/>
+                </>
+              )}
+              📦 데이터 보존 정책<br/>
+              • 기존 데이터는 6개월간 보존됩니다<br/>
+              • 재가입 시 복원 가능합니다<br/>
+              • 6개월 후 영구 삭제됩니다<br/>
+              • 삭제 후에는 복구할 수 없습니다
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setWithdrawModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={confirmWithdraw}
+                disabled={withdrawing}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: withdrawing ? 'not-allowed' : 'pointer',
+                  opacity: withdrawing ? 0.6 : 1,
+                }}
+              >
+                {withdrawing ? '처리 중...' : '탈퇴하기'}
+              </button>
             </div>
           </div>
         </div>
