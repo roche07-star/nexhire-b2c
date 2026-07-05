@@ -475,8 +475,8 @@ export default function AdminClient() {
 
         {msg && <div className="admin-toast">{msg}</div>}
 
-        {/* 탭 */}
-        <div className="admin-tab-bar">
+        {/* 탭 - 데스크톱 */}
+        <div className="admin-tab-bar desktop-only">
           <button className={`admin-tab-btn${tab === 'users' ? ' active' : ''}`} onClick={() => onTabChange('users')}>유저 관리</button>
           <button className={`admin-tab-btn${tab === 'plan-changes' ? ' active' : ''}`} onClick={() => onTabChange('plan-changes')}>
             📅 플랜 변경 예정 {users.filter(u => u.downgrade_to).length > 0 && `(${users.filter(u => u.downgrade_to).length})`}
@@ -485,6 +485,34 @@ export default function AdminClient() {
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
           <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
           <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
+        </div>
+
+        {/* 탭 - 모바일 */}
+        <div className="mobile-only" style={{ marginBottom: 24 }}>
+          <select
+            value={tab}
+            onChange={(e) => onTabChange(e.target.value as AdminTab)}
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              fontSize: 15,
+              fontWeight: 600,
+              border: '2px solid #e5e7eb',
+              borderRadius: 12,
+              background: '#ffffff',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            <option value="users">📊 유저 관리</option>
+            <option value="plan-changes">
+              📅 플랜 변경 예정{users.filter(u => u.downgrade_to).length > 0 ? ` (${users.filter(u => u.downgrade_to).length})` : ''}
+            </option>
+            <option value="support">💬 고객센터</option>
+            <option value="coupons">🎫 쿠폰 관리</option>
+            <option value="tokens">🔍 토큰 관리</option>
+            <option value="audit-logs">📋 접근 로그</option>
+          </select>
         </div>
 
         {tab === 'users' && (

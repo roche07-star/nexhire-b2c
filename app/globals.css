@@ -4961,6 +4961,10 @@ footer {
   display: list-item;
 }
 
+.mobile-only {
+  display: none;
+}
+
 .mobile-menu-btn {
   background: transparent;
   border: none;
@@ -5004,6 +5008,10 @@ footer {
 
   .desktop-only {
     display: none;
+  }
+
+  .mobile-only {
+    display: block;
   }
 }
 
