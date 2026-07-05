@@ -66,11 +66,16 @@ export async function POST(req: NextRequest) {
 
     // user_type 변경 (관리자는 제한 없이 변경 가능)
     console.log('[admin/user-type] Updating user_type to:', userType)
+
+    // Manager로 변경 시 플랜도 EXPERT로 설정
+    const updateData: any = { user_type: userType }
+    if (userType === 'MANAGER') {
+      updateData.plan = 'EXPERT'
+    }
+
     const { error, data } = await supabase
       .from('users')
-      .update({
-        user_type: userType,
-      })
+      .update(updateData)
       .eq('email', email)
       .select()
 
