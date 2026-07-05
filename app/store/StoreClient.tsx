@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { loadTossPayments } from '@tosspayments/payment-sdk'
 
 interface Product {
   id: string
@@ -132,36 +133,71 @@ const PRODUCTS: Product[] = [
 
 interface Props {
   isManager: boolean
+  userEmail: string | null
+  userName: string | null
 }
 
-export default function StoreClient({ isManager }: Props) {
-  const [purchasing, setPurchasing] = useState<string | null>(null)
+export default function StoreClient({ isManager, userEmail, userName }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isPaymentReady, setIsPaymentReady] = useState(false)
+  const tossPaymentsRef = useRef<any>(null)
+
+  // 토스페이먼츠 초기화
+  useEffect(() => {
+    const initTossPayments = async () => {
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
+      if (!clientKey) {
+        console.error('토스페이먼츠 클라이언트 키가 없습니다')
+        return
+      }
+
+      try {
+        const tossPayments = await loadTossPayments(clientKey)
+        tossPaymentsRef.current = tossPayments
+        setIsPaymentReady(true)
+      } catch (error) {
+        console.error('토스페이먼츠 초기화 실패:', error)
+      }
+    }
+
+    initTossPayments()
+  }, [])
 
   async function handlePurchase(product: Product) {
-    if (!confirm(`${product.name}을(를) 구매하시겠습니까?\n₩${product.price.toLocaleString()}`)) return
+    if (!tossPaymentsRef.current) {
+      alert('결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
+      return
+    }
 
-    setPurchasing(product.id)
+    if (!userEmail) {
+      alert('로그인이 필요합니다.')
+      window.location.href = '/login'
+      return
+    }
+
     try {
-      const res = await fetch('/api/store/purchase', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ feature: product.feature })
-      })
-      const data = await res.json()
+      // orderId: 영문, 숫자, -, _ 만 허용 (6-64자)
+      // STORE 상품 구매임을 표시: store_feature_timestamp_random
+      const timestamp = Date.now()
+      const randomStr = Math.random().toString(36).substring(2, 8)
+      const orderId = `store_${product.feature}_${timestamp}_${randomStr}`
+      const orderName = product.name
 
-      if (res.ok) {
-        alert(`✅ 구매가 완료되었습니다!\n\n내 정보 페이지에서 쿠폰을 확인하세요.\n쿠폰은 1년간 유효합니다.`)
-        setSelectedProduct(null)
-        // 페이지 새로고침으로 쿠폰 반영
-        window.location.reload()
-      } else {
-        alert(data.error || '구매 처리 중 오류가 발생했습니다.')
+      await tossPaymentsRef.current.requestPayment('카드', {
+        amount: product.price,
+        orderId,
+        orderName,
+        successUrl: `${window.location.origin}/store/success`,
+        failUrl: `${window.location.origin}/store/fail`,
+        customerEmail: userEmail,
+        customerName: userName || '고객',
+      })
+    } catch (error) {
+      console.error('결제 요청 실패:', error)
+      // 사용자가 결제창을 닫은 경우는 에러 메시지 표시 안 함
+      if (error && typeof error === 'object' && 'code' in error && error.code !== 'USER_CANCEL') {
+        alert('결제 요청에 실패했습니다.')
       }
-    } catch (err) {
-      alert('구매 처리 중 오류가 발생했습니다.')
-    } finally {
-      setPurchasing(null)
     }
   }
 
@@ -211,9 +247,9 @@ export default function StoreClient({ isManager }: Props) {
                 <button
                   className="btn-purchase"
                   onClick={() => setSelectedProduct(product)}
-                  disabled={purchasing === product.id}
+                  disabled={!isPaymentReady}
                 >
-                  {purchasing === product.id ? '처리 중...' : '구매하기'}
+                  {isPaymentReady ? '구매하기' : '로딩 중...'}
                 </button>
               </div>
             </div>
@@ -251,8 +287,8 @@ export default function StoreClient({ isManager }: Props) {
                 </ul>
 
                 <div className="modal-notice">
-                  <p>💡 구매 즉시 쿠폰이 발급됩니다.</p>
-                  <p>쿠폰 유효기간: 1년 (구매일로부터)</p>
+                  <p>💳 토스페이먼츠 안전 결제</p>
+                  <p>결제 완료 후 즉시 쿠폰이 발급됩니다 (유효기간 1년)</p>
                 </div>
               </div>
 
@@ -266,9 +302,8 @@ export default function StoreClient({ isManager }: Props) {
                 <button
                   className="btn-modal-confirm"
                   onClick={() => handlePurchase(selectedProduct)}
-                  disabled={purchasing === selectedProduct.id}
                 >
-                  {purchasing === selectedProduct.id ? '처리 중...' : '구매하기'}
+                  결제하기
                 </button>
               </div>
             </div>
