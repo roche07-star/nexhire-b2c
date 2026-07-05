@@ -1165,7 +1165,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                                 <summary style={{ cursor: 'pointer', fontSize: 12, color: '#3b82f6' }}>
                                   답변 보기
                                 </summary>
-                                <div style={{ marginTop: 8, fontSize: 12, padding: '8px', background: '#f9fafb', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
+                                <div style={{ marginTop: 8, fontSize: 12, padding: '8px', background: '#f9fafb', borderRadius: 4, whiteSpace: 'pre-wrap', color: '#18181b' }}>
                                   {msg.admin_reply}
                                 </div>
                               </details>
