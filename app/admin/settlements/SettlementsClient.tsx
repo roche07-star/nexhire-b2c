@@ -24,6 +24,7 @@ interface Payment {
   payment_method: string | null
   paid_at: string
   transaction_id: string | null
+  description: string | null
 }
 
 interface PaymentsData {
@@ -453,7 +454,7 @@ export default function SettlementsClient() {
                           <td className="email">{payment.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</td>
                           <td>
                             <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
-                              {payment.plan}
+                              {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
                             </span>
                           </td>
                           <td className="text-right amount">{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
@@ -484,7 +485,7 @@ export default function SettlementsClient() {
                     <div key={payment.id} className="payment-card">
                       <div className="card-header">
                         <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
-                          {payment.plan}
+                          {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
                         </span>
                         {getStatusBadge(payment.status)}
                       </div>

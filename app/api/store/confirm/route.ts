@@ -27,6 +27,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '잘못된 주문 정보' }, { status: 400 })
     }
 
+    // 상품명 매핑
+    const productNames: Record<string, string> = {
+      resume: '이력서 분석',
+      jd: 'JD 적합도 분석',
+      rewrite: '이력서 생성',
+      interview: '면접 가이드',
+      proposal: '클라이언트 제안서',
+      storage: '스토리지 슬롯',
+      package: '올인원 패키지',
+    }
+
+    const productName = productNames[feature] || feature
+
     // 토스페이먼츠 결제 승인 요청
     const secretKey = process.env.TOSS_SECRET_KEY
     if (!secretKey) {
@@ -80,6 +93,7 @@ export async function POST(req: NextRequest) {
       payment_gateway: 'tosspayments',
       transaction_id: paymentKey,
       paid_at: tossData.approvedAt || new Date().toISOString(),
+      description: productName,
     }
 
     console.log('저장할 결제 데이터:', paymentData)
