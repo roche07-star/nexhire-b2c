@@ -35,7 +35,7 @@ const PRODUCTS: Product[] = [
     id: '1-1',
     name: '📁 이력서 추가 저장',
     nameEn: 'Extra Resume Storage',
-    price: 10000,
+    price: 12900,
     feature: 'storage',
     icon: '📁',
     gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
