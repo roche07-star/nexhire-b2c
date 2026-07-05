@@ -2,11 +2,11 @@
 -- Supabase SQL Editor에서 실행
 
 -- 1. 테스트 사용자 생성 (없으면)
-INSERT INTO users (email, name, plan, user_type, role)
+INSERT INTO users (email, name, plan, user_type)
 VALUES
-  ('cron-test-downgrade@test.com', 'Downgrade Test', 'PRO', 'JOBSEEKER', 'USER'),
-  ('cron-test-withdraw@test.com', 'Withdraw Test', 'PRO', 'JOBSEEKER', 'USER'),
-  ('cron-test-delete@test.com', 'Delete Test', 'FREE', 'JOBSEEKER', 'USER')
+  ('cron-test-downgrade@test.com', 'Downgrade Test', 'PRO', 'JOBSEEKER'),
+  ('cron-test-withdraw@test.com', 'Withdraw Test', 'PRO', 'JOBSEEKER'),
+  ('cron-test-delete@test.com', 'Delete Test', 'FREE', 'JOBSEEKER')
 ON CONFLICT (email) DO NOTHING;
 
 -- 2. 다운그레이드 테스트 데이터
