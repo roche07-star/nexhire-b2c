@@ -183,6 +183,19 @@ export default function SupportModal({ open, onClose }: SupportModalProps) {
             />
           </div>
 
+          <div style={{
+            padding: '12px 16px',
+            background: '#fef3c7',
+            border: '1px solid #fbbf24',
+            borderRadius: 8,
+            marginBottom: 24,
+            fontSize: 13,
+            color: '#92400e',
+            lineHeight: 1.6,
+          }}>
+            ⏱️ 답변은 영업일 기준 3~5일 소요될 수 있습니다.
+          </div>
+
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
