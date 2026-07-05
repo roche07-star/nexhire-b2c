@@ -97,7 +97,7 @@ function PaymentFailContent() {
           fontSize: 12,
           color: 'var(--muted)',
         }}>
-          문의: jobizic.biz@gmail.com
+          문의: <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline' }}>고객센터</a>
         </div>
       </div>
     </div>

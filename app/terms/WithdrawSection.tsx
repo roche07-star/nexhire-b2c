@@ -46,7 +46,7 @@ export default function WithdrawSection() {
       <h2 style={{ color: '#ff6b6b' }}>계정 탈퇴</h2>
       <p>탈퇴 신청 시 기존 데이터는 6개월간 보존되며, 재가입 시 복원할 수 있습니다. 6개월 경과 후 모든 데이터가 영구 삭제됩니다.</p>
       <p style={{ marginTop: 8 }}>유료 플랜 이용 중이라면 플랜 종료일까지 정상적으로 서비스를 이용할 수 있습니다.</p>
-      <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <strong>jobizic.biz@gmail.com</strong>으로 연락해 주세요.</p>
+      <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}>고객센터</a>로 연락해 주세요.</p>
       <button
         ref={withdrawButtonRef}
         className="withdraw-link"

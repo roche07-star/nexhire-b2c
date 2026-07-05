@@ -156,8 +156,7 @@ export default function TermsPage() {
 
           <div className="privacy-section">
             <h2>문의</h2>
-            <p>약관 관련 문의는 아래 이메일로 연락해 주세요.</p>
-            <p><strong>jobizic.biz@gmail.com</strong></p>
+            <p>약관 관련 문의는 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}>고객센터</a>로 연락해 주세요.</p>
           </div>
 
           <TermsWithdrawWrapper />
