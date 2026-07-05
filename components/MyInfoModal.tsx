@@ -340,38 +340,39 @@ export default function MyInfoButton() {
               ) : info && (
                 <>
                   {/* 플랜 + 사용량 */}
-                  {info.userType !== 'MANAGER' && (
-                  <Section title="플랜 및 사용량">
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      marginBottom: 16
-                    }}>
-                      <span className={`nav-plan-badge plan-${info.plan.toLowerCase()}`}
-                        style={{
-                          padding: '8px 16px',
-                          borderRadius: 8,
-                          fontWeight: 700,
-                          fontSize: 14
-                        }}
-                      >
-                        {info.plan}
-                      </span>
-                      {(info.downgrade_to || (info.plan !== 'FREE' && info.resetAt)) && (
-                        <span style={{
-                          fontSize: 13,
-                          color: info.downgrade_to ? '#f59e0b' : '#71717a',
-                          letterSpacing: '-0.01em',
-                          fontWeight: info.downgrade_to ? 600 : 400,
-                        }}>
-                          {info.downgrade_to
-                            ? `플랜 종료: ${info.plan_end_date || ''}`
-                            : `다음 초기화: ${info.resetAt}`
-                          }
+                  <Section title={info.userType === 'MANAGER' ? '사용량' : '플랜 및 사용량'}>
+                    {info.userType !== 'MANAGER' && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        marginBottom: 16
+                      }}>
+                        <span className={`nav-plan-badge plan-${info.plan.toLowerCase()}`}
+                          style={{
+                            padding: '8px 16px',
+                            borderRadius: 8,
+                            fontWeight: 700,
+                            fontSize: 14
+                          }}
+                        >
+                          {info.plan}
                         </span>
-                      )}
-                    </div>
+                        {(info.downgrade_to || (info.plan !== 'FREE' && info.resetAt)) && (
+                          <span style={{
+                            fontSize: 13,
+                            color: info.downgrade_to ? '#f59e0b' : '#71717a',
+                            letterSpacing: '-0.01em',
+                            fontWeight: info.downgrade_to ? 600 : 400,
+                          }}>
+                            {info.downgrade_to
+                              ? `플랜 종료: ${info.plan_end_date || ''}`
+                              : `다음 초기화: ${info.resetAt}`
+                            }
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     <div style={{
                       display: 'grid',
@@ -438,7 +439,6 @@ export default function MyInfoButton() {
                       })}
                     </div>
                   </Section>
-                  )}
 
                   {/* 쿠폰 등록 */}
                   {info.userType !== 'MANAGER' && (
