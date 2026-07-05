@@ -103,9 +103,10 @@ function PaymentPageContent() {
 
     try {
       // orderId: 영문, 숫자, -, _ 만 허용 (6-64자)
+      // plan 정보를 orderId에 포함 (정산 시스템 연동)
       const timestamp = Date.now()
       const randomStr = Math.random().toString(36).substring(2, 8)
-      const orderId = `order_${timestamp}_${randomStr}`
+      const orderId = `order_${plan}_${timestamp}_${randomStr}`
       const orderName = priceInfo.name
 
       await tossPaymentsRef.current.requestPayment('카드', {

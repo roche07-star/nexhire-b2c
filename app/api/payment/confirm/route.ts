@@ -46,6 +46,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // orderId에서 플랜 정보 추출 (order_PRO_timestamp_random 형식)
+    const planMatch = orderId.match(/order_([A-Z]+)_/)
+    const plan = planMatch ? planMatch[1] : 'PRO' // 기본값 PRO
+
+    // 사용자 정보 조회 (user_type 필요)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('email', session.user.email)
+      .single()
+
+    const userType = userData?.user_type || 'JOBSEEKER'
+
     // 결제 성공 → Supabase에 사용자 플랜 업데이트
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
@@ -53,7 +66,7 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        plan: 'PRO',
+        plan,
         plan_started_at: now.toISOString(),
         plan_expires_at: expiresAt.toISOString(),
         updated_at: now.toISOString(),
@@ -65,20 +78,50 @@ export async function POST(req: NextRequest) {
       // 결제는 성공했지만 DB 업데이트 실패 → 로그 남기고 성공 처리
     }
 
-    // 결제 내역 저장 (payments 테이블이 있다면)
+    // 1. subscriptions 테이블에 구독 생성
+    let subscriptionId: string | null = null
+    try {
+      const { data: subscription, error: subError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_email: session.user.email,
+          plan,
+          user_type: userType,
+          status: 'active',
+          amount: Number(amount),
+          currency: 'KRW',
+          billing_cycle: 'monthly',
+          started_at: now.toISOString(),
+          expires_at: expiresAt.toISOString(),
+        })
+        .select('id')
+        .single()
+
+      if (subError) {
+        console.error('구독 생성 실패:', subError)
+      } else {
+        subscriptionId = subscription?.id
+      }
+    } catch (err) {
+      console.error('구독 생성 오류:', err)
+    }
+
+    // 2. payments 테이블에 결제 내역 저장 (정산 시스템 스키마)
     try {
       await supabase.from('payments').insert({
+        subscription_id: subscriptionId,
         user_email: session.user.email,
-        order_id: orderId,
-        payment_key: paymentKey,
+        plan,
         amount: Number(amount),
-        status: 'DONE',
-        method: tossData.method || 'UNKNOWN',
-        approved_at: tossData.approvedAt,
-        created_at: new Date().toISOString(),
+        currency: 'KRW',
+        status: 'success',
+        payment_method: tossData.method || 'card',
+        payment_gateway: 'tosspayments',
+        transaction_id: paymentKey,
+        paid_at: tossData.approvedAt || now.toISOString(),
       })
     } catch (err) {
-      console.error('결제 내역 저장 실패 (테이블 없을 수 있음):', err)
+      console.error('결제 내역 저장 실패:', err)
       // 실패해도 계속 진행
     }
 
@@ -86,7 +129,7 @@ export async function POST(req: NextRequest) {
       success: true,
       orderId,
       amount,
-      plan: 'PRO',
+      plan,
     })
   } catch (error: any) {
     console.error('결제 승인 오류:', error)
