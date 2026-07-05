@@ -120,10 +120,15 @@ export default function SettlementsClient() {
   useEffect(() => {
     const fetchSummary = async () => {
       const { start, end } = getDateRange()
+      console.log('요약 데이터 요청:', { start, end })
       const res = await fetch(`/api/admin/settlements/summary?start=${start}&end=${end}`)
+      console.log('요약 API 응답 상태:', res.status)
       if (res.ok) {
         const data = await res.json()
+        console.log('요약 데이터:', data)
         setSummary(data)
+      } else {
+        console.error('요약 데이터 로드 실패:', await res.text())
       }
     }
     fetchSummary()
@@ -156,10 +161,15 @@ export default function SettlementsClient() {
       })
       if (searchQuery) params.set('search', searchQuery)
 
+      console.log('결제 내역 요청:', params.toString())
       const res = await fetch(`/api/admin/settlements/payments?${params}`)
+      console.log('결제 API 응답 상태:', res.status)
       if (res.ok) {
         const data = await res.json()
+        console.log('결제 데이터:', data)
         setPayments(data)
+      } else {
+        console.error('결제 내역 로드 실패:', await res.text())
       }
       setLoading(false)
     }
