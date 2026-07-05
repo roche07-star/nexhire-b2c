@@ -8,6 +8,7 @@ interface PlansClientProps {
   userEmail: string | null
   userType: string | null
   currentPlan: string
+  isSuperAdminOrManager: boolean
 }
 
 // 플랜 데이터
@@ -192,14 +193,19 @@ const faqData = {
   ],
 }
 
-export default function PlansClient({ userEmail, userType, currentPlan }: PlansClientProps) {
+export default function PlansClient({ userEmail, userType, currentPlan, isSuperAdminOrManager }: PlansClientProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null)
+  // Super Admin/Manager는 뷰 타입을 선택할 수 있음
+  const [viewType, setViewType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(
+    isSuperAdminOrManager ? 'JOBSEEKER' : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
+  )
 
-  // 사용자 타입에 따라 플랜 선택
-  const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
+  // Super Admin/Manager는 viewType에 따라, 일반 사용자는 userType에 따라 플랜 선택
+  const effectiveType = isSuperAdminOrManager ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
+  const plans = effectiveType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
   // FAQ 선택
-  const faqs = userType === 'HEADHUNTER' ? faqData.HEADHUNTER : userType === 'JOBSEEKER' ? faqData.JOBSEEKER : faqData.DEFAULT
+  const faqs = effectiveType === 'HEADHUNTER' ? faqData.HEADHUNTER : faqData.JOBSEEKER
 
   // 타이틀 및 설명
   const content = {
@@ -220,7 +226,9 @@ export default function PlansClient({ userEmail, userType, currentPlan }: PlansC
     },
   }
 
-  const selected = userType ? content[userType as keyof typeof content] || content.DEFAULT : content.DEFAULT
+  const selected = isSuperAdminOrManager
+    ? content[effectiveType as keyof typeof content]
+    : (userType ? content[userType as keyof typeof content] || content.DEFAULT : content.DEFAULT)
 
   return (
     <main style={{
@@ -265,6 +273,53 @@ export default function PlansClient({ userEmail, userType, currentPlan }: PlansC
         }}>
           {selected.badge}
         </div>
+
+        {/* Super Admin/Manager용 뷰 전환 버튼 */}
+        {isSuperAdminOrManager && (
+          <div style={{
+            display: 'flex',
+            gap: 12,
+            justifyContent: 'center',
+            marginBottom: 32
+          }}>
+            <button
+              onClick={() => setViewType('JOBSEEKER')}
+              style={{
+                padding: '12px 24px',
+                background: viewType === 'JOBSEEKER'
+                  ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                  : 'rgba(255,255,255,0.1)',
+                color: '#ffffff',
+                border: viewType === 'JOBSEEKER' ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.3s'
+              }}
+            >
+              🎯 개인 구직자 플랜
+            </button>
+            <button
+              onClick={() => setViewType('HEADHUNTER')}
+              style={{
+                padding: '12px 24px',
+                background: viewType === 'HEADHUNTER'
+                  ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                  : 'rgba(255,255,255,0.1)',
+                color: '#ffffff',
+                border: viewType === 'HEADHUNTER' ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.3s'
+              }}
+            >
+              💼 헤드헌터 플랜
+            </button>
+          </div>
+        )}
 
         {/* Title */}
         <h1 style={{

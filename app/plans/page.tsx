@@ -15,6 +15,7 @@ export default async function PlansPage() {
   const session = await auth()
   let userType: string | null = null
   let currentPlan: string = 'FREE'
+  let isSuperAdminOrManager = false
 
   if (session?.user?.email) {
     // 사용자 정보 조회
@@ -27,6 +28,8 @@ export default async function PlansPage() {
     if (userData) {
       userType = userData.user_type
       currentPlan = userData.plan
+      // Super Admin 또는 Manager인 경우
+      isSuperAdminOrManager = userData.user_type === 'SUPER_ADMIN' || userData.user_type === 'MANAGER'
     }
   }
 
@@ -37,6 +40,7 @@ export default async function PlansPage() {
         userEmail={session?.user?.email || null}
         userType={userType}
         currentPlan={currentPlan}
+        isSuperAdminOrManager={isSuperAdminOrManager}
       />
       <Footer />
     </>
