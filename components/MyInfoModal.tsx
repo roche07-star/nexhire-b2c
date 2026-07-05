@@ -632,6 +632,39 @@ export default function MyInfoButton() {
                   </Section>
                   )}
 
+                  {/* 구매 내역 */}
+                  {info.userType !== 'MANAGER' && (
+                  <Section title="💳 구매 내역">
+                    <a
+                      href="/my-info"
+                      onClick={() => setOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                        color: '#ffffff',
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s',
+                        letterSpacing: '-0.01em'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      📄 STORE 구매 내역 및 영수증 보기
+                    </a>
+                  </Section>
+                  )}
+
                   {/* 사용자 유형 */}
                   {info.userType && (
                     <Section title="사용자 유형">
