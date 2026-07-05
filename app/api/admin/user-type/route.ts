@@ -52,13 +52,15 @@ export async function POST(req: NextRequest) {
       .from('users')
       .update({
         user_type: userType,
-        user_type_selected_at: new Date().toISOString(), // 마지막 변경 시각 기록
       })
       .eq('email', email)
 
     if (error) {
       console.error('[admin/user-type] Update error:', error)
-      return NextResponse.json({ error: '변경 중 오류가 발생했습니다.' }, { status: 500 })
+      return NextResponse.json({
+        error: '변경 중 오류가 발생했습니다.',
+        details: error.message
+      }, { status: 500 })
     }
 
     console.log('[admin/user-type] Success:', {
