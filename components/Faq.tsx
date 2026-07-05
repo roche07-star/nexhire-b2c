@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
 const individualFaqs = [
   {
@@ -61,7 +61,7 @@ const headhunterFaqs = [
   },
 ]
 
-export default function Faq({ userType }: { userType?: UserType | null }) {
+export default function Faq({ userType }: { userType?: RegularUserType | null }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null)
   const faqs = userType === 'HEADHUNTER' ? headhunterFaqs : individualFaqs
 

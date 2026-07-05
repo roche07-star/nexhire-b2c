@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
-export default function Cta({ userType }: { userType?: UserType | null }) {
+export default function Cta({ userType }: { userType?: RegularUserType | null }) {
   const content = {
     JOBSEEKER: {
       headline: <>지금 이력서를<br />업로드하세요</>,
@@ -18,9 +18,9 @@ export default function Cta({ userType }: { userType?: UserType | null }) {
       sub: <>3분이면 커리어 방향과 JD 전략이 명확해집니다.<br />첫 분석은 완전 무료입니다.</>,
       btnText: '무료 분석 시작하기 →',
     },
-  }
+  } as const
 
-  const selected = userType ? content[userType] : content.DEFAULT
+  const selected = userType && userType in content ? content[userType] : content.DEFAULT
 
   return (
     <div className="cta-section">

@@ -33,9 +33,9 @@ const features = [
   },
 ]
 
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
-export default function Features({ userType }: { userType?: UserType | null }) {
+export default function Features({ userType }: { userType?: RegularUserType | null }) {
   const content = {
     JOBSEEKER: {
       title: '단순 분석이 아닌\n실행 가능한 인사이트',

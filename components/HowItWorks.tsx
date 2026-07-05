@@ -1,4 +1,4 @@
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
 const individualSteps = [
   { num: '01', icon: '📤', title: '이력서 업로드', desc: 'PDF/DOCX 이력서를 업로드하세요. 개인정보는 자동으로 보호됩니다.' },
@@ -18,7 +18,7 @@ const headhunterSteps = [
   { num: '05', icon: '⚙️', title: '시스템 관리 기능', desc: '채용 프로세스 추적, 후보자 현황 관리, 정산 자동화까지 통합 관리합니다.', category: 'system' },
 ]
 
-export default function HowItWorks({ userType }: { userType?: UserType | null }) {
+export default function HowItWorks({ userType }: { userType?: RegularUserType | null }) {
   const steps = userType === 'HEADHUNTER' ? headhunterSteps : individualSteps
 
   const content = {

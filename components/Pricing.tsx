@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
 const individualPlans = [
   {
@@ -67,7 +67,7 @@ const headhunterPlans = [
   },
 ]
 
-export default function Pricing({ userType }: { userType?: UserType | null }) {
+export default function Pricing({ userType }: { userType?: RegularUserType | null }) {
   // 헤드헌터만 headhunterPlans, 나머지(비로그인, 개인, 미선택)는 individualPlans
   const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
