@@ -857,8 +857,9 @@ export default function MyInfoButton() {
             inset: 0,
             background: 'rgba(0, 0, 0, 0.5)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
+            paddingTop: '120px',  // 상단에서 120px 아래에 배치
             zIndex: 1000000,  // "내 정보" 모달(999999)보다 높게
           }}
           onClick={() => setWithdrawModal(false)}
