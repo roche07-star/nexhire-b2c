@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 
 export type Feature = 'analyze' | 'jd' | 'rewrite' | 'interview'
 export type Plan = 'FREE' | 'PRO' | 'EXPERT'
-export type UserType = 'JOBSEEKER' | 'HEADHUNTER'
+export type UserType = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
 
 export const PLAN_LIMITS: Record<UserType, Record<Plan, Record<Feature, number>>> = {
   JOBSEEKER: {
@@ -14,6 +14,16 @@ export const PLAN_LIMITS: Record<UserType, Record<Plan, Record<Feature, number>>
     FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
     PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0 },
     EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
+  },
+  MANAGER: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+  },
+  SUPER_ADMIN: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
   }
 }
 

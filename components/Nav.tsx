@@ -21,7 +21,8 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
 
   const isPro = !!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))
   const isHeadhunter = user?.userType === 'HEADHUNTER'
-  const isManager = user?.userType === 'SUPER_ADMIN' || user?.userType === 'MANAGER'
+  const isManager = user?.userType === 'MANAGER'
+  const isSuperAdmin = user?.userType === 'SUPER_ADMIN'
 
   return (
     <nav>
@@ -43,18 +44,22 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
             )}
             <div className="nav-user-info">
               <span className="nav-user-name">{user.name}</span>
-              {user.role !== 'MANAGER' && (
+              {!isSuperAdmin && (
                 <div className="nav-badges">
-                  <span className="nav-role-badge role-user">User</span>
-                  <span className={`nav-plan-badge plan-${(user.plan ?? 'FREE').toLowerCase()}`}>
-                    {user.plan ?? 'FREE'}
+                  <span className="nav-role-badge role-user">
+                    {isManager ? 'Manager' : 'User'}
                   </span>
+                  {!isManager && (
+                    <span className={`nav-plan-badge plan-${(user.plan ?? 'FREE').toLowerCase()}`}>
+                      {user.plan ?? 'FREE'}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
-            {user.role !== 'MANAGER' && <MyInfoButton />}
-            {user.role === 'MANAGER' && (
-              <Link href="/admin"><button className="btn-ghost">대시보드</button></Link>
+            {!isSuperAdmin && <MyInfoButton />}
+            {isSuperAdmin && (
+              <Link href="/admin"><button className="btn-ghost">Admin</button></Link>
             )}
             <LogoutButton />
           </div>
