@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isAdmin } from '@/lib/auth-helpers'
 
 /**
  * 전체 문의 목록 조회 (관리자 전용)
  */
 export async function GET(req: NextRequest) {
   const session = await auth()
-  if (!session?.user || session.user.role !== 'MANAGER') {
+  if (!session?.user || !isAdmin(session)) {
     return NextResponse.json({ error: '권한 없음' }, { status: 403 })
   }
 
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session?.user || session.user.role !== 'MANAGER') {
+  if (!session?.user || !isAdmin(session)) {
     return NextResponse.json({ error: '권한 없음' }, { status: 403 })
   }
 
