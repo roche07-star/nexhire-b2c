@@ -18,16 +18,19 @@ export async function GET() {
     return NextResponse.json({ error: 'DB 오류' }, { status: 500 })
   }
 
+  // 일반 사용자만 필터링 (Manager, Super Admin 제외)
+  const regularUsers = users.filter(u => u.user_type !== 'MANAGER' && u.user_type !== 'SUPER_ADMIN')
+
   const stats = {
-    total: users.length,
-    free: users.filter(u => u.plan === 'FREE').length,
-    pro: users.filter(u => u.plan === 'PRO').length,
-    expert: users.filter(u => u.plan === 'EXPERT').length,
+    total: regularUsers.length,
+    free: regularUsers.filter(u => u.plan === 'FREE').length,
+    pro: regularUsers.filter(u => u.plan === 'PRO').length,
+    expert: regularUsers.filter(u => u.plan === 'EXPERT').length,
     superAdmin: users.filter(u => u.user_type === 'SUPER_ADMIN').length,
     manager: users.filter(u => u.user_type === 'MANAGER').length,
     jobseeker: users.filter(u => u.user_type === 'JOBSEEKER').length,
     headhunter: users.filter(u => u.user_type === 'HEADHUNTER').length,
-    headhunterSharing: users.filter(u => u.headhunter_sharing_enabled).length,
+    headhunterSharing: regularUsers.filter(u => u.headhunter_sharing_enabled).length,
   }
 
   return NextResponse.json(stats)
