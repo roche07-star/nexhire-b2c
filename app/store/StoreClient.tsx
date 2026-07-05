@@ -20,7 +20,7 @@ const PRODUCTS: Product[] = [
     id: '1',
     name: '이력서 분석',
     nameEn: 'Resume Analysis',
-    price: 3900,
+    price: 1000,
     feature: 'resume',
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
@@ -30,6 +30,7 @@ const PRODUCTS: Product[] = [
       '✅ 커리어 경로 3가지 제안',
       '✅ 강점/개선점 상세 피드백',
     ],
+    badge: '🔥 할인',
   },
   {
     id: '1-1',
@@ -138,7 +139,7 @@ export default function StoreClient({ isManager }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   async function handlePurchase(product: Product) {
-    if (!confirm(`${product.name}을(를) 구매하시겠습니까?\n(관리자 승인 후 쿠폰이 발급됩니다)`)) return
+    if (!confirm(`${product.name}을(를) 구매하시겠습니까?\n₩${product.price.toLocaleString()}`)) return
 
     setPurchasing(product.id)
     try {
@@ -150,8 +151,10 @@ export default function StoreClient({ isManager }: Props) {
       const data = await res.json()
 
       if (res.ok) {
-        alert(`✅ 구매 요청이 완료되었습니다!\n관리자 승인 후 쿠폰이 발급됩니다.`)
+        alert(`✅ 구매가 완료되었습니다!\n\n내 정보 페이지에서 쿠폰을 확인하세요.\n쿠폰은 1년간 유효합니다.`)
         setSelectedProduct(null)
+        // 페이지 새로고침으로 쿠폰 반영
+        window.location.reload()
       } else {
         alert(data.error || '구매 처리 중 오류가 발생했습니다.')
       }
@@ -248,8 +251,8 @@ export default function StoreClient({ isManager }: Props) {
                 </ul>
 
                 <div className="modal-notice">
-                  <p>💡 현재는 무료 체험 기간입니다.</p>
-                  <p>구매 요청 시 관리자가 쿠폰을 발급해드립니다.</p>
+                  <p>💡 구매 즉시 쿠폰이 발급됩니다.</p>
+                  <p>쿠폰 유효기간: 1년 (구매일로부터)</p>
                 </div>
               </div>
 
