@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 const FEATURE_LABEL: Record<string, string> = {
   storage: '이력서 추가 저장', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
@@ -241,7 +242,7 @@ export default function MyInfoButton() {
     <>
       <button className="btn-ghost my-info-btn" onClick={openModal}>내 정보</button>
 
-      {open && (
+      {open && typeof window !== 'undefined' && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -857,7 +858,8 @@ export default function MyInfoButton() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </>
