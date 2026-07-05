@@ -439,14 +439,14 @@ export default function SettlementsClient() {
                     <tbody>
                       {payments.payments.map((payment) => (
                         <tr key={payment.id}>
-                          <td>{new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                          <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                           <td className="email">{payment.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</td>
                           <td>
-                            <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : 'pro'}`}>
+                            <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
                               {payment.plan}
                             </span>
                           </td>
-                          <td className="text-right amount">{formatCurrency(payment.amount)}</td>
+                          <td className="text-right amount">{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
                           <td className="text-center method">{payment.payment_method || '-'}</td>
                           <td className="text-center">{getStatusBadge(payment.status)}</td>
                           <td className="text-center">
@@ -473,12 +473,12 @@ export default function SettlementsClient() {
                   {payments.payments.map((payment) => (
                     <div key={payment.id} className="payment-card">
                       <div className="card-header">
-                        <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : 'pro'}`}>
+                        <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
                           {payment.plan}
                         </span>
                         {getStatusBadge(payment.status)}
                       </div>
-                      <div className="card-amount">{formatCurrency(payment.amount)}</div>
+                      <div className="card-amount">{payment.amount ? formatCurrency(payment.amount) : '0원'}</div>
                       <div className="card-details">
                         <div className="detail-row">
                           <span className="label">사용자</span>
@@ -486,7 +486,7 @@ export default function SettlementsClient() {
                         </div>
                         <div className="detail-row">
                           <span className="label">일자</span>
-                          <span className="value">{new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="value">{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
                         </div>
                         <div className="detail-row">
                           <span className="label">결제방법</span>
@@ -951,6 +951,11 @@ export default function SettlementsClient() {
         .plan-badge.pro {
           background: #dbeafe;
           color: #1e40af;
+        }
+
+        .plan-badge.store {
+          background: #e0e7ff;
+          color: #4338ca;
         }
 
         .refund-btn {

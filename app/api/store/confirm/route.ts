@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
 
     const tossData = await tossResponse.json()
 
+    console.log('토스 결제 승인 응답:', JSON.stringify(tossData, null, 2))
+
     if (!tossResponse.ok) {
       console.error('토스 결제 승인 실패:', tossData)
       return NextResponse.json(
@@ -68,18 +70,32 @@ export async function POST(req: NextRequest) {
     const userType = userData?.user_type || 'JOBSEEKER'
 
     // 결제 내역 저장 (STORE 상품 구매)
+    const paymentData = {
+      user_email: session.user.email,
+      plan: 'STORE',
+      amount: Number(amount),
+      currency: 'KRW',
+      status: 'success',
+      payment_method: tossData.method || 'CARD',
+      payment_gateway: 'tosspayments',
+      transaction_id: paymentKey,
+      paid_at: tossData.approvedAt || new Date().toISOString(),
+    }
+
+    console.log('저장할 결제 데이터:', paymentData)
+
     try {
-      await supabase.from('payments').insert({
-        user_email: session.user.email,
-        plan: 'STORE', // STORE 상품 구매 표시
-        amount: Number(amount),
-        currency: 'KRW',
-        status: 'success',
-        payment_method: tossData.method || 'card',
-        payment_gateway: 'tosspayments',
-        transaction_id: paymentKey,
-        paid_at: tossData.approvedAt || new Date().toISOString(),
-      })
+      const { data: paymentRecord, error: paymentError } = await supabase
+        .from('payments')
+        .insert(paymentData)
+        .select()
+        .single()
+
+      if (paymentError) {
+        console.error('결제 내역 저장 오류:', paymentError)
+      } else {
+        console.log('결제 내역 저장 성공:', paymentRecord)
+      }
     } catch (err) {
       console.error('결제 내역 저장 실패:', err)
     }
