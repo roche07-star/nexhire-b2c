@@ -37,7 +37,7 @@ interface Coupon {
 const PLAN_LIMITS: Record<string, Record<string, number>> = {
   FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
   PRO:    { analyze: 30, jd: 30, rewrite: 10, interview: 10 },
-  EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
+  EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 25 },
 }
 
 const FEATURE_LABELS: Record<string, string> = {
