@@ -21,7 +21,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
 
   const isPro = !!(user && (user.plan === 'PRO' || user.plan === 'EXPERT'))
   const isHeadhunter = user?.userType === 'HEADHUNTER'
-  const isManager = user?.role === 'MANAGER'
+  const isManager = user?.userType === 'SUPER_ADMIN' || user?.userType === 'MANAGER'
 
   return (
     <nav>
