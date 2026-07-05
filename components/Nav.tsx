@@ -59,7 +59,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
             </div>
             {!isSuperAdmin && <MyInfoButton />}
             {isSuperAdmin && (
-              <Link href="/admin"><button className="btn-ghost">Admin</button></Link>
+              <Link href="/admin"><button className="btn-ghost">관리자</button></Link>
             )}
             <LogoutButton />
           </div>

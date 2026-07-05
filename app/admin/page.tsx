@@ -5,7 +5,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import AdminClient from './AdminClient'
 
-export const metadata = { title: 'Super Admin — Jobizic' }
+export const metadata = { title: '관리자 — Jobizic' }
 
 export default async function AdminPage() {
   const session = await auth()

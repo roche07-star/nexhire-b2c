@@ -18,8 +18,8 @@ export default async function DashboardPage() {
 
   const email = session.user.email
 
-  // 관리자는 /admin으로 리다이렉트
-  if (session.user.userType === 'SUPER_ADMIN' || session.user.userType === 'MANAGER') {
+  // Super Admin은 /admin으로 리다이렉트
+  if (session.user.userType === 'SUPER_ADMIN') {
     redirect('/admin')
   }
 
