@@ -11,7 +11,6 @@ export async function GET() {
   const { data: users } = await supabase
     .from('users')
     .select('plan, user_type, headhunter_sharing_enabled')
-    .or('role.is.null,role.neq.MANAGER')
 
   if (!users) {
     return NextResponse.json({ error: 'DB 오류' }, { status: 500 })

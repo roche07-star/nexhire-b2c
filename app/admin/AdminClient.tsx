@@ -470,7 +470,7 @@ export default function AdminClient() {
       <div className="admin-container">
         <div className="admin-header">
           <div className="section-label">MANAGER</div>
-          <h1 className="admin-title">관리자 대시보드</h1>
+          <h1 className="admin-title">Super Admin</h1>
         </div>
 
         {msg && <div className="admin-toast">{msg}</div>}

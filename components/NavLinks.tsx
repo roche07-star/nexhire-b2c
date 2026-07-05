@@ -24,7 +24,7 @@ export default function NavLinks({ isPro, isHeadhunter, isManager }: NavLinksPro
 
   const menuItems = isManager
     ? [
-        { href: '/admin', label: '관리자 대시보드' },
+        { href: '/admin', label: 'Super Admin' },
         { href: '/store', label: 'STORE' },
         { href: '/plans', label: '플랜정책' },
       ]
