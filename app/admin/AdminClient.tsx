@@ -562,40 +562,85 @@ export default function AdminClient() {
               )}
             </div>
 
-            {/* 통계 */}
+            {/* 비즈니스 KPI */}
             {stats && (
-              <div className="admin-stats">
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">전체 가입자</div>
-                  <div className="admin-stat-value">{stats.total}<span>명</span></div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 32 }}>
+                {/* MRR */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                  borderRadius: 16,
+                  padding: 24,
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, opacity: 0.9 }}>💰 MRR (월 반복 매출)</div>
+                  <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
+                    {(stats.expert * 50000 + stats.pro * 30000).toLocaleString()}원
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    EXPERT {stats.expert}명 × 50,000원 = {(stats.expert * 50000).toLocaleString()}원<br />
+                    PRO {stats.pro}명 × 30,000원 = {(stats.pro * 30000).toLocaleString()}원
+                  </div>
                 </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">EXPERT 플랜</div>
-                  <div className="admin-stat-value">{stats.expert}<span>명</span></div>
+
+                {/* 전환율 */}
+                <div style={{
+                  background: stats.total > 0 && ((stats.pro + stats.expert) / stats.total) >= 0.5
+                    ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)'
+                    : stats.total > 0 && ((stats.pro + stats.expert) / stats.total) >= 0.3
+                    ? 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)'
+                    : 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
+                  borderRadius: 16,
+                  padding: 24,
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, opacity: 0.9 }}>📊 유료 전환율</div>
+                  <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
+                    {stats.total > 0 ? Math.round(((stats.pro + stats.expert) / stats.total) * 100) : 0}%
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    유료 {stats.pro + stats.expert}명 / 전체 {stats.total}명<br />
+                    목표: 50% {stats.total > 0 && ((stats.pro + stats.expert) / stats.total) >= 0.5 ? '✅' : '🎯'}
+                  </div>
                 </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">PRO 플랜</div>
-                  <div className="admin-stat-value">{stats.pro}<span>명</span></div>
+
+                {/* 사용자 현황 */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+                  borderRadius: 16,
+                  padding: 24,
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, opacity: 0.9 }}>👥 사용자 현황</div>
+                  <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
+                    {stats.total}명
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    개인 {stats.jobseeker}명 ({stats.total > 0 ? Math.round((stats.jobseeker / stats.total) * 100) : 0}%)<br />
+                    헤드헌터 {stats.headhunter}명 ({stats.total > 0 ? Math.round((stats.headhunter / stats.total) * 100) : 0}%)
+                  </div>
                 </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">FREE 플랜</div>
-                  <div className="admin-stat-value">{stats.free}<span>명</span></div>
-                </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">🎯 개인 구직자</div>
-                  <div className="admin-stat-value">{stats.jobseeker}<span>명</span></div>
-                </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">💼 헤드헌터</div>
-                  <div className="admin-stat-value">{stats.headhunter}<span>명</span></div>
-                </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">🤝 헤드헌터 공유</div>
-                  <div className="admin-stat-value">{stats.headhunterSharing}<span>명</span></div>
-                </div>
-                <div className="admin-stat-card">
-                  <div className="admin-stat-label">전환율</div>
-                  <div className="admin-stat-value">{stats.total > 0 ? Math.round(((stats.pro + stats.expert) / stats.total) * 100) : 0}<span>%</span></div>
+
+                {/* 이탈 위험 */}
+                <div style={{
+                  background: stats.headhunterSharing === 0
+                    ? 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)'
+                    : 'linear-gradient(135deg, #71717a 0%, #a1a1aa 100%)',
+                  borderRadius: 16,
+                  padding: 24,
+                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, opacity: 0.9 }}>🎯 주요 지표</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>
+                    헤드헌터 공유: {stats.headhunterSharing}명
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    {stats.headhunterSharing === 0 ? '⚠️ 헤드헌터 공유 활성화 필요' : '✅ 정상 운영 중'}<br />
+                    FREE 플랜: {stats.free}명 ({stats.total > 0 ? Math.round((stats.free / stats.total) * 100) : 0}%)
+                  </div>
                 </div>
               </div>
             )}
