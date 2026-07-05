@@ -17,8 +17,8 @@ export default async function HiringProcessPage() {
     redirect('/login')
   }
 
-  // 헤드헌터만 접근 가능
-  if (session.user.userType !== 'HEADHUNTER') {
+  // 헤드헌터와 Manager만 접근 가능
+  if (session.user.userType !== 'HEADHUNTER' && session.user.userType !== 'MANAGER') {
     redirect('/')
   }
 
