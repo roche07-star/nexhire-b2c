@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
   const start = searchParams.get('start') || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
   const end = searchParams.get('end') || new Date().toISOString().split('T')[0]
 
+  // 종료일에 시간 추가 (해당 날짜 23:59:59까지 포함)
+  const endWithTime = end + 'T23:59:59.999Z'
+
   try {
     // 1. 총 매출 (해당 기간 내 성공한 결제)
     const { data: successPayments, error: paymentsError } = await supabase
@@ -24,7 +27,7 @@ export async function GET(req: NextRequest) {
       .select('amount')
       .eq('status', 'success')
       .gte('paid_at', start)
-      .lte('paid_at', end)
+      .lte('paid_at', endWithTime)
 
     if (paymentsError) throw paymentsError
 
@@ -36,7 +39,7 @@ export async function GET(req: NextRequest) {
       .select('amount')
       .eq('status', 'completed')
       .gte('processed_at', start)
-      .lte('processed_at', end)
+      .lte('processed_at', endWithTime)
 
     if (refundsError) throw refundsError
 
