@@ -599,7 +599,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             </div>
 
             {/* 비즈니스 KPI */}
-            {stats && (
+            {isSuperAdmin && stats && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 32 }}>
                 {/* MRR */}
                 <div style={{
