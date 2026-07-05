@@ -43,14 +43,14 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
             )}
             <div className="nav-user-info">
               <span className="nav-user-name">{user.name}</span>
-              <div className="nav-badges">
-                <span className={`nav-role-badge ${user.role === 'MANAGER' ? 'role-manager' : 'role-user'}`}>
-                  {user.role === 'MANAGER' ? 'Manager' : 'User'}
-                </span>
-                <span className={`nav-plan-badge plan-${(user.plan ?? 'FREE').toLowerCase()}`}>
-                  {user.plan ?? 'FREE'}
-                </span>
-              </div>
+              {user.role !== 'MANAGER' && (
+                <div className="nav-badges">
+                  <span className="nav-role-badge role-user">User</span>
+                  <span className={`nav-plan-badge plan-${(user.plan ?? 'FREE').toLowerCase()}`}>
+                    {user.plan ?? 'FREE'}
+                  </span>
+                </div>
+              )}
             </div>
             {user.role !== 'MANAGER' && <MyInfoButton />}
             {user.role === 'MANAGER' && (
