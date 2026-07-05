@@ -818,7 +818,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         )}
                       </td>
                       <td>
-                        {(() => {
+                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                          <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
+                        ) : (() => {
                           const limits = PLAN_LIMITS[u.plan]
                           const total = (u.analyze_count ?? 0) + (u.jd_count ?? 0) + (u.rewrite_count ?? 0) + (u.interview_count ?? 0)
                           const totalLimit = limits.analyze + limits.jd + limits.rewrite + limits.interview
@@ -836,10 +838,14 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                           )
                         })()}
                       </td>
-                      <td className="admin-date">{nextResetDate(u)}</td>
+                      <td className="admin-date">
+                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? '-' : nextResetDate(u)}
+                      </td>
                       <td className="admin-date">{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
                       <td>
-                        {u.user_type === 'JOBSEEKER' ? (
+                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                          <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
+                        ) : u.user_type === 'JOBSEEKER' ? (
                           <label style={{
                             position: 'relative',
                             display: 'inline-block',
