@@ -72,18 +72,28 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
 
         {/* 모바일 드롭다운 메뉴 */}
         {mobileMenuOpen && (
-          <div className="mobile-menu-dropdown">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="mobile-menu-item"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+          <>
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 9998
+              }}
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="mobile-menu-dropdown">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="mobile-menu-item"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </li>
     </>
