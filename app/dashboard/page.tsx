@@ -18,6 +18,11 @@ export default async function DashboardPage() {
 
   const email = session.user.email
 
+  // 관리자는 /admin으로 리다이렉트
+  if (session.user.role === 'MANAGER') {
+    redirect('/admin')
+  }
+
   // 사용자 플랜 및 유형 확인
   const { data: userData, error: userError } = await supabase
     .from('users')

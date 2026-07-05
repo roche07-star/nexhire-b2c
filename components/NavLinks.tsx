@@ -7,9 +7,10 @@ import { usePathname } from 'next/navigation'
 interface NavLinksProps {
   isPro: boolean
   isHeadhunter: boolean
+  isManager: boolean
 }
 
-export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
+export default function NavLinks({ isPro, isHeadhunter, isManager }: NavLinksProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -21,15 +22,21 @@ export default function NavLinks({ isPro, isHeadhunter }: NavLinksProps) {
     }
   }
 
-  const menuItems = [
-    ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : [{ href: '/job-seeker', label: '대시보드' }]),
-    ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
-    ...(isPro ? [{ href: '/analyze', label: '분석&생성' }] : []),
-    ...(!isHeadhunter ? [{ href: '/work-report', label: isPro ? '업무 Report' : '업무 Report 🔒' }] : []),
-    ...(isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
-    { href: '/store', label: 'STORE' },
-    { href: '/plans', label: '플랜정책' },
-  ]
+  const menuItems = isManager
+    ? [
+        { href: '/admin', label: '관리자 대시보드' },
+        { href: '/store', label: 'STORE' },
+        { href: '/plans', label: '플랜정책' },
+      ]
+    : [
+        ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : [{ href: '/job-seeker', label: '대시보드' }]),
+        ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
+        ...(isPro ? [{ href: '/analyze', label: '분석&생성' }] : []),
+        ...(!isHeadhunter ? [{ href: '/work-report', label: isPro ? '업무 Report' : '업무 Report 🔒' }] : []),
+        ...(isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
+        { href: '/store', label: 'STORE' },
+        { href: '/plans', label: '플랜정책' },
+      ]
 
   return (
     <>
