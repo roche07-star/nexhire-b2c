@@ -569,19 +569,30 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
             {/* 알림 드롭다운 */}
             {showNotifications && (
-              <div style={{
-                position: 'fixed',
-                top: 80,
-                right: 24,
-                width: 380,
-                maxWidth: '90vw',
-                background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: 16,
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-                zIndex: 99999,
-                animation: 'slideDown 0.3s ease-out'
-              }}>
+              <>
+                {/* 배경 클릭으로 닫기 */}
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 99998
+                  }}
+                  onClick={() => setShowNotifications(false)}
+                />
+
+                <div style={{
+                  position: 'fixed',
+                  top: 80,
+                  right: 24,
+                  width: 380,
+                  maxWidth: '90vw',
+                  background: 'linear-gradient(135deg, #1a1a2e 0%, #0a0a0f 100%)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: 16,
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+                  zIndex: 99999,
+                  animation: 'slideDown 0.3s ease-out'
+                }}>
                 <style>{`
                   @keyframes slideDown {
                     from {
@@ -681,12 +692,13 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   }}>
                     <button
                       onClick={() => {
+                        // 먼저 창 닫기
+                        setShowNotifications(false)
+                        // 그 다음 알림 처리
                         setNotificationsCleared(true)
-                        // localStorage에 저장 (날짜 기반)
                         localStorage.setItem('notifications_cleared', JSON.stringify({
                           date: new Date().toDateString()
                         }))
-                        setShowNotifications(false)
                       }}
                       style={{
                         padding: '8px 16px',
@@ -711,6 +723,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   </div>
                 )}
               </div>
+              </>
             )}
           </div>
 
