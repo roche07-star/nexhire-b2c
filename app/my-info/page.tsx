@@ -22,11 +22,11 @@ export default async function MyInfoPage() {
     .eq('email', session.user.email)
     .single()
 
-  // 쿠폰 조회
+  // 쿠폰 조회 (claimed_by로 조회)
   const { data: coupons } = await supabase
     .from('coupons')
     .select('*')
-    .eq('user_email', session.user.email)
+    .eq('claimed_by', session.user.email)
     .order('created_at', { ascending: false })
 
   return (

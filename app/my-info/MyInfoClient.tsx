@@ -10,12 +10,15 @@ interface User {
 
 interface Coupon {
   id: string
-  coupon_type: string
+  code: string | null
+  feature: string
   credits: number
   used: number
   expires_at: string
   issued_by: string
   created_at: string
+  claimed_at: string
+  used_at: string | null
 }
 
 interface Props {
@@ -24,7 +27,7 @@ interface Props {
   userEmail: string
 }
 
-const COUPON_NAMES: Record<string, string> = {
+const FEATURE_NAMES: Record<string, string> = {
   resume: '이력서 분석',
   jd: 'JD 적합도 분석',
   rewrite: '이력서 생성',
@@ -236,7 +239,7 @@ export default function MyInfoClient({ user, coupons, userEmail }: Props) {
                           color: 'var(--text)',
                           marginBottom: 4,
                         }}>
-                          {COUPON_NAMES[coupon.coupon_type] || coupon.coupon_type}
+                          {FEATURE_NAMES[coupon.feature] || coupon.feature}
                         </div>
                         <div style={{
                           fontSize: 13,
