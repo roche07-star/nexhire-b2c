@@ -619,11 +619,11 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, opacity: 0.9 }}>💰 MRR (월 반복 매출)</div>
                   <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
-                    {(stats.expert * 50000 + stats.pro * 30000).toLocaleString()}원
+                    {(stats.expert * 27930 + stats.pro * 10430).toLocaleString()}원
                   </div>
                   <div style={{ fontSize: 12, opacity: 0.8 }}>
-                    EXPERT {stats.expert}명 × 50,000원 = {(stats.expert * 50000).toLocaleString()}원<br />
-                    PRO {stats.pro}명 × 30,000원 = {(stats.pro * 30000).toLocaleString()}원
+                    EXPERT {stats.expert}명 × 27,930원 = {(stats.expert * 27930).toLocaleString()}원<br />
+                    PRO {stats.pro}명 × 10,430원 = {(stats.pro * 10430).toLocaleString()}원
                   </div>
                 </div>
 
