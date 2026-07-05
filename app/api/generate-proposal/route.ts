@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -77,6 +78,19 @@ export async function POST(req: NextRequest) {
     const session = await auth()
     if (!session?.user?.email) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
+    // 사용량 체크
+    const usage = await checkUsage(session.user.email, 'proposal')
+    if (!usage.allowed) {
+      return NextResponse.json(
+        {
+          error: '클라이언트 제안서 생성 한도를 초과했습니다.',
+          limit: usage.limit,
+          plan: usage.plan
+        },
+        { status: 429 }
+      )
     }
 
     const { resumeAnalysis, jdAnalysis } = await req.json()
@@ -328,6 +342,8 @@ export async function POST(req: NextRequest) {
 
         if (!insertError && inserted) {
           console.log('[generate-proposal] ✅ Saved to DB, ID:', inserted.id)
+          // 사용량 증가
+          await incrementUsage(session.user.email, 'proposal')
           return NextResponse.json({ proposal, id: inserted.id })
         } else {
           console.error('[generate-proposal] ⚠️ Failed to save to DB:', insertError?.message)
@@ -337,6 +353,8 @@ export async function POST(req: NextRequest) {
       console.error('[generate-proposal] ⚠️ Error saving to DB:', saveError)
     }
 
+    // 사용량 증가
+    await incrementUsage(session.user.email, 'proposal')
     return NextResponse.json({ proposal })
 
   } catch (error: any) {

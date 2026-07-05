@@ -6,24 +6,24 @@ type UserType = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
 
 const PLAN_LIMITS: Record<UserType, Record<string, Record<string, number>>> = {
   JOBSEEKER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
-    PRO:    { analyze: 15, jd: 15, rewrite: 10, interview: 0 },
-    EXPERT: { analyze: 30, jd: 30, rewrite: 50, interview: 50 },
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0, proposal: 0 },
+    PRO:    { analyze: 15, jd: 15, rewrite: 10, interview: 0, proposal: 0 },
+    EXPERT: { analyze: 30, jd: 30, rewrite: 50, interview: 50, proposal: 0 },
   },
   HEADHUNTER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
-    PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0 },
-    EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0, proposal: 3 },
+    PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0, proposal: 20 },
+    EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50, proposal: 50 },
   },
   MANAGER: {
-    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
   },
   SUPER_ADMIN: {
-    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999 },
   }
 }
 
@@ -35,7 +35,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date')
+      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
@@ -59,6 +59,7 @@ export async function GET() {
     jd:        { used: user?.jd_count ?? 0,        limit: limits.jd },
     rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite },
     interview: { used: user?.interview_count ?? 0, limit: limits.interview },
+    proposal:  { used: user?.proposal_count ?? 0,  limit: limits.proposal },
   }
 
   const couponList = (coupons ?? []).map(c => ({
