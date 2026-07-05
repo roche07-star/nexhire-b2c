@@ -73,15 +73,21 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
         {/* 모바일 드롭다운 메뉴 */}
         {mobileMenuOpen && (
           <>
+            {/* Overlay */}
             <div
               style={{
                 position: 'fixed',
                 inset: 0,
-                zIndex: 9998
+                zIndex: 9998,
+                background: 'transparent'
               }}
               onClick={() => setMobileMenuOpen(false)}
             />
-            <div className="mobile-menu-dropdown">
+            {/* Menu Dropdown */}
+            <div
+              className="mobile-menu-dropdown"
+              style={{ position: 'absolute', zIndex: 9999 }}
+            >
               {menuItems.map((item) => (
                 <Link
                   key={item.href}
