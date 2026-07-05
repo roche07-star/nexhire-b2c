@@ -32,7 +32,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
       </Link>
       {!minimal && (
         <ul className="nav-links">
-          <NavLinks isPro={isPro} isHeadhunter={isHeadhunter} isManager={isManager} />
+          <NavLinks isPro={isPro} isHeadhunter={isHeadhunter} isManager={isManager} isSuperAdmin={isSuperAdmin} />
         </ul>
       )}
       <div className="nav-cta">
