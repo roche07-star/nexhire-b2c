@@ -829,29 +829,58 @@ export default function MyInfoButton() {
                     </Section>
                   )}
 
-                  {/* 구독 종료 (유료 플랜만) */}
+                  {/* 구독 관리 (유료 플랜만) */}
                   {info.plan !== 'FREE' && (
                     <Section title="💳 구독 관리">
-                      <p style={{ fontSize: 13, color: '#71717a', marginBottom: 12 }}>
-                        구독을 종료하면 FREE 플랜으로 전환됩니다. 계정 탈퇴는 <a href="/terms" style={{ color: '#3b82f6', textDecoration: 'underline' }}>이용약관</a>에서 가능합니다.
-                      </p>
-                      <button
-                        onClick={handleCancelSubscription}
-                        disabled={canceling}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#fef3c7',
-                          color: '#f59e0b',
-                          border: '1px solid #fde68a',
-                          borderRadius: '8px',
-                          fontSize: 13,
-                          fontWeight: 600,
-                          cursor: canceling ? 'not-allowed' : 'pointer',
-                          opacity: canceling ? 0.6 : 1,
-                        }}
-                      >
-                        {canceling ? '처리 중...' : '구독 종료'}
-                      </button>
+                      {info.downgrade_to ? (
+                        // 구독 종료 예약됨
+                        <>
+                          <div style={{
+                            padding: '12px 16px',
+                            background: '#fef3c7',
+                            border: '1px solid #fde68a',
+                            borderRadius: '8px',
+                            marginBottom: 12
+                          }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#f59e0b', marginBottom: 4 }}>
+                              📅 구독 종료 예정
+                            </div>
+                            <div style={{ fontSize: 13, color: '#92400e' }}>
+                              플랜 종료일: <strong>{info.plan_end_date}</strong>
+                            </div>
+                            <div style={{ fontSize: 12, color: '#92400e', marginTop: 4 }}>
+                              종료일까지 현재 플랜을 이용할 수 있으며, 종료일에 FREE 플랜으로 자동 전환됩니다.
+                            </div>
+                          </div>
+                          <p style={{ fontSize: 12, color: '#71717a' }}>
+                            예약을 취소하려면 <a href="mailto:jobizic.biz@gmail.com" style={{ color: '#3b82f6', textDecoration: 'underline' }}>고객센터</a>로 문의하세요.
+                          </p>
+                        </>
+                      ) : (
+                        // 구독 종료 가능
+                        <>
+                          <p style={{ fontSize: 13, color: '#71717a', marginBottom: 12 }}>
+                            구독을 종료하면 FREE 플랜으로 전환됩니다. 계정 탈퇴는 <a href="/terms" style={{ color: '#3b82f6', textDecoration: 'underline' }}>이용약관</a>에서 가능합니다.
+                          </p>
+                          <button
+                            onClick={handleCancelSubscription}
+                            disabled={canceling}
+                            style={{
+                              padding: '10px 16px',
+                              background: '#fef3c7',
+                              color: '#f59e0b',
+                              border: '1px solid #fde68a',
+                              borderRadius: '8px',
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: canceling ? 'not-allowed' : 'pointer',
+                              opacity: canceling ? 0.6 : 1,
+                            }}
+                          >
+                            {canceling ? '처리 중...' : '구독 종료'}
+                          </button>
+                        </>
+                      )}
                     </Section>
                   )}
                 </>
