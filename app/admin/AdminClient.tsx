@@ -16,6 +16,9 @@ interface User {
   created_at: string
   headhunter_sharing_enabled: boolean | null
   headhunter_sharing_consented_at: string | null
+  downgrade_to: string | null
+  plan_end_date: string | null
+  downgrade_requested_at: string | null
 }
 
 interface Coupon {
@@ -47,7 +50,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'coupons' | 'tokens' | 'audit-logs'
+type AdminTab = 'users' | 'plan-changes' | 'coupons' | 'tokens' | 'audit-logs'
 
 export default function AdminClient({ users: initialUsers }: { users: User[] }) {
   const [tab, setTab] = useState<AdminTab>('users')
@@ -110,6 +113,34 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
       showMsg(`${email} → ${plan} 변경 완료 (사용량 초기화됨)`)
     }
     setLoading(null)
+  }
+
+  async function cancelDowngrade(email: string) {
+    if (!confirm('플랜 변경 예약을 취소하시겠습니까?')) {
+      return
+    }
+
+    setLoading(email + 'cancel')
+    try {
+      const res = await fetch('/api/admin/cancel-downgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (res.ok) {
+        setUsers((prev) => prev.map((u) => u.email === email
+          ? { ...u, downgrade_to: null, downgrade_requested_at: null }
+          : u
+        ))
+        showMsg(`${email} 플랜 변경 예약 취소됨`)
+      } else {
+        const data = await res.json()
+        alert(data.error ?? '취소 실패')
+      }
+    } finally {
+      setLoading(null)
+    }
   }
 
   async function deleteUser(email: string, name: string | null) {
@@ -342,6 +373,9 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
         {/* 탭 */}
         <div className="admin-tab-bar">
           <button className={`admin-tab-btn${tab === 'users' ? ' active' : ''}`} onClick={() => onTabChange('users')}>유저 관리</button>
+          <button className={`admin-tab-btn${tab === 'plan-changes' ? ' active' : ''}`} onClick={() => onTabChange('plan-changes')}>
+            📅 플랜 변경 예정 {users.filter(u => u.downgrade_to).length > 0 && `(${users.filter(u => u.downgrade_to).length})`}
+          </button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
           <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
           <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
@@ -575,6 +609,70 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                   ))}
                   {filteredUsers.length === 0 && (
                     <tr><td colSpan={14} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {tab === 'plan-changes' && (
+          <>
+            <div className="admin-stats">
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">플랜 변경 예정</div>
+                <div className="admin-stat-value">{users.filter(u => u.downgrade_to).length}명</div>
+              </div>
+            </div>
+
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>이메일</th>
+                    <th>이름</th>
+                    <th>현재 플랜</th>
+                    <th>→</th>
+                    <th>변경될 플랜</th>
+                    <th>플랜 종료일</th>
+                    <th>예약 일시</th>
+                    <th>액션</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.filter(u => u.downgrade_to).map((user) => (
+                    <tr key={user.email}>
+                      <td style={{ fontSize: 12 }}>{user.email}</td>
+                      <td>{user.name || '-'}</td>
+                      <td>
+                        <span className={`admin-badge admin-badge-${user.plan.toLowerCase()}`}>
+                          {user.plan}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center', color: '#f59e0b' }}>→</td>
+                      <td>
+                        <span className={`admin-badge admin-badge-${user.downgrade_to?.toLowerCase()}`}>
+                          {user.downgrade_to}
+                        </span>
+                      </td>
+                      <td>{user.plan_end_date ? new Date(user.plan_end_date).toLocaleDateString('ko-KR') : '-'}</td>
+                      <td style={{ fontSize: 12 }}>
+                        {user.downgrade_requested_at ? new Date(user.downgrade_requested_at).toLocaleString('ko-KR') : '-'}
+                      </td>
+                      <td>
+                        <button
+                          className="admin-btn admin-btn-sm"
+                          style={{ background: '#f59e0b' }}
+                          onClick={() => cancelDowngrade(user.email)}
+                          disabled={loading === user.email + 'cancel'}
+                        >
+                          {loading === user.email + 'cancel' ? '...' : '예약 취소'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {users.filter(u => u.downgrade_to).length === 0 && (
+                    <tr><td colSpan={8} className="admin-empty">플랜 변경 예정인 유저가 없습니다.</td></tr>
                   )}
                 </tbody>
               </table>
