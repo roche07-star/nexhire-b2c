@@ -208,7 +208,7 @@ export default function MyInfoButton() {
   async function handleCancelSubscription() {
     if (!info) return
 
-    if (!confirm(`구독을 종료하시겠습니까?\n\nFREE 플랜으로 전환되며, ${info.plan === 'FREE' ? '즉시' : '플랜 종료일 이후'} 월 3회 제한이 적용됩니다.`)) {
+    if (!confirm(`구독을 종료하시겠습니까?\n\n플랜 종료일까지 현재 플랜을 이용할 수 있으며,\n종료일에 FREE 플랜으로 전환됩니다 (월 3회 제한).`)) {
       return
     }
 
@@ -221,7 +221,7 @@ export default function MyInfoButton() {
 
       if (res.ok) {
         if (data.downgrade_to) {
-          alert(`구독 종료가 예약되었습니다.\n\n플랜 종료일(${data.plan_end_date}) 이후 FREE 플랜으로 전환됩니다.`)
+          alert(`구독 종료가 예약되었습니다.\n\n플랜 종료일: ${data.plan_end_date}\n종료일까지 현재 플랜을 이용할 수 있습니다.\n종료일에 FREE 플랜으로 자동 전환됩니다.`)
         } else {
           alert(data.message || 'FREE 플랜으로 전환되었습니다.')
         }
