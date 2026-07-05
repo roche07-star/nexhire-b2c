@@ -18,14 +18,10 @@ export async function GET(req: NextRequest) {
 
   const offset = (page - 1) * limit
 
-  // 기본 쿼리 (관리자 제외)
+  // 기본 쿼리
   let query = supabase
     .from('users')
     .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at', { count: 'exact' })
-
-  // MANAGER 제외 (role이 없는 경우도 포함)
-  // role 컬럼이 없거나 null인 경우 모두 포함
-  // 참고: Supabase에서 is.null 체크는 필요 없음 (neq는 null을 자동으로 포함)
 
   // 검색 (이메일 또는 이름)
   if (search) {
