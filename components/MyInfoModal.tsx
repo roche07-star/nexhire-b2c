@@ -855,11 +855,10 @@ export default function MyInfoButton() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
+            background: 'rgba(0, 0, 0, 0.75)',  // 더 어둡게
             display: 'flex',
-            alignItems: 'flex-start',
+            alignItems: 'center',  // 화면 정중앙
             justifyContent: 'center',
-            paddingTop: '120px',  // 상단에서 120px 아래에 배치
             zIndex: 1000000,  // "내 정보" 모달(999999)보다 높게
           }}
           onClick={() => setWithdrawModal(false)}
@@ -871,6 +870,7 @@ export default function MyInfoButton() {
               padding: '24px',
               maxWidth: '400px',
               width: '90%',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',  // 강한 그림자
             }}
             onClick={(e) => e.stopPropagation()}
           >
