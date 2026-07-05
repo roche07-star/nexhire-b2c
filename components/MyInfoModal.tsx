@@ -853,7 +853,14 @@ export default function MyInfoButton() {
                             </div>
                           </div>
                           <p style={{ fontSize: 12, color: '#71717a' }}>
-                            예약을 취소하려면 <a href="mailto:jobizic.biz@gmail.com" style={{ color: '#3b82f6', textDecoration: 'underline' }}>고객센터</a>로 문의하세요.
+                            예약을 취소하려면{' '}
+                            <a
+                              href="mailto:jobizic.biz@gmail.com"
+                              style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}
+                            >
+                              jobizic.biz@gmail.com
+                            </a>
+                            {' '}으로 문의하세요.
                           </p>
                         </>
                       ) : (
