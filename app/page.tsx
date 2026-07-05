@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import HowItWorks from '@/components/HowItWorks'
@@ -10,14 +11,25 @@ import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
-import type { RegularUserType } from '@/types/user'
 
 export default async function Home() {
   const session = await auth()
   const rawUserType = session?.user?.userType
-  // 관리자는 일반 사용자 화면에서 null로 처리
-  const userType: RegularUserType | null =
-    rawUserType === 'JOBSEEKER' || rawUserType === 'HEADHUNTER' ? rawUserType : null
+  const plan = session?.user?.plan
+
+  // 로그인된 사용자는 대시보드로 리다이렉트
+  if (rawUserType === 'SUPER_ADMIN') {
+    redirect('/admin')
+  }
+  if (rawUserType === 'HEADHUNTER' || rawUserType === 'MANAGER') {
+    redirect('/dashboard')
+  }
+  if (rawUserType === 'JOBSEEKER' && (plan === 'PRO' || plan === 'EXPERT')) {
+    redirect('/job-seeker')
+  }
+
+  // 여기까지 오면 로그인 안 했거나 JOBSEEKER (FREE)만 가능
+  const userType: 'JOBSEEKER' | null = rawUserType === 'JOBSEEKER' ? 'JOBSEEKER' : null
 
   return (
     <>
