@@ -211,10 +211,8 @@ export default function MyInfoButton() {
 
     setCanceling(true)
     try {
-      const res = await fetch('/api/admin/plan', {
+      const res = await fetch('/api/user/cancel-subscription', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: 'FREE' }),
       })
       const data = await res.json()
 
@@ -222,7 +220,7 @@ export default function MyInfoButton() {
         if (data.downgrade_to) {
           alert(`구독 종료가 예약되었습니다.\n\n플랜 종료일(${data.plan_end_date}) 이후 FREE 플랜으로 전환됩니다.`)
         } else {
-          alert('FREE 플랜으로 전환되었습니다.')
+          alert(data.message || 'FREE 플랜으로 전환되었습니다.')
         }
         // 정보 새로고침
         setInfo(null)
