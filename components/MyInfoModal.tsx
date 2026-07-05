@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 
 const FEATURE_LABEL: Record<string, string> = {
   storage: '이력서 추가 저장', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
@@ -45,9 +44,8 @@ export default function MyInfoButton() {
   const [couponClaiming, setCouponClaiming] = useState(false)
   const [headhunterToggling, setHeadhunterToggling] = useState(false)
   const [restorableData, setRestorableData] = useState<any>(null)
-  const [withdrawModal, setWithdrawModal] = useState(false)
-  const [withdrawing, setWithdrawing] = useState(false)
   const [restoring, setRestoring] = useState(false)
+  const [canceling, setCanceling] = useState(false)
   const modalContentRef = useRef<HTMLDivElement>(null)
 
   // 모달 열릴 때 스크롤 맨 위로
@@ -204,37 +202,40 @@ export default function MyInfoButton() {
     }
   }
 
-  async function handleWithdraw() {
-    setWithdrawModal(true)
-  }
+  async function handleCancelSubscription() {
+    if (!info) return
 
-  async function confirmWithdraw() {
-    setWithdrawing(true)
+    if (!confirm(`구독을 종료하시겠습니까?\n\nFREE 플랜으로 전환되며, ${info.plan === 'FREE' ? '즉시' : '플랜 종료일 이후'} 월 3회 제한이 적용됩니다.`)) {
+      return
+    }
+
+    setCanceling(true)
     try {
-      const res = await fetch('/api/user/withdraw', {
+      const res = await fetch('/api/admin/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmed: true }),
+        body: JSON.stringify({ plan: 'FREE' }),
       })
       const data = await res.json()
 
       if (res.ok) {
-        if (data.status === 'withdrawing') {
-          alert(`탈퇴 신청이 완료되었습니다.\n\n${data.plan_end_date}까지 서비스를 이용할 수 있습니다.\n이후 6개월간 데이터가 보존됩니다.`)
+        if (data.downgrade_to) {
+          alert(`구독 종료가 예약되었습니다.\n\n플랜 종료일(${data.plan_end_date}) 이후 FREE 플랜으로 전환됩니다.`)
         } else {
-          alert('탈퇴가 완료되었습니다.\n\n데이터는 6개월간 보존되며, 재가입 시 복원할 수 있습니다.')
+          alert('FREE 플랜으로 전환되었습니다.')
         }
-        // 로그아웃 또는 홈으로 이동
-        window.location.href = '/'
+        // 정보 새로고침
+        setInfo(null)
+        const res2 = await fetch('/api/my-info')
+        setInfo(await res2.json())
       } else {
-        alert(data.error ?? '탈퇴에 실패했습니다.')
+        alert(data.error ?? '구독 종료에 실패했습니다.')
       }
     } catch (err) {
       console.error(err)
       alert('오류가 발생했습니다.')
     } finally {
-      setWithdrawing(false)
-      setWithdrawModal(false)
+      setCanceling(false)
     }
   }
 
@@ -825,24 +826,31 @@ export default function MyInfoButton() {
                     </Section>
                   )}
 
-                  {/* 탈퇴 UI */}
-                  <Section title="⚠️ 회원 탈퇴">
-                    <button
-                      onClick={handleWithdraw}
-                      style={{
-                        padding: '10px 16px',
-                        background: '#fee2e2',
-                        color: '#dc2626',
-                        border: '1px solid #fecaca',
-                        borderRadius: '8px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      회원 탈퇴
-                    </button>
-                  </Section>
+                  {/* 구독 종료 (유료 플랜만) */}
+                  {info.plan !== 'FREE' && (
+                    <Section title="💳 구독 관리">
+                      <p style={{ fontSize: 13, color: '#71717a', marginBottom: 12 }}>
+                        구독을 종료하면 FREE 플랜으로 전환됩니다. 계정 탈퇴는 <a href="/terms" style={{ color: '#3b82f6', textDecoration: 'underline' }}>이용약관</a>에서 가능합니다.
+                      </p>
+                      <button
+                        onClick={handleCancelSubscription}
+                        disabled={canceling}
+                        style={{
+                          padding: '10px 16px',
+                          background: '#fef3c7',
+                          color: '#f59e0b',
+                          border: '1px solid #fde68a',
+                          borderRadius: '8px',
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: canceling ? 'not-allowed' : 'pointer',
+                          opacity: canceling ? 0.6 : 1,
+                        }}
+                      >
+                        {canceling ? '처리 중...' : '구독 종료'}
+                      </button>
+                    </Section>
+                  )}
                 </>
               )}
             </div>
@@ -850,88 +858,6 @@ export default function MyInfoButton() {
         </div>
       )}
 
-      {/* 탈퇴 확인 모달 (Portal로 독립 렌더링) */}
-      {withdrawModal && typeof window !== 'undefined' && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.75)',  // 더 어둡게
-            display: 'flex',
-            alignItems: 'flex-start',  // 상단 기준
-            justifyContent: 'center',
-            paddingTop: '120px',  // 상단에서 120px 아래
-            zIndex: 1000000,  // "내 정보" 모달(999999)보다 높게
-          }}
-          onClick={() => setWithdrawModal(false)}
-        >
-          <div
-            style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '24px',
-              maxWidth: '400px',
-              width: '90%',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',  // 강한 그림자
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: '16px' }}>
-              정말 탈퇴하시겠습니까?
-            </h3>
-            <div style={{ fontSize: 14, color: '#71717a', marginBottom: '20px', lineHeight: 1.8 }}>
-              ⚠️ 안내사항<br/><br/>
-              {info?.plan !== 'FREE' && (
-                <>
-                  • 현재 플랜: {info?.plan}<br/>
-                  • 플랜 종료일까지 정상 이용 가능<br/><br/>
-                </>
-              )}
-              📦 데이터 보존 정책<br/>
-              • 기존 데이터는 6개월간 보존됩니다<br/>
-              • 재가입 시 복원 가능합니다<br/>
-              • 6개월 후 영구 삭제됩니다<br/>
-              • 삭제 후에는 복구할 수 없습니다
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => setWithdrawModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: '#f1f5f9',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                취소
-              </button>
-              <button
-                onClick={confirmWithdraw}
-                disabled={withdrawing}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: '#dc2626',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: withdrawing ? 'not-allowed' : 'pointer',
-                  opacity: withdrawing ? 0.6 : 1,
-                }}
-              >
-                {withdrawing ? '처리 중...' : '탈퇴하기'}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </>
   )
 }
