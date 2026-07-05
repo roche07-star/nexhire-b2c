@@ -58,12 +58,12 @@ export default function SupportClient() {
   return (
     <main style={{
       minHeight: '80vh',
-      padding: '100px 20px 60px',
+      padding: '60px 20px',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     }}>
       <div style={{
         maxWidth: 800,
-        margin: '0 auto',
+        margin: '60px auto 0',
       }}>
         {/* Header */}
         <div style={{
