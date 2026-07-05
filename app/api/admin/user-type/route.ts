@@ -16,20 +16,29 @@ import type { UserType } from '@/types/user'
  */
 export async function POST(req: NextRequest) {
   try {
+    console.log('[admin/user-type] Request start')
+
     const session = await auth()
+    console.log('[admin/user-type] Session:', { email: session?.user?.email, userType: session?.user?.userType })
+
     if (!session?.user || !isSuperAdmin(session)) {
+      console.log('[admin/user-type] Unauthorized')
       return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
     }
 
-    const { email, userType } = await req.json() as { email: string; userType: UserType }
+    const body = await req.json()
+    console.log('[admin/user-type] Request body:', body)
+    const { email, userType } = body as { email: string; userType: UserType }
 
     // 유효성 검증
     if (!email?.trim()) {
+      console.log('[admin/user-type] Email missing')
       return NextResponse.json({ error: '이메일을 입력해주세요.' }, { status: 400 })
     }
 
     const validTypes: UserType[] = ['SUPER_ADMIN', 'MANAGER', 'HEADHUNTER', 'JOBSEEKER']
     if (!userType || !validTypes.includes(userType)) {
+      console.log('[admin/user-type] Invalid userType:', userType)
       return NextResponse.json(
         { error: '올바른 사용자 유형을 선택해주세요.' },
         { status: 400 }
@@ -37,29 +46,42 @@ export async function POST(req: NextRequest) {
     }
 
     // 사용자 존재 확인
-    const { data: existingUser } = await supabase
+    console.log('[admin/user-type] Checking user exists:', email)
+    const { data: existingUser, error: selectError } = await supabase
       .from('users')
       .select('email, user_type')
       .eq('email', email)
       .single()
 
+    if (selectError) {
+      console.error('[admin/user-type] Select error:', selectError)
+    }
+
     if (!existingUser) {
+      console.log('[admin/user-type] User not found')
       return NextResponse.json({ error: '사용자를 찾을 수 없습니다.' }, { status: 404 })
     }
 
+    console.log('[admin/user-type] Existing user:', existingUser)
+
     // user_type 변경 (관리자는 제한 없이 변경 가능)
-    const { error } = await supabase
+    console.log('[admin/user-type] Updating user_type to:', userType)
+    const { error, data } = await supabase
       .from('users')
       .update({
         user_type: userType,
       })
       .eq('email', email)
+      .select()
+
+    console.log('[admin/user-type] Update result:', { error, data })
 
     if (error) {
       console.error('[admin/user-type] Update error:', error)
       return NextResponse.json({
         error: '변경 중 오류가 발생했습니다.',
-        details: error.message
+        details: error.message,
+        code: error.code
       }, { status: 500 })
     }
 

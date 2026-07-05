@@ -722,25 +722,29 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         </div>
                       </td>
                       <td>
-                        <select
-                          value={u.plan}
-                          onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
-                          disabled={loading === u.email + u.plan}
-                          style={{
-                            padding: '6px 10px',
-                            borderRadius: 6,
-                            border: '1px solid #e5e7eb',
-                            fontSize: 13,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
-                            color: '#ffffff',
-                          }}
-                        >
-                          <option value="FREE">FREE</option>
-                          <option value="PRO">PRO</option>
-                          <option value="EXPERT">EXPERT</option>
-                        </select>
+                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                          <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
+                        ) : (
+                          <select
+                            value={u.plan}
+                            onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
+                            disabled={loading === u.email + u.plan}
+                            style={{
+                              padding: '6px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #e5e7eb',
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
+                              color: '#ffffff',
+                            }}
+                          >
+                            <option value="FREE">FREE</option>
+                            <option value="PRO">PRO</option>
+                            <option value="EXPERT">EXPERT</option>
+                          </select>
+                        )}
                       </td>
                       <td>
                         {isSuperAdmin ? (
