@@ -222,10 +222,8 @@ export default function MyInfoButton() {
         } else {
           alert(data.message || 'FREE 플랜으로 전환되었습니다.')
         }
-        // 정보 새로고침
-        setInfo(null)
-        const res2 = await fetch('/api/my-info')
-        setInfo(await res2.json())
+        // 대시보드로 이동
+        window.location.href = '/'
       } else {
         alert(data.error ?? '구독 종료에 실패했습니다.')
       }
