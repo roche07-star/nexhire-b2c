@@ -609,7 +609,7 @@ export default function AdminClient() {
                   onChange={(e) => setShowOnlyHeadhunterSharing(e.target.checked)}
                   style={{ width: 18, height: 18, cursor: 'pointer' }}
                 />
-                🤝 헤드헌터 공유 동의한 후보자만 보기 ({headhunterSharingCount}명)
+                🤝 헤드헌터 공유 동의한 후보자만 보기 ({filteredUsers.length}명)
               </label>
             </div>
             <div className="admin-table-wrap">
