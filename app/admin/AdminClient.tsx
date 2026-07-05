@@ -730,7 +730,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         </div>
                       </td>
                       <td>
-                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                        {u.user_type === 'SUPER_ADMIN' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : isSuperAdmin ? (
                           <select
@@ -818,7 +818,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         )}
                       </td>
                       <td>
-                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                        {u.user_type === 'SUPER_ADMIN' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : (() => {
                           const limits = PLAN_LIMITS[u.plan]
@@ -839,13 +839,13 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         })()}
                       </td>
                       <td className="admin-date">
-                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? '-' : nextResetDate(u)}
+                        {u.user_type === 'SUPER_ADMIN' ? '-' : nextResetDate(u)}
                       </td>
                       <td className="admin-date">
-                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? '-' : new Date(u.created_at).toLocaleDateString('ko-KR')}
+                        {u.user_type === 'SUPER_ADMIN' ? '-' : new Date(u.created_at).toLocaleDateString('ko-KR')}
                       </td>
                       <td>
-                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
+                        {u.user_type === 'SUPER_ADMIN' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : u.user_type === 'JOBSEEKER' ? (
                           <label style={{
