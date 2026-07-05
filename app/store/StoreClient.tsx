@@ -33,12 +33,12 @@ const PRODUCTS: Product[] = [
   },
   {
     id: '1-1',
-    name: '💾 이력서 추가 저장',
+    name: '📁 이력서 추가 저장',
     nameEn: 'Extra Resume Storage',
     price: 10000,
     feature: 'storage',
-    icon: '💾',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    icon: '📁',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
     description: [
       '✅ 이력서 1개 추가 저장 슬롯',
       '✅ 여러 버전 관리로 전략적 지원',
