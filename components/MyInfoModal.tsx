@@ -855,12 +855,12 @@ export default function MyInfoButton() {
                           <p style={{ fontSize: 12, color: '#71717a' }}>
                             예약을 취소하려면{' '}
                             <a
-                              href="mailto:jobizic.biz@gmail.com"
+                              href="/support"
                               style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}
                             >
-                              jobizic.biz@gmail.com
+                              고객센터
                             </a>
-                            {' '}으로 문의하세요.
+                            {' '}로 문의하세요.
                           </p>
                         </>
                       ) : (
