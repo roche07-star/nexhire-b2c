@@ -7,7 +7,7 @@ interface User {
   name: string | null
   image: string | null
   plan: 'FREE' | 'PRO' | 'EXPERT'
-  user_type: 'JOBSEEKER' | 'HEADHUNTER' | null
+  user_type: 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER' | null
   analyze_count: number
   jd_count: number
   rewrite_count: number
@@ -57,12 +57,20 @@ interface Stats {
   free: number
   pro: number
   expert: number
+  superAdmin: number
+  manager: number
   jobseeker: number
   headhunter: number
   headhunterSharing: number
 }
 
-export default function AdminClient() {
+interface AdminClientProps {
+  currentUserType?: 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER' | null
+}
+
+export default function AdminClient({ currentUserType }: AdminClientProps) {
+  const isSuperAdmin = currentUserType === 'SUPER_ADMIN'
+
   const [tab, setTab] = useState<AdminTab>('users')
   const [users, setUsers] = useState<User[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
@@ -273,7 +281,7 @@ export default function AdminClient() {
     setLoading(null)
   }
 
-  async function changeUserType(email: string, userType: 'JOBSEEKER' | 'HEADHUNTER') {
+  async function changeUserType(email: string, userType: 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER') {
     setLoading(email + userType)
     const res = await fetch('/api/admin/user-type', {
       method: 'POST',
@@ -646,6 +654,7 @@ export default function AdminClient() {
                     {stats.total}명
                   </div>
                   <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    Super Admin {stats.superAdmin}명 / Manager {stats.manager}명<br />
                     개인 {stats.jobseeker}명 ({stats.total > 0 ? Math.round((stats.jobseeker / stats.total) * 100) : 0}%)<br />
                     헤드헌터 {stats.headhunter}명 ({stats.total > 0 ? Math.round((stats.headhunter / stats.total) * 100) : 0}%)
                   </div>
@@ -738,7 +747,7 @@ export default function AdminClient() {
                           value={u.user_type ?? ''}
                           onChange={(e) => {
                             if (e.target.value) {
-                              changeUserType(u.email, e.target.value as 'JOBSEEKER' | 'HEADHUNTER')
+                              changeUserType(u.email, e.target.value as any)
                             }
                           }}
                           disabled={loading === u.email + u.user_type}
@@ -749,13 +758,18 @@ export default function AdminClient() {
                             fontSize: 13,
                             fontWeight: 600,
                             cursor: 'pointer',
-                            background: u.user_type === 'JOBSEEKER' ? '#7c3aed' : u.user_type === 'HEADHUNTER' ? '#1e40af' : '#d4d4d8',
+                            background:
+                              u.user_type === 'SUPER_ADMIN' ? '#dc2626' :
+                              u.user_type === 'MANAGER' ? '#ea580c' :
+                              u.user_type === 'HEADHUNTER' ? '#1e40af' :
+                              u.user_type === 'JOBSEEKER' ? '#7c3aed' : '#d4d4d8',
                             color: u.user_type ? '#ffffff' : '#71717a',
                           }}
                         >
                           <option value="">미선택</option>
                           <option value="JOBSEEKER">🎯 개인</option>
                           <option value="HEADHUNTER">💼 헤드헌터</option>
+                          {isSuperAdmin && <option value="MANAGER">👔 Manager</option>}
                         </select>
                       </td>
                       <td>

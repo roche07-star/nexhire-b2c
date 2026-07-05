@@ -13,10 +13,12 @@ export default async function AdminPage() {
     redirect('/')
   }
 
+  const currentUserType = session?.user?.userType
+
   return (
     <>
       <Nav />
-      <AdminClient />
+      <AdminClient currentUserType={currentUserType} />
       <Footer />
     </>
   )
