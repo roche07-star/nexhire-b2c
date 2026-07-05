@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   // 현재 사용자 정보 확인
   const { data: userData } = await supabase
     .from('users')
-    .select('plan, plan_end_date, status')
+    .select('plan, plan_end_date, status, last_restored_at')
     .eq('email', email)
     .single()
 
@@ -36,6 +36,18 @@ export async function POST(req: NextRequest) {
   // 이미 탈퇴 중이거나 탈퇴한 경우
   if (userData.status === 'withdrawing' || userData.status === 'withdrawn') {
     return NextResponse.json({ error: '이미 탈퇴 처리 중입니다' }, { status: 400 })
+  }
+
+  // 재가입 후 복원했던 경우: 이전 데이터 삭제, 최신 데이터만 보존
+  if (userData.last_restored_at) {
+    const restoredAt = new Date(userData.last_restored_at).toISOString()
+
+    // last_restored_at 이전 데이터 삭제 (복원한 이전 데이터)
+    await supabase.from('analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
+    await supabase.from('jd_analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
+    await supabase.from('interview_guides').delete().eq('user_email', email).lt('created_at', restoredAt)
+
+    console.log(`[withdraw] Deleted old data before ${restoredAt} for ${email}`)
   }
 
   const now = new Date()
@@ -50,6 +62,7 @@ export async function POST(req: NextRequest) {
       status: 'withdrawing',
       withdraw_requested_at: now.toISOString(),
       data_delete_at: dataDeleteAt.toISOString(),
+      last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
     }).eq('email', email)
 
     if (error) {
@@ -72,6 +85,7 @@ export async function POST(req: NextRequest) {
     status: 'withdrawn',
     withdraw_requested_at: now.toISOString(),
     data_delete_at: dataDeleteAt.toISOString(),
+    last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
   }).eq('email', email)
 
   if (error) {

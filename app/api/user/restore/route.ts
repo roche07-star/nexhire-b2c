@@ -64,7 +64,8 @@ export async function POST(req: NextRequest) {
     .eq('claimed_by', email)
     .is('deleted_at', null)
 
-  // 데이터 복원: status 변경 + FREE 플랜 + 사용량 리셋
+  // 데이터 복원: status 변경 + FREE 플랜 + 사용량 리셋 + 복원 시각 기록
+  const now = new Date().toISOString()
   const { error } = await supabase.from('users').update({
     status: 'active',
     plan: 'FREE',
@@ -72,9 +73,10 @@ export async function POST(req: NextRequest) {
     jd_count: 0,
     rewrite_count: 0,
     interview_count: 0,
-    monthly_reset_at: new Date().toISOString(),
+    monthly_reset_at: now,
     withdraw_requested_at: null,
     data_delete_at: null,
+    last_restored_at: now,  // 복원 시각 기록
   }).eq('email', email)
 
   if (error) {
