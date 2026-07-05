@@ -71,9 +71,6 @@ export default function MyInfoButton() {
     try {
       const res = await fetch('/api/my-info')
       const data = await res.json()
-      console.log('📊 MyInfo API 응답:', data)
-      console.log('🔍 downgrade_to:', data.downgrade_to)
-      console.log('📅 plan_end_date:', data.plan_end_date)
       setInfo(data)
     } finally {
       setLoading(false)
@@ -359,7 +356,7 @@ export default function MyInfoButton() {
                       >
                         {info.plan}
                       </span>
-                      {(info.downgrade_to || info.resetAt) && (
+                      {(info.downgrade_to || (info.plan !== 'FREE' && info.resetAt)) && (
                         <span style={{
                           fontSize: 13,
                           color: info.downgrade_to ? '#f59e0b' : '#71717a',
