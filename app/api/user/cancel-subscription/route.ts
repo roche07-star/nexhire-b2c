@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   // 현재 사용자 정보 확인
   const { data: userData } = await supabase
     .from('users')
-    .select('plan, plan_end_date')
+    .select('plan, plan_end_date, monthly_reset_at')
     .eq('email', email)
     .single()
 
@@ -34,14 +34,30 @@ export async function POST(req: NextRequest) {
   }
 
   const now = new Date()
-  const planEndDate = userData.plan_end_date ? new Date(userData.plan_end_date) : null
 
-  // plan_end_date가 미래인 경우: 다운그레이드 예약
+  // plan_end_date 결정: 있으면 사용, 없으면 monthly_reset_at + 1달
+  let planEndDate: Date | null = null
+  if (userData.plan_end_date) {
+    planEndDate = new Date(userData.plan_end_date)
+  } else if (userData.monthly_reset_at) {
+    // monthly_reset_at은 마지막 리셋 날짜 → 다음 리셋일 계산
+    planEndDate = new Date(userData.monthly_reset_at)
+    planEndDate.setMonth(planEndDate.getMonth() + 1)
+  }
+
+  // planEndDate가 미래인 경우: 다운그레이드 예약
   if (planEndDate && planEndDate > now) {
-    const { error } = await supabase.from('users').update({
+    const updates: any = {
       downgrade_to: 'FREE',
       downgrade_requested_at: now.toISOString(),
-    }).eq('email', email)
+    }
+
+    // plan_end_date가 없었으면 설정
+    if (!userData.plan_end_date) {
+      updates.plan_end_date = planEndDate.toISOString().split('T')[0]  // YYYY-MM-DD
+    }
+
+    const { error } = await supabase.from('users').update(updates).eq('email', email)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -50,7 +66,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: '구독 종료가 예약되었습니다',
-      plan_end_date: userData.plan_end_date,
+      plan_end_date: planEndDate.toLocaleDateString('ko-KR'),
       downgrade_to: 'FREE',
     })
   }
