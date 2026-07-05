@@ -57,6 +57,7 @@ type UserRow = {
 /**
  * Check if user has remaining usage for a feature.
  * Handles monthly reset based on monthly_reset_at (plan subscription date).
+ * Also checks for available coupons if plan limit is exceeded.
  */
 export async function checkUsage(
   email: string,
@@ -99,9 +100,75 @@ export async function checkUsage(
   const current = row[COUNT_COL[feature]] ?? 0
   const remaining = Math.max(0, limit - current)
 
-  return { allowed: current < limit, remaining, plan, limit }
+  // 플랜 한도 내: 허용
+  if (current < limit) {
+    return { allowed: true, remaining, plan, limit }
+  }
+
+  // 플랜 한도 초과: 쿠폰 확인
+  const { data: allCoupons } = await supabase
+    .from('coupons')
+    .select('id, credits, used, expires_at')
+    .eq('claimed_by', email)
+    .eq('feature', feature)
+    .gt('expires_at', new Date().toISOString()) // 만료되지 않음
+    .order('expires_at', { ascending: true }) // 만료 임박 순
+
+  // 남은 횟수가 있는 쿠폰만 필터링
+  const availableCoupons = (allCoupons || []).filter(c => c.used < c.credits)
+  const hasAvailableCoupon = availableCoupons.length > 0
+
+  return {
+    allowed: hasAvailableCoupon,
+    remaining: hasAvailableCoupon ? availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0) : 0,
+    plan,
+    limit,
+  }
 }
 
+/**
+ * Increment usage count.
+ * If plan limit exceeded, consumes a coupon instead.
+ */
 export async function incrementUsage(email: string, feature: Feature): Promise<void> {
-  await supabase.rpc(RPC_FN[feature], { user_email: email })
+  // 현재 사용량 확인
+  const { data } = await supabase
+    .from('users')
+    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count')
+    .eq('email', email)
+    .single()
+
+  if (!data) return
+
+  const row = data as UserRow
+  const plan = (row.plan ?? 'FREE') as Plan
+  const userType = (row.user_type ?? 'JOBSEEKER') as UserType
+  const limit = PLAN_LIMITS[userType]?.[plan]?.[feature] ?? 0
+  const current = row[COUNT_COL[feature]] ?? 0
+
+  // 플랜 한도 내: users 테이블 카운트 증가
+  if (current < limit) {
+    await supabase.rpc(RPC_FN[feature], { user_email: email })
+    return
+  }
+
+  // 플랜 한도 초과: 쿠폰 차감
+  const { data: coupons } = await supabase
+    .from('coupons')
+    .select('id, credits, used, expires_at')
+    .eq('claimed_by', email)
+    .eq('feature', feature)
+    .gt('expires_at', new Date().toISOString())
+    .order('expires_at', { ascending: true })
+    .limit(1)
+
+  const availableCoupon = (coupons || []).find(c => c.used < c.credits)
+
+  if (availableCoupon) {
+    // 쿠폰 사용 횟수 증가
+    await supabase
+      .from('coupons')
+      .update({ used: availableCoupon.used + 1 })
+      .eq('id', availableCoupon.id)
+  }
 }
