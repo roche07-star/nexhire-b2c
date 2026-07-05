@@ -48,7 +48,11 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     console.error('Admin users query error:', error)
-    return NextResponse.json({ error: 'DB 오류' }, { status: 500 })
+    return NextResponse.json({
+      error: 'DB 오류',
+      details: error.message,
+      code: error.code
+    }, { status: 500 })
   }
 
   return NextResponse.json({
