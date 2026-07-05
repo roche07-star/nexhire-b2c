@@ -250,7 +250,7 @@ export default function MyInfoButton() {
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            zIndex: 999999,
+            zIndex: 9999999,  // 헤드헌터 대시보드보다 높게
             padding: '50px 20px 20px',
             backdropFilter: 'blur(4px)'
           }}
