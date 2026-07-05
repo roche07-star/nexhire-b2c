@@ -491,8 +491,12 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           </button>
           <button className={`admin-tab-btn${tab === 'support' ? ' active' : ''}`} onClick={() => onTabChange('support')}>💬 고객센터</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
-          <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
-          <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
+          {isSuperAdmin && (
+            <>
+              <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
+              <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
+            </>
+          )}
         </div>
 
         {/* 탭 - 모바일 */}
@@ -518,8 +522,12 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             </option>
             <option value="support">💬 고객센터</option>
             <option value="coupons">🎫 쿠폰 관리</option>
-            <option value="tokens">🔍 토큰 관리</option>
-            <option value="audit-logs">📋 접근 로그</option>
+            {isSuperAdmin && (
+              <>
+                <option value="tokens">🔍 토큰 관리</option>
+                <option value="audit-logs">📋 접근 로그</option>
+              </>
+            )}
           </select>
         </div>
 
