@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { supabase } from '@/lib/supabase'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import AdminClient from './AdminClient'
@@ -13,15 +12,10 @@ export default async function AdminPage() {
     redirect('/')
   }
 
-  const { data: users } = await supabase
-    .from('users')
-    .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at')
-    .order('created_at', { ascending: false })
-
   return (
     <>
       <Nav />
-      <AdminClient users={users ?? []} />
+      <AdminClient />
       <Footer />
     </>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface User {
   email: string
@@ -52,12 +52,33 @@ const FEATURE_LABELS: Record<string, string> = {
 
 type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'tokens' | 'audit-logs'
 
-export default function AdminClient({ users: initialUsers }: { users: User[] }) {
+interface Stats {
+  total: number
+  free: number
+  pro: number
+  expert: number
+  jobseeker: number
+  headhunter: number
+  headhunterSharing: number
+}
+
+export default function AdminClient() {
   const [tab, setTab] = useState<AdminTab>('users')
-  const [users, setUsers] = useState<User[]>(initialUsers)
+  const [users, setUsers] = useState<User[]>([])
+  const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [showOnlyHeadhunterSharing, setShowOnlyHeadhunterSharing] = useState(false)
+
+  // Phase 1: 검색, 필터, 정렬, 페이지네이션
+  const [search, setSearch] = useState('')
+  const [planFilter, setPlanFilter] = useState('ALL')
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [usersLoading, setUsersLoading] = useState(false)
 
   // coupon state
   const [coupons, setCoupons] = useState<Coupon[] | null>(null)
@@ -85,6 +106,52 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const [supportLoading, setSupportLoading] = useState(false)
   const [replyingId, setReplyingId] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+
+  // Phase 1: 유저 목록 로드
+  async function loadUsers() {
+    setUsersLoading(true)
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '20',
+        search,
+        plan: planFilter,
+        sortBy,
+        sortOrder,
+      })
+      const res = await fetch(`/api/admin/users?${params}`)
+      const data = await res.json()
+      if (res.ok) {
+        setUsers(data.users)
+        setTotal(data.total)
+        setTotalPages(data.totalPages)
+      }
+    } finally {
+      setUsersLoading(false)
+    }
+  }
+
+  // Phase 1: 통계 로드
+  async function loadStats() {
+    try {
+      const res = await fetch('/api/admin/stats')
+      const data = await res.json()
+      if (res.ok) {
+        setStats(data)
+      }
+    } catch (err) {
+      console.error('Load stats error:', err)
+    }
+  }
+
+  // Phase 1: 초기 로드 및 필터 변경 시 재로드
+  useEffect(() => {
+    loadUsers()
+  }, [page, search, planFilter, sortBy, sortOrder])
+
+  useEffect(() => {
+    loadStats()
+  }, [])
 
   async function openUserDetail(email: string) {
     setDetailEmail(email)
@@ -392,18 +459,11 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     ? users.filter((u) => u.headhunter_sharing_enabled === true)
     : users
 
-  const total = users.length
-  const expertCount = users.filter((u) => u.plan === 'EXPERT').length
-  const proCount = users.filter((u) => u.plan === 'PRO').length
-  const individualCount = users.filter((u) => u.user_type === 'JOBSEEKER').length
-  const headhunterCount = users.filter((u) => u.user_type === 'HEADHUNTER').length
-  const noTypeCount = users.filter((u) => !u.user_type).length
-  const headhunterSharingCount = users.filter((u) => u.headhunter_sharing_enabled === true).length
+  // 통계는 stats API에서 가져온 데이터 사용
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
   const totalJd = users.reduce((s, u) => s + (u.jd_count ?? 0), 0)
   const totalRewrite = users.reduce((s, u) => s + (u.rewrite_count ?? 0), 0)
   const totalInterview = users.reduce((s, u) => s + (u.interview_count ?? 0), 0)
-  const paidCount = proCount + expertCount
 
   return (
     <main className="admin-page">
@@ -429,61 +489,116 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
 
         {tab === 'users' && (
           <>
-            {/* 통계 */}
-            <div className="admin-stats">
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">전체 가입자</div>
-                <div className="admin-stat-value">{total}<span>명</span></div>
+            {/* Phase 1: 검색 & 필터 */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="🔍 이메일 또는 이름 검색"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    setPage(1)
+                  }}
+                  style={{
+                    flex: 1,
+                    minWidth: 250,
+                    padding: '10px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['ALL', 'FREE', 'PRO', 'EXPERT'].map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => {
+                        setPlanFilter(p)
+                        setPage(1)
+                      }}
+                      style={{
+                        padding: '10px 20px',
+                        border: planFilter === p ? '2px solid #18181b' : '2px solid #e5e7eb',
+                        borderRadius: 8,
+                        background: planFilter === p ? '#18181b' : '#ffffff',
+                        color: planFilter === p ? '#ffffff' : '#18181b',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {p === 'ALL' ? '전체' : p}
+                    </button>
+                  ))}
+                </div>
+                <select
+                  value={`${sortBy}-${sortOrder}`}
+                  onChange={(e) => {
+                    const [by, order] = e.target.value.split('-')
+                    setSortBy(by)
+                    setSortOrder(order as 'asc' | 'desc')
+                  }}
+                  style={{
+                    padding: '10px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="created_at-desc">최신 가입순</option>
+                  <option value="created_at-asc">오래된 가입순</option>
+                  <option value="email-asc">이메일 A-Z</option>
+                  <option value="email-desc">이메일 Z-A</option>
+                </select>
               </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">🎯 개인 구직자</div>
-                <div className="admin-stat-value">{individualCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">💼 헤드헌터</div>
-                <div className="admin-stat-value">{headhunterCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">⚠️ 미선택</div>
-                <div className="admin-stat-value">{noTypeCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">🤝 헤드헌터 공유</div>
-                <div className="admin-stat-value">{headhunterSharingCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">EXPERT 플랜</div>
-                <div className="admin-stat-value">{expertCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">PRO 플랜</div>
-                <div className="admin-stat-value">{proCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">FREE 플랜</div>
-                <div className="admin-stat-value">{total - paidCount}<span>명</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">전환율</div>
-                <div className="admin-stat-value">{total > 0 ? Math.round((paidCount / total) * 100) : 0}<span>%</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">이력서 분석</div>
-                <div className="admin-stat-value">{totalAnalyze}<span>건</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">JD 분석</div>
-                <div className="admin-stat-value">{totalJd}<span>건</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">이력서 생성</div>
-                <div className="admin-stat-value">{totalRewrite}<span>건</span></div>
-              </div>
-              <div className="admin-stat-card">
-                <div className="admin-stat-label">면접 가이드</div>
-                <div className="admin-stat-value">{totalInterview}<span>건</span></div>
-              </div>
+              {search && (
+                <div style={{ fontSize: 14, color: '#71717a' }}>
+                  "{search}" 검색 결과: {total}명
+                </div>
+              )}
             </div>
+
+            {/* 통계 */}
+            {stats && (
+              <div className="admin-stats">
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">전체 가입자</div>
+                  <div className="admin-stat-value">{stats.total}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">EXPERT 플랜</div>
+                  <div className="admin-stat-value">{stats.expert}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">PRO 플랜</div>
+                  <div className="admin-stat-value">{stats.pro}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">FREE 플랜</div>
+                  <div className="admin-stat-value">{stats.free}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">🎯 개인 구직자</div>
+                  <div className="admin-stat-value">{stats.jobseeker}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">💼 헤드헌터</div>
+                  <div className="admin-stat-value">{stats.headhunter}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">🤝 헤드헌터 공유</div>
+                  <div className="admin-stat-value">{stats.headhunterSharing}<span>명</span></div>
+                </div>
+                <div className="admin-stat-card">
+                  <div className="admin-stat-label">전환율</div>
+                  <div className="admin-stat-value">{stats.total > 0 ? Math.round(((stats.pro + stats.expert) / stats.total) * 100) : 0}<span>%</span></div>
+                </div>
+              </div>
+            )}
 
             {/* 유저 목록 */}
             <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -653,12 +768,106 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                       </td>
                     </tr>
                   ))}
-                  {filteredUsers.length === 0 && (
-                    <tr><td colSpan={14} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
+                  {filteredUsers.length === 0 && !usersLoading && (
+                    <tr><td colSpan={14} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : search ? '검색 결과가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
+                  )}
+                  {usersLoading && (
+                    <tr><td colSpan={14} className="admin-empty">로딩 중...</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
+
+            {/* Phase 1: 페이지네이션 */}
+            {!usersLoading && totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 12,
+                marginTop: 24,
+                padding: '20px 0',
+              }}>
+                <button
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                  style={{
+                    padding: '8px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    background: page === 1 ? '#f9fafb' : '#ffffff',
+                    cursor: page === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  ← 이전
+                </button>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const pageNum = page <= 3 ? i + 1 : page + i - 2
+                    if (pageNum > totalPages) return null
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPage(pageNum)}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          border: '2px solid #e5e7eb',
+                          borderRadius: 8,
+                          background: page === pageNum ? '#18181b' : '#ffffff',
+                          color: page === pageNum ? '#ffffff' : '#18181b',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  })}
+                  {totalPages > 5 && page < totalPages - 2 && (
+                    <>
+                      <span style={{ padding: '8px', color: '#71717a' }}>...</span>
+                      <button
+                        onClick={() => setPage(totalPages)}
+                        style={{
+                          width: 36,
+                          height: 36,
+                          border: '2px solid #e5e7eb',
+                          borderRadius: 8,
+                          background: '#ffffff',
+                          cursor: 'pointer',
+                          fontSize: 14,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+                </div>
+                <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages}
+                  style={{
+                    padding: '8px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: 8,
+                    background: page === totalPages ? '#f9fafb' : '#ffffff',
+                    cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  다음 →
+                </button>
+                <div style={{ fontSize: 13, color: '#71717a', marginLeft: 12 }}>
+                  전체 {total}명 중 {((page - 1) * 20) + 1}-{Math.min(page * 20, total)}명 표시
+                </div>
+              </div>
+            )}
           </>
         )}
 
