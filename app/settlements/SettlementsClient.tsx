@@ -72,7 +72,7 @@ export default function SettlementsClient() {
       router.push('/login')
       return
     }
-    if (session.user.userType !== 'HEADHUNTER') {
+    if (session.user.userType !== 'HEADHUNTER' && session.user.userType !== 'MANAGER') {
       alert('헤드헌터 전용 기능입니다.')
       router.push('/')
       return
@@ -81,7 +81,7 @@ export default function SettlementsClient() {
   }, [session, status, router])
 
   useEffect(() => {
-    if (session?.user.userType === 'HEADHUNTER') {
+    if (session?.user.userType === 'HEADHUNTER' || session?.user.userType === 'MANAGER') {
       loadSettlements()
     }
   }, [selectedYear, session])
