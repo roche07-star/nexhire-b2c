@@ -841,7 +841,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                       <td className="admin-date">
                         {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? '-' : nextResetDate(u)}
                       </td>
-                      <td className="admin-date">{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
+                      <td className="admin-date">
+                        {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? '-' : new Date(u.created_at).toLocaleDateString('ko-KR')}
+                      </td>
                       <td>
                         {u.user_type === 'SUPER_ADMIN' || u.user_type === 'MANAGER' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
