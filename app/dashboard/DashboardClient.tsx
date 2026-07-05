@@ -877,7 +877,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           >
             <div style={{ fontSize: 28, marginBottom: 6 }}>🎯</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
-              JD 매칭 분석
+              JD 분석
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               JD와 후보자 적합도 분석

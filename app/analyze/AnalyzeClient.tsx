@@ -2557,7 +2557,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <span style={{ fontSize: 12, color: '#999' }}>
                             • 홈페이지, About 페이지, IR 자료 등에서 회사의 사업방향, 비전, 핵심가치를 파악
                             <br />
-                            • JD 매칭 분석 시 회사 특성에 맞춘 강점 강조
+                            • JD 분석 시 회사 특성에 맞춘 강점 강조
                             <br />
                             • 면접 가이드 생성 시 회사 문화와 방향성을 고려한 질문/답변 제공
                           </span>
