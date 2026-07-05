@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isSuperAdmin } from '@/lib/auth-helpers'
 
 /**
- * 관리자 전용 — 유저 삭제 API
+ * Super Admin 전용 — 유저 삭제 API
  * 유저와 관련된 모든 데이터를 삭제합니다 (CASCADE)
  */
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 매니저 권한 확인
-    const MANAGER_EMAILS = (process.env.MANAGER_EMAILS || '').split(',').map(e => e.trim())
-    if (!MANAGER_EMAILS.includes(session.user.email)) {
-      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
+    // Super Admin 권한 확인
+    if (!isSuperAdmin(session)) {
+      return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
     }
 
     const { email } = await req.json()
@@ -30,9 +30,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '자기 자신을 삭제할 수 없습니다.' }, { status: 400 })
     }
 
-    // 다른 매니저 삭제 방지 (선택적)
-    if (MANAGER_EMAILS.includes(email)) {
-      return NextResponse.json({ error: '매니저 계정은 삭제할 수 없습니다.' }, { status: 400 })
+    // 관리자 삭제 방지 - 유저 타입 확인
+    const { data: targetUser } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('email', email)
+      .single()
+
+    if (targetUser?.user_type === 'SUPER_ADMIN' || targetUser?.user_type === 'MANAGER') {
+      return NextResponse.json({ error: '관리자 계정은 삭제할 수 없습니다.' }, { status: 400 })
     }
 
     console.log(`[admin] 유저 삭제 시작: ${email} (요청자: ${session.user.email})`)

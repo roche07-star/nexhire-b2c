@@ -743,34 +743,55 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         </select>
                       </td>
                       <td>
-                        <select
-                          value={u.user_type ?? ''}
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              changeUserType(u.email, e.target.value as any)
-                            }
-                          }}
-                          disabled={loading === u.email + u.user_type}
-                          style={{
+                        {isSuperAdmin ? (
+                          <select
+                            value={u.user_type ?? ''}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                changeUserType(u.email, e.target.value as any)
+                              }
+                            }}
+                            disabled={loading === u.email + u.user_type}
+                            style={{
+                              padding: '6px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #e5e7eb',
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              background:
+                                u.user_type === 'SUPER_ADMIN' ? '#dc2626' :
+                                u.user_type === 'MANAGER' ? '#ea580c' :
+                                u.user_type === 'HEADHUNTER' ? '#1e40af' :
+                                u.user_type === 'JOBSEEKER' ? '#7c3aed' : '#d4d4d8',
+                              color: u.user_type ? '#ffffff' : '#71717a',
+                            }}
+                          >
+                            <option value="">미선택</option>
+                            <option value="JOBSEEKER">🎯 개인</option>
+                            <option value="HEADHUNTER">💼 헤드헌터</option>
+                            <option value="MANAGER">👔 Manager</option>
+                          </select>
+                        ) : (
+                          <span style={{
                             padding: '6px 10px',
                             borderRadius: 6,
-                            border: '1px solid #e5e7eb',
                             fontSize: 13,
                             fontWeight: 600,
-                            cursor: 'pointer',
                             background:
                               u.user_type === 'SUPER_ADMIN' ? '#dc2626' :
                               u.user_type === 'MANAGER' ? '#ea580c' :
                               u.user_type === 'HEADHUNTER' ? '#1e40af' :
                               u.user_type === 'JOBSEEKER' ? '#7c3aed' : '#d4d4d8',
                             color: u.user_type ? '#ffffff' : '#71717a',
-                          }}
-                        >
-                          <option value="">미선택</option>
-                          <option value="JOBSEEKER">🎯 개인</option>
-                          <option value="HEADHUNTER">💼 헤드헌터</option>
-                          {isSuperAdmin && <option value="MANAGER">👔 Manager</option>}
-                        </select>
+                            display: 'inline-block',
+                          }}>
+                            {u.user_type === 'SUPER_ADMIN' ? '🔑 Super Admin' :
+                             u.user_type === 'MANAGER' ? '👔 Manager' :
+                             u.user_type === 'HEADHUNTER' ? '💼 헤드헌터' :
+                             u.user_type === 'JOBSEEKER' ? '🎯 개인' : '미선택'}
+                          </span>
+                        )}
                       </td>
                       <td>
                         {(() => {
@@ -845,18 +866,22 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         >초기화</button>
                       </td>
                       <td>
-                        <button
-                          className="admin-btn"
-                          style={{
-                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                            color: '#fff',
-                            fontWeight: '600',
-                          }}
-                          disabled={loading === u.email + 'delete'}
-                          onClick={() => deleteUser(u.email, u.name)}
-                        >
-                          {loading === u.email + 'delete' ? '삭제 중...' : '🗑️ 삭제'}
-                        </button>
+                        {isSuperAdmin ? (
+                          <button
+                            className="admin-btn"
+                            style={{
+                              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                              color: '#fff',
+                              fontWeight: '600',
+                            }}
+                            disabled={loading === u.email + 'delete'}
+                            onClick={() => deleteUser(u.email, u.name)}
+                          >
+                            {loading === u.email + 'delete' ? '삭제 중...' : '🗑️ 삭제'}
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -1175,9 +1200,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
         {tab === 'coupons' && (
           <div className="coupon-admin-wrap">
             {/* 발급 폼 */}
-            <div className="coupon-gen-card">
-              <div className="coupon-gen-title">쿠폰 발급</div>
-              <form className="coupon-gen-form" onSubmit={generateCoupons}>
+            {isSuperAdmin && (
+              <div className="coupon-gen-card">
+                <div className="coupon-gen-title">쿠폰 발급</div>
+                <form className="coupon-gen-form" onSubmit={generateCoupons}>
                 <div className="coupon-gen-row">
                   <div className="coupon-gen-field">
                     <label className="coupon-gen-label">기능</label>
@@ -1222,6 +1248,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 </div>
               )}
             </div>
+            )}
 
             {/* 목록 */}
             <div className="admin-table-wrap">

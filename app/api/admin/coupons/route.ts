@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isAdmin, isSuperAdmin } from '@/lib/auth-helpers'
 
 const FEATURE_PREFIX: Record<string, string> = {
   resume: 'RS',
@@ -18,8 +19,8 @@ function genCode(feature: string): string {
 export async function GET() {
   try {
     const session = await auth()
-    if ((session?.user as { role?: string })?.role !== 'MANAGER') {
-      return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
     }
 
     const { data } = await supabase
@@ -38,8 +39,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if ((session?.user as { role?: string })?.role !== 'MANAGER') {
-      return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
+    if (!isSuperAdmin(session)) {
+      return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
     }
 
     const { feature, quantity, price, issued_to, expires_days } = await req.json()

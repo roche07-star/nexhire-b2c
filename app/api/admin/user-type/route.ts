@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isSuperAdmin } from '@/lib/auth-helpers'
 import type { UserType } from '@/types/user'
 
 /**
  * POST /api/admin/user-type
- * 관리자 전용: 사용자 유형 강제 변경
+ * Super Admin 전용: 사용자 유형 강제 변경
  *
  * 일반 사용자는 /api/user/set-type에서 1회만 설정 가능하지만,
- * 관리자는 언제든 변경 가능
+ * Super Admin은 언제든 변경 가능
  *
  * 작성자: 디바 (MIR Team)
  * 작성일: 2026-06-13
@@ -16,8 +17,8 @@ import type { UserType } from '@/types/user'
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user || session.user.role !== 'MANAGER') {
-      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
+    if (!session?.user || !isSuperAdmin(session)) {
+      return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
     }
 
     const { email, userType } = await req.json() as { email: string; userType: UserType }
@@ -27,7 +28,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '이메일을 입력해주세요.' }, { status: 400 })
     }
 
-    if (!userType || !['JOBSEEKER', 'HEADHUNTER'].includes(userType)) {
+    const validTypes: UserType[] = ['SUPER_ADMIN', 'MANAGER', 'HEADHUNTER', 'JOBSEEKER']
+    if (!userType || !validTypes.includes(userType)) {
       return NextResponse.json(
         { error: '올바른 사용자 유형을 선택해주세요.' },
         { status: 400 }
