@@ -50,7 +50,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'plan-changes' | 'coupons' | 'tokens' | 'audit-logs'
+type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'tokens' | 'audit-logs'
 
 export default function AdminClient({ users: initialUsers }: { users: User[] }) {
   const [tab, setTab] = useState<AdminTab>('users')
@@ -79,6 +79,12 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
   const [auditLogs, setAuditLogs] = useState<any[] | null>(null)
   const [auditLoading, setAuditLoading] = useState(false)
   const [auditEmailFilter, setAuditEmailFilter] = useState('')
+
+  // support state
+  const [supportMessages, setSupportMessages] = useState<any[] | null>(null)
+  const [supportLoading, setSupportLoading] = useState(false)
+  const [replyingId, setReplyingId] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
 
   async function openUserDetail(email: string) {
     setDetailEmail(email)
@@ -305,10 +311,49 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
     }
   }
 
+  async function loadSupportMessages() {
+    setSupportLoading(true)
+    try {
+      const res = await fetch('/api/admin/support')
+      const data = await res.json()
+      if (res.ok) {
+        setSupportMessages(data.messages || [])
+      }
+    } finally {
+      setSupportLoading(false)
+    }
+  }
+
+  async function handleSupportReply(messageId: string) {
+    if (!replyText.trim()) return
+
+    try {
+      const res = await fetch('/api/admin/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, reply: replyText, status: 'resolved' }),
+      })
+
+      if (res.ok) {
+        showMsg('답변이 등록되었습니다')
+        setReplyingId(null)
+        setReplyText('')
+        await loadSupportMessages()
+      } else {
+        const data = await res.json()
+        alert(data.error ?? '답변 등록 실패')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류 발생')
+    }
+  }
+
   function onTabChange(t: AdminTab) {
     setTab(t)
     if (t === 'coupons') loadCoupons()
     if (t === 'audit-logs') loadAuditLogs()
+    if (t === 'support') loadSupportMessages()
   }
 
   function couponStatus(c: Coupon) {
@@ -376,6 +421,7 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
           <button className={`admin-tab-btn${tab === 'plan-changes' ? ' active' : ''}`} onClick={() => onTabChange('plan-changes')}>
             📅 플랜 변경 예정 {users.filter(u => u.downgrade_to).length > 0 && `(${users.filter(u => u.downgrade_to).length})`}
           </button>
+          <button className={`admin-tab-btn${tab === 'support' ? ' active' : ''}`} onClick={() => onTabChange('support')}>💬 고객센터</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
           <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
           <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
@@ -676,6 +722,151 @@ export default function AdminClient({ users: initialUsers }: { users: User[] }) 
                   )}
                 </tbody>
               </table>
+            </div>
+          </>
+        )}
+
+        {tab === 'support' && (
+          <>
+            <div className="admin-stats">
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">전체 문의</div>
+                <div className="admin-stat-value">{supportMessages?.length || 0}건</div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">답변 대기</div>
+                <div className="admin-stat-value" style={{ color: '#f59e0b' }}>
+                  {supportMessages?.filter(m => m.status === 'new').length || 0}건
+                </div>
+              </div>
+              <div className="admin-stat-card">
+                <div className="admin-stat-label">답변 완료</div>
+                <div className="admin-stat-value" style={{ color: '#10b981' }}>
+                  {supportMessages?.filter(m => m.status === 'resolved').length || 0}건
+                </div>
+              </div>
+            </div>
+
+            <div className="admin-table-wrap">
+              {supportLoading ? (
+                <div style={{ padding: '60px 0', textAlign: 'center', color: '#71717a' }}>
+                  불러오는 중...
+                </div>
+              ) : !supportMessages || supportMessages.length === 0 ? (
+                <div style={{ padding: '60px 0', textAlign: 'center', color: '#71717a' }}>
+                  문의 내역이 없습니다
+                </div>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>상태</th>
+                      <th>제목</th>
+                      <th>문의자</th>
+                      <th>문의일</th>
+                      <th>답변</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {supportMessages.map((msg) => (
+                      <tr key={msg.id}>
+                        <td>
+                          <span
+                            className="admin-badge"
+                            style={{
+                              background: msg.status === 'new' ? '#fef3c7' : msg.status === 'resolved' ? '#d1fae5' : '#dbeafe',
+                              color: msg.status === 'new' ? '#f59e0b' : msg.status === 'resolved' ? '#10b981' : '#3b82f6',
+                            }}
+                          >
+                            {msg.status === 'new' ? '답변 대기' : msg.status === 'resolved' ? '답변 완료' : '처리중'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                            {msg.subject}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#71717a', whiteSpace: 'pre-wrap', maxWidth: 400 }}>
+                            {msg.message.length > 100 ? msg.message.substring(0, 100) + '...' : msg.message}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: 12 }}>{msg.user_email}</div>
+                          {msg.user_name && <div style={{ fontSize: 11, color: '#71717a' }}>{msg.user_name}</div>}
+                        </td>
+                        <td style={{ fontSize: 12 }}>
+                          {new Date(msg.created_at).toLocaleDateString('ko-KR')}
+                        </td>
+                        <td>
+                          {msg.admin_reply ? (
+                            <div>
+                              <div style={{ fontSize: 12, color: '#10b981', marginBottom: 4 }}>✓ 답변 완료</div>
+                              <div style={{ fontSize: 11, color: '#71717a' }}>
+                                {new Date(msg.replied_at).toLocaleDateString('ko-KR')}
+                              </div>
+                              <details style={{ marginTop: 8 }}>
+                                <summary style={{ cursor: 'pointer', fontSize: 12, color: '#3b82f6' }}>
+                                  답변 보기
+                                </summary>
+                                <div style={{ marginTop: 8, fontSize: 12, padding: '8px', background: '#f9fafb', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
+                                  {msg.admin_reply}
+                                </div>
+                              </details>
+                            </div>
+                          ) : (
+                            replyingId === msg.id ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <textarea
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  placeholder="답변을 입력하세요"
+                                  rows={4}
+                                  style={{
+                                    width: '100%',
+                                    padding: '8px',
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: 4,
+                                    fontSize: 12,
+                                    fontFamily: 'inherit',
+                                  }}
+                                />
+                                <div style={{ display: 'flex', gap: 4 }}>
+                                  <button
+                                    className="admin-btn admin-btn-sm"
+                                    onClick={() => handleSupportReply(msg.id)}
+                                    disabled={!replyText.trim()}
+                                  >
+                                    등록
+                                  </button>
+                                  <button
+                                    className="admin-btn admin-btn-sm"
+                                    style={{ background: '#6b7280' }}
+                                    onClick={() => {
+                                      setReplyingId(null)
+                                      setReplyText('')
+                                    }}
+                                  >
+                                    취소
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                className="admin-btn admin-btn-sm"
+                                onClick={() => {
+                                  setReplyingId(msg.id)
+                                  setReplyText('')
+                                }}
+                              >
+                                답변하기
+                              </button>
+                            )
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </>
         )}
