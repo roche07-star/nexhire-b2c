@@ -33,6 +33,8 @@ interface MyInfo {
     enabled: boolean
     consentedAt: string | null
   }
+  downgrade_to?: string | null
+  plan_end_date?: string | null
 }
 
 export default function MyInfoButton() {
@@ -354,13 +356,17 @@ export default function MyInfoButton() {
                       >
                         {info.plan}
                       </span>
-                      {info.resetAt && (
+                      {(info.downgrade_to || info.resetAt) && (
                         <span style={{
                           fontSize: 13,
-                          color: '#71717a',
-                          letterSpacing: '-0.01em'
+                          color: info.downgrade_to ? '#f59e0b' : '#71717a',
+                          letterSpacing: '-0.01em',
+                          fontWeight: info.downgrade_to ? 600 : 400,
                         }}>
-                          다음 초기화: {info.resetAt}
+                          {info.downgrade_to
+                            ? `플랜 종료: ${info.plan_end_date || ''}`
+                            : `다음 초기화: ${info.resetAt}`
+                          }
                         </span>
                       )}
                     </div>

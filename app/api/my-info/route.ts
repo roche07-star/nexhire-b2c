@@ -25,7 +25,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at')
+      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
@@ -104,6 +104,10 @@ export async function GET() {
     userTypeLabel,
     serviceType: user?.service_type ?? 'B2C',
     serviceTypeLabel,
-    headhunterSharing
+    headhunterSharing,
+    downgrade_to: user?.downgrade_to ?? null,
+    plan_end_date: user?.plan_end_date
+      ? new Date(user.plan_end_date).toLocaleDateString('ko-KR')
+      : null
   })
 }
