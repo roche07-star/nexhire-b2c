@@ -29,12 +29,21 @@ export default async function MyInfoPage() {
     .eq('claimed_by', session.user.email)
     .order('created_at', { ascending: false })
 
+  // 결제 내역 조회 (STORE 구매 내역)
+  const { data: payments } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('user_email', session.user.email)
+    .eq('plan', 'STORE')
+    .order('paid_at', { ascending: false })
+
   return (
     <>
       <Nav />
       <MyInfoClient
         user={userData}
         coupons={coupons || []}
+        payments={payments || []}
         userEmail={session.user.email}
       />
       <Footer />
