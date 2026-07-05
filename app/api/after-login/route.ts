@@ -19,9 +19,11 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${base}/consent?callbackUrl=/analyze`)
       }
 
-      // 헤드헌터는 대시보드로
-      if (data.user_type === 'HEADHUNTER') {
+      // 헤드헌터와 Manager는 대시보드로
+      if (data.user_type === 'HEADHUNTER' || data.user_type === 'MANAGER') {
         return NextResponse.redirect(`${base}/dashboard`)
+      } else if (data.user_type === 'SUPER_ADMIN') {
+        return NextResponse.redirect(`${base}/admin`)
       } else if (data.user_type === 'JOBSEEKER') {
         // 구직자: PRO 이상은 대시보드, FREE는 홈
         const plan = data?.plan ?? 'FREE'
