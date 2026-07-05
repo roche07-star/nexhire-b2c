@@ -11,6 +11,7 @@ export async function GET() {
   const { data: users } = await supabase
     .from('users')
     .select('plan, user_type, headhunter_sharing_enabled')
+    .neq('email', session.user.email)
 
   if (!users) {
     return NextResponse.json({ error: 'DB 오류' }, { status: 500 })
