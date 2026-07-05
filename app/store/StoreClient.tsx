@@ -25,10 +25,10 @@ const PRODUCTS: Product[] = [
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
     description: [
-      '✅ JOBIZIC 기반 이력서 종합 분석',
-      '✅ 직무 적합도 점수 (3개 항목)',
-      '✅ 커리어 경로 제안',
-      '✅ 핵심 강점 & 개선점',
+      '✅ AI 기반 이력서 종합 분석',
+      '✅ 직무 적합도/경쟁력/성장성 점수',
+      '✅ 커리어 경로 3가지 제안',
+      '✅ 강점/개선점 상세 피드백',
     ],
   },
   {
@@ -56,10 +56,10 @@ const PRODUCTS: Product[] = [
     icon: '🎯',
     gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
     description: [
-      '✅ JD와 이력서 매칭 점수',
-      '✅ 어필 전략 & 제안 포인트',
-      '✅ 핵심 리스크 분석',
-      '✅ 지원 추천 등급',
+      '✅ JD 매칭 점수 (0-100점)',
+      '✅ 회사 정보 자동 검색 & 분석',
+      '✅ 매칭 강점/부족한 점/어필 전략',
+      '✅ 지원 추천 등급 (APPLY/CONSIDER/SKIP)',
     ],
   },
   {
@@ -101,10 +101,10 @@ const PRODUCTS: Product[] = [
     icon: '📊',
     gradient: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
     description: [
-      '✅ JOBIZIC 생성 후보자 제안서',
-      '✅ 전문적인 HTML 리포트',
-      '✅ 회사 맞춤형 어필 포인트',
-      '✅ 즉시 클라이언트 전송 가능',
+      '✅ AI 자동 생성 후보자 제안서',
+      '✅ 후보자 강점/JD 적합도 분석',
+      '✅ 예상 질문 & 답변 포함',
+      '✅ HTML/PDF 다운로드',
     ],
     badge: '헤드헌터 전용',
   },
@@ -118,14 +118,14 @@ const PRODUCTS: Product[] = [
     icon: '🎁',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #fbbf24 25%, #60a5fa 50%, #f472b6 75%, #8b5cf6 100%)',
     description: [
-      '✅ 전체 기능 각 50회',
+      '✅ 전체 기능 각 50회 제공',
       '✅ 이력서 분석 50회',
       '✅ JD 분석 50회',
       '✅ 이력서 생성 50회',
       '✅ 면접 가이드 50회',
-      '✅ 제안서 생성 50회',
+      '✅ 제안서 생성 50회 (헤드헌터)',
     ],
-    badge: '40% 할인',
+    badge: '최대 40% 할인',
   },
 ]
 
