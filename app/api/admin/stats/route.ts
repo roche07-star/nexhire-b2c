@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { isAdmin } from '@/lib/auth-helpers'
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user || session.user.role !== 'MANAGER') {
+  if (!session?.user || !isAdmin(session)) {
     return NextResponse.json({ error: '권한 없음' }, { status: 403 })
   }
 

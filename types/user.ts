@@ -3,16 +3,17 @@
 // 작성자: 디바, 디아 (MIR Team)
 
 /**
- * 사용자 유형
- * - JOBSEEKER: 구직자 (본인 이력서 분석, JD 매칭)
+ * 사용자 유형 (권한 통합)
+ * - SUPER_ADMIN: 슈퍼 관리자 (최고 권한, MANAGER 지정 가능)
+ * - MANAGER: 매니저 (Jobizic 직원, 관리 업무, Super Admin이 지정)
  * - HEADHUNTER: 헤드헌터 (후보자 분석, 클라이언트 제안, Eve 연동, 정산 기능)
+ * - JOBSEEKER: 구직자 (본인 이력서 분석, JD 매칭)
  */
-export type UserType = 'JOBSEEKER' | 'HEADHUNTER'
+export type UserType = 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER'
 
 /**
- * 시스템 권한
- * - MANAGER: 관리자 (무제한 사용, 관리자 페이지 접근)
- * - USER: 일반 사용자
+ * 시스템 권한 (DEPRECATED - user_type으로 통합)
+ * @deprecated Use UserType instead
  */
 export type Role = 'MANAGER' | 'USER'
 

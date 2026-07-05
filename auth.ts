@@ -34,17 +34,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user?.email) {
-        const managers = (process.env.MANAGER_EMAILS ?? '')
+        const superAdmins = (process.env.MANAGER_EMAILS ?? '')
           .split(',').map((e) => e.trim()).filter(Boolean)
-        token.role = managers.includes(user.email) ? 'MANAGER' : 'USER'
+        const isSuperAdmin = superAdmins.includes(user.email)
+
+        // DEPRECATED: role은 하위 호환성을 위해 유지
+        token.role = isSuperAdmin ? 'MANAGER' : 'USER'
 
         const { data } = await supabase
           .from('users')
           .select('plan, user_type')
           .eq('email', user.email)
           .single()
+
         token.plan = data?.plan ?? 'FREE'
-        token.userType = data?.user_type ?? null
+
+        // Super Admin 자동 설정
+        if (isSuperAdmin) {
+          token.userType = 'SUPER_ADMIN'
+          // DB에 SUPER_ADMIN으로 업데이트
+          await supabase
+            .from('users')
+            .update({ user_type: 'SUPER_ADMIN' })
+            .eq('email', user.email)
+        } else {
+          token.userType = data?.user_type ?? null
+        }
       }
       return token
     },
