@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
-type UserType = 'JOBSEEKER' | 'HEADHUNTER'
+type UserType = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
 
 const PLAN_LIMITS: Record<UserType, Record<string, Record<string, number>>> = {
   JOBSEEKER: {
@@ -14,6 +14,16 @@ const PLAN_LIMITS: Record<UserType, Record<string, Record<string, number>>> = {
     FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
     PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 0 },
     EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 50 },
+  },
+  MANAGER: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+  },
+  SUPER_ADMIN: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
   }
 }
 
@@ -80,6 +90,8 @@ export async function GET() {
   // 사용자 유형 정보
   const userTypeLabel = user?.user_type === 'JOBSEEKER' ? '개인 구직자'
     : user?.user_type === 'HEADHUNTER' ? '헤드헌터'
+    : user?.user_type === 'MANAGER' ? 'Manager'
+    : user?.user_type === 'SUPER_ADMIN' ? 'Super Admin'
     : '미설정'
 
   const serviceTypeLabel = user?.service_type === 'B2C' ? 'B2C (개인)'

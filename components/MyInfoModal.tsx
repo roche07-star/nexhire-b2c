@@ -836,7 +836,7 @@ export default function MyInfoButton() {
                   )}
 
                   {/* 구독 관리 (유료 플랜만) */}
-                  {info.plan !== 'FREE' && (
+                  {info.plan !== 'FREE' && info.userType !== 'MANAGER' && (
                     <Section title="💳 구독 관리">
                       {info.downgrade_to ? (
                         // 구독 종료 예약됨
