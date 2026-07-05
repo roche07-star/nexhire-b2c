@@ -1,11 +1,10 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 function SuccessPageContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState('')
@@ -16,27 +15,35 @@ function SuccessPageContent() {
       const paymentKey = searchParams.get('paymentKey')
       const amount = searchParams.get('amount')
 
+      console.log('결제 확인 시작:', { orderId, paymentKey, amount })
+
       if (!orderId || !paymentKey || !amount) {
+        console.error('결제 정보 누락:', { orderId, paymentKey, amount })
         setError('결제 정보가 올바르지 않습니다.')
         setIsProcessing(false)
         return
       }
 
       try {
+        console.log('API 호출 시작: /api/store/confirm')
         const res = await fetch('/api/store/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, paymentKey, amount }),
         })
 
+        console.log('API 응답 상태:', res.status)
         const data = await res.json()
+        console.log('API 응답 데이터:', data)
 
         if (!res.ok) {
+          console.error('API 오류:', data)
           setError(data.error || '결제 처리 중 오류가 발생했습니다.')
           setIsProcessing(false)
           return
         }
 
+        console.log('결제 확인 완료')
         setIsProcessing(false)
       } catch (err) {
         console.error('결제 확인 오류:', err)
