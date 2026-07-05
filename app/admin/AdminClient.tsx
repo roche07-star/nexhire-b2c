@@ -619,14 +619,9 @@ export default function AdminClient() {
                     <th>유저</th>
                     <th>플랜</th>
                     <th>유형</th>
-                    <th>이력서 분석</th>
-                    <th>JD 분석</th>
-                    <th>이력서 생성</th>
-                    <th>면접 가이드</th>
+                    <th>전체 사용량</th>
                     <th>다음 초기화</th>
                     <th>가입일</th>
-                    <th>플랜 변경</th>
-                    <th>유형 변경</th>
                     <th>헤드헌터 공유</th>
                     <th>초기화</th>
                     <th>삭제</th>
@@ -645,62 +640,72 @@ export default function AdminClient() {
                         </div>
                       </td>
                       <td>
-                        <span className={`admin-plan-badge ${u.plan === 'EXPERT' ? 'expert' : u.plan === 'PRO' ? 'pro' : 'free'}`}>
-                          {u.plan}
-                        </span>
+                        <select
+                          value={u.plan}
+                          onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
+                          disabled={loading === u.email + u.plan}
+                          style={{
+                            padding: '6px 10px',
+                            borderRadius: 6,
+                            border: '1px solid #e5e7eb',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
+                            color: '#ffffff',
+                          }}
+                        >
+                          <option value="FREE">FREE</option>
+                          <option value="PRO">PRO</option>
+                          <option value="EXPERT">EXPERT</option>
+                        </select>
                       </td>
                       <td>
-                        <span className={`admin-plan-badge ${
-                          u.user_type === 'JOBSEEKER' ? 'pro' :
-                          u.user_type === 'HEADHUNTER' ? 'expert' :
-                          'free'
-                        }`}>
-                          {u.user_type === 'JOBSEEKER' ? '개인' :
-                           u.user_type === 'HEADHUNTER' ? '헤드헌터' :
-                           '미선택'}
-                        </span>
+                        <select
+                          value={u.user_type ?? ''}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              changeUserType(u.email, e.target.value as 'JOBSEEKER' | 'HEADHUNTER')
+                            }
+                          }}
+                          disabled={loading === u.email + u.user_type}
+                          style={{
+                            padding: '6px 10px',
+                            borderRadius: 6,
+                            border: '1px solid #e5e7eb',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            background: u.user_type === 'JOBSEEKER' ? '#7c3aed' : u.user_type === 'HEADHUNTER' ? '#1e40af' : '#d4d4d8',
+                            color: u.user_type ? '#ffffff' : '#71717a',
+                          }}
+                        >
+                          <option value="">미선택</option>
+                          <option value="JOBSEEKER">🎯 개인</option>
+                          <option value="HEADHUNTER">💼 헤드헌터</option>
+                        </select>
                       </td>
-                      <td>{usageCell(u.analyze_count ?? 0, u.plan, 'analyze')}</td>
-                      <td>{usageCell(u.jd_count ?? 0, u.plan, 'jd')}</td>
-                      <td>{usageCell(u.rewrite_count ?? 0, u.plan, 'rewrite')}</td>
-                      <td>{usageCell(u.interview_count ?? 0, u.plan, 'interview')}</td>
+                      <td>
+                        {(() => {
+                          const limits = PLAN_LIMITS[u.plan]
+                          const total = (u.analyze_count ?? 0) + (u.jd_count ?? 0) + (u.rewrite_count ?? 0) + (u.interview_count ?? 0)
+                          const totalLimit = limits.analyze + limits.jd + limits.rewrite + limits.interview
+                          const pct = totalLimit > 0 ? Math.min(100, Math.round((total / totalLimit) * 100)) : 0
+                          const color = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981'
+                          return (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <span style={{ fontSize: 14, fontWeight: 600, color }}>
+                                {total}/{totalLimit}
+                              </span>
+                              <span style={{ fontSize: 11, color: '#71717a' }}>
+                                ({pct}%)
+                              </span>
+                            </div>
+                          )
+                        })()}
+                      </td>
                       <td className="admin-date">{nextResetDate(u)}</td>
                       <td className="admin-date">{new Date(u.created_at).toLocaleDateString('ko-KR')}</td>
-                      <td>
-                        <div className="admin-actions">
-                          <button
-                            className="admin-btn expert"
-                            disabled={u.plan === 'EXPERT' || loading === u.email + 'EXPERT'}
-                            onClick={() => changePlan(u.email, 'EXPERT')}
-                          >EXPERT</button>
-                          <button
-                            className="admin-btn pro"
-                            disabled={u.plan === 'PRO' || loading === u.email + 'PRO'}
-                            onClick={() => changePlan(u.email, 'PRO')}
-                          >PRO</button>
-                          <button
-                            className="admin-btn free"
-                            disabled={u.plan === 'FREE' || loading === u.email + 'FREE'}
-                            onClick={() => changePlan(u.email, 'FREE')}
-                          >FREE</button>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="admin-actions">
-                          <button
-                            className="admin-btn pro"
-                            disabled={u.user_type === 'JOBSEEKER' || loading === u.email + 'JOBSEEKER'}
-                            onClick={() => changeUserType(u.email, 'JOBSEEKER')}
-                            title="개인 구직자로 변경"
-                          >🎯 개인</button>
-                          <button
-                            className="admin-btn expert"
-                            disabled={u.user_type === 'HEADHUNTER' || loading === u.email + 'HEADHUNTER'}
-                            onClick={() => changeUserType(u.email, 'HEADHUNTER')}
-                            title="헤드헌터로 변경"
-                          >💼 헤드헌터</button>
-                        </div>
-                      </td>
                       <td>
                         {u.user_type === 'JOBSEEKER' ? (
                           <label style={{
@@ -769,10 +774,10 @@ export default function AdminClient() {
                     </tr>
                   ))}
                   {filteredUsers.length === 0 && !usersLoading && (
-                    <tr><td colSpan={14} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : search ? '검색 결과가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
+                    <tr><td colSpan={9} className="admin-empty">{showOnlyHeadhunterSharing ? '헤드헌터 공유 동의한 유저가 없습니다.' : search ? '검색 결과가 없습니다.' : '가입한 유저가 없습니다.'}</td></tr>
                   )}
                   {usersLoading && (
-                    <tr><td colSpan={14} className="admin-empty">로딩 중...</td></tr>
+                    <tr><td colSpan={9} className="admin-empty">로딩 중...</td></tr>
                   )}
                 </tbody>
               </table>
