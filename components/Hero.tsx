@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { RegularUserType } from '@/types/user'
 import DemoModal from './DemoModal'
 
-export default function Hero({ userType }: { userType?: 'JOBSEEKER' | 'HEADHUNTER' | null }) {
+export default function Hero({ userType }: { userType?: RegularUserType | null }) {
   const [showDemo, setShowDemo] = useState(false)
   const [heroTab, setHeroTab] = useState(0)
 

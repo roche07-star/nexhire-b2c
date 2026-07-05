@@ -12,6 +12,11 @@
 export type UserType = 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER'
 
 /**
+ * 일반 사용자 유형 (관리자 제외)
+ */
+export type RegularUserType = 'HEADHUNTER' | 'JOBSEEKER'
+
+/**
  * 시스템 권한 (DEPRECATED - user_type으로 통합)
  * @deprecated Use UserType instead
  */

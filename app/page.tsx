@@ -10,11 +10,14 @@ import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
-import type { UserType } from '@/types/user'
+import type { RegularUserType } from '@/types/user'
 
 export default async function Home() {
   const session = await auth()
-  const userType: UserType | null | undefined = session?.user?.userType
+  const rawUserType = session?.user?.userType
+  // 관리자는 일반 사용자 화면에서 null로 처리
+  const userType: RegularUserType | null =
+    rawUserType === 'JOBSEEKER' || rawUserType === 'HEADHUNTER' ? rawUserType : null
 
   return (
     <>
