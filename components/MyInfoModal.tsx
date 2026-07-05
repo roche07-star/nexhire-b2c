@@ -859,7 +859,7 @@ export default function MyInfoButton() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 10001,
+            zIndex: 1000000,  // "내 정보" 모달(999999)보다 높게
           }}
           onClick={() => setWithdrawModal(false)}
         >
