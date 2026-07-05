@@ -15,13 +15,6 @@ export default async function MyInfoPage() {
     redirect('/login')
   }
 
-  // 사용자 정보 조회
-  const { data: userData } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', session.user.email)
-    .single()
-
   // 쿠폰 조회 (claimed_by로 조회)
   const { data: coupons } = await supabase
     .from('coupons')
@@ -41,10 +34,8 @@ export default async function MyInfoPage() {
     <>
       <Nav />
       <MyInfoClient
-        user={userData}
         coupons={coupons || []}
         payments={payments || []}
-        userEmail={session.user.email}
       />
       <Footer />
     </>

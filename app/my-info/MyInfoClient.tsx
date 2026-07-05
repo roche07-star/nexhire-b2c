@@ -1,13 +1,5 @@
 'use client'
 
-interface User {
-  email: string
-  name: string | null
-  user_type: string
-  plan: string
-  created_at: string
-}
-
 interface Coupon {
   id: string
   code: string | null
@@ -34,10 +26,8 @@ interface Payment {
 }
 
 interface Props {
-  user: User | null
   coupons: Coupon[]
   payments: Payment[]
-  userEmail: string
 }
 
 const FEATURE_NAMES: Record<string, string> = {
@@ -48,7 +38,7 @@ const FEATURE_NAMES: Record<string, string> = {
   proposal: '클라이언트 제안서',
 }
 
-export default function MyInfoClient({ user, coupons, payments, userEmail }: Props) {
+export default function MyInfoClient({ coupons, payments }: Props) {
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -69,7 +59,7 @@ export default function MyInfoClient({ user, coupons, payments, userEmail }: Pro
     <main style={{
       minHeight: '100vh',
       background: 'var(--bg)',
-      padding: '40px 20px',
+      padding: '100px 20px 40px',
     }}>
       <div style={{
         maxWidth: 1000,
@@ -83,104 +73,11 @@ export default function MyInfoClient({ user, coupons, payments, userEmail }: Pro
             color: 'var(--text)',
             marginBottom: 8,
           }}>
-            내 정보
+            구매 내역
           </h1>
           <p style={{ color: 'var(--muted2)', fontSize: 16 }}>
-            계정 정보 및 보유 쿠폰을 확인하세요
+            STORE 구매 내역 및 영수증을 확인하세요
           </p>
-        </div>
-
-        {/* 사용자 정보 */}
-        <div style={{
-          background: 'var(--surface)',
-          borderRadius: 16,
-          padding: 32,
-          marginBottom: 24,
-        }}>
-          <h2 style={{
-            fontSize: 20,
-            fontWeight: 700,
-            marginBottom: 24,
-          }}>
-            계정 정보
-          </h2>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <div style={{
-                fontSize: 13,
-                color: 'var(--muted2)',
-                marginBottom: 4,
-              }}>
-                이메일
-              </div>
-              <div style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: 'var(--text)',
-              }}>
-                {userEmail}
-              </div>
-            </div>
-
-            {user && (
-              <>
-                <div>
-                  <div style={{
-                    fontSize: 13,
-                    color: 'var(--muted2)',
-                    marginBottom: 4,
-                  }}>
-                    사용자 타입
-                  </div>
-                  <div style={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: 'var(--text)',
-                  }}>
-                    {user.user_type === 'JOBSEEKER' ? '개인 구직자' :
-                     user.user_type === 'HEADHUNTER' ? '헤드헌터' :
-                     user.user_type === 'MANAGER' ? '매니저' :
-                     user.user_type === 'SUPER_ADMIN' ? '슈퍼 관리자' : user.user_type}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{
-                    fontSize: 13,
-                    color: 'var(--muted2)',
-                    marginBottom: 4,
-                  }}>
-                    현재 플랜
-                  </div>
-                  <div style={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: 'var(--text)',
-                  }}>
-                    {user.plan}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{
-                    fontSize: 13,
-                    color: 'var(--muted2)',
-                    marginBottom: 4,
-                  }}>
-                    가입일
-                  </div>
-                  <div style={{
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: 'var(--text)',
-                  }}>
-                    {formatDate(user.created_at)}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
         </div>
 
         {/* 보유 쿠폰 */}
@@ -194,7 +91,7 @@ export default function MyInfoClient({ user, coupons, payments, userEmail }: Pro
             fontWeight: 700,
             marginBottom: 24,
           }}>
-            보유 쿠폰
+            구매 쿠폰
           </h2>
 
           {coupons.length === 0 ? (
