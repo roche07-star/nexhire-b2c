@@ -29,7 +29,7 @@ export default function Footer() {
         <div>사업자등록번호: 566-18-02615</div>
         <div>통신판매업 신고: [신고 예정]</div>
         <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
-        <div>이메일: roche07he@gmail.com</div>
+        <div>이메일: jobizic.biz@gmail.com</div>
       </div>
 
       <div className="footer-copy" style={{ marginBottom: 12 }}>
