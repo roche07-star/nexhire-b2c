@@ -31,14 +31,15 @@ export default function Footer() {
         <div style={{ marginBottom: 6 }}>
           주소: 경기도 수원시 장안구 화산로 87, 404호
         </div>
-        <div>
-          이메일: jobizic.biz@gmail.com
+        <div style={{ marginBottom: 6 }}>
+          전화: 010-2340-6604 | 이메일: jobizic.biz@gmail.com
         </div>
       </div>
 
       <div className="footer-links" style={{ marginBottom: 16 }}>
         <a href="/terms">이용약관</a>
         <a href="/privacy">개인정보처리방침</a>
+        <a href="/refund">환불정책</a>
         <a href="/licenses">오픈소스 라이선스</a>
         <a href="/support">고객센터</a>
       </div>
