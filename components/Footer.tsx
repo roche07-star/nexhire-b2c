@@ -32,7 +32,7 @@ export default function Footer() {
           주소: 경기도 수원시 장안구 화산로 87, 404호
         </div>
         <div>
-          이메일: jobizic.biz@gmail.com | 통신판매업 신고: 신고 예정
+          이메일: jobizic.biz@gmail.com
         </div>
       </div>
 
