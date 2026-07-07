@@ -917,6 +917,7 @@ export default function SettlementsClient() {
           padding: 12px;
           font-size: 13px;
           border-bottom: 1px solid #f3f4f6;
+          color: #18181b !important;
         }
 
         .text-right {
