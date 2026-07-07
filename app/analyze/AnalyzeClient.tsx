@@ -423,6 +423,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [myCoupons.length])
 
+  // 쿠폰 자동 로드 (페이지 진입 시)
+  useEffect(() => {
+    loadCouponsOnce()
+  }, [loadCouponsOnce])
+
   // 자동 큐 처리: 분석 완료 후 다음 파일 자동 분석
   useEffect(() => {
     // 조건: 분석 중이 아니고, 큐에 파일이 있고, 현재 파일이 없을 때
