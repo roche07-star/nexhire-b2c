@@ -80,9 +80,14 @@ export async function POST(req: NextRequest) {
       .eq('email', session.user.email)
 
     if (updateError) {
-      console.error('플랜 업데이트 실패:', updateError)
+      console.error('[결제 확인] 플랜 업데이트 실패:', updateError)
       return NextResponse.json(
-        { error: '결제는 완료되었으나 플랜 업데이트에 실패했습니다. 고객센터로 문의해주세요.' },
+        {
+          error: '결제는 완료되었으나 플랜 업데이트에 실패했습니다. 고객센터로 문의해주세요.',
+          details: updateError.message,
+          code: updateError.code,
+          hint: updateError.hint
+        },
         { status: 500 }
       )
     }
@@ -95,9 +100,13 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (fetchError || !updatedUser || updatedUser.plan !== plan) {
-      console.error('플랜 업데이트 검증 실패:', { fetchError, updatedUser, expectedPlan: plan })
+      console.error('[결제 확인] 플랜 업데이트 검증 실패:', { fetchError, updatedUser, expectedPlan: plan })
       return NextResponse.json(
-        { error: '플랜 업데이트 검증 실패. 고객센터로 문의해주세요.' },
+        {
+          error: '플랜 업데이트 검증 실패. 고객센터로 문의해주세요.',
+          details: fetchError?.message || `플랜 불일치: ${updatedUser?.plan} !== ${plan}`,
+          updatedUser
+        },
         { status: 500 }
       )
     }
