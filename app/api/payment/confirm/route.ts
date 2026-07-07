@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
 
-    const { data: updatedUser, error: updateError } = await supabase
+    // 1. 플랜 업데이트
+    const { error: updateError } = await supabase
       .from('users')
       .update({
         plan,
@@ -72,8 +73,6 @@ export async function POST(req: NextRequest) {
         updated_at: now.toISOString(),
       })
       .eq('email', session.user.email)
-      .select()
-      .single()
 
     if (updateError) {
       console.error('플랜 업데이트 실패:', updateError)
@@ -83,7 +82,22 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    console.log('플랜 업데이트 성공:', updatedUser)
+    // 2. 업데이트 확인
+    const { data: updatedUser, error: fetchError } = await supabase
+      .from('users')
+      .select('plan, plan_started_at, plan_expires_at')
+      .eq('email', session.user.email)
+      .single()
+
+    if (fetchError || !updatedUser || updatedUser.plan !== plan) {
+      console.error('플랜 업데이트 검증 실패:', { fetchError, updatedUser, expectedPlan: plan })
+      return NextResponse.json(
+        { error: '플랜 업데이트 검증 실패. 고객센터로 문의해주세요.' },
+        { status: 500 }
+      )
+    }
+
+    console.log('플랜 업데이트 성공 및 검증 완료:', updatedUser)
 
     // 1. subscriptions 테이블에 구독 생성
     let subscriptionId: string | null = null
