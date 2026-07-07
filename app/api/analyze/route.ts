@@ -808,12 +808,14 @@ ${maskedText.slice(0, 3000)}
         canPreserve = true
       } else {
         // 추가 보존 — storage 쿠폰으로 슬롯 확보되어 있는지 확인
+        const now = new Date().toISOString()
         const { count: storageCouponCount } = await supabase
           .from('coupons')
           .select('id', { count: 'exact', head: true })
           .eq('claimed_by', email)
           .eq('feature', 'storage')
           .is('deleted_at', null)
+          .gt('expires_at', now)  // 만료되지 않은 쿠폰만
 
         const maxCount = 1 + (storageCouponCount ?? 0)  // 기본 1개 + 쿠폰 개수
 

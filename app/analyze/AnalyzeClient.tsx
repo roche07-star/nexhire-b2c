@@ -1089,7 +1089,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     // 파일 보존 모드 결정 (모든 플랜)
     let preserveMode = 'skip'
     const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
-    const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+    const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
     const maxCount = 1 + storageCouponCount
 
     if (preserveChecked) {
@@ -1659,7 +1659,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {/* Re-Writing 모드 */}
             {activeMenu === 'rewrite' && (() => {
               const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
-              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
               return (
               <div className="jd-section">
                 <div className="rewrite-status-bar">
@@ -2817,7 +2817,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div className="preserve-checkbox-label">
                             이력서 파일 저장
                             {(() => {
-                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
                               const maxCount = 1 + storageCouponCount
 
                               if (preserved.length === 0) {
@@ -2839,20 +2839,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             {inputMode === 'text' && ' (텍스트는 .txt 파일로 저장됩니다)'}
                             <br />
                             {(() => {
-                              const resumeCouponCount = myCoupons.filter(c => c.feature === 'storage').length
-                              const maxCount = 1 + resumeCouponCount
+                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
+                              const maxCount = 1 + storageCouponCount
                               const currentCount = preserved.length
 
                               if (currentCount === 0) {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> 0개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> 0개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
                                   </>
                                 )
                               } else if (currentCount < maxCount) {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
                                     <br />
                                     {preserved.map((p, idx) => (
                                       <span key={p.id}>
@@ -2867,7 +2867,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               } else {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{resumeCouponCount > 0 ? ` + 쿠폰 ${resumeCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
                                     <br />
                                     {preserved.map((p, idx) => (
                                       <span key={p.id}>
@@ -2904,7 +2904,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               }
                             })()}
                             {(() => {
-                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage').length
+                              const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
                               const currentCount = preserved.length
                               // 쿠폰 없고 + 이미 1개 저장되어 있을 때만 안내
                               if (storageCouponCount === 0 && currentCount >= 1) {
