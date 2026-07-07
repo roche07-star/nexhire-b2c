@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+
 interface Coupon {
   id: string
   code: string | null
@@ -48,13 +50,50 @@ const FEATURE_LINKS: Record<string, string> = {
   storage: '/analyze',
 }
 
-export default function MyInfoClient({ coupons, payments }: Props) {
+export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
+  const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons)
+
+  // 페이지 진입 시 최신 쿠폰 데이터 가져오기
+  useEffect(() => {
+    const fetchLatestCoupons = async () => {
+      try {
+        const res = await fetch('/api/coupons/mine')
+        if (res.ok) {
+          const data = await res.json()
+          setCoupons(data.coupons || [])
+        }
+      } catch (e) {
+        console.error('Failed to fetch coupons:', e)
+      }
+    }
+    fetchLatestCoupons()
+  }, [])
+
   const isExpired = (expiresAt: string) => {
     return new Date(expiresAt) < new Date()
   }
 
   const remainingCredits = (coupon: Coupon) => {
     return coupon.credits - (coupon.used || 0)
+  }
+
+  // 서버/클라이언트 일관된 날짜 포맷팅
+  const formatDate = (dateString: string, includeTime = false) => {
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+
+    if (!includeTime) {
+      return `${year}년 ${month}월 ${day}일`
+    }
+
+    const hours = date.getHours()
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const period = hours >= 12 ? '오후' : '오전'
+    const displayHours = hours % 12 || 12
+
+    return `${year}년 ${month}월 ${day}일 ${period} ${displayHours}:${minutes}`
   }
 
   return (
@@ -174,11 +213,7 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                           fontSize: 13,
                           color: 'var(--muted2)',
                         }}>
-                          등록: {new Date(coupon.claimed_at).toLocaleDateString('ko-KR', {
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                          })}
+                          등록: {formatDate(coupon.claimed_at)}
                         </div>
                       </div>
 
@@ -205,11 +240,7 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                           color: 'var(--muted2)',
                           textAlign: 'right',
                         }}>
-                          ~{new Date(coupon.expires_at).toLocaleDateString('ko-KR', {
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                          })}
+                          ~{formatDate(coupon.expires_at)}
                         </div>
                       </div>
                     </div>
@@ -306,13 +337,7 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                         fontSize: 13,
                         color: 'var(--muted2)',
                       }}>
-                        {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }) : '-'}
+                        {payment.paid_at ? formatDate(payment.paid_at, true) : '-'}
                       </div>
                     </div>
 

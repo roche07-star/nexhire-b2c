@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data } = await supabase
       .from('coupons')
-      .select('id, code, feature, used_at, expires_at, claimed_at, credits, used')
+      .select('id, code, feature, used_at, expires_at, claimed_at, credits, used, issued_by, created_at')
       .eq('claimed_by', session.user.email)
       .is('deleted_at', null)
       .order('claimed_at', { ascending: false })
