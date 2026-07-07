@@ -207,23 +207,10 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
         <div className="store-header">
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
-            <p className="store-subtitle">JOBIZIC 커리어 부스터 팩</p>
+            <p className="store-subtitle">JOBIZIC 커리어 부스터 팩 (쿠폰 유효기간: 3개월)</p>
             <p className="store-description">
               당신의 커리어를 한 단계 업그레이드할 프리미엄 JOBIZIC 분석 서비스
             </p>
-            <div style={{
-              marginTop: 20,
-              padding: '12px 20px',
-              background: '#fef3c7',
-              border: '1px solid #fbbf24',
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              color: '#92400e',
-              textAlign: 'center'
-            }}>
-              ⏰ 모든 쿠폰 유효기간: 구매 후 3개월
-            </div>
           </div>
         </div>
 
