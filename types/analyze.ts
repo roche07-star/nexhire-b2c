@@ -114,6 +114,7 @@ export interface AnalysisListItem {
 
 export interface SavedJDAnalysis {
   id: string
+  analysis_id?: string | null
   result: JDResult
   created_at: string
   expires_at?: string | null

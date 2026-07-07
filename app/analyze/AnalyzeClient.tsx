@@ -4145,7 +4145,7 @@ function AnalysisResults({
             </div>
             <button
               className="analyze-download-btn"
-              onClick={() => window.location.href = '/store'}
+              onClick={() => window.location.href = '/plans'}
               style={{ background: 'var(--accent)' }}
             >
               ✨ PRO 플랜으로 업그레이드 →
@@ -4562,7 +4562,7 @@ function JDResults({
           analysisItem.result.plan === 'FREE' ? (
             <button
               className="analyze-download-btn"
-              onClick={() => window.location.href = '/store'}
+              onClick={() => window.location.href = '/plans'}
               style={{ background: 'var(--accent)' }}
               title="PRO 플랜으로 업그레이드하여 HTML 다운로드 기능을 이용하세요"
             >
@@ -4605,7 +4605,7 @@ function JDResults({
               // FREE 플랜: 자물쇠 표시
               <button
                 className="analyze-download-btn"
-                onClick={() => window.location.href = '/store'}
+                onClick={() => window.location.href = '/plans'}
                 style={{
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
                   color: '#fff'
