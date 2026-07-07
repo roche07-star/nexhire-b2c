@@ -934,6 +934,7 @@ export default function SettlementsClient() {
         .amount {
           font-weight: 700;
           font-size: 14px;
+          color: #18181b !important;
         }
 
         .method {
