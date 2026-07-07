@@ -72,6 +72,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // 개인정보 동의 철회 (재가입 시 다시 동의하도록)
+    await supabase.from('consents').update({
+      is_agreed: false,
+      withdrawn_at: now.toISOString(),
+    }).eq('user_email', email).is('withdrawn_at', null)
+
+    console.log(`[withdraw] Consents withdrawn for ${email}`)
+
     return NextResponse.json({
       status: 'withdrawing',
       plan_end_date: userData.plan_end_date,
@@ -94,6 +102,14 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  // 개인정보 동의 철회 (재가입 시 다시 동의하도록)
+  await supabase.from('consents').update({
+    is_agreed: false,
+    withdrawn_at: now.toISOString(),
+  }).eq('user_email', email).is('withdrawn_at', null)
+
+  console.log(`[withdraw] Consents withdrawn for ${email}`)
 
   return NextResponse.json({
     status: 'withdrawn',
