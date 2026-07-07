@@ -457,7 +457,7 @@ export default function SettlementsClient() {
                               {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
                             </span>
                           </td>
-                          <td className="text-right amount">{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
+                          <td className="text-right amount" style={{ minWidth: '100px', fontWeight: 700 }}>{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
                           <td className="text-center method">{payment.payment_method || '-'}</td>
                           <td className="text-center">{getStatusBadge(payment.status)}</td>
                           <td className="text-center">
