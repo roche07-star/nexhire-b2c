@@ -46,8 +46,11 @@ function PaymentSuccessContent() {
         const data = await res.json()
 
         if (!res.ok) {
+          console.error('[결제 승인 오류] 응답:', { status: res.status, data })
           throw new Error(data.error || '결제 승인 실패')
         }
+
+        console.log('[결제 승인 성공] 응답:', data)
 
         if (data.plan) {
           setPlan(data.plan)
