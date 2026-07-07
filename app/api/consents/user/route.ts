@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       .select('id')
       .eq('user_email', userEmail)
       .eq('consent_type', 'privacy_required')
-      .single()
+      .maybeSingle()
 
     if (existingConsent) {
       console.log('[consents/user] Existing consent found, checking user_type')
@@ -63,14 +63,14 @@ export async function POST(req: NextRequest) {
         .from('users')
         .select('user_type')
         .eq('email', userEmail)
-        .single()
+        .maybeSingle()
 
       console.log('[consents/user] User data:', userData, 'Error:', userError)
 
-      if (!userError && !userData?.user_type) {
+      // user_type 업데이트 (없거나 다른 경우)
+      if (!userError && (!userData?.user_type || userData.user_type !== userType)) {
         console.log('[consents/user] Updating user_type to:', userType)
 
-        // user_type 업데이트
         const isHeadhunterSharing = userType === 'JOBSEEKER' && headhunterSharing
         const { error: updateError } = await supabase
           .from('users')
@@ -97,6 +97,31 @@ export async function POST(req: NextRequest) {
         }
 
         console.log('[consents/user] User type updated successfully')
+      }
+
+      // 헤드헌터의 경우 책임 동의도 확인하고 없으면 추가
+      if (userType === 'HEADHUNTER' && headhunterResponsibility) {
+        const { data: existingResponsibility } = await supabase
+          .from('consents')
+          .select('id')
+          .eq('user_email', userEmail)
+          .eq('consent_type', 'headhunter_responsibility')
+          .maybeSingle()
+
+        if (!existingResponsibility) {
+          console.log('[consents/user] Adding headhunter responsibility consent')
+          await supabase
+            .from('consents')
+            .insert({
+              user_email: userEmail,
+              consent_type: 'headhunter_responsibility',
+              consent_version: 'v1.0.0',
+              is_agreed: true,
+              agreed_at: now,
+              ip_address: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
+              user_agent: req.headers.get('user-agent')
+            })
+        }
       }
 
       return NextResponse.json({
