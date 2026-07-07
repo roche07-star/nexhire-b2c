@@ -276,7 +276,7 @@ export default function SettlementsClient() {
     const excelData = payments.payments.map((p) => ({
       일자: new Date(p.paid_at).toLocaleString('ko-KR'),
       사용자: p.user_email,
-      플랜: p.plan,
+      플랜: p.description || p.plan,
       금액: p.amount,
       결제방법: p.payment_method || '-',
       상태: p.status,
