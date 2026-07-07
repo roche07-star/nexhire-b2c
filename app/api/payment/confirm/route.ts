@@ -148,6 +148,11 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. payments 테이블에 결제 내역 저장 (정산 시스템 스키마)
+    const planNames: Record<string, string> = {
+      PRO: 'JOBIZIC PRO 플랜',
+      EXPERT: 'JOBIZIC EXPERT 플랜',
+    }
+
     try {
       await supabase.from('payments').insert({
         subscription_id: subscriptionId,
@@ -160,6 +165,7 @@ export async function POST(req: NextRequest) {
         payment_gateway: 'tosspayments',
         transaction_id: paymentKey,
         paid_at: tossData.approvedAt || now.toISOString(),
+        description: planNames[plan] || plan,
       })
     } catch (err) {
       console.error('결제 내역 저장 실패:', err)
