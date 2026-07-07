@@ -18,18 +18,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .split(',').map((e) => e.trim()).filter(Boolean)
       const isManager = managers.includes(user.email)
 
-      await supabase.from('users').upsert(
-        {
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          ...(isManager
-            ? { plan: 'EXPERT', user_type: 'HEADHUNTER' }
-            : {}
-          ),
-        },
-        { onConflict: 'email', ignoreDuplicates: !isManager }
-      )
+      // 사용자 레코드 생성/업데이트
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('plan, user_type')
+        .eq('email', user.email)
+        .single()
+
+      // 신규 사용자 또는 삭제 후 재가입: 기본값 설정
+      const userData = existingUser
+        ? {
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
+          }
+        : {
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            plan: isManager ? 'EXPERT' : 'FREE',
+            user_type: isManager ? 'HEADHUNTER' : 'JOBSEEKER',
+          }
+
+      await supabase.from('users').upsert(userData, { onConflict: 'email' })
       return true
     },
     async jwt({ token, user }) {
