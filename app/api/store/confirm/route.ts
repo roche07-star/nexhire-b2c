@@ -136,12 +136,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '지원하지 않는 상품입니다' }, { status: 400 })
     }
 
-    // 스토리지는 별도 처리
+    // 스토리지 쿠폰 생성
     if (feature === 'storage') {
-      // TODO: 스토리지 슬롯 추가 로직 구현
+      const now = new Date().toISOString()
+      const threeMonthsLater = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+
+      const { data: coupon, error: storageError } = await supabase
+        .from('coupons')
+        .insert({
+          code: null,
+          feature: 'storage',
+          issued_to: session.user.email,
+          claimed_by: session.user.email,
+          claimed_at: now,
+          expires_at: threeMonthsLater,
+          credits: 1,
+          used: 0,
+          issued_by: 'STORE',
+        })
+        .select()
+        .single()
+
+      if (storageError) {
+        console.error('스토리지 쿠폰 생성 오류:', storageError)
+        return NextResponse.json(
+          { error: '쿠폰 생성 실패' },
+          { status: 500 }
+        )
+      }
+
       return NextResponse.json({
         success: true,
-        message: '스토리지 슬롯이 추가되었습니다',
+        orderId,
+        amount,
+        coupons: [coupon],
       })
     }
 
