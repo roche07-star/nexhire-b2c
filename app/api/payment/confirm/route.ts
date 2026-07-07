@@ -68,13 +68,11 @@ export async function POST(req: NextRequest) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
 
-    // 1. 플랜 업데이트
+    // 1. 플랜 업데이트 (users 테이블에는 plan만 저장)
     const { error: updateError } = await supabase
       .from('users')
       .update({
         plan,
-        plan_started_at: now.toISOString(),
-        plan_expires_at: expiresAt.toISOString(),
         updated_at: now.toISOString(),
       })
       .eq('email', session.user.email)
@@ -95,7 +93,7 @@ export async function POST(req: NextRequest) {
     // 2. 업데이트 확인
     const { data: updatedUser, error: fetchError } = await supabase
       .from('users')
-      .select('plan, plan_started_at, plan_expires_at')
+      .select('plan')
       .eq('email', session.user.email)
       .single()
 
