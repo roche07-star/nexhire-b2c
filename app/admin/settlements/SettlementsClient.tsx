@@ -454,7 +454,7 @@ export default function SettlementsClient() {
                           <td className="email">{payment.user_email}</td>
                           <td>
                             <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
-                              {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
+                              {payment.description || payment.plan}
                             </span>
                           </td>
                           <td className="text-right amount" style={{ minWidth: '100px', fontWeight: 700 }}>{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
@@ -485,7 +485,7 @@ export default function SettlementsClient() {
                     <div key={payment.id} className="payment-card">
                       <div className="card-header">
                         <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
-                          {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
+                          {payment.description || payment.plan}
                         </span>
                         {getStatusBadge(payment.status)}
                       </div>
