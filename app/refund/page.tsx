@@ -52,7 +52,6 @@ export default function RefundPage() {
             <ul>
               <li>분석 결과를 이미 확인한 경우</li>
               <li>다운로드 완료된 파일 (이력서 생성 DOCX 등)</li>
-              <li>쿠폰 사용 후 남은 크레딧 (단, 미사용 쿠폰은 환불 가능)</li>
               <li>결제일로부터 7일 경과 후 (단, 정당한 사유가 있는 경우 협의 가능)</li>
             </ul>
           </div>
