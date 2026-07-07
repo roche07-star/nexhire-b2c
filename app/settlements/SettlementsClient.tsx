@@ -592,7 +592,7 @@ export default function SettlementsClient() {
               정산 관리는 PRO 이상 플랜에서 이용 가능합니다.
             </p>
             <a
-              href="/#pricing"
+              href="/plans"
               style={{
                 display: 'inline-block',
                 padding: '12px 24px',
