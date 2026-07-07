@@ -47,12 +47,14 @@ export async function POST(req: NextRequest) {
     const userEmail = session.user.email
     const now = new Date()
 
-    // 1. 이미 동의한 기록이 있는지 확인
+    // 1. 이미 동의한 기록이 있는지 확인 (활성 동의만)
     const { data: existingConsent } = await supabase
       .from('consents')
       .select('id')
       .eq('user_email', userEmail)
       .eq('consent_type', 'privacy_required')
+      .eq('is_agreed', true)
+      .is('withdrawn_at', null)
       .maybeSingle()
 
     if (existingConsent) {
