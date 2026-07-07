@@ -32,13 +32,12 @@ function ConsentPageContent() {
       if (res.ok) {
         const data = await res.json()
 
-        // userType이 이미 설정되어 있어도 자동으로 설정하지 않음
-        // 사용자가 직접 선택하도록 함
+        console.log('[consent] Check result:', data)
 
+        // 이미 동의하고 user_type도 설정된 경우 리다이렉트
         if (data.hasConsent && data.hasUserType) {
-          // 이미 동의한 경우 callbackUrl로 리다이렉트
-          const callbackUrl = searchParams.get('callbackUrl') || '/'
-          router.push(callbackUrl)
+          console.log('[consent] Already consented, redirecting to /api/after-login')
+          window.location.href = '/api/after-login'
         }
       }
     } catch (e) {
