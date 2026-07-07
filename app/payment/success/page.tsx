@@ -8,7 +8,7 @@ import Link from 'next/link'
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState('')
   const [plan, setPlan] = useState('PRO')
@@ -18,7 +18,13 @@ function PaymentSuccessContent() {
   const amount = searchParams.get('amount')
 
   useEffect(() => {
-    if (!session) {
+    // 세션 로딩 중이면 대기
+    if (status === 'loading') {
+      return
+    }
+
+    // 세션 로딩 완료 후에도 세션이 없으면 로그인으로
+    if (status === 'unauthenticated') {
       router.push('/login')
       return
     }
@@ -55,7 +61,7 @@ function PaymentSuccessContent() {
     }
 
     confirmPayment()
-  }, [session, orderId, paymentKey, amount, router])
+  }, [session, status, orderId, paymentKey, amount, router])
 
   if (isProcessing) {
     return (
