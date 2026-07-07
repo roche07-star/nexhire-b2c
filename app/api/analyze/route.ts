@@ -281,12 +281,26 @@ export async function POST(req: NextRequest) {
 
     // 이력서 저장 개수 체크 (MANAGER 제외, 새로 추가하는 경우만)
     if (role !== 'MANAGER' && preserveMode !== 'replace') {
-      // 현재 저장된 이력서 개수 (_file_path가 있는 것만)
-      const { count: savedCount } = await supabase
+      // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
+      const { data: userData } = await supabase
+        .from('users')
+        .select('last_restored_at')
+        .eq('email', email)
+        .single()
+
+      // 현재 저장된 이력서 개수 (_file_path가 있고, last_restored_at 이후 생성된 것만)
+      let countQuery = supabase
         .from('analyses')
         .select('id', { count: 'exact', head: true })
         .eq('user_email', email)
         .not('result->_file_path', 'is', null)
+
+      // last_restored_at 이후 생성된 것만 카운트 (재가입 후 이력서만)
+      if (userData?.last_restored_at) {
+        countQuery = countQuery.gte('created_at', userData.last_restored_at)
+      }
+
+      const { count: savedCount } = await countQuery
 
       // 보유한 이력서 추가 저장 쿠폰 개수 (사용 여부 무관)
       const { count: resumeCouponCount } = await supabase

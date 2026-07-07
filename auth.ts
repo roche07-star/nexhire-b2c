@@ -30,7 +30,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const shouldReset = !existingUser || isWithdrawn
 
       if (shouldReset) {
-        // 완전 초기화
+        // 완전 초기화 (last_restored_at을 현재 시간으로 설정)
+        const resetTime = new Date().toISOString()
         await supabase.from('users').upsert({
           email: user.email,
           name: user.name,
@@ -43,10 +44,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           rewrite_count: 0,
           interview_count: 0,
           proposal_count: 0,
-          monthly_reset_at: new Date().toISOString(),
+          monthly_reset_at: resetTime,
           withdraw_requested_at: null,
           data_delete_at: null,
-          last_restored_at: null,
+          last_restored_at: resetTime, // 초기화 시점 기록
         }, { onConflict: 'email' })
       } else {
         // 기존 사용자: name, image만 업데이트 (manager는 plan/user_type도 업데이트)
