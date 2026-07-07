@@ -18,7 +18,7 @@ export async function GET() {
 
     let query = supabase
       .from('jd_analyses')
-      .select('id, result, created_at, expires_at')
+      .select('id, analysis_id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
 
     // last_restored_at 이후 생성된 것만 (재가입 후 데이터만)

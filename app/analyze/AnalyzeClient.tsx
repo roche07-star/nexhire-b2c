@@ -1363,6 +1363,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           position: jdPosition,
           jd: jdContent,
           analysisResult: jdSelectedAnalysis?.result,
+          analysisId: jdSelectedAnalysis?.id,  // 이력서 분석 ID 추가
           client_comment: jdClientComment.trim() || undefined,
           company_url: jdCompanyUrl.trim() || undefined
         }),
@@ -2334,8 +2335,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <>
                     <JDResults
                       result={jdViewingSaved.result}
+                      analysisItem={jdSelectedAnalysis ?? undefined}
                       expiresAt={jdViewingSaved.expires_at ?? undefined}
-                      onReset={() => setJdViewingSaved(null)}
+                      onReset={() => {
+                        setJdViewingSaved(null)
+                        setJdSelectedAnalysis(null)
+                      }}
                       userType={userType}
                     />
                     {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
@@ -2634,8 +2639,28 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               <div
                                 key={item.id}
                                 className="jd-saved-card"
-                                onClick={() => {
+                                onClick={async () => {
                                   setJdViewingSaved(item)
+                                  // analysis_id로 이력서 분석 조회
+                                  if (item.analysis_id && analysisList) {
+                                    const linkedAnalysis = analysisList.find(a => a.id === item.analysis_id)
+                                    if (linkedAnalysis) {
+                                      setJdSelectedAnalysis(linkedAnalysis)
+                                    } else {
+                                      // 목록에 없으면 API로 조회
+                                      try {
+                                        const res = await fetch(`/api/analysis/${item.analysis_id}`)
+                                        if (res.ok) {
+                                          const data = await res.json()
+                                          setJdSelectedAnalysis({ id: item.analysis_id, result: data, created_at: '', expires_at: null })
+                                        }
+                                      } catch (e) {
+                                        console.error('Failed to load linked analysis:', e)
+                                      }
+                                    }
+                                  } else {
+                                    setJdSelectedAnalysis(null)
+                                  }
                                   setTimeout(() => jdTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
                                 }}
                               >

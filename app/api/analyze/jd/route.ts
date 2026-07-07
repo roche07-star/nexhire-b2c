@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { company, position, jd, analysisResult, client_comment, company_url } = await req.json()
+    const { company, position, jd, analysisResult, analysisId, client_comment, company_url } = await req.json()
     if (!company?.trim() || !jd?.trim()) {
       return NextResponse.json({ error: '회사명과 채용공고 내용을 입력해 주세요.' }, { status: 400 })
     }
@@ -369,6 +369,7 @@ ${candidateProfile}`
 
     const { error: insertError } = await supabase.from('jd_analyses').insert({
       user_email: session.user.email,
+      analysis_id: analysisId || null,  // 이력서 분석 ID 저장
       result: resultPayload,
       expires_at: expiresAt.toISOString(),
     })
