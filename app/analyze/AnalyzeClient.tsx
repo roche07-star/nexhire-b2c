@@ -499,13 +499,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         // JD 목록 로드 후 해당 JD 선택
         fetch('/api/analyze/jd/list')
           .then((r) => r.json())
-          .then((data) => {
+          .then(async (data) => {
             if (Array.isArray(data.analyses)) {
               setJdSavedList(data.analyses)
               const foundJd = data.analyses.find((jd: any) => jd.id === id)
               if (foundJd) {
                 setJdViewingSaved(foundJd)
                 setJdResult(foundJd.result)
+
+                // 연결된 이력서 분석 로드 (제안서 버튼 표시용)
+                if (foundJd.analysis_id) {
+                  try {
+                    const res = await fetch(`/api/analysis/${foundJd.analysis_id}`)
+                    if (res.ok) {
+                      const analysisData = await res.json()
+                      setJdSelectedAnalysis({
+                        id: analysisData.id,
+                        result: analysisData.result,
+                        created_at: analysisData.created_at || '',
+                        expires_at: analysisData.expires_at || null
+                      })
+                    }
+                  } catch (e) {
+                    console.error('Failed to load linked analysis:', e)
+                  }
+                }
               }
             }
           })
@@ -2652,7 +2670,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                         const res = await fetch(`/api/analysis/${item.analysis_id}`)
                                         if (res.ok) {
                                           const data = await res.json()
-                                          setJdSelectedAnalysis({ id: item.analysis_id, result: data, created_at: '', expires_at: null })
+                                          setJdSelectedAnalysis({
+                                            id: data.id,
+                                            result: data.result,
+                                            created_at: data.created_at || '',
+                                            expires_at: data.expires_at || null
+                                          })
                                         }
                                       } catch (e) {
                                         console.error('Failed to load linked analysis:', e)

@@ -38,8 +38,8 @@ export async function GET(
     return NextResponse.json({
       id: data.id,
       result,
-      createdAt: data.created_at,
-      stage: data.pipeline_stage,
+      created_at: data.created_at,
+      expires_at: data.expires_at,
     })
   } catch (error) {
     console.error('Analysis fetch error:', error)
