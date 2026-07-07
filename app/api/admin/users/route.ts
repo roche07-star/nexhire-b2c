@@ -19,11 +19,12 @@ export async function GET(req: NextRequest) {
 
   const offset = (page - 1) * limit
 
-  // 기본 쿼리 (현재 관리자 제외)
+  // 기본 쿼리 (현재 관리자 제외, 탈퇴한 사용자 제외)
   let query = supabase
     .from('users')
-    .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at', { count: 'exact' })
+    .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at, status', { count: 'exact' })
     .neq('email', session.user.email)
+    .not('status', 'in', '(withdrawn,withdrawing)')
 
   // 검색 (이메일 또는 이름)
   if (search) {
