@@ -451,7 +451,7 @@ export default function SettlementsClient() {
                       {payments.payments.map((payment) => (
                         <tr key={payment.id}>
                           <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                          <td className="email">{payment.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</td>
+                          <td className="email">{payment.user_email}</td>
                           <td>
                             <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
                               {payment.plan === 'STORE' && payment.description ? payment.description : payment.plan}
@@ -493,7 +493,7 @@ export default function SettlementsClient() {
                       <div className="card-details">
                         <div className="detail-row">
                           <span className="label">사용자</span>
-                          <span className="value">{payment.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</span>
+                          <span className="value">{payment.user_email}</span>
                         </div>
                         <div className="detail-row">
                           <span className="label">일자</span>
@@ -574,7 +574,7 @@ export default function SettlementsClient() {
                       {refunds.refunds.map((refund) => (
                         <tr key={refund.id}>
                           <td>{new Date(refund.requested_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                          <td className="email">{refund.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</td>
+                          <td className="email">{refund.user_email}</td>
                           <td className="text-right amount">{formatCurrency(refund.amount)}</td>
                           <td className="reason">{refund.reason}</td>
                           <td className="text-center">{getStatusBadge(refund.status)}</td>
@@ -596,7 +596,7 @@ export default function SettlementsClient() {
                       <div className="card-details">
                         <div className="detail-row">
                           <span className="label">사용자</span>
-                          <span className="value">{refund.user_email.replace(/(.{4}).*(@.*)/, '$1****$2')}</span>
+                          <span className="value">{refund.user_email}</span>
                         </div>
                         <div className="detail-row">
                           <span className="label">요청일</span>
