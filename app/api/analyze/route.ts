@@ -760,11 +760,26 @@ ${maskedText.slice(0, 3000)}
 
     if (insertData?.id && preserveMode !== 'skip' && (file && buffer || pastedText)) {
       console.log('[analyze] 보존 조건 확인:', { preserveMode, hasFile: !!(file && buffer), hasPastedText: !!pastedText })
-      const { data: prevAnalyses } = await supabase
+
+      // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
+      const { data: userDataForPreserve } = await supabase
+        .from('users')
+        .select('last_restored_at')
+        .eq('email', email)
+        .maybeSingle()
+
+      let prevQuery = supabase
         .from('analyses')
-        .select('id, result')
+        .select('id, result, created_at')
         .eq('user_email', email)
-        .limit(100)
+
+      // last_restored_at 이후 생성된 것만 (재가입 후 이력서만)
+      if (userDataForPreserve?.last_restored_at) {
+        prevQuery = prevQuery.gte('created_at', userDataForPreserve.last_restored_at)
+      }
+
+      const { data: prevAnalyses } = await prevQuery.limit(100)
+
       const preserved = (prevAnalyses ?? []).filter(
         (a) => a.result?._file_path && a.id !== insertData.id
       )
