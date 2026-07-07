@@ -148,9 +148,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. payments 테이블에 결제 내역 저장 (정산 시스템 스키마)
+    const userTypeLabel = userType === 'HEADHUNTER' ? '헤드헌터' : '개인'
     const planNames: Record<string, string> = {
-      PRO: 'JOBIZIC PRO 플랜',
-      EXPERT: 'JOBIZIC EXPERT 플랜',
+      PRO: `JOBIZIC PRO 플랜 (${userTypeLabel})`,
+      EXPERT: `JOBIZIC EXPERT 플랜 (${userTypeLabel})`,
     }
 
     try {
