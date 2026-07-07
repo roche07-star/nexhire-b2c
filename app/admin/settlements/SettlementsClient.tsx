@@ -73,7 +73,8 @@ export default function SettlementsClient() {
   const [loading, setLoading] = useState(true)
 
   // 필터 상태
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'lastMonth'>('month')
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month'>('month')
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1) // 1~12
   const [planFilter, setPlanFilter] = useState<'ALL' | 'PRO' | 'EXPERT'>('ALL')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'success' | 'failed' | 'refunded' | 'pending'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -89,7 +90,6 @@ export default function SettlementsClient() {
   const getDateRange = () => {
     const today = new Date()
     const year = today.getFullYear()
-    const month = today.getMonth()
 
     switch (dateRange) {
       case 'today':
@@ -105,14 +105,12 @@ export default function SettlementsClient() {
           end: today.toISOString().split('T')[0]
         }
       case 'month':
+        // selectedMonth 기준 (1~12)
+        const monthStart = new Date(year, selectedMonth - 1, 1)
+        const monthEnd = new Date(year, selectedMonth, 0)
         return {
-          start: new Date(year, month, 1).toISOString().split('T')[0],
-          end: today.toISOString().split('T')[0]
-        }
-      case 'lastMonth':
-        return {
-          start: new Date(year, month - 1, 1).toISOString().split('T')[0],
-          end: new Date(year, month, 0).toISOString().split('T')[0]
+          start: monthStart.toISOString().split('T')[0],
+          end: monthEnd.toISOString().split('T')[0]
         }
     }
   }
@@ -133,7 +131,7 @@ export default function SettlementsClient() {
       }
     }
     fetchSummary()
-  }, [dateRange])
+  }, [dateRange, selectedMonth])
 
   // 차트 데이터 로드
   useEffect(() => {
@@ -300,15 +298,38 @@ export default function SettlementsClient() {
 
           {/* 기간 선택 */}
           <div className="date-range-buttons">
-            {(['today', 'week', 'month', 'lastMonth'] as const).map((range) => (
+            {(['today', 'week', 'month'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setDateRange(range)}
                 className={`date-btn ${dateRange === range ? 'active' : ''}`}
               >
-                {range === 'today' ? '오늘' : range === 'week' ? '이번 주' : range === 'month' ? '이번 달' : '지난달'}
+                {range === 'today' ? '오늘' : range === 'week' ? '이번 주' : `${selectedMonth}월`}
               </button>
             ))}
+            {dateRange === 'month' && (
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                style={{
+                  marginLeft: 8,
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  border: '1px solid #e5e7eb',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                }}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <option key={month} value={month}>
+                    {month}월
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 
