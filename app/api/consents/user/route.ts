@@ -56,17 +56,23 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (existingConsent) {
+      console.log('[consents/user] Existing consent found, checking user_type')
+
       // 이미 동의했지만 user_type이 없는 경우 업데이트
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('user_type')
         .eq('email', userEmail)
         .single()
 
-      if (!userData?.user_type) {
+      console.log('[consents/user] User data:', userData, 'Error:', userError)
+
+      if (!userError && !userData?.user_type) {
+        console.log('[consents/user] Updating user_type to:', userType)
+
         // user_type 업데이트
         const isHeadhunterSharing = userType === 'JOBSEEKER' && headhunterSharing
-        await supabase
+        const { error: updateError } = await supabase
           .from('users')
           .update({
             user_type: userType,
@@ -81,6 +87,16 @@ export async function POST(req: NextRequest) {
             address: address || null
           })
           .eq('email', userEmail)
+
+        if (updateError) {
+          console.error('[consents/user] User type update error:', updateError)
+          return NextResponse.json({
+            error: 'user_type 업데이트 실패',
+            details: updateError.message
+          }, { status: 500 })
+        }
+
+        console.log('[consents/user] User type updated successfully')
       }
 
       return NextResponse.json({
