@@ -13,7 +13,7 @@ export default function TermsPage() {
       <main className="privacy-page">
         <div className="privacy-container">
           <h1 className="privacy-title">이용약관</h1>
-          <p className="privacy-date">시행일: 2026년 7월 1일</p>
+          <p className="privacy-date">시행일: 2026년 7월 7일</p>
 
           <div className="privacy-section">
             <h2>제1조 (목적)</h2>
