@@ -50,7 +50,7 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin 
     : [
         ...(isHeadhunter ? [{ href: '/dashboard', label: '대시보드' }] : [{ href: '/job-seeker', label: '대시보드' }]),
         ...(isHeadhunter ? [{ href: '/hiring-process', label: '채용 프로세스' }] : []),
-        ...(isHeadhunter || isPro ? [{ href: '/analyze', label: '분석&생성' }] : []),
+        { href: '/analyze', label: '분석&생성' },
         ...(!isHeadhunter ? [{ href: '/work-report', label: isPro ? '업무 Report' : '업무 Report 🔒' }] : []),
         ...(isHeadhunter ? [{ href: '/settlements', label: '정산' }] : []),
         { href: '/store', label: 'STORE' },
