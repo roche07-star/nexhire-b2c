@@ -11,9 +11,15 @@ function PaymentPageContent() {
   const searchParams = useSearchParams()
   const tossPaymentsRef = useRef<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPlan, setCurrentPlan] = useState<string>('FREE')
 
   const userType = session?.user?.userType
   const plan = searchParams.get('plan') || 'PRO' // URL 파라미터로 플랜 확인
+
+  // 플랜 비교
+  const planHierarchy: Record<string, number> = { FREE: 0, PRO: 1, EXPERT: 2 }
+  const isDowngrade = planHierarchy[currentPlan] > planHierarchy[plan]
+  const isSamePlan = currentPlan === plan
 
   // 가격 계산 (플랜 + userType 기준)
   const getPriceInfo = () => {
@@ -69,7 +75,12 @@ function PaymentPageContent() {
     if (status === 'authenticated' && session) {
       const checkConsentAndInitialize = async () => {
         try {
-          // 1. 동의 여부 확인
+          // 1. 현재 플랜 조회
+          const myInfoRes = await fetch('/api/my-info')
+          const myInfoData = await myInfoRes.json()
+          setCurrentPlan(myInfoData.plan || 'FREE')
+
+          // 2. 동의 여부 확인
           const consentRes = await fetch('/api/consents/check')
           const consentData = await consentRes.json()
 
@@ -203,23 +214,42 @@ function PaymentPageContent() {
         {/* 결제 위젯 */}
         <div id="payment-widget" style={{ marginBottom: 24 }} />
 
+        {/* 현재 플랜 표시 */}
+        {currentPlan !== 'FREE' && (
+          <div style={{
+            marginBottom: 16,
+            padding: 12,
+            background: 'var(--surface2)',
+            borderRadius: 8,
+            fontSize: 14,
+            color: 'var(--muted2)',
+          }}>
+            현재 플랜: <strong style={{ color: 'var(--text)' }}>{currentPlan}</strong>
+            {isSamePlan && ' → 만료일 30일 연장'}
+            {isDowngrade && ' (다운그레이드는 설정에서 가능합니다)'}
+          </div>
+        )}
+
         {/* 결제 버튼 */}
         <button
           onClick={handlePayment}
-          disabled={isLoading}
+          disabled={isLoading || isDowngrade}
           style={{
             width: '100%',
             padding: 16,
-            background: isLoading ? '#ccc' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            background: (isLoading || isDowngrade) ? '#ccc' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
             color: '#fff',
             fontSize: 16,
             fontWeight: 700,
             borderRadius: 10,
             border: 'none',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
+            cursor: (isLoading || isDowngrade) ? 'not-allowed' : 'pointer',
           }}
         >
-          {isLoading ? '로딩 중...' : `${priceInfo.discounted.toLocaleString()}원 결제하기`}
+          {isLoading ? '로딩 중...' :
+           isDowngrade ? '다운그레이드 불가' :
+           isSamePlan ? `${priceInfo.discounted.toLocaleString()}원 결제하기 (연장)` :
+           `${priceInfo.discounted.toLocaleString()}원 결제하기`}
         </button>
 
         {/* 안내 문구 */}

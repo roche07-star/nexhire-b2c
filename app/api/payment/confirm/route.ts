@@ -55,14 +55,25 @@ export async function POST(req: NextRequest) {
     const plan = planMatch ? planMatch[1] : 'PRO' // 기본값 PRO
     console.log('[결제 확인] 플랜 추출:', { orderId, planMatch, plan })
 
-    // 사용자 정보 조회 (user_type 필요)
+    // 사용자 정보 조회 (user_type, 현재 플랜 확인)
     const { data: userData } = await supabase
       .from('users')
-      .select('user_type')
+      .select('user_type, plan')
       .eq('email', session.user.email)
       .single()
 
     const userType = userData?.user_type || 'JOBSEEKER'
+    const currentPlan = userData?.plan || 'FREE'
+
+    // 다운그레이드 차단
+    const planHierarchy: Record<string, number> = { FREE: 0, PRO: 1, EXPERT: 2 }
+    if (planHierarchy[currentPlan] > planHierarchy[plan]) {
+      console.log('[결제 확인] 다운그레이드 차단:', { currentPlan, requestedPlan: plan })
+      return NextResponse.json(
+        { error: '다운그레이드는 설정 > 구독 관리에서 진행해주세요.' },
+        { status: 400 }
+      )
+    }
 
     // 결제 성공 → Supabase에 사용자 플랜 업데이트
     const now = new Date()
