@@ -32,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (shouldReset) {
         // 완전 초기화 (last_restored_at을 현재 시간으로 설정)
         const resetTime = new Date().toISOString()
-        await supabase.from('users').upsert({
+        const { error: resetError } = await supabase.from('users').upsert({
           email: user.email,
           name: user.name,
           image: user.image,
@@ -49,6 +49,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           data_delete_at: null,
           last_restored_at: resetTime, // 초기화 시점 기록
         }, { onConflict: 'email' })
+
+        if (resetError) {
+          console.error('[auth/signIn] User reset/creation failed:', resetError)
+          console.error('[auth/signIn] Email:', user.email)
+          // 로그인은 계속 진행 (consent 페이지에서 처리)
+        } else {
+          console.log('[auth/signIn] User created/reset:', user.email)
+        }
       } else {
         // 기존 사용자: name, image만 업데이트 (manager는 plan/user_type도 업데이트)
         const updateData: any = {
@@ -60,7 +68,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           updateData.plan = 'EXPERT'
           updateData.user_type = 'HEADHUNTER'
         }
-        await supabase.from('users').upsert(updateData, { onConflict: 'email' })
+        const { error: updateError } = await supabase.from('users').upsert(updateData, { onConflict: 'email' })
+
+        if (updateError) {
+          console.error('[auth/signIn] User update failed:', updateError)
+          console.error('[auth/signIn] Email:', user.email)
+        }
       }
       return true
     },
