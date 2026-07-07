@@ -18,27 +18,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .split(',').map((e) => e.trim()).filter(Boolean)
       const isManager = managers.includes(user.email)
 
-      // 사용자 레코드 생성/업데이트
+      // 사용자 레코드 조회 (status 포함)
       const { data: existingUser } = await supabase
         .from('users')
-        .select('plan, user_type')
+        .select('plan, user_type, status')
         .eq('email', user.email)
         .single()
 
-      // 신규 사용자 또는 삭제 후 재가입: 기본값 설정
-      const userData = existingUser
+      // 탈퇴한 사용자 또는 신규 사용자: 완전 초기화
+      const isWithdrawn = existingUser?.status === 'withdrawn' || existingUser?.status === 'withdrawing'
+      const shouldReset = !existingUser || isWithdrawn
+
+      const userData = shouldReset
         ? {
             email: user.email,
             name: user.name,
             image: user.image,
-            ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
+            plan: isManager ? 'EXPERT' : 'FREE',
+            user_type: isManager ? 'HEADHUNTER' : null, // consent에서 선택하도록
+            status: 'active',
+            analyze_count: 0,
+            jd_count: 0,
+            rewrite_count: 0,
+            interview_count: 0,
+            proposal_count: 0,
+            monthly_reset_at: new Date().toISOString(),
+            withdraw_requested_at: null,
+            data_delete_at: null,
+            last_restored_at: null,
           }
         : {
             email: user.email,
             name: user.name,
             image: user.image,
-            plan: isManager ? 'EXPERT' : 'FREE',
-            user_type: isManager ? 'HEADHUNTER' : 'JOBSEEKER',
+            ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
           }
 
       await supabase.from('users').upsert(userData, { onConflict: 'email' })
