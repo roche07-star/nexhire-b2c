@@ -17,13 +17,14 @@ export async function GET() {
       .from('users')
       .select('user_type')
       .eq('email', session.user.email)
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error('[check-type] DB error:', error)
       return NextResponse.json({ error: 'DB 조회 실패' }, { status: 500 })
     }
 
+    // 사용자가 없으면 null 반환 (에러 아님)
     return NextResponse.json({
       userType: data?.user_type ?? null
     })
