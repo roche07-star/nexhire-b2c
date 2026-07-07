@@ -56,6 +56,33 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (existingConsent) {
+      // 이미 동의했지만 user_type이 없는 경우 업데이트
+      const { data: userData } = await supabase
+        .from('users')
+        .select('user_type')
+        .eq('email', userEmail)
+        .single()
+
+      if (!userData?.user_type) {
+        // user_type 업데이트
+        const isHeadhunterSharing = userType === 'JOBSEEKER' && headhunterSharing
+        await supabase
+          .from('users')
+          .update({
+            user_type: userType,
+            service_type: 'B2C',
+            last_service_use_at: now,
+            headhunter_sharing_enabled: isHeadhunterSharing,
+            headhunter_sharing_consented_at: isHeadhunterSharing ? now : null,
+            headhunter_sharing_consent_ip: isHeadhunterSharing
+              ? (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'))
+              : null,
+            phone: phone || null,
+            address: address || null
+          })
+          .eq('email', userEmail)
+      }
+
       return NextResponse.json({
         message: '이미 동의하셨습니다.',
         alreadyConsented: true
