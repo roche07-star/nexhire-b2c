@@ -211,6 +211,19 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
             <p className="store-description">
               당신의 커리어를 한 단계 업그레이드할 프리미엄 JOBIZIC 분석 서비스
             </p>
+            <div style={{
+              marginTop: 20,
+              padding: '12px 20px',
+              background: '#fef3c7',
+              border: '1px solid #fbbf24',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#92400e',
+              textAlign: 'center'
+            }}>
+              ⏰ 모든 쿠폰 유효기간: 구매 후 3개월
+            </div>
           </div>
         </div>
 
@@ -288,7 +301,7 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
 
                 <div className="modal-notice">
                   <p>💳 토스페이먼츠 안전 결제</p>
-                  <p>결제 완료 후 즉시 쿠폰이 발급됩니다 (유효기간 1년)</p>
+                  <p>결제 완료 후 즉시 쿠폰이 발급됩니다 (유효기간 3개월)</p>
                 </div>
               </div>
 
