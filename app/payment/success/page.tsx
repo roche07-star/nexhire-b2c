@@ -11,6 +11,7 @@ function PaymentSuccessContent() {
   const { data: session } = useSession()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState('')
+  const [plan, setPlan] = useState('PRO')
 
   const orderId = searchParams.get('orderId')
   const paymentKey = searchParams.get('paymentKey')
@@ -42,6 +43,9 @@ function PaymentSuccessContent() {
           throw new Error(data.error || '결제 승인 실패')
         }
 
+        if (data.plan) {
+          setPlan(data.plan)
+        }
         setIsProcessing(false)
       } catch (err: any) {
         console.error('결제 승인 오류:', err)
@@ -144,7 +148,7 @@ function PaymentSuccessContent() {
           결제 완료!
         </h1>
         <p style={{ color: 'var(--muted2)', marginBottom: 32 }}>
-          PRO 플랜이 활성화되었습니다
+          {plan} 플랜이 활성화되었습니다
         </p>
 
         <div style={{
