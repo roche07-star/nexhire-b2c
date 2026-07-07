@@ -1220,6 +1220,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       setFile(null)
       setError(null)
       setAgreed(false)
+      // 이력서 목록 로드 (파일 저장 개수 계산용)
+      if (!analysisList) {
+        setSavedListLoading(true)
+        fetch('/api/analyze/list')
+          .then((r) => r.json())
+          .then(({ analyses }) => setAnalysisList(analyses ?? []))
+          .catch(() => setAnalysisList([]))
+          .finally(() => setSavedListLoading(false))
+      }
     } else if (id === 'jd') {
       setResult(null)
       setActiveMenu('jd')
