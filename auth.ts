@@ -29,32 +29,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isWithdrawn = existingUser?.status === 'withdrawn' || existingUser?.status === 'withdrawing'
       const shouldReset = !existingUser || isWithdrawn
 
-      const userData = shouldReset
-        ? {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            plan: isManager ? 'EXPERT' : 'FREE',
-            user_type: isManager ? 'HEADHUNTER' : null, // consent에서 선택하도록
-            status: 'active',
-            analyze_count: 0,
-            jd_count: 0,
-            rewrite_count: 0,
-            interview_count: 0,
-            proposal_count: 0,
-            monthly_reset_at: new Date().toISOString(),
-            withdraw_requested_at: null,
-            data_delete_at: null,
-            last_restored_at: null,
-          }
-        : {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            ...(isManager ? { plan: 'EXPERT', user_type: 'HEADHUNTER' } : {}),
-          }
-
-      await supabase.from('users').upsert(userData, { onConflict: 'email' })
+      if (shouldReset) {
+        // 완전 초기화
+        await supabase.from('users').upsert({
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          plan: isManager ? 'EXPERT' : 'FREE',
+          user_type: isManager ? 'HEADHUNTER' : null,
+          status: 'active',
+          analyze_count: 0,
+          jd_count: 0,
+          rewrite_count: 0,
+          interview_count: 0,
+          proposal_count: 0,
+          monthly_reset_at: new Date().toISOString(),
+          withdraw_requested_at: null,
+          data_delete_at: null,
+          last_restored_at: null,
+        }, { onConflict: 'email' })
+      } else {
+        // 기존 사용자: name, image만 업데이트 (manager는 plan/user_type도 업데이트)
+        const updateData: any = {
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        }
+        if (isManager) {
+          updateData.plan = 'EXPERT'
+          updateData.user_type = 'HEADHUNTER'
+        }
+        await supabase.from('users').upsert(updateData, { onConflict: 'email' })
+      }
       return true
     },
     async jwt({ token, user }) {
