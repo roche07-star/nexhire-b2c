@@ -36,17 +36,19 @@ const FEATURE_NAMES: Record<string, string> = {
   rewrite: '이력서 생성',
   interview: '면접 가이드',
   proposal: '클라이언트 제안서',
+  storage: '이력서 추가 저장',
+}
+
+const FEATURE_LINKS: Record<string, string> = {
+  resume: '/analyze',
+  jd: '/analyze',
+  rewrite: '/analyze',
+  interview: '/analyze',
+  proposal: '/analyze',
+  storage: '/analyze',
 }
 
 export default function MyInfoClient({ coupons, payments }: Props) {
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
-
   const isExpired = (expiresAt: string) => {
     return new Date(expiresAt) < new Date()
   }
@@ -128,12 +130,29 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                 return (
                   <div
                     key={coupon.id}
+                    onClick={() => {
+                      if (!expired && remaining > 0) {
+                        window.location.href = FEATURE_LINKS[coupon.feature] || '/analyze'
+                      }
+                    }}
                     style={{
                       background: expired ? 'var(--surface2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
                       border: expired ? '1px solid var(--border)' : '1px solid rgba(59, 130, 246, 0.3)',
                       borderRadius: 12,
                       padding: 20,
                       opacity: expired ? 0.6 : 1,
+                      cursor: (!expired && remaining > 0) ? 'pointer' : 'default',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!expired && remaining > 0) {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.2)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
                     }}
                   >
                     <div style={{
@@ -142,7 +161,7 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                       alignItems: 'flex-start',
                       marginBottom: 12,
                     }}>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <div style={{
                           fontSize: 18,
                           fontWeight: 700,
@@ -155,25 +174,42 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                           fontSize: 13,
                           color: 'var(--muted2)',
                         }}>
-                          발급: {coupon.issued_by}
+                          등록: {new Date(coupon.claimed_at).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                          })}
                         </div>
                       </div>
 
                       <div style={{
-                        textAlign: 'right',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        gap: 8,
                       }}>
+                        {!expired && remaining > 0 && (
+                          <div style={{
+                            padding: '4px 12px',
+                            background: 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+                            color: '#fff',
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}>
+                            사용 가능
+                          </div>
+                        )}
                         <div style={{
-                          fontSize: 24,
-                          fontWeight: 800,
-                          color: expired ? 'var(--muted2)' : '#3b82f6',
-                        }}>
-                          {remaining}회
-                        </div>
-                        <div style={{
-                          fontSize: 12,
+                          fontSize: 13,
                           color: 'var(--muted2)',
+                          textAlign: 'right',
                         }}>
-                          / {coupon.credits}회
+                          ~{new Date(coupon.expires_at).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                          })}
                         </div>
                       </div>
                     </div>
@@ -181,17 +217,31 @@ export default function MyInfoClient({ coupons, payments }: Props) {
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      fontSize: 13,
-                      color: 'var(--muted2)',
+                      alignItems: 'center',
+                      paddingTop: 12,
+                      borderTop: '1px solid var(--border)',
                     }}>
-                      <div>
-                        유효기간: {formatDate(coupon.expires_at)}
+                      <div style={{
+                        fontSize: 13,
+                        color: 'var(--muted2)',
+                      }}>
+                        {expired ? (
+                          <span style={{ color: '#ef4444', fontWeight: 600 }}>
+                            ⚠️ 만료됨
+                          </span>
+                        ) : (
+                          <span>
+                            💡 클릭하여 사용하기
+                          </span>
+                        )}
                       </div>
-                      {expired && (
-                        <div style={{ color: '#ef4444', fontWeight: 600 }}>
-                          만료됨
-                        </div>
-                      )}
+                      <div style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: expired ? 'var(--muted2)' : '#3b82f6',
+                      }}>
+                        남은 횟수: {remaining}회
+                      </div>
                     </div>
                   </div>
                 )
