@@ -71,10 +71,7 @@ export async function POST(req: NextRequest) {
     // 1. 플랜 업데이트 (users 테이블에는 plan만 저장)
     const { error: updateError } = await supabase
       .from('users')
-      .update({
-        plan,
-        updated_at: now.toISOString(),
-      })
+      .update({ plan })
       .eq('email', session.user.email)
 
     if (updateError) {
