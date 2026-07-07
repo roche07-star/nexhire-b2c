@@ -4569,76 +4569,79 @@ function JDResults({
                     : '📋 구직 대시보드에 추가'}
                 </button>
               )}
-
-              {/* 수동 제안서 생성/재생성 버튼 - 🚨 항상 표시 (조건 제거) */}
-              {(console.log('🔍 제안서 버튼 렌더링:', { userType, proposalData: !!proposalData }), true) && (
-                <button
-                  className="analyze-download-btn"
-                  style={{
-                    background: proposalData
-                      ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'  // 재생성: 주황색
-                      : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', // 생성: 보라색
-                    color: '#fff',
-                  }}
-                  onClick={() => {
-                    if (proposalGenerating) return
-
-                    // 재생성 시 확인
-                    if (proposalData) {
-                      const isError = proposalData.proposal?.error
-                      const confirmMsg = isError
-                        ? '제안서 생성을 다시 시도하시겠습니까?'
-                        : '제안서를 다시 생성하시겠습니까?\n\n기존 제안서는 삭제되고 새로 생성됩니다.'
-
-                      if (!isError && !confirm(confirmMsg)) return
-
-                      // localStorage에서 제안서 삭제
-                      const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
-                      localStorage.removeItem(key)
-
-                      // proposalData 초기화
-                      setProposalData(null)
-                    }
-
-                    generateProposal()
-                  }}
-                  disabled={proposalGenerating}
-                >
-                  {proposalGenerating
-                    ? '⏳ 제안서 생성 중...'
-                    : proposalData
-                    ? proposalData.proposal?.error
-                      ? '🔄 제안서 다시 생성'
-                      : '🔄 제안서 재생성'
-                    : '📄 후보자 제안서 생성'}
-                </button>
-              )}
-
-              {/* 제안서 다운로드 버튼 (언제나 가능) */}
-              {userType === 'HEADHUNTER' && proposalData && !proposalData.proposal?.error && (
-                <button
-                  className="analyze-download-btn"
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: '#fff',
-                  }}
-                  onClick={() => {
-                    if (!proposalData || proposalData.proposal?.error) return
-
-                    const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `후보자제안서_${proposalData.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
-                    a.click()
-                    URL.revokeObjectURL(url)
-                  }}
-                >
-                  📄 후보자 제안서 다운로드
-                </button>
-              )}
             </>
           )
+        )}
+
+        {/* 제안서 생성/다운로드 버튼 - analysisItem 조건 밖으로 이동 */}
+        {userType === 'HEADHUNTER' && analysisItem && (
+          <>
+            {/* 수동 제안서 생성/재생성 버튼 */}
+            <button
+              className="analyze-download-btn"
+              style={{
+                background: proposalData
+                  ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'  // 재생성: 주황색
+                  : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', // 생성: 보라색
+                color: '#fff',
+              }}
+              onClick={() => {
+                if (proposalGenerating) return
+
+                // 재생성 시 확인
+                if (proposalData) {
+                  const isError = proposalData.proposal?.error
+                  const confirmMsg = isError
+                    ? '제안서 생성을 다시 시도하시겠습니까?'
+                    : '제안서를 다시 생성하시겠습니까?\n\n기존 제안서는 삭제되고 새로 생성됩니다.'
+
+                  if (!isError && !confirm(confirmMsg)) return
+
+                  // localStorage에서 제안서 삭제
+                  const key = `proposal_resume_${analysisItem.id}_jd_${result.id}`
+                  localStorage.removeItem(key)
+
+                  // proposalData 초기화
+                  setProposalData(null)
+                }
+
+                generateProposal()
+              }}
+              disabled={proposalGenerating}
+            >
+              {proposalGenerating
+                ? '⏳ 제안서 생성 중...'
+                : proposalData
+                ? proposalData.proposal?.error
+                  ? '🔄 제안서 다시 생성'
+                  : '🔄 제안서 재생성'
+                : '📄 후보자 제안서 생성'}
+            </button>
+
+            {/* 제안서 다운로드 버튼 */}
+            {proposalData && !proposalData.proposal?.error && (
+              <button
+                className="analyze-download-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#fff',
+                }}
+                onClick={() => {
+                  if (!proposalData || proposalData.proposal?.error) return
+
+                  const blob = new Blob([proposalData.html], { type: 'text/html;charset=utf-8' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `후보자제안서_${proposalData.proposal.candidate_info?.name || '미상'}_${new Date().toISOString().slice(0, 10)}.html`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                }}
+              >
+                📄 후보자 제안서 다운로드
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
