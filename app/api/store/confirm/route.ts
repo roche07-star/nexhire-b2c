@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       payment_gateway: 'tosspayments',
       transaction_id: paymentKey,
       paid_at: tossData.approvedAt || new Date().toISOString(),
-      description: `STORE - ${productName}`,
+      description: productName,
     }
 
     console.log('저장할 결제 데이터:', paymentData)
