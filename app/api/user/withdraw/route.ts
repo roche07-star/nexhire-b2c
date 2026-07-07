@@ -33,9 +33,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '사용자를 찾을 수 없습니다' }, { status: 404 })
   }
 
-  // 이미 탈퇴 중이거나 탈퇴한 경우
+  // 이미 탈퇴 중이거나 탈퇴한 경우: status를 active로 복원하고 계속 진행
+  // (재로그인 후 재탈퇴 케이스 처리)
   if (userData.status === 'withdrawing' || userData.status === 'withdrawn') {
-    return NextResponse.json({ error: '이미 탈퇴 처리 중입니다' }, { status: 400 })
+    console.log(`[withdraw] User ${email} was already withdrawn, resetting to active and proceeding`)
+    // status를 active로 복원하고 계속 진행
+    await supabase.from('users').update({ status: 'active' }).eq('email', email)
   }
 
   // 재가입 후 복원했던 경우: 이전 데이터 삭제, 최신 데이터만 보존
