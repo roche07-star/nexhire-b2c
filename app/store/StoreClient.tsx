@@ -21,7 +21,7 @@ const PRODUCTS: Product[] = [
     id: '1',
     name: '이력서 분석',
     nameEn: 'Resume Analysis',
-    price: 1000,
+    price: 1900,
     feature: 'resume',
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
