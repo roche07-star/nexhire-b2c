@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
 
     // 쿠폰 생성 (확장된 스키마 사용)
     const now = new Date().toISOString()
-    const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+    const threeMonthsLater = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
 
     const coupons = []
     for (const [type, count] of Object.entries(counts)) {
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
             issued_to: session.user.email,
             claimed_by: session.user.email,
             claimed_at: now,
-            expires_at: oneYearLater,
+            expires_at: threeMonthsLater,
             credits: count,
             used: 0,
             issued_by: 'STORE',
