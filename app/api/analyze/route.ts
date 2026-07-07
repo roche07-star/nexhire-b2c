@@ -279,8 +279,9 @@ export async function POST(req: NextRequest) {
     const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
     const replaceTargetId = (formData.get('replaceTargetId') as string | null) ?? null
 
-    // 이력서 저장 개수 체크 (MANAGER 제외, 새로 추가하는 경우만)
-    if (role !== 'MANAGER' && preserveMode !== 'replace') {
+    // 이력서 저장 개수 체크 (MANAGER 제외, 저장하는 경우만)
+    // preserveMode가 'skip' 또는 'none' 또는 'replace'인 경우는 체크 안 함
+    if (role !== 'MANAGER' && preserveMode !== 'replace' && preserveMode !== 'skip' && preserveMode !== 'none') {
       // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
       const { data: userData } = await supabase
         .from('users')
