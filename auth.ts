@@ -23,7 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .from('users')
         .select('plan, user_type, status')
         .eq('email', user.email)
-        .single()
+        .maybeSingle()
 
       // 탈퇴한 사용자 또는 신규 사용자: 완전 초기화
       const isWithdrawn = existingUser?.status === 'withdrawn' || existingUser?.status === 'withdrawing'
@@ -70,7 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .from('users')
           .select('plan, user_type')
           .eq('email', user.email)
-          .single()
+          .maybeSingle()
 
         token.plan = data?.plan ?? 'FREE'
 
