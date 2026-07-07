@@ -6,12 +6,15 @@ export async function POST(req: NextRequest) {
   try {
     const session = await auth()
     if (!session?.user?.email) {
+      console.error('[결제 확인] 인증 실패')
       return NextResponse.json({ error: '인증 필요' }, { status: 401 })
     }
 
     const { orderId, paymentKey, amount } = await req.json()
+    console.log('[결제 확인] 요청 파라미터:', { orderId, paymentKey, amount, email: session.user.email })
 
     if (!orderId || !paymentKey || !amount) {
+      console.error('[결제 확인] 필수 파라미터 누락:', { orderId, paymentKey, amount })
       return NextResponse.json({ error: '필수 파라미터 누락' }, { status: 400 })
     }
 
@@ -37,9 +40,10 @@ export async function POST(req: NextRequest) {
     })
 
     const tossData = await tossResponse.json()
+    console.log('[결제 확인] 토스 응답:', { ok: tossResponse.ok, status: tossResponse.status, data: tossData })
 
     if (!tossResponse.ok) {
-      console.error('토스 결제 승인 실패:', tossData)
+      console.error('[결제 확인] 토스 결제 승인 실패:', tossData)
       return NextResponse.json(
         { error: tossData.message || '결제 승인 실패' },
         { status: tossResponse.status }
@@ -49,6 +53,7 @@ export async function POST(req: NextRequest) {
     // orderId에서 플랜 정보 추출 (order_PRO_timestamp_random 형식)
     const planMatch = orderId.match(/order_([A-Z]+)_/)
     const plan = planMatch ? planMatch[1] : 'PRO' // 기본값 PRO
+    console.log('[결제 확인] 플랜 추출:', { orderId, planMatch, plan })
 
     // 사용자 정보 조회 (user_type 필요)
     const { data: userData } = await supabase
@@ -153,7 +158,11 @@ export async function POST(req: NextRequest) {
       plan,
     })
   } catch (error: any) {
-    console.error('결제 승인 오류:', error)
+    console.error('[결제 확인] 서버 오류:', {
+      message: error.message,
+      stack: error.stack,
+      error
+    })
     return NextResponse.json(
       { error: error.message || '서버 오류' },
       { status: 500 }
