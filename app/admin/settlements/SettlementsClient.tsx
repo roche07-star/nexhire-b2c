@@ -52,6 +52,8 @@ interface Refund {
   status: string
   requested_at: string
   processed_at: string | null
+  plan: string | null
+  description: string | null
 }
 
 interface RefundsData {
@@ -585,6 +587,7 @@ export default function SettlementsClient() {
                       <tr>
                         <th>요청일</th>
                         <th>사용자</th>
+                        <th>플랜</th>
                         <th className="text-right">금액</th>
                         <th>사유</th>
                         <th className="text-center">상태</th>
@@ -596,6 +599,11 @@ export default function SettlementsClient() {
                         <tr key={refund.id}>
                           <td>{new Date(refund.requested_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
                           <td className="email">{refund.user_email}</td>
+                          <td>
+                            <span className={`plan-badge ${refund.plan === 'EXPERT' ? 'expert' : refund.plan === 'STORE' ? 'store' : 'pro'}`}>
+                              {refund.description || refund.plan || '-'}
+                            </span>
+                          </td>
                           <td className="text-right amount">{formatCurrency(refund.amount)}</td>
                           <td className="reason">{refund.reason}</td>
                           <td className="text-center">{getStatusBadge(refund.status)}</td>
@@ -611,6 +619,9 @@ export default function SettlementsClient() {
                   {refunds.refunds.map((refund) => (
                     <div key={refund.id} className="payment-card">
                       <div className="card-header">
+                        <span className={`plan-badge ${refund.plan === 'EXPERT' ? 'expert' : refund.plan === 'STORE' ? 'store' : 'pro'}`}>
+                          {refund.description || refund.plan || '-'}
+                        </span>
                         {getStatusBadge(refund.status)}
                       </div>
                       <div className="card-amount">{formatCurrency(refund.amount)}</div>

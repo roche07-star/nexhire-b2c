@@ -101,22 +101,31 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '20')
 
   try {
-    let query = supabase
-      .from('refunds')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-
     // 페이지네이션
     const from = (page - 1) * limit
     const to = from + limit - 1
-    query = query.range(from, to)
 
-    const { data, error, count } = await query
+    // refunds와 payments 테이블 JOIN
+    const { data, error, count } = await supabase
+      .from('refunds')
+      .select(`
+        *,
+        payment:payments(plan, description)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to)
 
     if (error) throw error
 
+    // payment 정보를 refund 객체에 병합
+    const refundsWithPayment = (data || []).map((refund: any) => ({
+      ...refund,
+      plan: refund.payment?.plan || null,
+      description: refund.payment?.description || null,
+    }))
+
     return NextResponse.json({
-      refunds: data || [],
+      refunds: refundsWithPayment,
       pagination: {
         page,
         limit,
