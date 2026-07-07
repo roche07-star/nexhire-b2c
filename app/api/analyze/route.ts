@@ -261,8 +261,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 사용량 체크 (MANAGER 제외)
+    let userPlan = 'FREE' // 기본값
     if (role !== 'MANAGER') {
-      const { allowed, limit } = await checkUsage(email, 'analyze')
+      const { allowed, limit, plan } = await checkUsage(email, 'analyze')
+      userPlan = plan // 사용자 플랜 저장
       if (!allowed) {
         return NextResponse.json(
           { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
@@ -294,7 +296,14 @@ export async function POST(req: NextRequest) {
         .eq('feature', 'storage')
         .is('deleted_at', null)
 
-      const allowedCount = 1 + (resumeCouponCount ?? 0) // 기본 1개 + 쿠폰 개수
+      // 플랜별 기본 저장 한도
+      const planStorageLimits: Record<string, number> = {
+        FREE: 1,
+        PRO: 5,
+        EXPERT: 10,
+      }
+      const baseLimitForPlan = planStorageLimits[userPlan] || 1
+      const allowedCount = baseLimitForPlan + (resumeCouponCount ?? 0) // 플랜 기본 + 쿠폰 개수
 
       if ((savedCount ?? 0) >= allowedCount) {
         return NextResponse.json(
