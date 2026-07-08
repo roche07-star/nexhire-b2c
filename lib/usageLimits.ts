@@ -159,16 +159,29 @@ export async function incrementUsage(email: string, feature: Feature): Promise<v
     .eq('claimed_by', email)
     .eq('feature', feature)
     .gt('expires_at', new Date().toISOString())
+    .is('deleted_at', null)
     .order('expires_at', { ascending: true })
     .limit(1)
 
   const availableCoupon = (coupons || []).find(c => c.used < c.credits)
 
   if (availableCoupon) {
-    // 쿠폰 사용 횟수 증가
-    await supabase
-      .from('coupons')
-      .update({ used: availableCoupon.used + 1 })
-      .eq('id', availableCoupon.id)
+    // ✅ 원자적 쿠폰 사용 (Optimistic Locking)
+    const { data: success, error } = await supabase.rpc('increment_coupon_used', {
+      coupon_id: availableCoupon.id
+    })
+
+    if (error) {
+      console.error(`[usageLimits] 쿠폰 증가 실패:`, error)
+      throw new Error('쿠폰 사용 처리에 실패했습니다.')
+    }
+
+    if (!success) {
+      // RPC가 false 반환 = 동시 요청으로 이미 소진됨
+      console.warn(`[usageLimits] 쿠폰 ${availableCoupon.id} 이미 소진됨 (레이스 컨디션)`)
+      throw new Error('쿠폰이 이미 소진되었습니다. 다시 시도해주세요.')
+    }
+
+    console.log(`[usageLimits] 쿠폰 사용 성공:`, availableCoupon.id)
   }
 }

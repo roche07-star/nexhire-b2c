@@ -858,7 +858,15 @@ ${maskedText.slice(0, 3000)}
 
             // storage 쿠폰 사용 처리 (used 카운트 증가)
             if (storageCouponUsed) {
-              await supabase.rpc('increment_coupon_used', { coupon_id: storageCouponUsed })
+              const { data: couponSuccess, error: couponError } = await supabase.rpc('increment_coupon_used', {
+                coupon_id: storageCouponUsed
+              })
+
+              if (couponError) {
+                console.error('[analyze] storage 쿠폰 사용 실패:', couponError)
+              } else if (!couponSuccess) {
+                console.warn('[analyze] storage 쿠폰 이미 소진됨 (레이스 컨디션):', storageCouponUsed)
+              }
             }
           }
         } else {
