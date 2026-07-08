@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 export default function WithdrawSection() {
@@ -11,8 +11,6 @@ export default function WithdrawSection() {
   const [inputEmail, setInputEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [modalTop, setModalTop] = useState(100)
-  const withdrawButtonRef = useRef<HTMLButtonElement>(null)
 
   if (!userEmail) return null
 
@@ -48,15 +46,9 @@ export default function WithdrawSection() {
       <p style={{ marginTop: 8 }}>유료 플랜 이용 중이라면 플랜 종료일까지 정상적으로 서비스를 이용할 수 있습니다.</p>
       <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}>고객센터</a>로 연락해 주세요.</p>
       <button
-        ref={withdrawButtonRef}
         className="withdraw-link"
         style={{ marginTop: 16, fontSize: 13 }}
         onClick={() => {
-          if (withdrawButtonRef.current) {
-            const rect = withdrawButtonRef.current.getBoundingClientRect()
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-            setModalTop(rect.top + scrollTop - 600)
-          }
           setOpen(true)
           setInputEmail('')
           setError(null)
@@ -66,7 +58,7 @@ export default function WithdrawSection() {
       </button>
 
       {open && (
-        <div className="withdraw-overlay" onClick={() => !loading && setOpen(false)} style={{ alignItems: 'flex-start', paddingTop: `${modalTop}px` }}>
+        <div className="withdraw-overlay" onClick={() => !loading && setOpen(false)}>
           <div className="withdraw-modal" onClick={(e) => e.stopPropagation()}>
             <div className="withdraw-modal-icon">⚠️</div>
             <div className="withdraw-modal-title">정말 탈퇴하시겠어요?</div>
