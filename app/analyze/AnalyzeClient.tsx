@@ -3322,7 +3322,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <input
                   type="text"
                   name="candidate_name"
-                  defaultValue={hiringJDInfo.candidateName || '후보자'}
+                  defaultValue={hiringJDInfo.candidateName || ''}
                   required
                   placeholder="예: 김대리"
                   style={{
@@ -4068,7 +4068,7 @@ function AnalysisResults({
                 <input
                   type="text"
                   name="candidate_name"
-                  defaultValue={hiringJDInfo.candidateName || result.candidate_name || '후보자'}
+                  defaultValue={hiringJDInfo.candidateName || ''}
                   required
                   placeholder="예: 김대리"
                   style={{
