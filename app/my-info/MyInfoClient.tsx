@@ -169,7 +169,9 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {coupons.map((coupon) => {
+              {coupons
+                .filter(coupon => remainingCredits(coupon) > 0)  // 사용 완료된 쿠폰 제외
+                .map((coupon) => {
                 const expired = isExpired(coupon.expires_at)
                 const remaining = remainingCredits(coupon)
 
