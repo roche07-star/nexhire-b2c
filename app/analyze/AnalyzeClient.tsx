@@ -1660,7 +1660,35 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div key={item.id} className="jd-saved-card" onClick={() => setSavedSelectedItem(item)}>
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">
-                                {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
+                                <strong
+                                  style={{
+                                    color: item.result.candidate_name ? '#a78bfa' : '#888',
+                                    marginRight: '8px',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline dotted',
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    const newName = prompt('후보자 이름을 입력하세요:', item.result.candidate_name || '')
+                                    if (newName !== null && newName.trim() !== item.result.candidate_name) {
+                                      fetch(`/api/analysis/${item.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ candidate_name: newName.trim() })
+                                      }).then(res => {
+                                        if (res.ok) {
+                                          // 목록 새로고침
+                                          window.location.reload()
+                                        } else {
+                                          alert('이름 저장에 실패했습니다.')
+                                        }
+                                      })
+                                    }
+                                  }}
+                                  title="클릭하여 이름 수정"
+                                >
+                                  {item.result.candidate_name || '미정'}
+                                </strong>
                                 {item.result.job_title ?? '이력서 분석'}
                               </span>
                               <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
@@ -1872,7 +1900,34 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div key={item.id} className="jd-saved-card rewrite-card">
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">
-                                {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
+                                <strong
+                                  style={{
+                                    color: item.result.candidate_name ? '#a78bfa' : '#888',
+                                    marginRight: '8px',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline dotted',
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    const newName = prompt('후보자 이름을 입력하세요:', item.result.candidate_name || '')
+                                    if (newName !== null && newName.trim() !== item.result.candidate_name) {
+                                      fetch(`/api/analysis/${item.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ candidate_name: newName.trim() })
+                                      }).then(res => {
+                                        if (res.ok) {
+                                          window.location.reload()
+                                        } else {
+                                          alert('이름 저장에 실패했습니다.')
+                                        }
+                                      })
+                                    }
+                                  }}
+                                  title="클릭하여 이름 수정"
+                                >
+                                  {item.result.candidate_name || '미정'}
+                                </strong>
                                 {item.result.job_title ?? '이력서 분석'}
                                 {isTextPaste
                                   ? <span className="preserve-badge text-paste">텍스트 입력</span>
@@ -2265,7 +2320,34 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               >
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">
-                                    {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
+                                    <strong
+                                      style={{
+                                        color: item.result.candidate_name ? '#a78bfa' : '#888',
+                                        marginRight: '8px',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline dotted',
+                                      }}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const newName = prompt('후보자 이름을 입력하세요:', item.result.candidate_name || '')
+                                        if (newName !== null && newName.trim() !== item.result.candidate_name) {
+                                          fetch(`/api/analysis/${item.id}`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ candidate_name: newName.trim() })
+                                          }).then(res => {
+                                            if (res.ok) {
+                                              window.location.reload()
+                                            } else {
+                                              alert('이름 저장에 실패했습니다.')
+                                            }
+                                          })
+                                        }
+                                      }}
+                                      title="클릭하여 이름 수정"
+                                    >
+                                      {item.result.candidate_name || '미정'}
+                                    </strong>
                                     {item.result.job_title ?? '이력서 분석'}
                                   </span>
                                   {(() => {
