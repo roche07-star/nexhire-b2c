@@ -1659,7 +1659,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             {filteredList.map((item) => (
                           <div key={item.id} className="jd-saved-card" onClick={() => setSavedSelectedItem(item)}>
                             <div className="jd-saved-card-left">
-                              <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                              <span className="jd-saved-company">
+                                {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
+                                {item.result.job_title ?? '이력서 분석'}
+                              </span>
                               <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
                             </div>
                             <div className="jd-saved-card-right">
@@ -1869,6 +1872,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div key={item.id} className="jd-saved-card rewrite-card">
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">
+                                {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
                                 {item.result.job_title ?? '이력서 분석'}
                                 {isTextPaste
                                   ? <span className="preserve-badge text-paste">텍스트 입력</span>
@@ -2260,7 +2264,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 onClick={() => { setInterviewSelectedAnalysis(item); setInterviewJdId(null); setInterviewFormat(''); setInterviewerInfo(''); setInterviewNotes('') }}
                               >
                                 <div className="jd-saved-card-left">
-                                  <span className="jd-saved-company">{item.result.job_title ?? '이력서 분석'}</span>
+                                  <span className="jd-saved-company">
+                                    {item.result.candidate_name && <strong style={{ color: '#a78bfa', marginRight: '8px' }}>{item.result.candidate_name}</strong>}
+                                    {item.result.job_title ?? '이력서 분석'}
+                                  </span>
                                   {(() => {
                                     // 보안: localStorage에서 읽지 않고 result에서 직접 사용
                                     const candidateName = item.result.candidate_name
