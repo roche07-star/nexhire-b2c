@@ -22,6 +22,21 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${base}/consent`)
       }
 
+      // ✅ 개인정보 동의 확인 (탈퇴 취소 후 재로그인 시 필수)
+      const { data: consentData } = await supabase
+        .from('consents')
+        .select('consent_type, is_agreed')
+        .eq('user_email', session.user.email)
+        .eq('consent_type', 'privacy_required')
+        .eq('is_agreed', true)
+        .is('withdrawn_at', null)
+        .maybeSingle()
+
+      if (!consentData) {
+        console.log('[after-login] No privacy consent, redirecting to consent')
+        return NextResponse.redirect(`${base}/consent`)
+      }
+
       console.log('[after-login] User type:', data.user_type, 'Plan:', data.plan)
 
       // user_type에 따라 리다이렉트

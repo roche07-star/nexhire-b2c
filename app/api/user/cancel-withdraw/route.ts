@@ -39,15 +39,17 @@ export async function POST() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // 개인정보 동의 복원
-  await supabase.from('consents').update({
-    is_agreed: true,
-    withdrawn_at: null,
-  }).eq('user_email', email).eq('is_agreed', false)
+  // ✅ 동의 자동 복원 제거 (GDPR/PIPA 준수)
+  // 사용자가 재로그인 시 동의 팝업을 통해 직접 재동의해야 함
+  // 기존 코드 (제거됨):
+  // await supabase.from('consents').update({
+  //   is_agreed: true,
+  //   withdrawn_at: null,
+  // }).eq('user_email', email).eq('is_agreed', false)
 
-  console.log(`[cancel-withdraw] User ${email} withdrawal cancelled`)
+  console.log(`[cancel-withdraw] User ${email} withdrawal cancelled (consents NOT auto-restored)`)
 
   return NextResponse.json({
-    message: '탈퇴 신청이 취소되었습니다. 정상적으로 서비스를 이용하실 수 있습니다.',
+    message: '탈퇴 신청이 취소되었습니다. 재로그인 후 개인정보 동의를 다시 진행해주세요.',
   })
 }
