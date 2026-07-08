@@ -698,38 +698,80 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
         {/* 새 주간 업무 작성 */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '20px',
-          padding: '32px',
+          background: 'linear-gradient(135deg, rgba(232, 255, 71, 0.03) 0%, rgba(255, 255, 255, 0.05) 100%)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '24px',
+          padding: '40px',
           marginBottom: '32px',
-          border: '1px solid rgba(232, 255, 71, 0.1)',
+          border: '1px solid rgba(232, 255, 71, 0.15)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
         }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 600,
-            color: '#fff',
-            marginBottom: '16px',
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '24px',
           }}>
-            🆕 새 주간 업무 작성
-          </h2>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}>
+              ✍️
+            </div>
+            <div>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: 700,
+                color: '#fff',
+                marginBottom: '4px',
+                letterSpacing: '-0.5px',
+              }}>
+                새 주간 업무 작성
+              </h2>
+              <p style={{
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.6)',
+                margin: 0,
+              }}>
+                JOBIZIC이 업무 진행을 체계적으로 정리하도록 돕습니다
+              </p>
+            </div>
+          </div>
 
           <textarea
-            placeholder="이번 주에 수행한 업무를 자유롭게 작성해주세요.&#10;&#10;예)&#10;- 신규 기능 개발: 사용자 대시보드 UI 개선&#10;- 버그 수정: 결제 모듈 오류 3건 해결&#10;- 회의 참석: 주간 팀 미팅, 제품 기획 회의"
+            placeholder="이번 주에 수행한 업무를 간단히 적어주세요. 예시:&#10;• 신규 기능 개발 (사용자 대시보드 UI 개선)&#10;• 버그 수정 3건 완료&#10;• 팀 미팅 및 제품 기획 회의 참석"
             value={weeklyInput}
             onChange={(e) => setWeeklyInput(e.target.value)}
-            rows={8}
+            rows={7}
             style={{
               width: '100%',
-              padding: '18px',
+              padding: '20px',
               fontSize: '15px',
-              background: 'rgba(255, 255, 255, 0.08)',
+              background: 'rgba(0, 0, 0, 0.3)',
               border: '2px solid rgba(232, 255, 71, 0.2)',
-              borderRadius: '12px',
+              borderRadius: '16px',
               color: '#fff',
               resize: 'vertical',
-              marginBottom: '16px',
+              marginBottom: '20px',
               lineHeight: '1.8',
+              fontFamily: 'inherit',
+              transition: 'all 0.3s ease',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.5)'
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.4)'
+              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(232, 255, 71, 0.1)'
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.2)'
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)'
+              e.currentTarget.style.boxShadow = 'none'
             }}
           />
 
@@ -738,33 +780,46 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             disabled={isGenerating || !organizationSaved}
             style={{
               width: '100%',
-              padding: '16px',
-              fontSize: '17px',
-              fontWeight: 600,
-              background: isGenerating || !organizationSaved ? '#555' : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
-              color: isGenerating || !organizationSaved ? '#999' : '#000',
+              padding: '20px',
+              fontSize: '18px',
+              fontWeight: 700,
+              background: isGenerating || !organizationSaved
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
+              color: isGenerating || !organizationSaved ? 'rgba(255, 255, 255, 0.3)' : '#000',
               border: 'none',
-              borderRadius: '12px',
+              borderRadius: '16px',
               cursor: isGenerating || !organizationSaved ? 'not-allowed' : 'pointer',
-              transition: 'transform 0.2s',
+              transition: 'all 0.3s ease',
+              boxShadow: isGenerating || !organizationSaved
+                ? 'none'
+                : '0 4px 20px rgba(232, 255, 71, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              letterSpacing: '-0.3px',
             }}
-            onMouseEnter={(e) => !isGenerating && organizationSaved && (e.currentTarget.style.transform = 'scale(1.02)')}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseEnter={(e) => {
+              if (!isGenerating && organizationSaved) {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 30px rgba(232, 255, 71, 0.4)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = isGenerating || !organizationSaved
+                ? 'none'
+                : '0 4px 20px rgba(232, 255, 71, 0.3)'
+            }}
           >
-            {isGenerating ? '🤖 JOBIZIC 정리 중...' : '✨ JOBIZIC 정리하기'}
+            <span style={{ fontSize: '20px' }}>
+              {isGenerating ? '⚡' : '✨'}
+            </span>
+            <span>
+              {isGenerating ? 'JOBIZIC이 정리하는 중...' : '전문적으로 정리하기'}
+            </span>
           </button>
-
-          <div style={{
-            background: 'rgba(232, 255, 71, 0.1)',
-            borderRadius: '10px',
-            padding: '12px 16px',
-            fontSize: '13px',
-            color: '#e8ff47',
-            lineHeight: '1.6',
-            marginTop: '16px',
-          }}>
-            <strong>💡 TIP:</strong> 정량적 성과(숫자, 비율, 기간)를 포함하면 채용 담당자가 주목합니다.
-          </div>
         </div>
       </div>
     </div>
