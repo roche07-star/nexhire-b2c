@@ -21,11 +21,11 @@ export async function POST(req: NextRequest) {
     const email = session.user.email
     const role = (session.user as { role?: string }).role ?? 'USER'
 
-    // EXPERT 플랜 체크
+    // PRO 이상 플랜 체크 (interview limit > 0인 플랜)
     const { data: userData } = await supabase.from('users').select('plan').eq('email', email).single()
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
-    if (plan !== 'EXPERT') {
-      return NextResponse.json({ error: 'EXPERT 플랜에서만 사용 가능합니다.' }, { status: 403 })
+    if (plan !== 'PRO' && plan !== 'EXPERT') {
+      return NextResponse.json({ error: 'PRO 플랜 이상에서 사용 가능합니다.' }, { status: 403 })
     }
 
     // Usage 체크
