@@ -698,13 +698,13 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
 
         {/* 새 주간 업무 작성 */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(232, 255, 71, 0.03) 0%, rgba(255, 255, 255, 0.05) 100%)',
+          background: 'linear-gradient(135deg, rgba(232, 255, 71, 0.12) 0%, rgba(255, 255, 255, 0.15) 100%)',
           backdropFilter: 'blur(20px)',
           borderRadius: '24px',
           padding: '40px',
           marginBottom: '32px',
-          border: '1px solid rgba(232, 255, 71, 0.15)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          border: '2px solid rgba(232, 255, 71, 0.3)',
+          boxShadow: '0 8px 32px rgba(232, 255, 71, 0.15), 0 0 80px rgba(232, 255, 71, 0.1)',
         }}>
           <div style={{
             display: 'flex',
@@ -721,6 +721,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '24px',
+              boxShadow: '0 4px 20px rgba(232, 255, 71, 0.4)',
             }}>
               ✍️
             </div>
@@ -731,12 +732,13 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                 color: '#fff',
                 marginBottom: '4px',
                 letterSpacing: '-0.5px',
+                textShadow: '0 2px 10px rgba(232, 255, 71, 0.3)',
               }}>
                 새 주간 업무 작성
               </h2>
               <p style={{
                 fontSize: '14px',
-                color: 'rgba(255, 255, 255, 0.6)',
+                color: 'rgba(232, 255, 71, 0.9)',
                 margin: 0,
               }}>
                 JOBIZIC이 업무 진행을 체계적으로 정리하도록 돕습니다
@@ -753,8 +755,8 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               width: '100%',
               padding: '20px',
               fontSize: '15px',
-              background: 'rgba(0, 0, 0, 0.3)',
-              border: '2px solid rgba(232, 255, 71, 0.2)',
+              background: 'rgba(0, 0, 0, 0.5)',
+              border: '2px solid rgba(232, 255, 71, 0.4)',
               borderRadius: '16px',
               color: '#fff',
               resize: 'vertical',
@@ -764,13 +766,13 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               transition: 'all 0.3s ease',
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.5)'
-              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.4)'
-              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(232, 255, 71, 0.1)'
+              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.8)'
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.6)'
+              e.currentTarget.style.boxShadow = '0 0 0 4px rgba(232, 255, 71, 0.2), 0 0 40px rgba(232, 255, 71, 0.15)'
             }}
             onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.2)'
-              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)'
+              e.currentTarget.style.borderColor = 'rgba(232, 255, 71, 0.4)'
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)'
               e.currentTarget.style.boxShadow = 'none'
             }}
           />
@@ -793,7 +795,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               transition: 'all 0.3s ease',
               boxShadow: isGenerating || !organizationSaved
                 ? 'none'
-                : '0 4px 20px rgba(232, 255, 71, 0.3)',
+                : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -803,14 +805,14 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             onMouseEnter={(e) => {
               if (!isGenerating && organizationSaved) {
                 e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 30px rgba(232, 255, 71, 0.4)'
+                e.currentTarget.style.boxShadow = '0 8px 40px rgba(232, 255, 71, 0.6), 0 0 80px rgba(232, 255, 71, 0.3)'
               }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
               e.currentTarget.style.boxShadow = isGenerating || !organizationSaved
                 ? 'none'
-                : '0 4px 20px rgba(232, 255, 71, 0.3)'
+                : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)'
             }}
           >
             <span style={{ fontSize: '20px' }}>
