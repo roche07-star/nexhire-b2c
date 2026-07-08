@@ -1,10 +1,40 @@
 const JobizicLogoSmall = () => (
-  <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100" height="100" rx="22" fill="#1a1a14"/>
-    <rect x="3" y="3" width="94" height="94" rx="19" stroke="#e8ff47" strokeWidth="5"/>
-    <text x="50" y="70" textAnchor="middle" fontFamily="'Arial Black', 'Outfit', sans-serif" fontWeight="900" fontSize="50" letterSpacing="-1">
+  <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#2a2a24" />
+        <stop offset="100%" stopColor="#1a1a14" />
+      </linearGradient>
+      <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#e8ff47" />
+        <stop offset="50%" stopColor="#f0ff70" />
+        <stop offset="100%" stopColor="#e8ff47" />
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* 배경 */}
+    <rect width="100" height="100" rx="24" fill="url(#bgGradient)"/>
+
+    {/* 그라데이션 테두리 */}
+    <rect x="3" y="3" width="94" height="94" rx="21" stroke="url(#borderGradient)" strokeWidth="4" opacity="0.9"/>
+
+    {/* 내부 광채 효과 */}
+    <rect x="8" y="8" width="84" height="84" rx="18" stroke="#e8ff47" strokeWidth="1" opacity="0.3"/>
+
+    {/* 텍스트 */}
+    <text x="50" y="72" textAnchor="middle" fontFamily="'Arial Black', 'Outfit', sans-serif" fontWeight="900" fontSize="52" letterSpacing="-2" filter="url(#glow)">
       <tspan fill="#e8e8de">J</tspan><tspan fill="#e8ff47">z</tspan>
     </text>
+
+    {/* 작은 강조점 */}
+    <circle cx="75" cy="25" r="3" fill="#e8ff47" opacity="0.6"/>
   </svg>
 )
 
