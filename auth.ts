@@ -80,6 +80,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user }) {
       if (user?.email) {
+        // ✅ RLS 정책을 위해 JWT에 email 포함 (CRITICAL)
+        token.email = user.email
+
         const superAdmins = (process.env.MANAGER_EMAILS ?? '')
           .split(',').map((e) => e.trim()).filter(Boolean)
         const isSuperAdmin = superAdmins.includes(user.email)

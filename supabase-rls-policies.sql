@@ -32,28 +32,17 @@ CREATE POLICY "users_update_own" ON users
   WITH CHECK (email = auth.jwt() ->> 'email');
 
 -- 정책 3: SUPER_ADMIN은 모든 사용자 읽기 가능
-CREATE POLICY "users_read_admin" ON users
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM users
-      WHERE email = auth.jwt() ->> 'email'
-        AND user_type = 'SUPER_ADMIN'
-    )
-  );
+-- ⚠️ users 테이블 자체에 RLS가 걸려있어 순환 참조 발생
+-- 해결: Service Role Key로 실행되는 signIn 콜백에서 처리하므로 제외
+-- 또는 JWT claim을 직접 확인 (향후 Supabase Auth 전환 시)
 
 -- 정책 4: SUPER_ADMIN은 모든 사용자 업데이트 가능
-CREATE POLICY "users_update_admin" ON users
-  FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM users
-      WHERE email = auth.jwt() ->> 'email'
-        AND user_type = 'SUPER_ADMIN'
-    )
-  );
+-- ⚠️ 동일한 이유로 제외
 
 -- 정책 5: 신규 사용자 생성 (OAuth 로그인 시)
+-- ⚠️ signIn 콜백은 Service Role Key로 실행되므로 RLS 우회
+-- 따라서 이 정책은 supabaseClient로 직접 INSERT 시도할 때만 적용됨
+-- 현재는 signIn 콜백에서만 사용자를 생성하므로 불필요하지만, 안전을 위해 유지
 CREATE POLICY "users_insert_new" ON users
   FOR INSERT
   WITH CHECK (email = auth.jwt() ->> 'email');
