@@ -18,6 +18,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '필수 파라미터 누락' }, { status: 400 })
     }
 
+    // ✅ 멱등성 체크: 같은 orderId로 이미 처리된 결제인지 확인
+    const { data: existingPayment } = await supabase
+      .from('payments')
+      .select('transaction_id, status, plan')
+      .eq('user_email', session.user.email)
+      .eq('transaction_id', paymentKey)
+      .maybeSingle()
+
+    if (existingPayment) {
+      console.log('[결제 확인] 이미 처리된 결제:', existingPayment)
+      return NextResponse.json({
+        success: true,
+        orderId,
+        amount,
+        plan: existingPayment.plan,
+        duplicate: true, // 중복 요청
+      })
+    }
+
     // 토스페이먼츠 결제 승인 요청
     const secretKey = process.env.TOSS_SECRET_KEY
     if (!secretKey) {
@@ -79,23 +98,84 @@ export async function POST(req: NextRequest) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
 
-    // 1. 플랜 업데이트 (users 테이블에는 plan만 저장)
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ plan })
-      .eq('email', session.user.email)
+    // ✅ 플랜 업데이트 with 재시도 로직 (보상 트랜잭션)
+    let updateError = null
+    let retryCount = 0
+    const MAX_RETRY = 3
 
+    while (retryCount < MAX_RETRY) {
+      const { error } = await supabase
+        .from('users')
+        .update({ plan })
+        .eq('email', session.user.email)
+
+      if (!error) {
+        console.log(`[결제 확인] 플랜 업데이트 성공 (시도 ${retryCount + 1}/${MAX_RETRY})`)
+        updateError = null
+        break
+      }
+
+      updateError = error
+      retryCount++
+      console.warn(`[결제 확인] 플랜 업데이트 실패 (시도 ${retryCount}/${MAX_RETRY}):`, error)
+
+      if (retryCount < MAX_RETRY) {
+        // Exponential backoff: 100ms, 200ms, 400ms
+        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, retryCount - 1)))
+      }
+    }
+
+    // ⚠️ 재시도 실패 시 보상 트랜잭션: 토스 결제 취소
     if (updateError) {
-      console.error('[결제 확인] 플랜 업데이트 실패:', updateError)
-      return NextResponse.json(
-        {
-          error: '결제는 완료되었으나 플랜 업데이트에 실패했습니다. 고객센터로 문의해주세요.',
-          details: updateError.message,
-          code: updateError.code,
-          hint: updateError.hint
-        },
-        { status: 500 }
-      )
+      console.error('[결제 확인] 플랜 업데이트 최종 실패. 토스 결제 취소 시도:', updateError)
+
+      try {
+        const cancelResponse = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${encodedKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cancelReason: 'DB 업데이트 실패로 인한 자동 취소',
+          }),
+        })
+
+        const cancelData = await cancelResponse.json()
+
+        if (cancelResponse.ok) {
+          console.log('[결제 확인] 토스 결제 취소 성공:', cancelData)
+          return NextResponse.json(
+            {
+              error: '플랜 업데이트에 실패하여 결제가 자동 취소되었습니다. 다시 시도해주세요.',
+              cancelled: true,
+            },
+            { status: 500 }
+          )
+        } else {
+          console.error('[결제 확인] 토스 결제 취소 실패:', cancelData)
+          // 취소도 실패 → 수동 처리 필요
+          return NextResponse.json(
+            {
+              error: '결제는 완료되었으나 플랜 업데이트에 실패했습니다. 고객센터(070-8095-5546)로 문의해주세요.',
+              details: updateError.message,
+              code: updateError.code,
+              paymentKey, // 고객센터에서 수동 취소 위해 제공
+            },
+            { status: 500 }
+          )
+        }
+      } catch (cancelError: any) {
+        console.error('[결제 확인] 토스 결제 취소 요청 오류:', cancelError)
+        return NextResponse.json(
+          {
+            error: '결제는 완료되었으나 플랜 업데이트에 실패했습니다. 고객센터(070-8095-5546)로 문의해주세요.',
+            details: updateError.message,
+            paymentKey,
+          },
+          { status: 500 }
+        )
+      }
     }
 
     // 2. 업데이트 확인
