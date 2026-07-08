@@ -21,7 +21,7 @@ function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
     company: jdAnalysis.company || '미상',
     position: jdAnalysis.position || '미상',
     date: new Date().toISOString().slice(0, 7).replace('-', '. '),
-    summary: `${resumeAnalysis.candidate_name}님은 ${resumeAnalysis.job_title} 분야에서 ${experience}의 경력을 보유하고 있으며, JD 적합도 ${jdAnalysis.fit_score}점으로 우수한 후보자입니다.`,
+    summary: `${resumeAnalysis.candidate_name}님은 ${resumeAnalysis.job_title} 분야에서 ${experience}의 경력을 보유하고 있으며, 우수한 후보자입니다.`,
     candidate_info: {
       name: resumeAnalysis.candidate_name || '미상',
       current_position: resumeAnalysis.job_title || '미기재',
@@ -34,9 +34,9 @@ function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
       ? resumeAnalysis.strengths.slice(0, 5)
       : ['경력 기반 전문성', '직무 적합성', '성장 가능성'],
     fit_analysis: {
-      technical_fit: `JD 적합도 ${jdAnalysis.fit_score}점으로 기술적 요구사항을 충족합니다.`,
+      technical_fit: `기술적 요구사항을 충족합니다.`,
       cultural_fit: `매칭 강점을 바탕으로 조직 문화에 잘 적응할 것으로 예상됩니다.`,
-      growth_potential: `성장 가능성 ${resumeAnalysis.scores?.growth_potential || 0}점으로 장기적인 발전 가능성이 높습니다.`,
+      growth_potential: `장기적인 발전 가능성이 높습니다.`,
     },
     recommendation: jdAnalysis.recommendation === 'APPLY' ? 'HIGHLY_RECOMMEND' :
                      jdAnalysis.recommendation === 'CONSIDER' ? 'RECOMMEND' : 'CONSIDER',
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
               company: { type: 'string', description: 'JD 회사명 (제공된 값 그대로)' },
               position: { type: 'string', description: 'JD 포지션 (제공된 값 그대로)' },
               date: { type: 'string', description: '작성 날짜 YYYY. MM' },
-              summary: { type: 'string', description: '추천 요약 (3-5문장, 제공된 점수 포함)' },
+              summary: { type: 'string', description: '추천 요약 (3-5문장, 구체적 경력과 강점 중심)' },
               candidate_info: {
                 type: 'object',
                 properties: {
@@ -244,9 +244,9 @@ export async function POST(req: NextRequest) {
     "위 강점 정보를 기반으로 한 핵심 강점 3-5개 (구체적 사례 포함)"
   ],
   "fit_analysis": {
-    "technical_fit": "JD 적합도 ${jdAnalysis.fit_score}점 기반 기술적 적합성 분석",
-    "cultural_fit": "매칭 강점 및 부족한 점 기반 문화적 적합성 분석",
-    "growth_potential": "성장 가능성 ${resumeAnalysis.scores?.growth_potential || 0}점 기반 분석"
+    "technical_fit": "매칭 강점 기반 기술적 적합성 분석",
+    "cultural_fit": "조직 문화 및 협업 능력 기반 문화적 적합성 분석",
+    "growth_potential": "경력 경로 및 잠재력 기반 성장 가능성 분석"
   },
   "recommendation": "${jdAnalysis.recommendation === 'APPLY' ? 'HIGHLY_RECOMMEND' : jdAnalysis.recommendation === 'CONSIDER' ? 'RECOMMEND' : 'CONSIDER'}",
   "next_steps": "면접 일정 조율을 제안합니다."
