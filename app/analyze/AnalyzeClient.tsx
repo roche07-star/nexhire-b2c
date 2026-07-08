@@ -1458,16 +1458,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 >
                   <span>✏️</span> 이력서 생성
                 </button>
-                {isExpert ? (
+                {isPro ? (
                   <button
                     className={`analyze-tab-btn${activeMenu === 'interview' ? ' active' : ''}`}
                     onClick={() => onMenuClick('interview')}
                   >
-                    <span>🎤</span> 면접 가이드 <span className="tab-expert-badge">EXPERT</span>
+                    <span>🎤</span> 면접 가이드 {isExpert && <span className="tab-expert-badge">EXPERT</span>}
                   </button>
                 ) : (
                   <button className="analyze-tab-btn disabled" disabled>
-                    <span>🎤</span> 면접 가이드 <span className="tab-soon">EXPERT</span>
+                    <span>🎤</span> 면접 가이드 <span className="tab-soon">PRO</span>
                   </button>
                 )}
               </div>
