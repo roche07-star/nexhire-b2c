@@ -2025,8 +2025,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               const renderGuide = (g: InterviewGuideResult) => {
                 // Q&A 텍스트 렌더링 함수 (질문과 답변 색상 구분)
                 const renderQA = (text: string) => {
-                  return (text ?? '').split('\n').map((l, i) => {
+                  // Q:, A: 앞에서 강제 줄바꿈 (Claude가 줄바꿈 안 넣는 경우 대비)
+                  const normalized = (text ?? '')
+                    .replace(/([^\n])(Q\d+:|Q:|Q\.)/g, '$1\n$2')  // Q: 앞에 줄바꿈
+                    .replace(/([^\n])(A:|A\.)/g, '$1\n$2')        // A: 앞에 줄바꿈
+
+                  return normalized.split('\n').map((l, i) => {
                     const trimmed = l.trim()
+                    if (!trimmed) return null  // 빈 줄 제거
+
                     if (trimmed.startsWith('Q:') || trimmed.startsWith('Q.') || /^Q\d+[:.]/.test(trimmed)) {
                       return <p key={i} style={{ color: '#e8ff47', fontWeight: 700, marginTop: i > 0 ? '16px' : '0' }}>{l}</p>
                     } else if (trimmed.startsWith('A:') || trimmed.startsWith('A.')) {
