@@ -7,6 +7,7 @@ import './consent.css'
 function ConsentPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const skipType = searchParams.get('skip-type') === 'true' // ✅ 탈퇴 취소 후 재로그인
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,10 +22,30 @@ function ConsentPageContent() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    // 이미 동의한 사용자인지 체크
-    checkExistingConsent()
+    // skip-type=true면 DB에서 user_type 조회
+    if (skipType) {
+      fetchExistingUserType()
+    } else {
+      // 이미 동의한 사용자인지 체크
+      checkExistingConsent()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [skipType])
+
+  async function fetchExistingUserType() {
+    try {
+      const res = await fetch('/api/my-info')
+      if (res.ok) {
+        const data = await res.json()
+        if (data.userType) {
+          console.log('[consent] Existing user_type:', data.userType)
+          setUserType(data.userType as 'JOBSEEKER' | 'HEADHUNTER')
+        }
+      }
+    } catch (e) {
+      console.error('user_type 조회 실패:', e)
+    }
+  }
 
   async function checkExistingConsent() {
     try {
@@ -48,7 +69,8 @@ function ConsentPageContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!userType) {
+    // skip-type이 아닐 때만 user_type 검증
+    if (!skipType && !userType) {
       setError('사용자 유형을 선택해주세요.')
       return
     }
@@ -108,11 +130,13 @@ function ConsentPageContent() {
         <div className="consent-header">
           <div className="logo">JOBIZIC</div>
           <h1>
-            {!userType ? '환영합니다!' :
+            {skipType ? '서비스 이용 동의' :
+             !userType ? '환영합니다!' :
              userType === 'HEADHUNTER' ? '헤드헌터 회원가입' : '개인정보 수집·이용 동의'}
           </h1>
           <p className="subtitle">
-            {!userType ? 'JOBIZIC을 어떻게 사용하실 계획인가요?' :
+            {skipType ? '계속해서 서비스를 이용하시려면 아래 내용을 확인하고 동의해주세요' :
+             !userType ? 'JOBIZIC을 어떻게 사용하실 계획인가요?' :
              userType === 'HEADHUNTER'
               ? '후보자 개인정보 처리 책임을 부담하는 헤드헌터 회원가입입니다'
               : 'JOBIZIC 서비스 이용을 위해 아래 내용을 확인하고 동의해주세요'

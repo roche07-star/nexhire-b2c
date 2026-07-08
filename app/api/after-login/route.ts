@@ -16,13 +16,13 @@ export async function GET(request: NextRequest) {
 
       console.log('[after-login] DB user data:', data, 'Error:', error)
 
-      // user_type이 없으면 consent 페이지로
+      // user_type이 없으면 consent 페이지로 (신규 가입자)
       if (!data?.user_type) {
         console.log('[after-login] No user_type, redirecting to consent')
         return NextResponse.redirect(`${base}/consent`)
       }
 
-      // ✅ 개인정보 동의 확인 (탈퇴 취소 후 재로그인 시 필수)
+      // ✅ user_type은 있지만 동의가 없는 경우 (탈퇴 취소 후 재로그인)
       const { data: consentData } = await supabase
         .from('consents')
         .select('consent_type, is_agreed')
@@ -33,8 +33,9 @@ export async function GET(request: NextRequest) {
         .maybeSingle()
 
       if (!consentData) {
-        console.log('[after-login] No privacy consent, redirecting to consent')
-        return NextResponse.redirect(`${base}/consent`)
+        console.log('[after-login] No privacy consent (user_type exists), redirecting to consent with skip-type')
+        // user_type 선택 화면 skip, 동의만 받기
+        return NextResponse.redirect(`${base}/consent?skip-type=true`)
       }
 
       console.log('[after-login] User type:', data.user_type, 'Plan:', data.plan)
