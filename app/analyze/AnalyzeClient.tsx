@@ -324,6 +324,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const jdTopRef = useRef<HTMLDivElement>(null)
+  const onAnalyzeRef = useRef<() => void>(() => {}) // ✅ 파일 큐 자동 처리용
   const [jdCompany, setJdCompany] = useState('')
   const [jdPosition, setJdPosition] = useState('')
   const [jdContent, setJdContent] = useState('')
@@ -484,7 +485,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         // 다음 분석 자동 시작
         setTimeout(() => {
           if (!loading) { // 다시 한 번 체크
-            onAnalyze()
+            onAnalyzeRef.current() // ✅ ref 사용으로 최신 함수 호출
           }
         }, 1000)
       }, 2000)
@@ -492,6 +493,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       return () => clearTimeout(timer)
     }
   }, [loading, fileQueue, file, result])
+
+  // ✅ onAnalyze 함수를 ref에 저장 (파일 큐 자동 처리용)
+  useEffect(() => {
+    onAnalyzeRef.current = onAnalyze
+  }, [onAnalyze])
 
   // 브라우저 알림 권한 요청
   useEffect(() => {
