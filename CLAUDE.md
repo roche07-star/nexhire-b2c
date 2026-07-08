@@ -99,9 +99,10 @@ GET  /api/jobs/[id]         → Status polling (every 2s)
 ### Authentication
 
 - **NextAuth 5** with Google OAuth (`auth.ts`)
-- Managers auto-upgraded to EXPERT plan (via `MANAGER_EMAILS` env var)
+- DB-based authorization: `user_type` field determines permissions (SUPER_ADMIN/MANAGER/HEADHUNTER/JOBSEEKER)
 - User data synced to Supabase `users` table on sign-in
 - Session includes `role: 'MANAGER' | 'USER'` and `plan`
+- Admin users managed via DB, not environment variables
 
 ### Database (Supabase)
 
@@ -154,7 +155,6 @@ ANTHROPIC_API_KEY=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 AUTH_SECRET=
-MANAGER_EMAILS=admin@example.com,manager@example.com
 VERCEL_KV_URL=
 VERCEL_KV_REST_API_URL=
 VERCEL_KV_REST_API_TOKEN=
@@ -166,7 +166,7 @@ VERCEL_KV_REST_API_TOKEN=
 - **File parsing**: HWP files detected but not parsed (return error → user converts to PDF)
 - **Usage limits**: FREE plan severely restricted; PRO/EXPERT for real use
 - **Coupons**: Alternative to plan upgrade; feature-specific (resume/jd/interview)
-- **Manager role**: Bypasses all usage limits
+- **Admin permissions**: SUPER_ADMIN and MANAGER user types bypass all usage limits (managed via DB `user_type` field)
 - **Image PDFs**: Significantly slower (15-30s) due to Claude Vision OCR
 - **No file storage**: Resume files converted to text immediately, original not saved
 - **Resume anonymization**: Names extracted but masked in AI prompts

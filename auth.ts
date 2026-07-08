@@ -14,11 +14,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user }) {
       if (!user.email) return true
-      const managers = (process.env.MANAGER_EMAILS ?? '')
-        .split(',').map((e) => e.trim()).filter(Boolean)
-      const isManager = managers.includes(user.email)
 
-      // 사용자 레코드 조회 (status 포함)
+      // ✅ DB 기반 권한 검증: 사용자 레코드 조회 (status, user_type 포함)
       const { data: existingUser } = await supabase
         .from('users')
         .select('plan, user_type, status')
@@ -32,13 +29,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (shouldReset) {
         // 완전 초기화 (last_restored_at을 현재 시간으로 설정)
+        // ⚠️ 신규 사용자는 FREE 플랜, user_type은 null (consent에서 설정)
         const resetTime = new Date().toISOString()
         const { error: resetError } = await supabase.from('users').upsert({
           email: user.email,
           name: user.name,
           image: user.image,
-          plan: isManager ? 'EXPERT' : 'FREE',
-          user_type: isManager ? 'HEADHUNTER' : null,
+          plan: 'FREE',
+          user_type: null,
           status: 'active',
           analyze_count: 0,
           jd_count: 0,
@@ -59,17 +57,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.log('[auth/signIn] User created/reset:', user.email)
         }
       } else {
-        // 기존 사용자: name, image만 업데이트 (manager는 plan/user_type도 업데이트)
-        const updateData: any = {
-          email: user.email,
-          name: user.name,
-          image: user.image,
-        }
-        if (isManager) {
-          updateData.plan = 'EXPERT'
-          updateData.user_type = 'HEADHUNTER'
-        }
-        const { error: updateError } = await supabase.from('users').upsert(updateData, { onConflict: 'email' })
+        // ✅ 기존 사용자: name, image만 업데이트 (권한은 DB 유지)
+        const { error: updateError } = await supabase
+          .from('users')
+          .upsert({
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          }, { onConflict: 'email' })
 
         if (updateError) {
           console.error('[auth/signIn] User update failed:', updateError)
@@ -83,13 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // ✅ RLS 정책을 위해 JWT에 email 포함 (CRITICAL)
         token.email = user.email
 
-        const superAdmins = (process.env.MANAGER_EMAILS ?? '')
-          .split(',').map((e) => e.trim()).filter(Boolean)
-        const isSuperAdmin = superAdmins.includes(user.email)
-
-        // DEPRECATED: role은 하위 호환성을 위해 유지
-        token.role = isSuperAdmin ? 'MANAGER' : 'USER'
-
+        // ✅ DB 기반 권한 검증: user_type으로 판단
         const { data } = await supabase
           .from('users')
           .select('plan, user_type')
@@ -97,18 +86,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .maybeSingle()
 
         token.plan = data?.plan ?? 'FREE'
+        token.userType = data?.user_type ?? null
 
-        // Super Admin 자동 설정
-        if (isSuperAdmin) {
-          token.userType = 'SUPER_ADMIN'
-          // DB에 SUPER_ADMIN으로 업데이트
-          await supabase
-            .from('users')
-            .update({ user_type: 'SUPER_ADMIN' })
-            .eq('email', user.email)
-        } else {
-          token.userType = data?.user_type ?? null
-        }
+        // DEPRECATED: role은 하위 호환성을 위해 유지
+        // SUPER_ADMIN 또는 MANAGER는 'MANAGER' role
+        const isAdmin = data?.user_type === 'SUPER_ADMIN' || data?.user_type === 'MANAGER'
+        token.role = isAdmin ? 'MANAGER' : 'USER'
       }
       return token
     },
