@@ -47,7 +47,12 @@ export function generateInterviewHTML(guide: InterviewGuideResult): string {
   }
 
   const lines = (s: string) => {
-    return esc(s).split('\n').filter(l => l.trim()).map(l => {
+    // Q:, A: 앞에서 강제 줄바꿈 (Claude가 줄바꿈 안 넣는 경우 대비)
+    const normalized = s
+      .replace(/([^\n])(Q\d+:|Q:|Q\.)/g, '$1\n$2')  // Q: 앞에 줄바꿈
+      .replace(/([^\n])(A:|A\.)/g, '$1\n$2')        // A: 앞에 줄바꿈
+
+    return esc(normalized).split('\n').filter(l => l.trim()).map(l => {
       const trimmed = l.trim()
       if (trimmed.startsWith('Q:') || trimmed.startsWith('Q.') || /^Q\d+[:.]/.test(trimmed)) {
         return `<p class="body question">${l}</p>`
