@@ -234,11 +234,26 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         </div>
       </div>
 
-      <!-- 제안 다음 단계 -->
+      <!-- 추천인 정보 -->
       <div class="section">
-        <div class="section-title">05 제안 다음 단계</div>
-        <div class="next-steps editable" contenteditable="true" data-placeholder="다음 단계를 입력하세요">
-          ${proposal.next_steps || '면접 일정 조율 후 후보자 추천 진행을 제안드립니다.'}
+        <div class="section-title">05 추천인 정보</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">써치펌 (회사명)</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="써치펌 회사명을 입력하세요">${proposal.referrer_info?.company || ''}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">담당자 성명</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="담당자 성명을 입력하세요">${proposal.referrer_info?.name || ''}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">연락처</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="전화번호를 입력하세요">${proposal.referrer_info?.phone || ''}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">이메일</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="이메일을 입력하세요">${proposal.referrer_info?.email || ''}</div>
+          </div>
         </div>
       </div>
     </div>
