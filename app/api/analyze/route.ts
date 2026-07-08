@@ -757,6 +757,7 @@ ${maskedText.slice(0, 3000)}
     let rewriteSaved = false
     let rewriteFilePath: string | null = null
     let rewriteCouponUsed: string | null = null
+    let storageCouponUsed: string | null = null
 
     if (insertData?.id && preserveMode !== 'skip' && (file && buffer || pastedText)) {
       console.log('[analyze] 보존 조건 확인:', { preserveMode, hasFile: !!(file && buffer), hasPastedText: !!pastedText })
@@ -807,21 +808,24 @@ ${maskedText.slice(0, 3000)}
         // 첫 번째 보존 — 무료
         canPreserve = true
       } else {
-        // 추가 보존 — storage 쿠폰으로 슬롯 확보되어 있는지 확인
+        // 추가 보존 — storage 쿠폰 사용
         const now = new Date().toISOString()
-        const { count: storageCouponCount } = await supabase
+        const { data: storageCoupons } = await supabase
           .from('coupons')
-          .select('id', { count: 'exact', head: true })
+          .select('*')
           .eq('claimed_by', email)
           .eq('feature', 'storage')
           .is('deleted_at', null)
-          .gt('expires_at', now)  // 만료되지 않은 쿠폰만
+          .or('expires_at.is.null,expires_at.gt.' + now)  // 만료되지 않은 쿠폰
 
-        const maxCount = 1 + (storageCouponCount ?? 0)  // 기본 1개 + 쿠폰 개수
+        // 사용 가능한 쿠폰 찾기 (남은 횟수가 있는 것)
+        const availableCoupon = (storageCoupons ?? []).find(c =>
+          (c.credits - (c.used || 0)) > 0
+        )
 
-        if (preserved.length < maxCount) {
+        if (availableCoupon) {
           canPreserve = true
-          // storage 쿠폰은 영구 슬롯이므로 used_at 업데이트 안 함
+          storageCouponUsed = availableCoupon.id  // 사용할 쿠폰 ID 저장
         }
       }
 
@@ -844,10 +848,17 @@ ${maskedText.slice(0, 3000)}
             rewriteSaved = true
             rewriteFilePath = filePath
             console.log('[analyze] ✅ 이력서 파일 보존 성공:', { email, analysisId: insertData.id, filePath, preserveMode })
+
+            // rewrite 쿠폰 사용 처리
             if (rewriteCouponUsed) {
               await supabase.from('coupons')
                 .update({ used_at: new Date().toISOString() })
                 .eq('id', rewriteCouponUsed)
+            }
+
+            // storage 쿠폰 사용 처리 (used 카운트 증가)
+            if (storageCouponUsed) {
+              await supabase.rpc('increment_coupon_used', { coupon_id: storageCouponUsed })
             }
           }
         } else {
