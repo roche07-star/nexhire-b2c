@@ -4704,6 +4704,47 @@ function JDResults({
                     📄 후보자 제안서 다운로드
                   </button>
                 )}
+
+                {/* 채용 파이프라인에 추가 버튼 */}
+                <button
+                  className="analyze-download-btn"
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: '#fff',
+                  }}
+                  onClick={async () => {
+                    if (!analysisItem || !result) return
+
+                    try {
+                      const res = await fetch('/api/pipeline', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          candidate_name: analysisItem.result.이름 || '미상',
+                          company_name: result.company || '미상',
+                          position_title: result.position || '미상',
+                          analysis_id: analysisItem.id,
+                          jd_analysis_id: result.id,
+                          fit_score: result.fit_score || null,
+                          resume_title: analysisItem.result.이력서_제목 || null,
+                        })
+                      })
+
+                      if (res.ok) {
+                        if (confirm('채용 파이프라인에 추가되었습니다.\n\n파이프라인 페이지로 이동하시겠습니까?')) {
+                          window.location.href = '/pipeline'
+                        }
+                      } else {
+                        alert('파이프라인 추가에 실패했습니다.')
+                      }
+                    } catch (e) {
+                      console.error('파이프라인 추가 실패:', e)
+                      alert('서버 오류가 발생했습니다.')
+                    }
+                  }}
+                >
+                  📊 채용 파이프라인에 추가
+                </button>
               </>
             )}
           </>
