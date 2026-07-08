@@ -370,13 +370,6 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
           }}>
             주간 업무 기록 → JOBIZIC 정리 → 월간 집계 → 이력서 반영
           </p>
-          <p style={{
-            fontSize: '13px',
-            color: '#666',
-            fontStyle: 'italic',
-          }}>
-            💡 10년차 헤드헌터가 구직자의 경험을 체계적으로 정리하도록 돕습니다
-          </p>
         </div>
 
         {/* 소속 정보 (작고 간결하게) */}
@@ -787,32 +780,45 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               fontWeight: 700,
               background: isGenerating || !organizationSaved
                 ? 'rgba(255, 255, 255, 0.1)'
-                : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
-              color: isGenerating || !organizationSaved ? 'rgba(255, 255, 255, 0.3)' : '#000',
+                : weeklyInput.trim()
+                  ? 'linear-gradient(135deg, #f0ff6b 0%, #e8ff47 50%, #f0ff6b 100%)'
+                  : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
+              color: isGenerating || !organizationSaved
+                ? 'rgba(255, 255, 255, 0.3)'
+                : weeklyInput.trim()
+                  ? '#1e40af'
+                  : '#000',
               border: 'none',
               borderRadius: '16px',
               cursor: isGenerating || !organizationSaved ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
               boxShadow: isGenerating || !organizationSaved
                 ? 'none'
-                : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)',
+                : weeklyInput.trim()
+                  ? '0 6px 40px rgba(232, 255, 71, 0.7), 0 0 80px rgba(232, 255, 71, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.3)'
+                  : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
               letterSpacing: '-0.3px',
+              transform: weeklyInput.trim() ? 'scale(1.02)' : 'scale(1)',
             }}
             onMouseEnter={(e) => {
               if (!isGenerating && organizationSaved) {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 8px 40px rgba(232, 255, 71, 0.6), 0 0 80px rgba(232, 255, 71, 0.3)'
+                e.currentTarget.style.transform = weeklyInput.trim() ? 'scale(1.02) translateY(-2px)' : 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = weeklyInput.trim()
+                  ? '0 10px 50px rgba(232, 255, 71, 0.8), 0 0 100px rgba(232, 255, 71, 0.5)'
+                  : '0 8px 40px rgba(232, 255, 71, 0.6), 0 0 80px rgba(232, 255, 71, 0.3)'
               }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.transform = weeklyInput.trim() ? 'scale(1.02)' : 'scale(1)'
               e.currentTarget.style.boxShadow = isGenerating || !organizationSaved
                 ? 'none'
-                : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)'
+                : weeklyInput.trim()
+                  ? '0 6px 40px rgba(232, 255, 71, 0.7), 0 0 80px rgba(232, 255, 71, 0.4), inset 0 2px 10px rgba(255, 255, 255, 0.3)'
+                  : '0 4px 30px rgba(232, 255, 71, 0.5), 0 0 60px rgba(232, 255, 71, 0.2)'
             }}
           >
             <span style={{ fontSize: '20px' }}>
