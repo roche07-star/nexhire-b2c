@@ -27,3 +27,4 @@ tests/fixtures/*.pdf
 tests/fixtures/*.docx
 tests/fixtures/*.txt
 !tests/fixtures/README.md
+server.log

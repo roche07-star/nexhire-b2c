@@ -26,7 +26,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .maybeSingle()
 
       // 탈퇴한 사용자 또는 신규 사용자: 완전 초기화
-      const isWithdrawn = existingUser?.status === 'withdrawn' || existingUser?.status === 'withdrawing'
+      // withdrawing은 탈퇴 예정이므로 정상 사용 가능 (초기화 안 함)
+      const isWithdrawn = existingUser?.status === 'withdrawn'
       const shouldReset = !existingUser || isWithdrawn
 
       if (shouldReset) {
