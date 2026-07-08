@@ -28,23 +28,22 @@ const JobizicLogoSmall = () => (
 export default function Footer() {
   return (
     <footer className="footer-container">
-      {/* 로고 - 좌측 배치 */}
-      <div className="footer-logo-section">
-        <JobizicLogoSmall />
-        <span className="footer-brand">JOBIZIC</span>
+      {/* 사업자 정보 - 가운데 배치 */}
+      <div className="footer-info">
+        <div>JOBIZIC | 대표: 박영철</div>
+        <div>사업자등록번호: 566-18-02615</div>
+        <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
+        <div>전화: 070-8095-5546 | 이메일: jobizic.biz@gmail.com</div>
+        <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
       </div>
 
-      {/* 사업자 정보 - 가운데 배치 */}
-      <div className="footer-content">
-        <div className="footer-info">
-          <div>JOBIZIC | 대표: 박영철</div>
-          <div>사업자등록번호: 566-18-02615</div>
-          <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
-          <div>전화: 070-8095-5546 | 이메일: jobizic.biz@gmail.com</div>
-          <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
+      {/* 로고 + 링크 라인 */}
+      <div className="footer-bottom">
+        <div className="footer-logo-section">
+          <JobizicLogoSmall />
+          <span className="footer-brand">JOBIZIC</span>
         </div>
 
-        {/* 링크 */}
         <div className="footer-links">
           <a href="/terms">이용약관</a>
           <span className="footer-divider">·</span>
