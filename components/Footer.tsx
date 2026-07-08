@@ -29,7 +29,7 @@ const JobizicLogoSmall = () => (
     <rect x="8" y="8" width="84" height="84" rx="18" stroke="#e8ff47" strokeWidth="1" opacity="0.3"/>
 
     {/* 텍스트 */}
-    <text x="50" y="72" textAnchor="middle" fontFamily="'Arial Black', 'Outfit', sans-serif" fontWeight="900" fontSize="52" letterSpacing="-2" filter="url(#glow)">
+    <text x="50" y="70" textAnchor="middle" fontFamily="'Arial Black', 'Outfit', sans-serif" fontWeight="900" fontSize="42" letterSpacing="-2" filter="url(#glow)">
       <tspan fill="#e8e8de">J</tspan><tspan fill="#e8ff47">z</tspan>
     </text>
 
