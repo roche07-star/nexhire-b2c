@@ -2928,9 +2928,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             {activeMenu === 'upload' && !result && (
               <>
                 {/* 이력서 추가 저장 쿠폰 보유 배지 */}
-                {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active' && (c.credits - (c.used || 0)) > 0).length > 0 && (
+                {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active' && !c.used_at && (c.credits - (c.used || 0)) > 0).length > 0 && (
                   <div className="coupon-active-badge">
-                    🎟 이력서 추가 저장 쿠폰 {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active' && (c.credits - (c.used || 0)) > 0).length}개 보유 — 추가 저장이 가능합니다
+                    🎟 이력서 추가 저장 쿠폰 {myCoupons.filter(c => c.feature === 'storage' && c.status === 'active' && !c.used_at && (c.credits - (c.used || 0)) > 0).length}개 보유 — 추가 저장이 가능합니다
                   </div>
                 )}
 
