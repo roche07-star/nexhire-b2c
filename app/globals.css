@@ -717,15 +717,13 @@ footer.footer-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  align-items: center;
-  text-align: center;
 }
 
 .footer-logo-section {
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: center;
+  align-self: flex-start;
 }
 
 .footer-brand {
@@ -735,6 +733,15 @@ footer.footer-container {
   letter-spacing: 2px;
   color: #ffffff;
   text-transform: uppercase;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .footer-info {
@@ -4444,12 +4451,10 @@ footer.footer-container {
   footer.footer-container {
     padding: 20px 16px;
     gap: 16px;
-    text-align: center;
-    align-items: center;
   }
 
   .footer-logo-section {
-    justify-content: center;
+    align-self: flex-start;
     gap: 6px;
   }
 
