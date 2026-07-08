@@ -2382,12 +2382,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             try {
                               // JD 정보를 state에 저장
                               setHiringJDInfo({
-                                candidateName: jdSelectedAnalysis?.result?.이름 || '',
+                                candidateName: jdSelectedAnalysis?.result?.candidate_name || '',
                                 companyName: jdViewingSaved.result.company || '',
                                 positionTitle: jdViewingSaved.result.position || '',
                                 jdAnalysisId: jdViewingSaved.id,
                                 fitScore: jdViewingSaved.result.fit_score,
-                                resumeTitle: jdSelectedAnalysis?.result?.이력서_제목
+                                resumeTitle: jdSelectedAnalysis?.result?.candidate_name
                               })
                               console.log('✅ JD 정보 저장 완료')
 
@@ -2445,12 +2445,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             try {
                               // JD 정보를 state에 저장
                               setHiringJDInfo({
-                                candidateName: jdSelectedAnalysis?.result?.이름 || '',
+                                candidateName: jdSelectedAnalysis?.result?.candidate_name || '',
                                 companyName: jdResult.company || '',
                                 positionTitle: jdResult.position || '',
                                 jdAnalysisId: jdResult.id,
                                 fitScore: jdResult.fit_score,
-                                resumeTitle: jdSelectedAnalysis?.result?.이력서_제목
+                                resumeTitle: jdSelectedAnalysis?.result?.candidate_name
                               })
                               console.log('✅ JD 정보 저장 완료')
 
