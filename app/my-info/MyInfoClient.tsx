@@ -69,7 +69,8 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
     fetchLatestCoupons()
   }, [])
 
-  const isExpired = (expiresAt: string) => {
+  const isExpired = (expiresAt: string | null) => {
+    if (!expiresAt) return false
     return new Date(expiresAt) < new Date()
   }
 
@@ -78,8 +79,14 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
   }
 
   // 서버/클라이언트 일관된 날짜 포맷팅
-  const formatDate = (dateString: string, includeTime = false) => {
+  const formatDate = (dateString: string | null, includeTime = false) => {
+    if (!dateString) return '기한 없음'
+
     const date = new Date(dateString)
+
+    // Invalid Date 체크
+    if (isNaN(date.getTime())) return '기한 없음'
+
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     const day = date.getDate()
