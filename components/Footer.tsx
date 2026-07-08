@@ -10,39 +10,25 @@ const JobizicLogoSmall = () => (
 
 export default function Footer() {
   return (
-    <footer>
-      <div style={{ display: 'flex', gap: 32, marginBottom: 20, alignItems: 'flex-start' }}>
-        {/* 로고 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <JobizicLogoSmall />
-          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: 15, letterSpacing: 2, color: '#ffffff', textTransform: 'uppercase' }}>
-            JOBIZIC
-          </span>
-        </div>
-
-        {/* 사업자 정보 */}
-        <div style={{
-          fontSize: 12,
-          color: 'var(--muted2)',
-          lineHeight: 1.6,
-          flex: 1
-        }}>
-          <div style={{ marginBottom: 6 }}>
-            JOBIZIC | 대표: 박영철 | 사업자등록번호: 566-18-02615
-          </div>
-          <div style={{ marginBottom: 6 }}>
-            주소: 경기도 수원시 장안구 화산로 87, 404호
-          </div>
-          <div style={{ marginBottom: 6 }}>
-            전화: 070-8095-5546 | 이메일: jobizic.biz@gmail.com
-          </div>
-          <div style={{ marginTop: 12 }}>
-            © 2026 Jobizic. All rights reserved.
-          </div>
-        </div>
+    <footer className="footer-container">
+      {/* 로고 */}
+      <div className="footer-logo-section">
+        <JobizicLogoSmall />
+        <span className="footer-brand">JOBIZIC</span>
       </div>
 
-      <div className="footer-links" style={{ textAlign: 'center' }}>
+      {/* 사업자 정보 */}
+      <div className="footer-info">
+        <div>JOBIZIC | 대표: 박영철</div>
+        <div>사업자등록번호: 566-18-02615</div>
+        <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
+        <div>전화: 070-8095-5546</div>
+        <div>이메일: jobizic.biz@gmail.com</div>
+        <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
+      </div>
+
+      {/* 링크 */}
+      <div className="footer-links">
         <a href="/terms">이용약관</a>
         <a href="/privacy">개인정보처리방침</a>
         <a href="/refund">환불정책</a>
