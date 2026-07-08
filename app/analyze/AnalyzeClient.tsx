@@ -1470,7 +1470,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 )}
               </div>
             <div className={`analyze-header${(activeMenu === 'saved' || (activeMenu === 'upload' && result)) && result ? ' analyze-header--saved' : ''}`}>
-              {(activeMenu === 'saved' || activeMenu === 'upload') && result && (result?.candidate_name || editingCandidateName) ? (
+              {(activeMenu === 'saved' || activeMenu === 'upload') && result ? (
                 <div className="analyze-candidate-header">
                   {editingCandidateName ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
