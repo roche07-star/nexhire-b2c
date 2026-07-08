@@ -470,6 +470,9 @@ export default function JobSeekerDashboardClient() {
                           </div>
                         )}
                       </div>
+                      <div style={{ fontSize: 'clamp(12px, 3.2vw, 13px)', fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>
+                        {app.company}
+                      </div>
                       <div style={{ fontSize: 'clamp(11px, 3vw, 12px)', color: 'var(--muted2)' }}>
                         {app.position}
                       </div>
