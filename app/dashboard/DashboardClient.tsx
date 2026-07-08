@@ -1242,11 +1242,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
 
-            {/* 제안 목표 (채용 프로세스 서류 단계 갯수) */}
+            {/* 진행 중 목표 */}
             {(() => {
               const target = goals.proposalTarget
-              // 채용 프로세스의 서류 단계(current_stage === 0) 갯수
-              const current = hiringStats.screening
+              const current = hiringStats.active
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
@@ -1263,7 +1262,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    제안 목표
+                    진행 중
                   </div>
                   <div style={{
                     fontSize: 32,
@@ -1272,7 +1271,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     marginBottom: 8,
                     letterSpacing: '-0.02em'
                   }}>
-                    {current} / {target}건
+                    {current} / {target}명
                   </div>
                   <div style={{
                     width: '100%',
@@ -1301,264 +1300,43 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
           </div>
-          </div>
-        </div>
-      </div>
 
-      {/* 채용 프로세스 */}
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        marginBottom: 56,
-      }}>
-        {/* 채용 프로세스 */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(34, 211, 238, 0.3)',
-          borderRadius: 24,
-          padding: 24,
-          transition: 'all 0.3s'
-        }}>
+          {/* 전체보기 버튼 */}
           <div style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 28
+            justifyContent: 'center',
+            marginTop: 32
           }}>
-            <h2 style={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: '#ffffff',
-              letterSpacing: '-0.02em',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              margin: 0,
-              whiteSpace: 'nowrap'
-            }}>
-              <span style={{ fontSize: 28 }}>⚡</span>
-              채용 프로세스
-            </h2>
             <button
               onClick={() => router.push('/pipeline')}
               style={{
-                padding: '8px 16px',
-                background: 'rgba(34, 211, 238, 0.1)',
-                border: '1px solid rgba(34, 211, 238, 0.3)',
-                borderRadius: 8,
-                color: '#22d3ee',
-                fontSize: 13,
-                fontWeight: 600,
+                padding: '16px 32px',
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                border: 'none',
+                borderRadius: 12,
+                color: '#ffffff',
+                fontSize: 16,
+                fontWeight: 700,
                 cursor: 'pointer',
-                transition: 'all 0.3s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                whiteSpace: 'nowrap'
+                boxShadow: '0 8px 24px rgba(34, 211, 238, 0.3)',
+                transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.2)'
                 e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 12px 32px rgba(34, 211, 238, 0.4)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(34, 211, 238, 0.1)'
                 e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(34, 211, 238, 0.3)'
               }}
             >
-              <span>전체 보기 →</span>
+              📊 채용 프로세스 전체보기
             </button>
-          </div>
-
-          {/* 프로세스 카드 */}
-          <div style={{
-            marginTop: 32,
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch'
-          }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(240px, 1fr))',
-              gap: 20,
-              minWidth: 'fit-content'
-            }}>
-            {/* 진행 중 */}
-            {(() => {
-              const target = 20  // 진행 중 목표
-              const current = hiringStats.active
-              const percentage = Math.min(100, Math.round((current / target) * 100))
-              return (
-                <div style={{
-                  padding: '20px 24px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: 16,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}>
-                  <div style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'rgba(255,255,255,0.6)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 16
-                  }}>
-                    진행 중
-                  </div>
-                  <div style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: '#fbbf24',
-                    marginBottom: 8,
-                    letterSpacing: '-0.02em'
-                  }}>
-                    {current} / {target}명
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 8,
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    marginBottom: 12
-                  }}>
-                    <div style={{
-                      width: `${percentage}%`,
-                      height: '100%',
-                      background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)',
-                      borderRadius: 4,
-                      transition: 'all 0.6s ease-out'
-                    }} />
-                  </div>
-                  <div style={{
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '📋'}
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* 합격 */}
-            {(() => {
-              const target = 10  // 합격 목표
-              const current = hiringStats.passed
-              const percentage = Math.min(100, Math.round((current / target) * 100))
-              return (
-                <div style={{
-                  padding: '20px 24px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: 16,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}>
-                  <div style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'rgba(255,255,255,0.6)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 16
-                  }}>
-                    합격
-                  </div>
-                  <div style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: '#22d3ee',
-                    marginBottom: 8,
-                    letterSpacing: '-0.02em'
-                  }}>
-                    {current} / {target}명
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 8,
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    marginBottom: 12
-                  }}>
-                    <div style={{
-                      width: `${percentage}%`,
-                      height: '100%',
-                      background: 'linear-gradient(90deg, #22d3ee 0%, #a78bfa 100%)',
-                      borderRadius: 4,
-                      transition: 'all 0.6s ease-out'
-                    }} />
-                  </div>
-                  <div style={{
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '📊'}
-                  </div>
-                </div>
-              )
-            })()}
-
-            {/* 입사 */}
-            {(() => {
-              const target = 5  // 입사 목표
-              const current = hiringStats.hired
-              const percentage = Math.min(100, Math.round((current / target) * 100))
-              return (
-                <div style={{
-                  padding: '20px 24px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: 16,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}>
-                  <div style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'rgba(255,255,255,0.6)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 16
-                  }}>
-                    입사
-                  </div>
-                  <div style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: '#10b981',
-                    marginBottom: 8,
-                    letterSpacing: '-0.02em'
-                  }}>
-                    {current} / {target}명
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 8,
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    marginBottom: 12
-                  }}>
-                    <div style={{
-                      width: `${percentage}%`,
-                      height: '100%',
-                      background: 'linear-gradient(90deg, #10b981 0%, #22d3ee 100%)',
-                      borderRadius: 4,
-                      transition: 'all 0.6s ease-out'
-                    }} />
-                  </div>
-                  <div style={{
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '💪'}
-                  </div>
-                </div>
-              )
-            })()}
           </div>
           </div>
         </div>
       </div>
+
 
       {/* Recent Activity */}
       <div style={{
@@ -1839,7 +1617,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 />
               </div>
 
-              {/* 제안 목표 */}
+              {/* 진행 중 목표 */}
               <div style={{ marginBottom: 32 }}>
                 <label style={{
                   display: 'block',
@@ -1848,7 +1626,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   color: 'rgba(255,255,255,0.7)',
                   marginBottom: 8
                 }}>
-                  제안 목표 (건)
+                  진행 중 목표 (명)
                 </label>
                 <input
                   type="number"
