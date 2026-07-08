@@ -196,7 +196,7 @@ function StageColumn({
         </h3>
         <div style={{
           background: color,
-          color: '#fff',
+          color: '#000',
           fontSize: 12,
           fontWeight: 700,
           padding: '4px 10px',
