@@ -19,6 +19,8 @@ interface User {
   downgrade_to: string | null
   plan_end_date: string | null
   downgrade_requested_at: string | null
+  status: 'active' | 'withdrawing' | 'withdrawn'
+  withdraw_requested_at: string | null
 }
 
 interface Coupon {
