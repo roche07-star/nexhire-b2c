@@ -30,9 +30,13 @@ export default function Footer() {
       {/* 링크 */}
       <div className="footer-links">
         <a href="/terms">이용약관</a>
+        <span className="footer-divider">·</span>
         <a href="/privacy">개인정보처리방침</a>
+        <span className="footer-divider">·</span>
         <a href="/refund">환불정책</a>
+        <span className="footer-divider">·</span>
         <a href="/licenses">오픈소스 라이선스</a>
+        <span className="footer-divider">·</span>
         <a href="/support">고객센터</a>
       </div>
     </footer>
