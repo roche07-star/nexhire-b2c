@@ -56,12 +56,17 @@ export async function POST(req: NextRequest) {
   const now = new Date()
   const planEndDate = userData.plan_end_date ? new Date(userData.plan_end_date) : null
 
-  // 유료 플랜이고 plan_end_date가 미래인 경우: withdrawing (종료일까지 유지)
-  if (planEndDate && planEndDate > now) {
+  // 유료 플랜(PRO/EXPERT): withdrawing (종료일까지 유지)
+  if (userData.plan === 'PRO' || userData.plan === 'EXPERT') {
+    // plan_end_date가 없거나 과거면 현재 시점으로부터 30일 후로 설정
+    const deleteDate = (planEndDate && planEndDate > now)
+      ? planEndDate
+      : new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
+
     const { error } = await supabase.from('users').update({
       status: 'withdrawing',
       withdraw_requested_at: now.toISOString(),
-      data_delete_at: planEndDate.toISOString(), // 플랜 종료일에 삭제
+      data_delete_at: deleteDate.toISOString(),
       last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
     }).eq('email', email)
 
@@ -77,11 +82,14 @@ export async function POST(req: NextRequest) {
 
     console.log(`[withdraw] Consents withdrawn for ${email}`)
 
+    const endDateStr = userData.plan_end_date || deleteDate.toLocaleDateString('ko-KR')
     return NextResponse.json({
       status: 'withdrawing',
-      plan_end_date: userData.plan_end_date,
-      data_delete_at: planEndDate.toISOString(),
-      message: `플랜 종료일(${userData.plan_end_date})까지 서비스를 이용할 수 있습니다. 종료일에 계정이 탈퇴되고 모든 데이터가 삭제됩니다.`,
+      plan_end_date: endDateStr,
+      data_delete_at: deleteDate.toISOString(),
+      message: planEndDate && planEndDate > now
+        ? `플랜 종료일(${endDateStr})까지 서비스를 이용할 수 있습니다. 종료일에 계정이 탈퇴되고 모든 데이터가 삭제됩니다.`
+        : `탈퇴 신청이 완료되었습니다. ${endDateStr}까지 서비스를 이용할 수 있으며, 이후 계정이 탈퇴되고 모든 데이터가 삭제됩니다.`,
     })
   }
 
