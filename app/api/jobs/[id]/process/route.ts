@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { getJobStatus } from '@/lib/jobs'
 import { processInterviewJob } from '@/app/api/analyze/interview/process'
+import { supabase } from '@/lib/supabase'
 
 export const maxDuration = 120  // 실제 처리는 최대 120초
 
@@ -26,9 +27,23 @@ export async function POST(
       return NextResponse.json({ error: 'Job을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    if (job.status !== 'pending') {
-      return NextResponse.json({ error: '이미 처리 중이거나 완료된 Job입니다.' }, { status: 400 })
+    // ✅ 원자적 상태 전환: pending → processing (레이스 컨디션 방지)
+    const { data: started, error: startError } = await supabase.rpc('try_start_job', {
+      job_id: jobId,
+      user_email: session.user.email
+    })
+
+    if (startError) {
+      console.error('[jobs/process] 상태 전환 실패:', startError)
+      return NextResponse.json({ error: 'Job 시작에 실패했습니다.' }, { status: 500 })
     }
+
+    if (!started) {
+      // 다른 요청이 먼저 처리 시작했거나 이미 완료됨
+      return NextResponse.json({ error: '이미 처리 중이거나 완료된 Job입니다.' }, { status: 409 })
+    }
+
+    console.log(`[jobs/process] Job ${jobId} 처리 시작 (중복 차단됨)`)
 
     // Job 타입에 따라 처리 함수 호출
     switch (job.job_type) {
