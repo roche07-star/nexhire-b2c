@@ -75,25 +75,46 @@ export async function checkUsage(
   const plan = (row.plan ?? 'FREE') as Plan
   const userType = (row.user_type ?? 'JOBSEEKER') as UserType
 
-  // Monthly reset: monthly_reset_at marks start of current period; next reset = +1 month
-  const startedAt = row.monthly_reset_at ? new Date(row.monthly_reset_at) : new Date(0)
-  const nextReset = new Date(startedAt)
-  nextReset.setMonth(nextReset.getMonth() + 1)
+  // ✅ 월간 사용량 원자적 리셋 (레이스 컨디션 방지)
+  const { data: resetResult, error: resetError } = await supabase.rpc('check_and_reset_usage', {
+    user_email: email
+  })
 
-  if (new Date() >= nextReset) {
-    await supabase.from('users').update({
-      analyze_count: 0,
-      jd_count: 0,
-      rewrite_count: 0,
-      interview_count: 0,
-      proposal_count: 0,
-      monthly_reset_at: nextReset.toISOString(),
-    }).eq('email', email)
-    row.analyze_count = 0
-    row.jd_count = 0
-    row.rewrite_count = 0
-    row.interview_count = 0
-    row.proposal_count = 0
+  if (resetError) {
+    console.error('[usageLimits] 리셋 체크 실패:', resetError)
+    // 에러 시 기존 로직 fallback (안전하게 처리)
+    const startedAt = row.monthly_reset_at ? new Date(row.monthly_reset_at) : new Date(0)
+    const nextReset = new Date(startedAt)
+    nextReset.setMonth(nextReset.getMonth() + 1)
+
+    if (new Date() >= nextReset) {
+      await supabase.from('users').update({
+        analyze_count: 0,
+        jd_count: 0,
+        rewrite_count: 0,
+        interview_count: 0,
+        proposal_count: 0,
+        monthly_reset_at: nextReset.toISOString(),
+      }).eq('email', email)
+      row.analyze_count = 0
+      row.jd_count = 0
+      row.rewrite_count = 0
+      row.interview_count = 0
+      row.proposal_count = 0
+    }
+  } else if (resetResult && resetResult.length > 0) {
+    const result = resetResult[0]
+
+    if (result.was_reset) {
+      console.log(`[usageLimits] 월간 사용량 리셋 완료:`, email)
+    }
+
+    // RPC 결과로 현재 카운트 업데이트
+    row.analyze_count = result.analyze_count
+    row.jd_count = result.jd_count
+    row.rewrite_count = result.rewrite_count
+    row.interview_count = result.interview_count
+    row.proposal_count = result.proposal_count
   }
 
   const limit = PLAN_LIMITS[userType]?.[plan]?.[feature] ?? 0

@@ -8,6 +8,9 @@
 --
 -- ============================================
 
+-- 기존 함수 삭제 (반환 타입 변경을 위해)
+DROP FUNCTION IF EXISTS increment_coupon_used(TEXT);
+
 -- 쿠폰 사용 횟수를 원자적으로 증가 (Optimistic Locking)
 CREATE OR REPLACE FUNCTION increment_coupon_used(coupon_id TEXT)
 RETURNS BOOLEAN AS $$
