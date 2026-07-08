@@ -20,6 +20,11 @@
 -- RLS 활성화
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
+-- 기존 정책 삭제 (중복 방지)
+DROP POLICY IF EXISTS "users_read_own" ON users;
+DROP POLICY IF EXISTS "users_update_own" ON users;
+DROP POLICY IF EXISTS "users_insert_new" ON users;
+
 -- 정책 1: 본인 데이터 읽기 (이메일 기반)
 CREATE POLICY "users_read_own" ON users
   FOR SELECT
@@ -52,6 +57,13 @@ CREATE POLICY "users_insert_new" ON users
 -- 2. analyses 테이블 RLS 정책
 -- ============================================
 ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
+
+-- 기존 정책 삭제
+DROP POLICY IF EXISTS "analyses_read_own" ON analyses;
+DROP POLICY IF EXISTS "analyses_insert_own" ON analyses;
+DROP POLICY IF EXISTS "analyses_update_own" ON analyses;
+DROP POLICY IF EXISTS "analyses_delete_own" ON analyses;
+DROP POLICY IF EXISTS "analyses_admin_all" ON analyses;
 
 -- 정책 1: 본인 분석 결과 읽기
 CREATE POLICY "analyses_read_own" ON analyses

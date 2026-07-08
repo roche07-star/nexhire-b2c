@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { supabaseClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase' // TODO: RLS 적용 후 supabaseClient로 변경
 
 type UserType = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
 
@@ -34,15 +34,15 @@ export async function GET() {
   const email = session.user.email
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
-    supabaseClient.from('users')
+    supabase.from('users')
       .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at')
       .eq('email', email).single(),
-    supabaseClient.from('coupons')
+    supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
       .eq('claimed_by', email)
       .is('deleted_at', null)
       .order('claimed_at', { ascending: false }),
-    supabaseClient.from('consents')
+    supabase.from('consents')
       .select('consent_type, agreed_at, withdrawn_at')
       .eq('user_email', email)
       .eq('is_agreed', true)
