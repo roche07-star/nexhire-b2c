@@ -407,6 +407,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewViewingSaved, setInterviewViewingSaved] = useState<SavedInterviewGuide | null>(null)
   const [showNewInterview, setShowNewInterview] = useState(false)
 
+  // 면접 가이드 목록 자동 로드 (생성 후 갱신용)
+  useEffect(() => {
+    if (activeMenu === 'interview' && interviewSavedList === null && !interviewSavedListLoading) {
+      setInterviewSavedListLoading(true)
+      fetch('/api/analyze/interview/list')
+        .then((r) => r.json())
+        .then(({ guides }) => setInterviewSavedList(guides ?? []))
+        .catch(() => setInterviewSavedList([]))
+        .finally(() => setInterviewSavedListLoading(false))
+    }
+  }, [activeMenu, interviewSavedList, interviewSavedListLoading])
+
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
     fetch('/api/analyze/latest')
