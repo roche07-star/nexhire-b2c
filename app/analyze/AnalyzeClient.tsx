@@ -346,7 +346,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdViewingSaved, setJdViewingSaved] = useState<SavedJDAnalysis | null>(null)
   const [deletingAnalysisId, setDeletingAnalysisId] = useState<string | null>(null)
   const [deletingJdId, setDeletingJdId] = useState<string | null>(null)
-  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string; claimed_at?: string; used_at?: string; expires_at?: string }[]>([])
+  const [myCoupons, setMyCoupons] = useState<{ id: string; code: string; feature: string; status?: string; claimed_at?: string; used_at?: string; expires_at?: string; credits: number; used: number }[]>([])
   const [analysisId, setAnalysisId] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'analysis' | 'jd'; id: string } | null>(null)
   const [preserveChecked, setPreserveChecked] = useState(true)
