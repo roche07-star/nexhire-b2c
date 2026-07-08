@@ -36,6 +36,9 @@ interface MyInfo {
   }
   downgrade_to?: string | null
   plan_end_date?: string | null
+  user?: {
+    status: 'active' | 'withdrawing' | 'withdrawn'
+  }
 }
 
 export default function MyInfoButton() {
@@ -358,14 +361,16 @@ export default function MyInfoButton() {
                         >
                           {info.plan}
                         </span>
-                        {(info.downgrade_to || (info.plan !== 'FREE' && info.resetAt)) && (
+                        {(info.user?.status === 'withdrawing' || info.downgrade_to || (info.plan !== 'FREE' && info.resetAt)) && (
                           <span style={{
                             fontSize: 13,
-                            color: info.downgrade_to ? '#f59e0b' : '#71717a',
+                            color: info.user?.status === 'withdrawing' ? '#ef4444' : info.downgrade_to ? '#f59e0b' : '#71717a',
                             letterSpacing: '-0.01em',
-                            fontWeight: info.downgrade_to ? 600 : 400,
+                            fontWeight: (info.user?.status === 'withdrawing' || info.downgrade_to) ? 600 : 400,
                           }}>
-                            {info.downgrade_to
+                            {info.user?.status === 'withdrawing'
+                              ? `탈퇴 예정: ${info.plan_end_date || ''}`
+                              : info.downgrade_to
                               ? `플랜 종료: ${info.plan_end_date || ''}`
                               : `다음 초기화: ${info.resetAt}`
                             }
