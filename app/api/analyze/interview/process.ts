@@ -38,7 +38,7 @@ const interviewTool: Anthropic.Tool = {
       },
       positioning_message: { type: 'string', description: 'SECTION 1 — 핵심 포지셔닝 메시지' },
       self_intro: { type: 'string', description: 'SECTION 2 — 자기소개 설계' },
-      qa_resign_reason: { type: 'string', description: 'SECTION 3A — 이직 사유 (객관적 이유 1문장 + 이직 통한 목표 1문장, 총 60-90자 내외. 예: "합작법인의 전략적 사업 종료로 조직 해산. 중국시장 및 글로벌 경험을 바탕으로 더 넓은 브랜드와 제품군에서 기획력을 확장하고자 함")' },
+      qa_resign_reason: { type: 'string', description: 'SECTION 3A — 이직 사유 (객관적 이유 1문장 + 이직 통한 목표 1문장, 총 60-90자 내외. 존칭어 생략, ~함/~임 체로 작성. 예: "합작법인의 전략적 사업 종료로 조직 해산. 중국시장 및 글로벌 경험을 바탕으로 더 넓은 브랜드와 제품군에서 기획력을 확장하고자 함")' },
       qa_domain_gap: { type: 'string', description: 'SECTION 3B — 도메인 갭 대응' },
       qa_competency: { type: 'string', description: 'SECTION 3C — 역량 검증 (STAR)' },
       qa_project_experience: { type: 'string', description: 'SECTION 3D — 프로젝트 경험 심화 질문 (후보자 이력서의 실제 프로젝트/업무 경험 기반, 구체적인 기술/상황 질문 8개, 각 질문마다 답변 예시 포함)' },
