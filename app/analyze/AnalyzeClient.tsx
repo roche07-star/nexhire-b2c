@@ -2256,7 +2256,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               📋 면접 형식
                               <span className="jd-label-optional">(선택)</span>
                             </label>
-                            <input className="jd-input" type="text" placeholder="예) 1차 실무 → 2차 임원, PT 발표 포함" value={interviewFormat} onChange={(e) => setInterviewFormat(e.target.value)} />
+                            <select
+                              className="jd-input"
+                              value={interviewFormat}
+                              onChange={(e) => setInterviewFormat(e.target.value)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <option value="">선택하세요</option>
+                              <option value="1차 면접">1차 면접</option>
+                              <option value="2차 면접(임원)">2차 면접(임원)</option>
+                              <option value="3차 면접(임원)">3차 면접(임원)</option>
+                            </select>
                           </div>
                           <div className="jd-field">
                             <label className="jd-label">
