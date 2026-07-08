@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import type { CouponWithStatus } from '@/lib/types/coupon'
 
 const FEATURE_LABEL: Record<string, string> = {
   storage: '이력서 추가 저장', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
@@ -10,11 +11,8 @@ const USAGE_LABEL: Record<string, string> = {
   analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서',
 }
 
-interface CouponItem {
-  id: string; code: string; feature: string
-  status: 'active' | 'used' | 'expired'
-  expires_at?: string | null; claimed_at?: string | null; used_at?: string | null
-}
+// ✅ 중앙 타입 사용
+type CouponItem = Pick<CouponWithStatus, 'id' | 'code' | 'feature' | 'status' | 'expires_at' | 'claimed_at' | 'used_at'>
 interface UsageItem { used: number; limit: number }
 interface ConsentInfo {
   required: { agreed: boolean; agreedAt: string | null }

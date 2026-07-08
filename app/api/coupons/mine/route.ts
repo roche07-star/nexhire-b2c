@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { toCoupon, toCouponWithStatus, type DatabaseCoupon } from '@/lib/types/coupon'
 
 export async function GET() {
   try {
@@ -11,21 +12,17 @@ export async function GET() {
 
     const { data } = await supabase
       .from('coupons')
-      .select('id, code, feature, used_at, expires_at, claimed_at, credits, used, issued_by, created_at')
+      .select('*')
       .eq('claimed_by', session.user.email)
       .is('deleted_at', null)
       .order('claimed_at', { ascending: false })
 
-    const now = new Date()
-    const coupons = (data ?? []).map(c => {
-      const remaining = (c.credits || 1) - (c.used || 0)
-      return {
-        ...c,
-        status: remaining <= 0 ? 'used'
-          : c.expires_at && new Date(c.expires_at) < now ? 'expired'
-          : 'active',
-      }
-    })
+    // ✅ 타입 검증 및 변환
+    const rawCoupons = (data ?? []) as DatabaseCoupon[]
+    const coupons = rawCoupons
+      .map(toCoupon)
+      .filter((c): c is NonNullable<typeof c> => c !== null)
+      .map(toCouponWithStatus)
 
     return NextResponse.json({ coupons })
   } catch (e) {

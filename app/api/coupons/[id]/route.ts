@@ -14,12 +14,12 @@ export async function DELETE(
 
     const { id: couponId } = await params
 
-    // 쿠폰 소유 확인
+    // ✅ 타입 명시: 쿠폰 소유 확인
     const { data: coupon } = await supabase
       .from('coupons')
       .select('id, claimed_by, used_at')
       .eq('id', couponId)
-      .single()
+      .single<{ id: string; claimed_by: string | null; used_at: string | null }>()
 
     if (!coupon) {
       return NextResponse.json({ error: '쿠폰을 찾을 수 없습니다.' }, { status: 404 })

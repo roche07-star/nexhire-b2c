@@ -1,18 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import type { Coupon } from '@/lib/types/coupon'
 
-interface Coupon {
-  id: string
-  code: string | null
-  feature: string
-  credits: number
-  used: number
-  expires_at: string
-  issued_by: string
-  created_at: string
-  claimed_at: string
-  used_at: string | null
+// ✅ 중앙 타입 사용 (추가 필드는 로컬 확장)
+interface CouponWithDetails extends Coupon {
+  issued_by?: string
 }
 
 interface Payment {
@@ -28,7 +21,7 @@ interface Payment {
 }
 
 interface Props {
-  coupons: Coupon[]
+  coupons: CouponWithDetails[]
   payments: Payment[]
 }
 
@@ -51,7 +44,7 @@ const FEATURE_LINKS: Record<string, string> = {
 }
 
 export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
-  const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons)
+  const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
 
   // 페이지 진입 시 최신 쿠폰 데이터 가져오기
   useEffect(() => {

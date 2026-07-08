@@ -135,8 +135,9 @@ export async function checkUsage(
     .gt('expires_at', new Date().toISOString()) // 만료되지 않음
     .order('expires_at', { ascending: true }) // 만료 임박 순
 
-  // 남은 횟수가 있는 쿠폰만 필터링
-  const availableCoupons = (allCoupons || []).filter(c => c.used < c.credits)
+  // ✅ 타입 안정성: 남은 횟수가 있는 쿠폰만 필터링
+  type CouponRow = { id: string; credits: number; used: number; expires_at: string | null }
+  const availableCoupons = (allCoupons as CouponRow[] || []).filter(c => c.used < c.credits)
   const hasAvailableCoupon = availableCoupons.length > 0
 
   return {
@@ -184,7 +185,9 @@ export async function incrementUsage(email: string, feature: Feature): Promise<v
     .order('expires_at', { ascending: true })
     .limit(1)
 
-  const availableCoupon = (coupons || []).find(c => c.used < c.credits)
+  // ✅ 타입 안정성
+  type CouponRow = { id: string; credits: number; used: number; expires_at: string | null }
+  const availableCoupon = (coupons as CouponRow[] || []).find(c => c.used < c.credits)
 
   if (availableCoupon) {
     // ✅ 원자적 쿠폰 사용 (Optimistic Locking)

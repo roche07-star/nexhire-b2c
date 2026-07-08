@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { toCoupon, isCouponAvailable, type DatabaseCoupon } from '@/lib/types/coupon'
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,25 +17,32 @@ export async function POST(req: NextRequest) {
     }
 
     // 쿠폰 조회
-    const { data: coupon, error: fetchError } = await supabase
+    const { data: rawCoupon, error: fetchError } = await supabase
       .from('coupons')
       .select('*')
       .eq('id', couponId)
       .eq('claimed_by', session.user.email)
-      .single()
+      .single<DatabaseCoupon>()
 
-    if (fetchError || !coupon) {
+    if (fetchError || !rawCoupon) {
       return NextResponse.json({ error: '쿠폰을 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    // 이미 사용 완료된 쿠폰인지 확인
-    if (coupon.used_at) {
-      return NextResponse.json({ error: '이미 사용된 쿠폰입니다.' }, { status: 400 })
+    // ✅ 타입 검증 및 변환
+    const coupon = toCoupon(rawCoupon)
+    if (!coupon) {
+      return NextResponse.json({ error: '잘못된 쿠폰 데이터입니다.' }, { status: 500 })
     }
 
-    // 만료 확인
-    if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
-      return NextResponse.json({ error: '만료된 쿠폰입니다.' }, { status: 400 })
+    // ✅ 사용 가능 여부 검증 (타입 안전)
+    if (!isCouponAvailable(coupon)) {
+      if (coupon.used >= coupon.credits) {
+        return NextResponse.json({ error: '이미 사용 완료된 쿠폰입니다.' }, { status: 400 })
+      }
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+        return NextResponse.json({ error: '만료된 쿠폰입니다.' }, { status: 400 })
+      }
+      return NextResponse.json({ error: '사용할 수 없는 쿠폰입니다.' }, { status: 400 })
     }
 
     // 쿠폰 사용 처리

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import type { Coupon } from '@/lib/types/coupon'
 
 interface User {
   email: string
@@ -23,18 +24,7 @@ interface User {
   withdraw_requested_at: string | null
 }
 
-interface Coupon {
-  id: string
-  code: string
-  feature: string
-  price: number
-  issued_to: string | null
-  claimed_by: string | null
-  claimed_at: string | null
-  used_at: string | null
-  expires_at: string | null
-  created_at: string
-}
+// ✅ 중앙 타입 사용
 
 const PLAN_LIMITS: Record<string, Record<string, number>> = {
   FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
