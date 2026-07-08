@@ -536,6 +536,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           })
           .catch(() => {})
       }
+    } else if (tab === 'interview') {
+      setActiveMenu('interview')
     }
   }, [searchParams])
 
