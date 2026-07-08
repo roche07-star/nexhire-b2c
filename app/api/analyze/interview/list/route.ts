@@ -23,6 +23,7 @@ export async function GET() {
       .from('interview_guides')
       .select('id, result, created_at, expires_at, user_email')
       .eq('user_email', session.user.email)
+      .is('deleted_at', null)  // ✅ Soft delete 제외
       .gt('expires_at', new Date().toISOString())
 
     // last_restored_at 이후 생성된 것만 (재가입 후 데이터만)

@@ -20,6 +20,7 @@ export async function GET() {
       .from('jd_analyses')
       .select('id, analysis_id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
+      .is('deleted_at', null)  // ✅ Soft delete 제외
 
     // last_restored_at 이후 생성된 것만 (재가입 후 데이터만)
     if (userData?.last_restored_at) {

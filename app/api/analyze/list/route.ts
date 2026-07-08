@@ -21,6 +21,7 @@ export async function GET() {
       .from('analyses')
       .select('id, result, created_at, expires_at')
       .eq('user_email', session.user.email)
+      .is('deleted_at', null)  // ✅ Soft delete 제외
       .or(`expires_at.is.null,expires_at.gt.${now}`)
 
     // last_restored_at 이후 생성된 것만 (재가입 후 데이터만)

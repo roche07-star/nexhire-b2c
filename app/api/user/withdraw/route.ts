@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
       withdraw_requested_at: now.toISOString(),
       data_delete_at: deleteDate.toISOString(),
       last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
+      name: null,              // ✅ 즉시 익명화
+      image: null,             // ✅ 즉시 익명화
     }).eq('email', email)
 
     if (error) {
@@ -80,7 +82,21 @@ export async function POST(req: NextRequest) {
       withdrawn_at: now.toISOString(),
     }).eq('user_email', email).is('withdrawn_at', null)
 
-    console.log(`[withdraw] Consents withdrawn for ${email}`)
+    // ✅ 감사 로그 기록
+    await supabase.from('audit_logs').insert({
+      action: 'user_withdraw',
+      user_email: email,
+      details: {
+        status: 'withdrawing',
+        deletion_stage: 'immediate',
+        plan: userData.plan,
+        plan_end_date: deleteDate.toISOString(),
+        withdraw_type: 'scheduled'
+      },
+      deletion_stage: 'immediate'
+    })
+
+    console.log(`[withdraw] User ${email} set to withdrawing with immediate anonymization`)
 
     const endDateStr = userData.plan_end_date || deleteDate.toLocaleDateString('ko-KR')
     return NextResponse.json({
@@ -105,20 +121,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // 개인정보 동의 철회
+  // 개인정보 동의 철회 (soft delete)
   await supabase.from('consents').update({
     is_agreed: false,
     withdrawn_at: now.toISOString(),
   }).eq('user_email', email).is('withdrawn_at', null)
 
-  // 즉시 데이터 삭제
-  await supabase.from('analyses').delete().eq('user_email', email)
-  await supabase.from('jd_analyses').delete().eq('user_email', email)
-  await supabase.from('interview_guides').delete().eq('user_email', email)
-  await supabase.from('coupons').delete().eq('claimed_by', email)
-  await supabase.from('consents').delete().eq('user_email', email)
+  // ✅ Soft delete: 즉시 삭제 대신 deleted_at 설정
+  await supabase.from('analyses').update({
+    deleted_at: now.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
 
-  console.log(`[withdraw] User ${email} withdrawn and data deleted`)
+  await supabase.from('jd_analyses').update({
+    deleted_at: now.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
+
+  await supabase.from('interview_guides').update({
+    deleted_at: now.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
+
+  await supabase.from('jobs').update({
+    deleted_at: now.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
+
+  // ✅ 개인정보 익명화 (즉시)
+  await supabase.from('users').update({
+    name: null,
+    image: null,
+  }).eq('email', email)
+
+  // ✅ 감사 로그 기록
+  await supabase.from('audit_logs').insert({
+    action: 'user_withdraw',
+    user_email: email,
+    details: {
+      status: 'withdrawn',
+      deletion_stage: 'immediate',
+      plan: userData.plan,
+      withdraw_type: 'immediate'
+    },
+    deletion_stage: 'immediate'
+  })
+
+  // 📌 보존: payments, coupons는 삭제하지 않음 (법적 보존)
+
+  console.log(`[withdraw] User ${email} withdrawn with soft delete`)
 
   return NextResponse.json({
     status: 'withdrawn',
