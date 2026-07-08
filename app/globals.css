@@ -3415,15 +3415,16 @@ footer.footer-container {
 .jd-saved-score { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
 .jd-saved-date { font-size: 11px; color: var(--muted); }
 .jd-saved-divider {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--muted);
+  color: var(--text);
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 4px;
+  opacity: 0.9;
 }
 .jd-disclaimer {
   font-size: 12px;
