@@ -22,6 +22,7 @@ interface DashboardStats {
     id: string
     type: 'resume' | 'jd'
     name: string
+    company: string
     position: string
     score: number
     stage: string
@@ -1409,10 +1410,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                       }}>
                         {activity.type === 'resume' ? '📋 이력서' : '📊 JD'}
                       </span>
-                      <span>{maskName(activity.name)} · {activity.position}</span>
+                      <span>{maskName(activity.name)}</span>
                     </div>
                     <div style={{
                       fontSize: 13,
+                      color: 'rgba(255,255,255,0.7)',
+                      marginBottom: 4
+                    }}>
+                      {activity.company} · {activity.position}
+                    </div>
+                    <div style={{
+                      fontSize: 12,
                       color: 'rgba(255,255,255,0.5)'
                     }}>
                       {new Date(activity.createdAt).toLocaleDateString('ko-KR')}

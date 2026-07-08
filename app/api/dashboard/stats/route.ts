@@ -113,7 +113,7 @@ export async function GET() {
             .eq('user_email', email),
           supabase
             .from('analyses')
-            .select('id, candidate_name, position, score, created_at, pipeline_stage')
+            .select('id, candidate_name, position, score, created_at, pipeline_stage, result')
             .eq('user_email', email)
             .order('created_at', { ascending: false })
             .limit(10),
@@ -150,15 +150,26 @@ export async function GET() {
         }
 
         // 최근 이력서 활동
-        const resumeActivities = resumeActivity.data?.map((item: any) => ({
-          id: item.id,
-          type: 'resume' as const,
-          name: item.candidate_name || '미상',
-          position: item.position || '미상',
-          score: item.score || 0,
-          stage: item.pipeline_stage || 'pending',
-          createdAt: item.created_at,
-        })) || []
+        const resumeActivities = resumeActivity.data?.map((item: any) => {
+          let companyName = '미상'
+          try {
+            const result = typeof item.result === 'string' ? JSON.parse(item.result) : item.result
+            companyName = result?.current_company || result?.company || '미상'
+          } catch {
+            // JSON 파싱 실패 시 기본값 유지
+          }
+
+          return {
+            id: item.id,
+            type: 'resume' as const,
+            name: item.candidate_name || '미상',
+            company: companyName,
+            position: item.position || '미상',
+            score: item.score || 0,
+            stage: item.pipeline_stage || 'pending',
+            createdAt: item.created_at,
+          }
+        }) || []
 
         // 최근 JD 활동
         const jdActivities = (jdActivity.data?.map((item: any) => {
@@ -168,7 +179,8 @@ export async function GET() {
               id: item.id,
               type: 'jd' as const,
               name: result?.candidate_name || '미상',
-              position: `${result?.company || '미상'} - ${result?.position || '미상'}`,
+              company: result?.company || '미상',
+              position: result?.position || '미상',
               score: result?.fit_score || 0,
               stage: 'jd',
               createdAt: item.created_at,
