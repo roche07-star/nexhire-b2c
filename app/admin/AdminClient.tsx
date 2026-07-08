@@ -487,7 +487,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
         <div className="admin-tab-bar desktop-only">
           <button className={`admin-tab-btn${tab === 'users' ? ' active' : ''}`} onClick={() => onTabChange('users')}>유저 관리</button>
           <button className={`admin-tab-btn${tab === 'plan-changes' ? ' active' : ''}`} onClick={() => onTabChange('plan-changes')}>
-            📅 플랜 변경 예정 {users.filter(u => u.downgrade_to).length > 0 && `(${users.filter(u => u.downgrade_to).length})`}
+            📅 플랜 변경 예정 {users.filter(u => u.downgrade_to || u.status === 'withdrawing').length > 0 && `(${users.filter(u => u.downgrade_to || u.status === 'withdrawing').length})`}
           </button>
           <button className={`admin-tab-btn${tab === 'support' ? ' active' : ''}`} onClick={() => onTabChange('support')}>💬 고객센터</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
@@ -518,7 +518,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           >
             <option value="users">📊 유저 관리</option>
             <option value="plan-changes">
-              📅 플랜 변경 예정{users.filter(u => u.downgrade_to).length > 0 ? ` (${users.filter(u => u.downgrade_to).length})` : ''}
+              📅 플랜 변경 예정{users.filter(u => u.downgrade_to || u.status === 'withdrawing').length > 0 ? ` (${users.filter(u => u.downgrade_to || u.status === 'withdrawing').length})` : ''}
             </option>
             <option value="support">💬 고객센터</option>
             <option value="coupons">🎫 쿠폰 관리</option>
@@ -1025,7 +1025,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             <div className="admin-stats">
               <div className="admin-stat-card">
                 <div className="admin-stat-label">플랜 변경 예정</div>
-                <div className="admin-stat-value">{users.filter(u => u.downgrade_to).length}명</div>
+                <div className="admin-stat-value">{users.filter(u => u.downgrade_to || u.status === 'withdrawing').length}명</div>
               </div>
             </div>
 
@@ -1044,38 +1044,50 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.filter(u => u.downgrade_to).map((user) => (
-                    <tr key={user.email}>
-                      <td style={{ fontSize: 12 }}>{user.email}</td>
-                      <td>{user.name || '-'}</td>
-                      <td>
-                        <span className={`admin-badge admin-badge-${user.plan.toLowerCase()}`}>
-                          {user.plan}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center', color: '#f59e0b' }}>→</td>
-                      <td>
-                        <span className={`admin-badge admin-badge-${user.downgrade_to?.toLowerCase()}`}>
-                          {user.downgrade_to}
-                        </span>
-                      </td>
-                      <td>{user.plan_end_date ? new Date(user.plan_end_date).toLocaleDateString('ko-KR') : '-'}</td>
-                      <td style={{ fontSize: 12 }}>
-                        {user.downgrade_requested_at ? new Date(user.downgrade_requested_at).toLocaleString('ko-KR') : '-'}
-                      </td>
-                      <td>
-                        <button
-                          className="admin-btn admin-btn-sm"
-                          style={{ background: '#f59e0b' }}
-                          onClick={() => cancelDowngrade(user.email)}
-                          disabled={loading === user.email + 'cancel'}
-                        >
-                          {loading === user.email + 'cancel' ? '...' : '예약 취소'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {users.filter(u => u.downgrade_to).length === 0 && (
+                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing').map((user) => {
+                    const isWithdrawing = user.status === 'withdrawing'
+                    return (
+                      <tr key={user.email}>
+                        <td style={{ fontSize: 12 }}>{user.email}</td>
+                        <td>{user.name || '-'}</td>
+                        <td>
+                          <span className={`admin-badge admin-badge-${user.plan.toLowerCase()}`}>
+                            {user.plan}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center', color: '#f59e0b' }}>→</td>
+                        <td>
+                          {isWithdrawing ? (
+                            <span className="admin-badge" style={{ background: '#ef4444', color: '#fff' }}>
+                              탈퇴 예정
+                            </span>
+                          ) : (
+                            <span className={`admin-badge admin-badge-${user.downgrade_to?.toLowerCase()}`}>
+                              {user.downgrade_to}
+                            </span>
+                          )}
+                        </td>
+                        <td>{user.plan_end_date ? new Date(user.plan_end_date).toLocaleDateString('ko-KR') : '-'}</td>
+                        <td style={{ fontSize: 12 }}>
+                          {isWithdrawing
+                            ? (user.withdraw_requested_at ? new Date(user.withdraw_requested_at).toLocaleString('ko-KR') : '-')
+                            : (user.downgrade_requested_at ? new Date(user.downgrade_requested_at).toLocaleString('ko-KR') : '-')
+                          }
+                        </td>
+                        <td>
+                          <button
+                            className="admin-btn admin-btn-sm"
+                            style={{ background: '#f59e0b' }}
+                            onClick={() => cancelDowngrade(user.email)}
+                            disabled={loading === user.email + 'cancel'}
+                          >
+                            {loading === user.email + 'cancel' ? '...' : '예약 취소'}
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing').length === 0 && (
                     <tr><td colSpan={8} className="admin-empty">플랜 변경 예정인 유저가 없습니다.</td></tr>
                   )}
                 </tbody>
