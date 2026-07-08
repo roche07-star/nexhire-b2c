@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 export default function WithdrawSection() {
@@ -11,8 +11,53 @@ export default function WithdrawSection() {
   const [inputEmail, setInputEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [userStatus, setUserStatus] = useState<'active' | 'withdrawing' | 'withdrawn'>('active')
+
+  // 사용자 상태 확인
+  useEffect(() => {
+    if (!userEmail) return
+
+    async function fetchUserStatus() {
+      try {
+        const res = await fetch('/api/my-info')
+        if (res.ok) {
+          const data = await res.json()
+          setUserStatus(data.user?.status || 'active')
+        }
+      } catch (e) {
+        console.error('Failed to fetch user status:', e)
+      }
+    }
+
+    fetchUserStatus()
+  }, [userEmail])
 
   if (!userEmail) return null
+
+  const isWithdrawing = userStatus === 'withdrawing'
+
+  async function handleCancelWithdraw() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/user/cancel-withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error ?? '오류가 발생했습니다.')
+        return
+      }
+      const data = await res.json()
+      alert(data.message || '탈퇴 취소가 완료되었습니다.')
+      setUserStatus('active')
+      window.location.reload()
+    } catch {
+      alert('네트워크 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleWithdraw() {
     if (inputEmail !== userEmail) return
@@ -31,7 +76,12 @@ export default function WithdrawSection() {
       }
       const data = await res.json()
       alert(data.message || '탈퇴가 완료되었습니다.')
-      await signOut({ callbackUrl: '/' })
+      if (data.status === 'withdrawn') {
+        await signOut({ callbackUrl: '/' })
+      } else {
+        setUserStatus('withdrawing')
+        setOpen(false)
+      }
     } catch {
       setError('네트워크 오류가 발생했습니다.')
     } finally {
@@ -41,21 +91,39 @@ export default function WithdrawSection() {
 
   return (
     <div className="privacy-section" style={{ borderTop: '1px solid rgba(255,107,107,0.15)', marginTop: 40, paddingTop: 32 }}>
-      <h2 style={{ color: '#ff6b6b' }}>계정 탈퇴</h2>
-      <p>탈퇴 신청 시 모든 데이터가 영구 삭제되며 복구할 수 없습니다. 신중하게 결정해주세요.</p>
-      <p style={{ marginTop: 8 }}>유료 플랜 이용 중이라면 플랜 종료일까지 정상적으로 서비스를 이용할 수 있습니다.</p>
-      <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}>고객센터</a>로 연락해 주세요.</p>
-      <button
-        className="withdraw-link"
-        style={{ marginTop: 16, fontSize: 13 }}
-        onClick={() => {
-          setOpen(true)
-          setInputEmail('')
-          setError(null)
-        }}
-      >
-        계정 탈퇴 신청
-      </button>
+      <h2 style={{ color: isWithdrawing ? '#f59e0b' : '#ff6b6b' }}>계정 탈퇴</h2>
+      {isWithdrawing ? (
+        <>
+          <p style={{ color: '#f59e0b', fontWeight: 600 }}>⚠️ 탈퇴 신청이 완료되었습니다.</p>
+          <p style={{ marginTop: 8 }}>플랜 종료일까지 정상적으로 서비스를 이용할 수 있습니다.</p>
+          <p style={{ marginTop: 8 }}>탈퇴를 취소하려면 아래 버튼을 클릭해 주세요.</p>
+          <button
+            className="withdraw-link"
+            style={{ marginTop: 16, fontSize: 13, background: '#10b981', color: '#fff' }}
+            onClick={handleCancelWithdraw}
+            disabled={loading}
+          >
+            {loading ? '처리 중...' : '계정 탈퇴 취소'}
+          </button>
+        </>
+      ) : (
+        <>
+          <p>탈퇴 신청 시 모든 데이터가 영구 삭제되며 복구할 수 없습니다. 신중하게 결정해주세요.</p>
+          <p style={{ marginTop: 8 }}>유료 플랜 이용 중이라면 플랜 종료일까지 정상적으로 서비스를 이용할 수 있습니다.</p>
+          <p style={{ marginTop: 8 }}>문의가 있으시면 탈퇴 전 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline', fontWeight: 600 }}>고객센터</a>로 연락해 주세요.</p>
+          <button
+            className="withdraw-link"
+            style={{ marginTop: 16, fontSize: 13 }}
+            onClick={() => {
+              setOpen(true)
+              setInputEmail('')
+              setError(null)
+            }}
+          >
+            계정 탈퇴 신청
+          </button>
+        </>
+      )}
 
       {open && (
         <div className="withdraw-overlay" onClick={() => !loading && setOpen(false)}>
