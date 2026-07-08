@@ -431,6 +431,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [activeMenu, jdSavedList, jdSavedListLoading])
 
+  // 이력서 목록 자동 로드 (면접 가이드 생성용)
+  useEffect(() => {
+    if (activeMenu === 'interview' && analysisList === null && !savedListLoading) {
+      setSavedListLoading(true)
+      fetch('/api/analyze/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setAnalysisList(analyses ?? []))
+        .catch(() => setAnalysisList([]))
+        .finally(() => setSavedListLoading(false))
+    }
+  }, [activeMenu, analysisList, savedListLoading])
+
   useEffect(() => {
     if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
     fetch('/api/analyze/latest')
