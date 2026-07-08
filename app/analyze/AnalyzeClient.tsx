@@ -377,7 +377,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [hiringProcessCreating, setHiringProcessCreating] = useState(false)
   const [hiringModalTop, setHiringModalTop] = useState(100)
   const hiringButtonRef = useRef<HTMLButtonElement | null>(null)
-  const [hiringJDInfo, setHiringJDInfo] = useState<{candidateName: string; companyName: string; positionTitle: string}>({
+  const [hiringJDInfo, setHiringJDInfo] = useState<{
+    candidateName: string
+    companyName: string
+    positionTitle: string
+    jdAnalysisId?: string
+    fitScore?: number
+    resumeTitle?: string
+  }>({
     candidateName: '',
     companyName: '',
     positionTitle: ''
@@ -2375,9 +2382,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             try {
                               // JD 정보를 state에 저장
                               setHiringJDInfo({
-                                candidateName: '',
+                                candidateName: jdSelectedAnalysis?.result?.이름 || '',
                                 companyName: jdViewingSaved.result.company || '',
-                                positionTitle: jdViewingSaved.result.position || ''
+                                positionTitle: jdViewingSaved.result.position || '',
+                                jdAnalysisId: jdViewingSaved.id,
+                                fitScore: jdViewingSaved.result.fit_score,
+                                resumeTitle: jdSelectedAnalysis?.result?.이력서_제목
                               })
                               console.log('✅ JD 정보 저장 완료')
 
@@ -2435,9 +2445,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             try {
                               // JD 정보를 state에 저장
                               setHiringJDInfo({
-                                candidateName: jdSelectedAnalysis?.result.candidate_name || '',
+                                candidateName: jdSelectedAnalysis?.result?.이름 || '',
                                 companyName: jdResult.company || '',
-                                positionTitle: jdResult.position || ''
+                                positionTitle: jdResult.position || '',
+                                jdAnalysisId: jdResult.id,
+                                fitScore: jdResult.fit_score,
+                                resumeTitle: jdSelectedAnalysis?.result?.이력서_제목
                               })
                               console.log('✅ JD 정보 저장 완료')
 
@@ -3272,30 +3285,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
               setHiringProcessCreating(true)
               try {
-                const res = await fetch('/api/hiring-process', {
+                const res = await fetch('/api/pipeline', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    analysis_id: analysisId || null,
-                    position_title: positionTitle,
-                    company_name: companyName,
                     candidate_name: candidateName,
-                    next_action: nextAction || '서류 검토',
-                    current_stage: 0,
-                    status: 'ACTIVE'
+                    company_name: companyName,
+                    position_title: positionTitle,
+                    analysis_id: analysisId || null,
+                    jd_analysis_id: hiringJDInfo.jdAnalysisId || null,
+                    fit_score: hiringJDInfo.fitScore || null,
+                    resume_title: hiringJDInfo.resumeTitle || null,
+                    next_action: nextAction || null,
                   })
                 })
 
                 if (res.ok) {
-                  alert('채용 프로세스가 추가되었습니다!')
+                  alert('채용 파이프라인에 추가되었습니다!')
                   setShowHiringModal(false)
-                  window.location.href = '/hiring-process'
+                  window.location.href = '/pipeline'
                 } else {
                   const data = await res.json()
                   alert(data.error || '추가 실패')
                 }
               } catch (err) {
-                console.error('채용 프로세스 추가 에러:', err)
+                console.error('파이프라인 추가 에러:', err)
                 alert('서버 오류가 발생했습니다.')
               } finally {
                 setHiringProcessCreating(false)
@@ -3492,8 +3506,22 @@ function AnalysisResults({
   hiringModalTop: number
   setHiringModalTop: (value: number) => void
   hiringButtonRef: React.MutableRefObject<HTMLButtonElement | null>
-  hiringJDInfo: {candidateName: string; companyName: string; positionTitle: string}
-  setHiringJDInfo: (value: {candidateName: string; companyName: string; positionTitle: string}) => void
+  hiringJDInfo: {
+    candidateName: string
+    companyName: string
+    positionTitle: string
+    jdAnalysisId?: string
+    fitScore?: number
+    resumeTitle?: string
+  }
+  setHiringJDInfo: (value: {
+    candidateName: string
+    companyName: string
+    positionTitle: string
+    jdAnalysisId?: string
+    fitScore?: number
+    resumeTitle?: string
+  }) => void
 }) {
   const [activeCareerTab, setActiveCareerTab] = useState(
     result.career_paths && result.career_paths.length > 0 ? Math.min(1, result.career_paths.length - 1) : 0
@@ -4004,24 +4032,25 @@ function AnalysisResults({
 
               setHiringProcessCreating(true)
               try {
-                const res = await fetch('/api/hiring-process', {
+                const res = await fetch('/api/pipeline', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    analysis_id: analysisId,
-                    position_title: positionTitle,
-                    company_name: companyName,
                     candidate_name: candidateName,
-                    next_action: nextAction || '서류 검토',
-                    current_stage: 0,
-                    status: 'ACTIVE'
+                    company_name: companyName,
+                    position_title: positionTitle,
+                    analysis_id: analysisId || null,
+                    jd_analysis_id: hiringJDInfo.jdAnalysisId || null,
+                    fit_score: hiringJDInfo.fitScore || null,
+                    resume_title: hiringJDInfo.resumeTitle || null,
+                    next_action: nextAction || null,
                   })
                 })
 
                 if (res.ok) {
-                  alert('채용 프로세스가 추가되었습니다!')
+                  alert('채용 파이프라인에 추가되었습니다!')
                   setShowHiringModal(false)
-                  window.location.href = '/hiring-process'
+                  window.location.href = '/pipeline'
                 } else {
                   const data = await res.json()
                   alert(data.error || '추가 실패')
@@ -4704,47 +4733,6 @@ function JDResults({
                     📄 후보자 제안서 다운로드
                   </button>
                 )}
-
-                {/* 채용 파이프라인에 추가 버튼 */}
-                <button
-                  className="analyze-download-btn"
-                  style={{
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: '#fff',
-                  }}
-                  onClick={async () => {
-                    if (!analysisItem || !result) return
-
-                    try {
-                      const res = await fetch('/api/pipeline', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          candidate_name: analysisItem.result.이름 || '미상',
-                          company_name: result.company || '미상',
-                          position_title: result.position || '미상',
-                          analysis_id: analysisItem.id,
-                          jd_analysis_id: result.id,
-                          fit_score: result.fit_score || null,
-                          resume_title: analysisItem.result.이력서_제목 || null,
-                        })
-                      })
-
-                      if (res.ok) {
-                        if (confirm('채용 파이프라인에 추가되었습니다.\n\n파이프라인 페이지로 이동하시겠습니까?')) {
-                          window.location.href = '/pipeline'
-                        }
-                      } else {
-                        alert('파이프라인 추가에 실패했습니다.')
-                      }
-                    } catch (e) {
-                      console.error('파이프라인 추가 실패:', e)
-                      alert('서버 오류가 발생했습니다.')
-                    }
-                  }}
-                >
-                  📊 채용 파이프라인에 추가
-                </button>
               </>
             )}
           </>

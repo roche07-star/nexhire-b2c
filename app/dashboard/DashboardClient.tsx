@@ -291,21 +291,21 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
 
   const fetchHiringProcessStats = async () => {
     try {
-      const res = await fetch('/api/hiring-process')
+      const res = await fetch('/api/pipeline')
       if (res.ok) {
         const data = await res.json()
-        const processes = data.processes || []
+        const candidates = data.candidates || []
 
-        // 실제 채용 프로세스 데이터 계산
-        const active = processes.filter((p: any) => p.current_stage <= 4 && p.status !== 'FAILED').length
-        const passed = processes.filter((p: any) => p.current_stage === 5).length
-        const hired = processes.filter((p: any) => p.current_stage === 6).length
-        const screening = processes.filter((p: any) => p.current_stage === 0 && p.status !== 'FAILED').length  // 서류 단계
+        // 파이프라인 데이터 계산
+        const active = candidates.filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage)).length
+        const passed = candidates.filter((c: any) => c.stage === 'PASSED').length
+        const hired = passed  // 합격 = 채용 완료
+        const screening = candidates.filter((c: any) => ['DOCUMENT_PREP', 'DOCUMENT_REVIEW'].includes(c.stage)).length
 
         setHiringStats({ active, passed, hired, screening })
       }
     } catch (err) {
-      console.error('Failed to fetch hiring process stats:', err)
+      console.error('Failed to fetch pipeline stats:', err)
       // 에러 시 기본값 유지
     }
   }
@@ -986,9 +986,9 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         <button
           onClick={() => {
             if (hiringStats.active > 0) {
-              router.push('/hiring-process')
+              router.push('/pipeline')
             } else if (stats.totalCandidates > 0) {
-              router.push('/hiring-process')
+              router.push('/pipeline')
             } else {
               router.push('/analyze')
             }
@@ -1341,7 +1341,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               채용 프로세스
             </h2>
             <button
-              onClick={() => router.push('/hiring-process')}
+              onClick={() => router.push('/pipeline')}
               style={{
                 padding: '8px 16px',
                 background: 'rgba(34, 211, 238, 0.1)',
