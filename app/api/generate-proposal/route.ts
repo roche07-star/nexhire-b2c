@@ -21,7 +21,7 @@ function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
     company: jdAnalysis.company || '미상',
     position: jdAnalysis.position || '미상',
     date: new Date().toISOString().slice(0, 7).replace('-', '. '),
-    summary: `${resumeAnalysis.candidate_name}님은 ${resumeAnalysis.job_title} 분야에서 ${experience}의 경력을 보유하고 있으며, 우수한 후보자입니다.`,
+    summary: `${resumeAnalysis.candidate_name}님은 ${resumeAnalysis.job_title} 분야에서 ${experience}의 탄탄한 경력을 보유하고 있으며, 해당 포지션에 매우 적합한 후보자로 판단됩니다. 실무 역량과 전문성을 겸비하고 있어 즉시 성과를 창출할 수 있을 것으로 기대됩니다.`,
     candidate_info: {
       name: resumeAnalysis.candidate_name || '미상',
       current_position: resumeAnalysis.job_title || '미기재',
@@ -32,15 +32,15 @@ function createFallbackProposal(resumeAnalysis: any, jdAnalysis: any) {
     },
     strengths: Array.isArray(resumeAnalysis.strengths) && resumeAnalysis.strengths.length > 0
       ? resumeAnalysis.strengths.slice(0, 5)
-      : ['경력 기반 전문성', '직무 적합성', '성장 가능성'],
+      : ['다년간의 실무 경험을 통해 입증된 전문성', '직무 요구사항에 부합하는 기술 역량', '지속적인 성장과 학습 의지'],
     fit_analysis: {
-      technical_fit: `기술적 요구사항을 충족합니다.`,
-      cultural_fit: `매칭 강점을 바탕으로 조직 문화에 잘 적응할 것으로 예상됩니다.`,
-      growth_potential: `장기적인 발전 가능성이 높습니다.`,
+      technical_fit: `직무에 필요한 핵심 기술 역량을 충분히 갖추고 있으며, 즉시 업무에 투입 가능한 수준입니다.`,
+      cultural_fit: `협업 능력과 커뮤니케이션 역량이 우수하여 조직 문화에 빠르게 적응하고 시너지를 낼 것으로 기대됩니다.`,
+      growth_potential: `탄탄한 기본기와 학습 의지를 갖추고 있어 장기적으로 조직의 핵심 인재로 성장할 가능성이 높습니다.`,
     },
     recommendation: jdAnalysis.recommendation === 'APPLY' ? 'HIGHLY_RECOMMEND' :
                      jdAnalysis.recommendation === 'CONSIDER' ? 'RECOMMEND' : 'CONSIDER',
-    next_steps: '면접 일정 조율을 제안합니다.',
+    next_steps: '우수한 후보자이므로 조속한 면접 일정 조율을 제안드립니다.',
   }
 }
 
@@ -201,7 +201,11 @@ export async function POST(req: NextRequest) {
           role: 'user',
           content: `당신은 Executive Search 헤드헌터입니다. 클라이언트(채용 기업)에게 제출할 후보자 추천서를 작성해 주세요.
 
-⚠️ **중요**: 아래 제공된 정보만 사용하십시오. 없는 정보는 추측하거나 생성하지 말고 "미기재"로 표시하십시오.
+⚠️ **중요 원칙**:
+1. 후보자의 강점과 가치를 **긍정적이고 확신있게** 전달하세요
+2. 아래 제공된 정보만 사용하십시오 (없는 정보는 "미기재")
+3. **점수나 숫자 평가는 절대 사용하지 마세요** (예: "85점", "80% 적합" 등)
+4. 정성적이고 구체적인 설명으로 후보자의 가치를 표현하세요
 
 ## 후보자 이력서 분석 결과:
 - 후보자명: ${resumeAnalysis.candidate_name || '미상'}
@@ -209,29 +213,23 @@ export async function POST(req: NextRequest) {
 - 총 경력: ${resumeAnalysis.total_experience_years ? `${resumeAnalysis.total_experience_years}년` : '미기재'}
 - 최종 학력: ${resumeAnalysis.education || '미기재'}
 - 현재/직전 연봉: ${resumeAnalysis.current_salary || '미기재'}
-- 직무 적합도: ${resumeAnalysis.scores?.job_fit || 0}점
-- 시장 경쟁력: ${resumeAnalysis.scores?.market_competitiveness || 0}점
-- 성장 가능성: ${resumeAnalysis.scores?.growth_potential || 0}점
-- 강점: ${Array.isArray(resumeAnalysis.strengths) ? resumeAnalysis.strengths.join(', ') : '없음'}
-- 개선점: ${Array.isArray(resumeAnalysis.improvements) ? resumeAnalysis.improvements.join(', ') : '없음'}
+- 핵심 강점: ${Array.isArray(resumeAnalysis.strengths) ? resumeAnalysis.strengths.join(', ') : '없음'}
 - 핵심 키워드: ${Array.isArray(resumeAnalysis.keywords) ? resumeAnalysis.keywords.join(', ') : '없음'}
 
-## JD 적합도 분석 결과:
+## JD 매칭 분석 결과:
 - 회사: ${jdAnalysis.company || '미상'}
 - 포지션: ${jdAnalysis.position || '미상'}
-- 적합도 점수: ${jdAnalysis.fit_score || 0}점
 - 추천도: ${jdAnalysis.recommendation || 'CONSIDER'}
 - 매칭 강점: ${Array.isArray(jdAnalysis.matching_points) ? jdAnalysis.matching_points.join(', ') : '없음'}
-- 부족한 점: ${Array.isArray(jdAnalysis.gaps) ? jdAnalysis.gaps.join(', ') : '없음'}
 
-다음 형식으로 프로페셔널한 후보자 추천서를 작성해 주세요:
+다음 형식으로 **긍정적이고 설득력 있는** 후보자 추천서를 작성해 주세요:
 
 {
   "title": "후보자 추천 요약",
   "company": "${jdAnalysis.company || '미상'}",
   "position": "${jdAnalysis.position || '미상'}",
   "date": "${new Date().toISOString().slice(0, 7).replace('-', '. ')}",
-  "summary": "후보자에 대한 전체적인 추천 요약 (3-5문장, 구체적 수치 포함)",
+  "summary": "후보자의 핵심 가치와 강점을 중심으로 **긍정적이고 확신있게** 추천 요약을 작성하세요. (3-5문장, 구체적 경험과 역량 강조, 점수나 숫자 평가는 절대 금지)",
   "candidate_info": {
     "name": "${resumeAnalysis.candidate_name || '미상'}",
     "current_position": "${resumeAnalysis.job_title || '미기재'}",
@@ -241,15 +239,15 @@ export async function POST(req: NextRequest) {
     "availability": "협의 후 결정" (기본값)
   },
   "strengths": [
-    "위 강점 정보를 기반으로 한 핵심 강점 3-5개 (구체적 사례 포함)"
+    "후보자의 핵심 강점 3-5개를 **긍정적이고 설득력있게** 작성하세요. (예: '~분야에서 탁월한 역량을 보유하고 있습니다', '~프로젝트 경험을 통해 입증된 실력', 점수나 숫자 평가는 절대 금지)"
   ],
   "fit_analysis": {
-    "technical_fit": "매칭 강점 기반 기술적 적합성 분석",
-    "cultural_fit": "조직 문화 및 협업 능력 기반 문화적 적합성 분석",
-    "growth_potential": "경력 경로 및 잠재력 기반 성장 가능성 분석"
+    "technical_fit": "매칭 강점을 바탕으로 **기술적 역량이 충분함**을 긍정적으로 표현하세요 (점수나 숫자 평가는 절대 금지)",
+    "cultural_fit": "협업 능력과 조직 적합성을 **긍정적으로** 평가하세요 (점수나 숫자 평가는 절대 금지)",
+    "growth_potential": "경력 발전 가능성과 장기적 가치를 **긍정적으로** 강조하세요 (점수나 숫자 평가는 절대 금지)"
   },
   "recommendation": "${jdAnalysis.recommendation === 'APPLY' ? 'HIGHLY_RECOMMEND' : jdAnalysis.recommendation === 'CONSIDER' ? 'RECOMMEND' : 'CONSIDER'}",
-  "next_steps": "면접 일정 조율을 제안합니다."
+  "next_steps": "**자신있게** 면접 일정 조율을 제안하세요."
 }
 
 ❌ **절대 금지**:
