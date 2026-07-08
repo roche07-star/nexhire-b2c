@@ -933,6 +933,15 @@ export async function POST(req: NextRequest) {
 2026년 07월 02일
 지원자 : (성명)
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                    ⚡ Powered by JOBIZIC
+              AI 기반 이력서 분석 및 최적화 서비스
+                    https://jobizic.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ${jdContext ? `[JD 최적화]
 강점: ${toArr(jdContext.matching_points).slice(0, 2).join(', ')}
 보완: ${toArr(jdContext.gaps).slice(0, 1).join(', ')}
