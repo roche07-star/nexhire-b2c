@@ -7,7 +7,7 @@ const FEATURE_LABEL: Record<string, string> = {
   storage: '이력서 추가 저장', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
 }
 const USAGE_LABEL: Record<string, string> = {
-  analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드',
+  analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서',
 }
 
 interface CouponItem {
