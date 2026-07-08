@@ -464,8 +464,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   }
 
   const filteredUsers = showOnlyHeadhunterSharing
-    ? users.filter((u) => u.headhunter_sharing_enabled === true)
-    : users
+    ? users.filter((u) => u.headhunter_sharing_enabled === true && u.user_type !== 'SUPER_ADMIN')
+    : users.filter((u) => u.user_type !== 'SUPER_ADMIN')
 
   // 통계는 stats API에서 가져온 데이터 사용
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
