@@ -313,7 +313,7 @@ function StageColumn({
 
 // 후보자 카드
 function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; onClick: () => void }) {
-  // 합격 단계는 간소화 (이름, 회사, 입사일만)
+  // 합격 단계는 간소화 (이름+입사일, 회사+포지션)
   if (candidate.stage === 'PASSED') {
     return (
       <div
@@ -335,17 +335,18 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: 'var(--text)' }}>
-          {candidate.candidate_name}
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span>{candidate.company_name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
+            {candidate.candidate_name}
+          </span>
           {candidate.hired_date && (
-            <>
-              <span>•</span>
-              <span>📅 {new Date(candidate.hired_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
-            </>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#10b981' }}>
+              ({new Date(candidate.hired_date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })})
+            </span>
           )}
+        </div>
+        <div style={{ fontSize: 13, color: 'var(--muted)' }}>
+          {candidate.company_name} • {candidate.position_title}
         </div>
       </div>
     )
