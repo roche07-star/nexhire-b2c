@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       content,
       target_user_type,
       priority: priority || 'normal',
-      created_by: session.user?.email || '관리자',
+      created_by: session?.user?.email || '관리자',
       is_active: true,
       starts_at: new Date().toISOString()
     }
