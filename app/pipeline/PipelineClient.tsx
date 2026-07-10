@@ -152,19 +152,22 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
           overflowX: 'auto',
           paddingBottom: 20
         }}>
-          {PIPELINE_STAGE_ORDER.map(stage => (
-            <StageColumn
-              key={stage}
-              stage={stage}
-              candidates={candidatesByStage[stage]}
-              onMove={moveCandidate}
-              onSelect={(c) => {
-                setSelectedCandidate(c)
-                setShowDetailModal(true)
-              }}
-              onAddClick={stage === 'PASSED' ? () => setShowAddModal(true) : undefined}
-            />
-          ))}
+          {PIPELINE_STAGE_ORDER.map(stage => {
+            const isPassedStage = stage === 'PASSED'
+            return (
+              <StageColumn
+                key={stage}
+                stage={stage}
+                candidates={candidatesByStage[stage]}
+                onMove={moveCandidate}
+                onSelect={(c) => {
+                  setSelectedCandidate(c)
+                  setShowDetailModal(true)
+                }}
+                onAddClick={isPassedStage ? () => setShowAddModal(true) : undefined}
+              />
+            )
+          })}
         </div>
 
         {/* 상세 모달 */}
@@ -356,6 +359,24 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           lineHeight: 1.4
         }}>
           📝 {candidate.notes.length > 50 ? candidate.notes.slice(0, 50) + '...' : candidate.notes}
+        </div>
+      )}
+
+      {/* 합격 정보 */}
+      {candidate.stage === 'PASSED' && (candidate.hired_date || candidate.fee || candidate.salary) && (
+        <div style={{
+          marginTop: 8,
+          padding: 8,
+          background: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          borderRadius: 6,
+          fontSize: 11,
+          color: 'var(--muted)',
+          lineHeight: 1.5
+        }}>
+          {candidate.hired_date && <div>📅 입사: {new Date(candidate.hired_date).toLocaleDateString('ko-KR')}</div>}
+          {candidate.fee && <div>💰 수수료: {candidate.fee}%</div>}
+          {candidate.salary && <div>💵 연봉: {candidate.salary.toLocaleString()}만원</div>}
         </div>
       )}
     </div>
