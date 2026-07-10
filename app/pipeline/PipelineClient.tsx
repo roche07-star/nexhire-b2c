@@ -402,6 +402,8 @@ function CandidateDetailModal({
   const [notesMessage, setNotesMessage] = useState('')
   const [showPassedModal, setShowPassedModal] = useState(false)
   const [movingToPassed, setMovingToPassed] = useState(false)
+  const [showEditPassedModal, setShowEditPassedModal] = useState(false)
+  const [isEditingPassed, setIsEditingPassed] = useState(false)
 
   async function handleSaveNotes() {
     setIsSavingNotes(true)
@@ -470,20 +472,48 @@ function CandidateDetailModal({
 
           {/* 합격 정보 */}
           {candidate.stage === 'PASSED' && (
-            <>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 8,
+              padding: 16
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
+                  💼 합격 정보
+                </div>
+                <button
+                  onClick={() => setShowEditPassedModal(true)}
+                  style={{
+                    padding: '4px 12px',
+                    background: '#10b981',
+                    border: 'none',
+                    borderRadius: 6,
+                    color: '#fff',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  수정
+                </button>
+              </div>
               {candidate.hired_date && (
-                <InfoRow
-                  label="입사일"
-                  value={new Date(candidate.hired_date).toLocaleDateString('ko-KR')}
-                />
+                <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 4 }}>
+                  📅 입사일: {new Date(candidate.hired_date).toLocaleDateString('ko-KR')}
+                </div>
               )}
-              {candidate.fee && (
-                <InfoRow label="수수료" value={`${candidate.fee}%`} />
+              {candidate.fee !== null && candidate.fee !== undefined && (
+                <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 4 }}>
+                  💰 수수료: {candidate.fee}%
+                </div>
               )}
               {candidate.salary && (
-                <InfoRow label="처우 / 연봉" value={`${candidate.salary.toLocaleString()}만원`} />
+                <div style={{ fontSize: 13, color: 'var(--text)' }}>
+                  💵 연봉: {candidate.salary.toLocaleString()}만원
+                </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
@@ -801,6 +831,188 @@ function CandidateDetailModal({
                   }}
                 >
                   {movingToPassed ? '이동 중...' : '합격 처리'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 합격 정보 수정 모달 */}
+      {showEditPassedModal && candidate.stage === 'PASSED' && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1002
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowEditPassedModal(false)
+            }
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--card-bg)',
+              borderRadius: 12,
+              padding: 24,
+              width: '90%',
+              maxWidth: 400,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, color: 'var(--text)' }}>
+              합격 정보 수정
+            </h3>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setIsEditingPassed(true)
+
+                const form = e.currentTarget
+                const hiredDate = (form.elements.namedItem('hired_date') as HTMLInputElement).value
+                const fee = (form.elements.namedItem('fee') as HTMLInputElement).value
+                const salary = (form.elements.namedItem('salary') as HTMLInputElement).value
+
+                try {
+                  const res = await fetch(`/api/pipeline/${candidate.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      hired_date: hiredDate || null,
+                      fee: fee ? parseFloat(fee) : null,
+                      salary: salary ? parseInt(salary) : null
+                    })
+                  })
+
+                  if (res.ok) {
+                    const data = await res.json()
+                    onUpdate(data.candidate)
+                    setShowEditPassedModal(false)
+                  } else {
+                    alert('수정에 실패했습니다.')
+                  }
+                } catch (e) {
+                  console.error('Failed to update PASSED info:', e)
+                  alert('수정에 실패했습니다.')
+                } finally {
+                  setIsEditingPassed(false)
+                }
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    입사일
+                  </label>
+                  <input
+                    type="date"
+                    name="hired_date"
+                    defaultValue={candidate.hired_date || ''}
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    수수료 (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="fee"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    defaultValue={candidate.fee || ''}
+                    placeholder="예: 20"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    처우 / 연봉 (만원)
+                  </label>
+                  <input
+                    type="number"
+                    name="salary"
+                    min="0"
+                    defaultValue={candidate.salary || ''}
+                    placeholder="예: 5000"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEditPassedModal(false)}
+                  disabled={isEditingPassed}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: isEditingPassed ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditingPassed}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#10b981',
+                    border: 'none',
+                    borderRadius: 8,
+                    color: '#fff',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: isEditingPassed ? 'not-allowed' : 'pointer',
+                    opacity: isEditingPassed ? 0.6 : 1
+                  }}
+                >
+                  {isEditingPassed ? '수정 중...' : '수정 완료'}
                 </button>
               </div>
             </form>
