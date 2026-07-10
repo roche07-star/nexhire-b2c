@@ -1156,10 +1156,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               gap: 20,
               minWidth: 'fit-content'
             }}>
-            {/* 입사 목표 */}
+            {/* 진행 중 목표 */}
             {(() => {
-              const target = goals.hiredTarget
-              const current = hiringStats.hired
+              const target = goals.proposalTarget
+              const current = hiringStats.active
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
@@ -1176,12 +1176,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    입사 목표
+                    진행 중
                   </div>
                   <div style={{
                     fontSize: 32,
                     fontWeight: 800,
-                    color: '#10b981',
+                    color: '#a78bfa',
                     marginBottom: 8,
                     letterSpacing: '-0.02em'
                   }}>
@@ -1198,7 +1198,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     <div style={{
                       width: `${percentage}%`,
                       height: '100%',
-                      background: 'linear-gradient(90deg, #10b981 0%, #22d3ee 100%)',
+                      background: 'linear-gradient(90deg, #a78bfa 0%, #fbbf24 100%)',
                       borderRadius: 4,
                       transition: 'all 0.6s ease-out'
                     }} />
@@ -1208,7 +1208,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     color: 'rgba(255,255,255,0.7)',
                     whiteSpace: 'nowrap'
                   }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '💪'}
+                    {percentage}% 달성 {current >= target ? '🎉' : '📋'}
                   </div>
                 </div>
               )
@@ -1272,10 +1272,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
 
-            {/* 진행 중 목표 */}
+            {/* 입사 목표 */}
             {(() => {
-              const target = goals.proposalTarget
-              const current = hiringStats.active
+              const target = goals.hiredTarget
+              const current = hiringStats.hired
               const percentage = Math.min(100, Math.round((current / target) * 100))
               return (
                 <div style={{
@@ -1292,12 +1292,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    진행 중
+                    입사 목표
                   </div>
                   <div style={{
                     fontSize: 32,
                     fontWeight: 800,
-                    color: '#a78bfa',
+                    color: '#10b981',
                     marginBottom: 8,
                     letterSpacing: '-0.02em'
                   }}>
@@ -1314,7 +1314,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     <div style={{
                       width: `${percentage}%`,
                       height: '100%',
-                      background: 'linear-gradient(90deg, #a78bfa 0%, #fbbf24 100%)',
+                      background: 'linear-gradient(90deg, #10b981 0%, #22d3ee 100%)',
                       borderRadius: 4,
                       transition: 'all 0.6s ease-out'
                     }} />
@@ -1324,7 +1324,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     color: 'rgba(255,255,255,0.7)',
                     whiteSpace: 'nowrap'
                   }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '📋'}
+                    {percentage}% 달성 {current >= target ? '🎉' : '💪'}
                   </div>
                 </div>
               )
