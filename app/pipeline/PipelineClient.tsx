@@ -137,6 +137,10 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
             onClose={() => setShowDetailModal(false)}
             onMove={moveCandidate}
             onDelete={deleteCandidate}
+            onUpdate={(updatedCandidate) => {
+              setCandidates(candidates.map(c => c.id === updatedCandidate.id ? updatedCandidate : c))
+              setSelectedCandidate(updatedCandidate)
+            }}
           />
         )}
       </div>
@@ -266,6 +270,20 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           매칭: {candidate.fit_score}점
         </div>
       )}
+      {candidate.notes && (
+        <div style={{
+          marginTop: 8,
+          padding: 8,
+          background: 'rgba(167, 139, 250, 0.1)',
+          border: '1px solid rgba(167, 139, 250, 0.3)',
+          borderRadius: 6,
+          fontSize: 12,
+          color: 'var(--muted)',
+          lineHeight: 1.4
+        }}>
+          📝 {candidate.notes.length > 50 ? candidate.notes.slice(0, 50) + '...' : candidate.notes}
+        </div>
+      )}
     </div>
   )
 }
@@ -275,13 +293,45 @@ function CandidateDetailModal({
   candidate,
   onClose,
   onMove,
-  onDelete
+  onDelete,
+  onUpdate
 }: {
   candidate: PipelineCandidate
   onClose: () => void
   onMove: (id: string, stage: PipelineStage) => void
   onDelete: (id: string) => void
+  onUpdate: (candidate: PipelineCandidate) => void
 }) {
+  const [notes, setNotes] = useState(candidate.notes || '')
+  const [isSavingNotes, setIsSavingNotes] = useState(false)
+  const [notesMessage, setNotesMessage] = useState('')
+
+  async function handleSaveNotes() {
+    setIsSavingNotes(true)
+    setNotesMessage('')
+    try {
+      const res = await fetch(`/api/pipeline/${candidate.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: notes.trim() })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        onUpdate(data.candidate)
+        setNotesMessage('메모가 저장되었습니다.')
+        setTimeout(() => setNotesMessage(''), 2000)
+      } else {
+        setNotesMessage('저장 실패')
+      }
+    } catch (e) {
+      console.error('Failed to save notes:', e)
+      setNotesMessage('저장 실패')
+    } finally {
+      setIsSavingNotes(false)
+    }
+  }
+
   return (
     <div
       style={{
@@ -320,6 +370,66 @@ function CandidateDetailModal({
           <InfoRow label="포지션" value={candidate.position_title} />
           {candidate.fit_score && <InfoRow label="매칭 점수" value={`${candidate.fit_score}점`} />}
           <InfoRow label="현재 단계" value={PIPELINE_STAGE_LABELS[candidate.stage]} />
+        </div>
+
+        {/* 메모 입력 */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: 'var(--text)' }}>
+            📝 메모
+          </div>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="후보자 관련 메모를 입력하세요..."
+            style={{
+              width: '100%',
+              minHeight: 100,
+              padding: 12,
+              background: 'var(--bg)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              fontSize: 14,
+              color: 'var(--text)',
+              resize: 'vertical',
+              fontFamily: 'inherit'
+            }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+            <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+              {notes.length} / 1000자
+            </div>
+            <button
+              onClick={handleSaveNotes}
+              disabled={isSavingNotes || notes === (candidate.notes || '')}
+              style={{
+                padding: '6px 16px',
+                background: '#a78bfa',
+                border: 'none',
+                borderRadius: 6,
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: isSavingNotes || notes === (candidate.notes || '') ? 'not-allowed' : 'pointer',
+                opacity: isSavingNotes || notes === (candidate.notes || '') ? 0.5 : 1
+              }}
+            >
+              {isSavingNotes ? '저장 중...' : '메모 저장'}
+            </button>
+          </div>
+          {notesMessage && (
+            <div style={{
+              marginTop: 8,
+              padding: 8,
+              background: notesMessage.includes('실패') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+              border: `1px solid ${notesMessage.includes('실패') ? '#ef4444' : '#10b981'}`,
+              borderRadius: 6,
+              fontSize: 12,
+              color: notesMessage.includes('실패') ? '#ef4444' : '#10b981',
+              textAlign: 'center'
+            }}>
+              {notesMessage}
+            </div>
+          )}
         </div>
 
         {/* 단계 이동 버튼들 */}
