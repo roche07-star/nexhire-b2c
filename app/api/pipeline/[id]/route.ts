@@ -20,17 +20,22 @@ export async function PATCH(
     const { id } = await params
     const input: any = await req.json()
 
+    console.log('[pipeline/PATCH] Updating candidate:', id, input)
+
+    const updateData: any = {}
+    if (input.stage !== undefined) updateData.stage = input.stage
+    if (input.notes !== undefined) updateData.notes = input.notes
+    if (input.next_action !== undefined) updateData.next_action = input.next_action
+    if (input.next_action_date !== undefined) updateData.next_action_date = input.next_action_date
+    if (input.hired_date !== undefined) updateData.hired_date = input.hired_date
+    if (input.fee !== undefined) updateData.fee = input.fee
+    if (input.salary !== undefined) updateData.salary = input.salary
+
+    console.log('[pipeline/PATCH] Update data:', updateData)
+
     const { data, error } = await supabase
       .from('hiring_pipeline')
-      .update({
-        ...(input.stage && { stage: input.stage }),
-        ...(input.notes !== undefined && { notes: input.notes }),
-        ...(input.next_action !== undefined && { next_action: input.next_action }),
-        ...(input.next_action_date !== undefined && { next_action_date: input.next_action_date }),
-        ...(input.hired_date !== undefined && { hired_date: input.hired_date }),
-        ...(input.fee !== undefined && { fee: input.fee }),
-        ...(input.salary !== undefined && { salary: input.salary }),
-      })
+      .update(updateData)
       .eq('id', id)
       .eq('user_email', session.user.email)
       .select()

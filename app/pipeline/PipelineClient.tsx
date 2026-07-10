@@ -637,11 +637,16 @@ function CandidateDetailModal({
 
                   if (res.ok) {
                     const data = await res.json()
+                    console.log('PASSED update response:', data)
                     onUpdate(data.candidate)
                     setShowPassedModal(false)
                     onClose()
+                    // 목록 새로고침
+                    window.location.reload()
                   } else {
-                    alert('합격 이동에 실패했습니다.')
+                    const errorData = await res.json().catch(() => ({}))
+                    console.error('Failed to move to PASSED:', res.status, errorData)
+                    alert(`합격 이동에 실패했습니다. (${res.status})`)
                   }
                 } catch (e) {
                   console.error('Failed to move to PASSED:', e)
