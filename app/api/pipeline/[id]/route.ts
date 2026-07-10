@@ -18,7 +18,7 @@ export async function PATCH(
     }
 
     const { id } = await params
-    const input: UpdatePipelineCandidateInput = await req.json()
+    const input: any = await req.json()
 
     const { data, error } = await supabase
       .from('hiring_pipeline')
@@ -27,6 +27,9 @@ export async function PATCH(
         ...(input.notes !== undefined && { notes: input.notes }),
         ...(input.next_action !== undefined && { next_action: input.next_action }),
         ...(input.next_action_date !== undefined && { next_action_date: input.next_action_date }),
+        ...(input.hired_date !== undefined && { hired_date: input.hired_date }),
+        ...(input.fee !== undefined && { fee: input.fee }),
+        ...(input.salary !== undefined && { salary: input.salary }),
       })
       .eq('id', id)
       .eq('user_email', session.user.email)

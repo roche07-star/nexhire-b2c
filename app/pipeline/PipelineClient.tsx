@@ -377,6 +377,8 @@ function CandidateDetailModal({
   const [notes, setNotes] = useState(candidate.notes || '')
   const [isSavingNotes, setIsSavingNotes] = useState(false)
   const [notesMessage, setNotesMessage] = useState('')
+  const [showPassedModal, setShowPassedModal] = useState(false)
+  const [movingToPassed, setMovingToPassed] = useState(false)
 
   async function handleSaveNotes() {
     setIsSavingNotes(true)
@@ -514,8 +516,12 @@ function CandidateDetailModal({
               <button
                 key={stage}
                 onClick={() => {
-                  onMove(candidate.id, stage)
-                  onClose()
+                  if (stage === 'PASSED' && candidate.stage !== 'PASSED') {
+                    setShowPassedModal(true)
+                  } else {
+                    onMove(candidate.id, stage)
+                    onClose()
+                  }
                 }}
                 disabled={stage === candidate.stage}
                 style={{
@@ -571,6 +577,189 @@ function CandidateDetailModal({
           </button>
         </div>
       </div>
+
+      {/* 합격 이동 모달 */}
+      {showPassedModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1001
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowPassedModal(false)
+            }
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--card-bg)',
+              borderRadius: 12,
+              padding: 24,
+              width: '90%',
+              maxWidth: 400,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+            }}
+          >
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, color: 'var(--text)' }}>
+              합격 정보 입력
+            </h3>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setMovingToPassed(true)
+
+                const form = e.currentTarget
+                const hiredDate = (form.elements.namedItem('hired_date') as HTMLInputElement).value
+                const fee = (form.elements.namedItem('fee') as HTMLInputElement).value
+                const salary = (form.elements.namedItem('salary') as HTMLInputElement).value
+
+                try {
+                  const res = await fetch(`/api/pipeline/${candidate.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      stage: 'PASSED',
+                      hired_date: hiredDate || null,
+                      fee: fee ? parseFloat(fee) : null,
+                      salary: salary ? parseInt(salary) : null
+                    })
+                  })
+
+                  if (res.ok) {
+                    const data = await res.json()
+                    onUpdate(data.candidate)
+                    setShowPassedModal(false)
+                    onClose()
+                  } else {
+                    alert('합격 이동에 실패했습니다.')
+                  }
+                } catch (e) {
+                  console.error('Failed to move to PASSED:', e)
+                  alert('합격 이동에 실패했습니다.')
+                } finally {
+                  setMovingToPassed(false)
+                }
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    입사일 <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="hired_date"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    수수료 (%) <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="fee"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    required
+                    placeholder="예: 20"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                    처우 / 연봉 (만원) <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="salary"
+                    min="0"
+                    required
+                    placeholder="예: 5000"
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      border: '1px solid var(--border)',
+                      borderRadius: 6,
+                      fontSize: 14,
+                      background: 'var(--bg)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPassedModal(false)}
+                  disabled={movingToPassed}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: movingToPassed ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={movingToPassed}
+                  style={{
+                    flex: 1,
+                    padding: 12,
+                    background: '#10b981',
+                    border: 'none',
+                    borderRadius: 8,
+                    color: '#fff',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: movingToPassed ? 'not-allowed' : 'pointer',
+                    opacity: movingToPassed ? 0.6 : 1
+                  }}
+                >
+                  {movingToPassed ? '이동 중...' : '합격 처리'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
