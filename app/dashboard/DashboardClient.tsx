@@ -1214,64 +1214,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
 
-            {/* 합격 목표 */}
-            {(() => {
-              const target = goals.passedTarget
-              const current = hiringStats.passed
-              const percentage = Math.min(100, Math.round((current / target) * 100))
-              return (
-                <div style={{
-                  padding: '20px 24px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: 16,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}>
-                  <div style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'rgba(255,255,255,0.6)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    marginBottom: 16
-                  }}>
-                    합격 목표
-                  </div>
-                  <div style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: '#22d3ee',
-                    marginBottom: 8,
-                    letterSpacing: '-0.02em'
-                  }}>
-                    {current} / {target}명
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 8,
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    marginBottom: 12
-                  }}>
-                    <div style={{
-                      width: `${percentage}%`,
-                      height: '100%',
-                      background: 'linear-gradient(90deg, #22d3ee 0%, #a78bfa 100%)',
-                      borderRadius: 4,
-                      transition: 'all 0.6s ease-out'
-                    }} />
-                  </div>
-                  <div style={{
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.7)',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {percentage}% 달성 {current >= target ? '🎉' : '📊'}
-                  </div>
-                </div>
-              )
-            })()}
-
             {/* 입사 목표 */}
             {(() => {
               const target = goals.hiredTarget
@@ -1325,6 +1267,64 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     whiteSpace: 'nowrap'
                   }}>
                     {percentage}% 달성 {current >= target ? '🎉' : '💪'}
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* 합격 목표 */}
+            {(() => {
+              const target = goals.passedTarget
+              const current = hiringStats.passed
+              const percentage = Math.min(100, Math.round((current / target) * 100))
+              return (
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 16,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}>
+                  <div style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginBottom: 16
+                  }}>
+                    합격 목표
+                  </div>
+                  <div style={{
+                    fontSize: 32,
+                    fontWeight: 800,
+                    color: '#22d3ee',
+                    marginBottom: 8,
+                    letterSpacing: '-0.02em'
+                  }}>
+                    {current} / {target}명
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: 8,
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    marginBottom: 12
+                  }}>
+                    <div style={{
+                      width: `${percentage}%`,
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #22d3ee 0%, #a78bfa 100%)',
+                      borderRadius: 4,
+                      transition: 'all 0.6s ease-out'
+                    }} />
+                  </div>
+                  <div style={{
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.7)',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {percentage}% 달성 {current >= target ? '🎉' : '📊'}
                   </div>
                 </div>
               )
