@@ -444,6 +444,24 @@ function CandidateDetailModal({
           <InfoRow label="포지션" value={candidate.position_title} />
           {candidate.fit_score && <InfoRow label="매칭 점수" value={`${candidate.fit_score}점`} />}
           <InfoRow label="현재 단계" value={PIPELINE_STAGE_LABELS[candidate.stage]} />
+
+          {/* 합격 정보 */}
+          {candidate.stage === 'PASSED' && (
+            <>
+              {candidate.hired_date && (
+                <InfoRow
+                  label="입사일"
+                  value={new Date(candidate.hired_date).toLocaleDateString('ko-KR')}
+                />
+              )}
+              {candidate.fee && (
+                <InfoRow label="수수료" value={`${candidate.fee}%`} />
+              )}
+              {candidate.salary && (
+                <InfoRow label="처우 / 연봉" value={`${candidate.salary.toLocaleString()}만원`} />
+              )}
+            </>
+          )}
         </div>
 
         {/* 메모 입력 */}
