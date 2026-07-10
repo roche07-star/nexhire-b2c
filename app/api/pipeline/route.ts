@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         next_action: input.next_action || null,
         next_action_date: input.next_action_date || null,
         hired_date: input.hired_date || null,
-        fee: input.fee ? parseInt(input.fee) : null,
+        fee: input.fee ? parseFloat(input.fee) : null,
         salary: input.salary ? parseInt(input.salary) : null,
       })
       .select()

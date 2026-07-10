@@ -721,12 +721,14 @@ function AddCandidateModal({
             {/* 수수료 */}
             <div>
               <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
-                수수료 (만원)
+                수수료 (%)
               </label>
               <input
                 type="number"
                 name="fee"
                 min="0"
+                max="100"
+                step="0.1"
                 style={{
                   width: '100%',
                   padding: 12,
