@@ -329,7 +329,17 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         // 파이프라인 데이터 계산
         const active = candidates.filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage)).length
         const passed = candidates.filter((c: any) => c.stage === 'PASSED').length
-        const hired = passed  // 합격 = 채용 완료
+
+        // 이번 달에 입사하는 후보자만 카운트
+        const now = new Date()
+        const currentMonth = now.getMonth()
+        const currentYear = now.getFullYear()
+        const hired = candidates.filter((c: any) => {
+          if (c.stage !== 'PASSED' || !c.hired_date) return false
+          const hiredDate = new Date(c.hired_date)
+          return hiredDate.getMonth() === currentMonth && hiredDate.getFullYear() === currentYear
+        }).length
+
         const screening = candidates.filter((c: any) => ['DOCUMENT_PREP', 'DOCUMENT_REVIEW'].includes(c.stage)).length
 
         setHiringStats({ active, passed, hired, screening })
