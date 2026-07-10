@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { Coupon } from '@/lib/types/coupon'
+import AnnouncementModal from '@/components/AnnouncementModal'
 
 interface User {
   email: string
@@ -106,6 +107,21 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [supportLoading, setSupportLoading] = useState(false)
   const [replyingId, setReplyingId] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+  const [supportSubTab, setSupportSubTab] = useState<'messages' | 'announcements'>('messages')
+
+  // announcements state
+  const [announcements, setAnnouncements] = useState<any[] | null>(null)
+  const [announcementsLoading, setAnnouncementsLoading] = useState(false)
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false)
+  const [editingAnnouncement, setEditingAnnouncement] = useState<any | null>(null)
+  const [announcementForm, setAnnouncementForm] = useState({
+    title: '',
+    content: '',
+    target_user_type: 'HEADHUNTER',
+    priority: 'normal',
+    expires_at: ''
+  })
+  const [announcementModalTab, setAnnouncementModalTab] = useState<'edit' | 'preview'>('edit')
 
   // Phase 1: 유저 목록 로드
   async function loadUsers() {
@@ -391,6 +407,97 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     }
   }
 
+  // 공지사항 로드
+  async function loadAnnouncements() {
+    setAnnouncementsLoading(true)
+    try {
+      const res = await fetch('/api/admin/announcements')
+      const data = await res.json()
+      if (res.ok) {
+        setAnnouncements(data.announcements || [])
+      }
+    } finally {
+      setAnnouncementsLoading(false)
+    }
+  }
+
+  // 공지사항 생성/수정
+  async function handleSaveAnnouncement() {
+    try {
+      const method = editingAnnouncement ? 'PATCH' : 'POST'
+      const body = editingAnnouncement
+        ? { id: editingAnnouncement.id, ...announcementForm }
+        : announcementForm
+
+      const res = await fetch('/api/admin/announcements', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+
+      if (res.ok) {
+        setShowAnnouncementModal(false)
+        setEditingAnnouncement(null)
+        setAnnouncementForm({
+          title: '',
+          content: '',
+          target_user_type: 'HEADHUNTER',
+          priority: 'normal',
+          expires_at: ''
+        })
+        loadAnnouncements()
+        setMsg(editingAnnouncement ? '공지사항이 수정되었습니다' : '공지사항이 생성되었습니다')
+        setTimeout(() => setMsg(null), 3000)
+      } else {
+        const data = await res.json()
+        alert(data.error || '저장 실패')
+      }
+    } catch (error) {
+      console.error('Save announcement error:', error)
+      alert('저장 중 오류가 발생했습니다')
+    }
+  }
+
+  // 공지사항 삭제
+  async function handleDeleteAnnouncement(id: string) {
+    if (!confirm('정말 삭제하시겠습니까?')) return
+
+    try {
+      const res = await fetch(`/api/admin/announcements?id=${id}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        loadAnnouncements()
+        setMsg('공지사항이 삭제되었습니다')
+        setTimeout(() => setMsg(null), 3000)
+      } else {
+        const data = await res.json()
+        alert(data.error || '삭제 실패')
+      }
+    } catch (error) {
+      console.error('Delete announcement error:', error)
+      alert('삭제 중 오류가 발생했습니다')
+    }
+  }
+
+  // 공지사항 활성화/비활성화 토글
+  async function handleToggleActive(id: string, is_active: boolean) {
+    try {
+      const res = await fetch('/api/admin/announcements', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_active: !is_active })
+      })
+
+      if (res.ok) {
+        loadAnnouncements()
+      }
+    } catch (error) {
+      console.error('Toggle active error:', error)
+    }
+  }
+
   async function handleSupportReply(messageId: string) {
     if (!replyText.trim()) return
 
@@ -420,7 +527,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     setTab(t)
     if (t === 'coupons') loadCoupons()
     if (t === 'audit-logs') loadAuditLogs()
-    if (t === 'support') loadSupportMessages()
+    if (t === 'support') {
+      loadSupportMessages()
+      loadAnnouncements()
+    }
   }
 
   function couponStatus(c: Coupon) {
@@ -466,7 +576,11 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const totalInterview = users.reduce((s, u) => s + (u.interview_count ?? 0), 0)
 
   return (
-    <main className="admin-page">
+    <>
+      {/* 공지사항 모달 */}
+      <AnnouncementModal />
+
+      <main className="admin-page">
       <div className="admin-container">
         <div className="admin-header">
           <div className="section-label">MANAGER</div>
@@ -1090,7 +1204,45 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
 
         {tab === 'support' && (
           <>
-            <div className="admin-stats">
+            {/* 서브 탭 */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+              <button
+                onClick={() => setSupportSubTab('messages')}
+                style={{
+                  padding: '12px 24px',
+                  background: supportSubTab === 'messages' ? 'linear-gradient(135deg, #22d3ee, #a78bfa)' : '#27272a',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              >
+                💬 문의 관리
+              </button>
+              <button
+                onClick={() => setSupportSubTab('announcements')}
+                style={{
+                  padding: '12px 24px',
+                  background: supportSubTab === 'announcements' ? 'linear-gradient(135deg, #22d3ee, #a78bfa)' : '#27272a',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              >
+                📢 공지사항 관리
+              </button>
+            </div>
+
+            {supportSubTab === 'messages' && (
+              <>
+                <div className="admin-stats">
               <div className="admin-stat-card">
                 <div className="admin-stat-label">전체 문의</div>
                 <div className="admin-stat-value">{supportMessages?.length || 0}건</div>
@@ -1230,6 +1382,167 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 </table>
               )}
             </div>
+              </>
+            )}
+
+            {/* 공지사항 관리 */}
+            {supportSubTab === 'announcements' && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                  <div className="admin-stats" style={{ flex: 1, marginBottom: 0 }}>
+                    <div className="admin-stat-card">
+                      <div className="admin-stat-label">전체 공지</div>
+                      <div className="admin-stat-value">{announcements?.length || 0}개</div>
+                    </div>
+                    <div className="admin-stat-card">
+                      <div className="admin-stat-label">활성 공지</div>
+                      <div className="admin-stat-value" style={{ color: '#10b981' }}>
+                        {announcements?.filter(a => a.is_active).length || 0}개
+                      </div>
+                    </div>
+                    <div className="admin-stat-card">
+                      <div className="admin-stat-label">긴급 공지</div>
+                      <div className="admin-stat-value" style={{ color: '#f59e0b' }}>
+                        {announcements?.filter(a => a.priority === 'urgent' && a.is_active).length || 0}개
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditingAnnouncement(null)
+                      setAnnouncementForm({
+                        title: '',
+                        content: '',
+                        target_user_type: 'HEADHUNTER',
+                        priority: 'normal',
+                        expires_at: ''
+                      })
+                      setAnnouncementModalTab('edit')
+                      setShowAnnouncementModal(true)
+                    }}
+                    style={{
+                      padding: '12px 24px',
+                      background: 'linear-gradient(135deg, #22d3ee, #a78bfa)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 12,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    + 공지사항 작성
+                  </button>
+                </div>
+
+                <div className="admin-table-wrap">
+                  {announcementsLoading ? (
+                    <div style={{ padding: '60px 0', textAlign: 'center', color: '#71717a' }}>
+                      불러오는 중...
+                    </div>
+                  ) : !announcements || announcements.length === 0 ? (
+                    <div style={{ padding: '60px 0', textAlign: 'center', color: '#71717a' }}>
+                      공지사항이 없습니다
+                    </div>
+                  ) : (
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>상태</th>
+                          <th>우선순위</th>
+                          <th>제목</th>
+                          <th>대상</th>
+                          <th>작성자</th>
+                          <th>작성일</th>
+                          <th>만료일</th>
+                          <th>관리</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {announcements.map((announcement) => (
+                          <tr key={announcement.id}>
+                            <td>
+                              <button
+                                onClick={() => handleToggleActive(announcement.id, announcement.is_active)}
+                                className="admin-badge"
+                                style={{
+                                  background: announcement.is_active ? '#d1fae5' : '#fee2e2',
+                                  color: announcement.is_active ? '#10b981' : '#ef4444',
+                                  border: 'none',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {announcement.is_active ? '활성' : '비활성'}
+                              </button>
+                            </td>
+                            <td>
+                              <span
+                                className="admin-badge"
+                                style={{
+                                  background: announcement.priority === 'urgent' ? '#fef3c7' : '#dbeafe',
+                                  color: announcement.priority === 'urgent' ? '#f59e0b' : '#3b82f6'
+                                }}
+                              >
+                                {announcement.priority === 'urgent' ? '🔥 긴급' : '일반'}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ fontSize: 13, fontWeight: 600 }}>
+                                {announcement.title}
+                              </div>
+                            </td>
+                            <td>
+                              <span className="admin-badge">
+                                {announcement.target_user_type === 'HEADHUNTER' ? '헤드헌터' :
+                                 announcement.target_user_type === 'JOBSEEKER' ? '구직자' : '전체'}
+                              </span>
+                            </td>
+                            <td style={{ fontSize: 12 }}>{announcement.created_by}</td>
+                            <td style={{ fontSize: 12 }}>
+                              {new Date(announcement.created_at).toLocaleDateString('ko-KR')}
+                            </td>
+                            <td style={{ fontSize: 12 }}>
+                              {announcement.expires_at
+                                ? new Date(announcement.expires_at).toLocaleDateString('ko-KR')
+                                : '-'}
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  onClick={() => {
+                                    setEditingAnnouncement(announcement)
+                                    setAnnouncementForm({
+                                      title: announcement.title,
+                                      content: announcement.content,
+                                      target_user_type: announcement.target_user_type,
+                                      priority: announcement.priority,
+                                      expires_at: announcement.expires_at || ''
+                                    })
+                                    setAnnouncementModalTab('edit')
+                                    setShowAnnouncementModal(true)
+                                  }}
+                                  className="admin-btn-sm"
+                                >
+                                  수정
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteAnnouncement(announcement.id)}
+                                  className="admin-btn-sm"
+                                  style={{ background: '#ef4444' }}
+                                >
+                                  삭제
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
 
@@ -1939,6 +2252,344 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           </div>
         </div>
       )}
+
+      {/* 공지사항 작성/수정 모달 */}
+      {showAnnouncementModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(12px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20
+          }}
+          onClick={() => setShowAnnouncementModal(false)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: 20,
+              maxWidth: 600,
+              width: '100%',
+              padding: 32,
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 20, color: '#1a1a1a' }}>
+              {editingAnnouncement ? '공지사항 수정' : '공지사항 작성'}
+            </h3>
+
+            {/* 탭 */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb' }}>
+              <button
+                onClick={() => setAnnouncementModalTab('edit')}
+                style={{
+                  padding: '12px 24px',
+                  background: 'transparent',
+                  color: announcementModalTab === 'edit' ? '#22d3ee' : '#6b7280',
+                  border: 'none',
+                  borderBottom: announcementModalTab === 'edit' ? '2px solid #22d3ee' : 'none',
+                  marginBottom: -2,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ✏️ 작성
+              </button>
+              <button
+                onClick={() => setAnnouncementModalTab('preview')}
+                style={{
+                  padding: '12px 24px',
+                  background: 'transparent',
+                  color: announcementModalTab === 'preview' ? '#22d3ee' : '#6b7280',
+                  border: 'none',
+                  borderBottom: announcementModalTab === 'preview' ? '2px solid #22d3ee' : 'none',
+                  marginBottom: -2,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                👁️ 미리보기
+              </button>
+            </div>
+
+            {announcementModalTab === 'edit' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                  제목 *
+                </label>
+                <input
+                  type="text"
+                  value={announcementForm.title}
+                  onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
+                  placeholder="공지사항 제목"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                  내용 * (HTML 사용 가능)
+                </label>
+                <textarea
+                  value={announcementForm.content}
+                  onChange={(e) => setAnnouncementForm({ ...announcementForm, content: e.target.value })}
+                  placeholder="공지사항 내용 (HTML 태그 사용 가능)"
+                  rows={10}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                    대상 *
+                  </label>
+                  <select
+                    value={announcementForm.target_user_type}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, target_user_type: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 8,
+                      fontSize: 14
+                    }}
+                  >
+                    <option value="HEADHUNTER">헤드헌터</option>
+                    <option value="JOBSEEKER">구직자</option>
+                    <option value="ALL">전체</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                    우선순위 *
+                  </label>
+                  <select
+                    value={announcementForm.priority}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, priority: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 8,
+                      fontSize: 14
+                    }}
+                  >
+                    <option value="normal">일반</option>
+                    <option value="urgent">긴급</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#374151' }}>
+                  만료일 (선택)
+                </label>
+                <input
+                  type="datetime-local"
+                  value={announcementForm.expires_at}
+                  onChange={(e) => setAnnouncementForm({ ...announcementForm, expires_at: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 8,
+                    fontSize: 14
+                  }}
+                />
+              </div>
+            </div>
+            )}
+
+            {announcementModalTab === 'preview' && (
+              <div style={{
+                border: '2px solid #22d3ee',
+                borderRadius: 12,
+                padding: 24,
+                background: '#f9fafb',
+                minHeight: 400
+              }}>
+                <div style={{ textAlign: 'center', marginBottom: 16, color: '#6b7280', fontSize: 13 }}>
+                  사용자에게 표시될 모습
+                </div>
+
+                {/* 실제 모달 미리보기 */}
+                <div style={{
+                  background: '#ffffff',
+                  border: announcementForm.priority === 'urgent'
+                    ? '1px solid rgba(251, 191, 36, 0.3)'
+                    : '1px solid rgba(34, 211, 238, 0.2)',
+                  borderRadius: 20,
+                  padding: 32,
+                  maxWidth: 420,
+                  margin: '0 auto',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)'
+                }}>
+                  {/* Badge */}
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '6px 14px',
+                    background: announcementForm.priority === 'urgent'
+                      ? 'linear-gradient(135deg, #fbbf24, #ef4444)'
+                      : 'linear-gradient(135deg, #22d3ee, #a78bfa)',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    marginBottom: 20,
+                    color: '#ffffff'
+                  }}>
+                    <span style={{ fontSize: 13, fontWeight: 800 }}>JZ</span>
+                    {announcementForm.priority === 'urgent' ? '긴급' : '공지사항'}
+                  </div>
+
+                  {/* Title */}
+                  <h2 style={{
+                    fontSize: 24,
+                    fontWeight: 800,
+                    lineHeight: 1.3,
+                    marginBottom: 12,
+                    color: '#1a1a1a'
+                  }}>
+                    {announcementForm.title || '제목을 입력하세요'}
+                  </h2>
+
+                  {/* Meta */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    fontSize: 13,
+                    color: '#6b7280',
+                    marginBottom: 24
+                  }}>
+                    <span>👤 관리자</span>
+                    <span>•</span>
+                    <span>🕐 방금 전</span>
+                  </div>
+
+                  {/* Content */}
+                  <div
+                    style={{
+                      fontSize: 15,
+                      lineHeight: 1.7,
+                      color: '#374151',
+                      marginBottom: 24,
+                      maxHeight: 300,
+                      overflowY: 'auto'
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: announcementForm.content || '<p style="color: #9ca3af;">내용을 입력하세요</p>'
+                    }}
+                  />
+
+                  {/* Actions Preview */}
+                  <div style={{
+                    display: 'flex',
+                    gap: 10,
+                    paddingTop: 20,
+                    borderTop: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{
+                      flex: 1,
+                      padding: '12px 20px',
+                      background: '#f3f4f6',
+                      color: '#374151',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 10,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textAlign: 'center'
+                    }}>
+                      오늘 하루 보지 않기
+                    </div>
+                    <div style={{
+                      flex: 1,
+                      padding: '12px 20px',
+                      background: 'linear-gradient(135deg, #22d3ee, #a78bfa)',
+                      color: 'white',
+                      borderRadius: 10,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textAlign: 'center'
+                    }}>
+                      확인
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <button
+                onClick={() => setShowAnnouncementModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSaveAnnouncement}
+                  disabled={!announcementForm.title || !announcementForm.content}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: announcementForm.title && announcementForm.content
+                      ? 'linear-gradient(135deg, #22d3ee, #a78bfa)'
+                      : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: announcementForm.title && announcementForm.content ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  {editingAnnouncement ? '수정' : '작성'}
+                </button>
+              </div>
+          </div>
+        </div>
+      )}
     </main>
+    </>
   )
 }

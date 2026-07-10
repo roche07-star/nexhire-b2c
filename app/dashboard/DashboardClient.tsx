@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
+import AnnouncementModal from '@/components/AnnouncementModal'
 
 interface DashboardStats {
   totalCandidates: number
@@ -441,15 +442,19 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const planColor = planBadgeColors[userPlan] || planBadgeColors.FREE
 
   return (
-    <main style={{
-      padding: '100px 20px 40px',
-      maxWidth: 1400,
-      margin: '0 auto',
-      background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
-      minHeight: '100vh',
-      position: 'relative'
-    }}>
-      {/* Animated Background Gradients */}
+    <>
+      {/* 공지사항 모달 */}
+      <AnnouncementModal />
+
+      <main style={{
+        padding: '100px 20px 40px',
+        maxWidth: 1400,
+        margin: '0 auto',
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+        minHeight: '100vh',
+        position: 'relative'
+      }}>
+        {/* Animated Background Gradients */}
       <div style={{
         position: 'fixed',
         top: 0,
@@ -1650,5 +1655,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         </div>
       )}
     </main>
+    </>
   )
 }
