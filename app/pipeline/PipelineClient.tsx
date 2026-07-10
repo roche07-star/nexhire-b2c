@@ -14,6 +14,8 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
   const [loading, setLoading] = useState(true)
   const [selectedCandidate, setSelectedCandidate] = useState<PipelineCandidate | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [addingCandidate, setAddingCandidate] = useState(false)
 
   useEffect(() => {
     fetchCandidates()
@@ -61,6 +63,40 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
       }
     } catch (e) {
       console.error('Failed to delete candidate:', e)
+    }
+  }
+
+  async function addPassedCandidate(formData: FormData) {
+    setAddingCandidate(true)
+    try {
+      const data = {
+        candidate_name: formData.get('candidate_name'),
+        company_name: formData.get('company_name'),
+        position_title: formData.get('position_title'),
+        hired_date: formData.get('hired_date'),
+        fee: formData.get('fee'),
+        salary: formData.get('salary'),
+        stage: 'PASSED'
+      }
+
+      const res = await fetch('/api/pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+
+      if (res.ok) {
+        const result = await res.json()
+        setCandidates([...candidates, result.candidate])
+        setShowAddModal(false)
+      } else {
+        alert('후보자 추가 실패')
+      }
+    } catch (e) {
+      console.error('Failed to add candidate:', e)
+      alert('후보자 추가 실패')
+    } finally {
+      setAddingCandidate(false)
     }
   }
 
@@ -126,6 +162,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
                 setSelectedCandidate(c)
                 setShowDetailModal(true)
               }}
+              onAddClick={stage === 'PASSED' ? () => setShowAddModal(true) : undefined}
             />
           ))}
         </div>
@@ -141,6 +178,15 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
               setCandidates(candidates.map(c => c.id === updatedCandidate.id ? updatedCandidate : c))
               setSelectedCandidate(updatedCandidate)
             }}
+          />
+        )}
+
+        {/* 합격 후보자 추가 모달 */}
+        {showAddModal && (
+          <AddCandidateModal
+            onClose={() => setShowAddModal(false)}
+            onSubmit={addPassedCandidate}
+            isSubmitting={addingCandidate}
           />
         )}
       </div>
@@ -169,12 +215,14 @@ function StageColumn({
   stage,
   candidates,
   onMove,
-  onSelect
+  onSelect,
+  onAddClick
 }: {
   stage: PipelineStage
   candidates: PipelineCandidate[]
   onMove: (id: string, stage: PipelineStage) => void
   onSelect: (candidate: PipelineCandidate) => void
+  onAddClick?: () => void
 }) {
   const color = PIPELINE_STAGE_COLORS[stage]
 
@@ -198,15 +246,39 @@ function StageColumn({
         <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>
           {PIPELINE_STAGE_LABELS[stage]}
         </h3>
-        <div style={{
-          background: color,
-          color: '#000',
-          fontSize: 12,
-          fontWeight: 700,
-          padding: '4px 10px',
-          borderRadius: 12
-        }}>
-          {candidates.length}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            background: color,
+            color: '#000',
+            fontSize: 12,
+            fontWeight: 700,
+            padding: '4px 10px',
+            borderRadius: 12
+          }}>
+            {candidates.length}
+          </div>
+          {onAddClick && (
+            <button
+              onClick={onAddClick}
+              style={{
+                background: color,
+                color: '#000',
+                border: 'none',
+                borderRadius: 8,
+                width: 24,
+                height: 24,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="후보자 추가"
+            >
+              +
+            </button>
+          )}
         </div>
       </div>
 
@@ -508,6 +580,226 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div>
       <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{value}</div>
+    </div>
+  )
+}
+
+// 합격 후보자 추가 모달
+function AddCandidateModal({
+  onClose,
+  onSubmit,
+  isSubmitting
+}: {
+  onClose: () => void
+  onSubmit: (formData: FormData) => void
+  isSubmitting: boolean
+}) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    onSubmit(formData)
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: 20
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: 'var(--surface)',
+          borderRadius: 16,
+          padding: 32,
+          maxWidth: 500,
+          width: '100%',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: 'var(--text)' }}>
+          합격 후보자 추가
+        </h2>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {/* 후보자 이름 */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                후보자 이름 *
+              </label>
+              <input
+                type="text"
+                name="candidate_name"
+                required
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+
+            {/* 채용사 */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                채용사 *
+              </label>
+              <input
+                type="text"
+                name="company_name"
+                required
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+
+            {/* 포지션 */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                포지션 *
+              </label>
+              <input
+                type="text"
+                name="position_title"
+                required
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+
+            {/* 입사일 */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                입사일
+              </label>
+              <input
+                type="date"
+                name="hired_date"
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+
+            {/* 수수료 */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                수수료 (만원)
+              </label>
+              <input
+                type="number"
+                name="fee"
+                min="0"
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+
+            {/* 처우(연봉) */}
+            <div>
+              <label style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>
+                처우(연봉) (만원)
+              </label>
+              <input
+                type="number"
+                name="salary"
+                min="0"
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  color: 'var(--text)'
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--bg)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                color: 'var(--text)'
+              }}
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: '#10b981',
+                border: 'none',
+                borderRadius: 8,
+                color: '#fff',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                opacity: isSubmitting ? 0.5 : 1
+              }}
+            >
+              {isSubmitting ? '추가 중...' : '추가'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

@@ -30,6 +30,11 @@ export interface PipelineCandidate {
   next_action?: string | null
   next_action_date?: string | null
 
+  // 합격 정보
+  hired_date?: string | null
+  fee?: number | null
+  salary?: number | null
+
   created_at: string
   updated_at: string
 }

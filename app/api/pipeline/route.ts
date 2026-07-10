@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const input: CreatePipelineCandidateInput = await req.json()
+    const input: any = await req.json()
 
     const { data, error } = await supabase
       .from('hiring_pipeline')
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         candidate_name: input.candidate_name,
         company_name: input.company_name,
         position_title: input.position_title,
-        stage: 'DOCUMENT_PREP', // 기본값: 서류 준비
+        stage: input.stage || 'DOCUMENT_PREP', // 기본값: 서류 준비
         analysis_id: input.analysis_id || null,
         jd_analysis_id: input.jd_analysis_id || null,
         fit_score: input.fit_score || null,
@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
         notes: input.notes || null,
         next_action: input.next_action || null,
         next_action_date: input.next_action_date || null,
+        hired_date: input.hired_date || null,
+        fee: input.fee ? parseInt(input.fee) : null,
+        salary: input.salary ? parseInt(input.salary) : null,
       })
       .select()
       .single()
