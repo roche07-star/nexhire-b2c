@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
 import AnnouncementModal from '@/components/AnnouncementModal'
+import { PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS } from '@/types/pipeline'
 
 interface DashboardStats {
   totalCandidates: number
@@ -131,6 +132,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0, screening: 0 })
+  const [activeCandidates, setActiveCandidates] = useState<any[]>([])
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
@@ -318,6 +320,12 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         const data = await res.json()
         const candidates = data.candidates || []
 
+        // 진행 중인 후보자 목록 (최신순, 최대 5명)
+        const activeCands = candidates
+          .filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage))
+          .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+          .slice(0, 5)
+
         // 파이프라인 데이터 계산
         const active = candidates.filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage)).length
         const passed = candidates.filter((c: any) => c.stage === 'PASSED').length
@@ -325,6 +333,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         const screening = candidates.filter((c: any) => ['DOCUMENT_PREP', 'DOCUMENT_REVIEW'].includes(c.stage)).length
 
         setHiringStats({ active, passed, hired, screening })
+        setActiveCandidates(activeCands)
       }
     } catch (err) {
       console.error('Failed to fetch pipeline stats:', err)
@@ -1040,6 +1049,98 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   이번 달 {hiringStats.hired}명이 입사했습니다. 계속해서 좋은 성과를 내고 계십니다!
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* 진행 중 후보자 */}
+          {activeCandidates.length > 0 && (
+            <div style={{
+              marginTop: 32,
+              padding: '24px',
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 16,
+              border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              <div style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: '#fbbf24',
+                marginBottom: 20,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}>
+                <span>🔄</span>
+                진행 중 ({hiringStats.active}명)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {activeCandidates.map((candidate) => (
+                  <div
+                    key={candidate.id}
+                    onClick={() => router.push('/pipeline')}
+                    style={{
+                      padding: '16px',
+                      background: 'rgba(255,255,255,0.03)',
+                      borderRadius: 12,
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                      e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
+                      e.currentTarget.style.transform = 'translateX(4px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                      e.currentTarget.style.transform = 'translateX(0)'
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: '#ffffff',
+                        marginBottom: 4
+                      }}>
+                        {candidate.candidate_name}
+                      </div>
+                      <div style={{
+                        fontSize: 13,
+                        color: 'rgba(255,255,255,0.6)'
+                      }}>
+                        {candidate.company_name} · {candidate.position_title}
+                      </div>
+                    </div>
+                    <div style={{
+                      padding: '6px 12px',
+                      background: PIPELINE_STAGE_COLORS[candidate.stage as keyof typeof PIPELINE_STAGE_COLORS] + '20',
+                      border: `1px solid ${PIPELINE_STAGE_COLORS[candidate.stage as keyof typeof PIPELINE_STAGE_COLORS]}`,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: PIPELINE_STAGE_COLORS[candidate.stage as keyof typeof PIPELINE_STAGE_COLORS],
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {PIPELINE_STAGE_LABELS[candidate.stage as keyof typeof PIPELINE_STAGE_LABELS]}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {hiringStats.active > 5 && (
+                <div style={{
+                  marginTop: 12,
+                  textAlign: 'center',
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.5)'
+                }}>
+                  +{hiringStats.active - 5}명 더 보기 →
+                </div>
+              )}
             </div>
           )}
 
