@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { UserType } from '@/types/user'
+import { getProductsByUserType, type ProductId } from '@/lib/products'
 
 interface PlansClientProps {
   userEmail: string | null
@@ -11,14 +11,9 @@ interface PlansClientProps {
   isSuperAdminOrManager: boolean
 }
 
-// 플랜 데이터
-const individualPlans = [
-  {
-    name: 'FREE',
-    displayName: 'Free',
-    price: 0,
-    originalPrice: 0,
-    popular: false,
+// FREE 플랜 데이터
+const freePlanData = {
+  JOBSEEKER: {
     description: '이직 방향이 궁금한 직장인',
     features: [
       '이력서 분석 3회/월',
@@ -33,53 +28,7 @@ const individualPlans = [
       'HTML 다운로드 불가',
     ],
   },
-  {
-    name: 'PRO',
-    displayName: 'Pro',
-    price: 6930,
-    originalPrice: 9900,
-    popular: true,
-    description: '본격적인 이직 준비 중인 재직자',
-    features: [
-      '이력서 분석 15회/월',
-      'JD 적합도 분석 15회/월',
-      '이력서 생성 10회/월',
-      '면접 가이드 5회/월',
-      '심층 점수 리포트',
-      '커리어 방향 3가지 제안',
-      '분석 결과 영구 저장',
-      'HTML 리포트 다운로드',
-    ],
-    limitations: [],
-  },
-  {
-    name: 'EXPERT',
-    displayName: 'Expert',
-    price: 20930,
-    originalPrice: 29900,
-    popular: false,
-    description: '최종 합격까지 끝내고 싶은 이직자',
-    features: [
-      '이력서 분석 30회/월',
-      'JD 적합도 분석 30회/월',
-      '이력서 생성 30회/월',
-      '면접 가이드 15회/월',
-      '심층 점수 리포트',
-      '커리어 방향 3가지 제안',
-      '분석 결과 영구 저장',
-      'HTML 리포트 다운로드',
-    ],
-    limitations: [],
-  },
-]
-
-const headhunterPlans = [
-  {
-    name: 'FREE',
-    displayName: 'Free',
-    price: 0,
-    originalPrice: 0,
-    popular: false,
+  HEADHUNTER: {
     description: '후보자 분석이 처음인 헤드헌터',
     features: [
       '후보자 분석 3회/월',
@@ -92,122 +41,75 @@ const headhunterPlans = [
       '정산 기능 없음',
       'HTML 다운로드 불가',
     ],
-  },
-  {
-    name: 'PRO',
-    displayName: 'Pro',
-    price: 13930,
-    originalPrice: 19900,
-    popular: true,
-    description: '월 10-30건 매칭하는 헤드헌터',
-    features: [
-      '후보자 분석 20회/월',
-      'JD 적합도 분석 20회/월',
-      '클라이언트 제안서 20회/월',
-      '면접 가이드 10회/월',
-      '정산 기능',
-      '심층 매칭 리포트',
-      '분석 결과 영구 저장',
-      'HTML/PDF 리포트 다운로드',
-      '후보자 관리 대시보드',
-    ],
-    limitations: [],
-  },
-  {
-    name: 'EXPERT',
-    displayName: 'Expert',
-    price: 34930,
-    originalPrice: 49900,
-    popular: false,
-    description: '대형 헤드헌팅펌 / 리크루팅 에이전시',
-    features: [
-      '후보자 분석 50회/월',
-      'JD 적합도 분석 50회/월',
-      '정산 기능',
-      '클라이언트 제안서 50회/월',
-      '면접 가이드 25회/월',
-      '심층 매칭 리포트',
-      '분석 결과 영구 저장',
-      'HTML/PDF 리포트 다운로드',
-      '후보자 관리 대시보드',
-    ],
-    limitations: [],
-  },
-]
+  }
+}
 
 // FAQ 데이터
 const faqData = {
   JOBSEEKER: [
     {
-      q: '무료 플랜으로 어디까지 사용할 수 있나요?',
-      a: 'Free 플랜은 이력서 분석, JD 적합도 분석, 이력서 생성을 각각 월 3회까지 무료로 이용할 수 있습니다. 기본 점수 리포트와 커리어 방향 제안도 제공되며, HTML 화면으로 결과를 확인할 수 있습니다.'
+      q: '기간제 이용권은 어떻게 사용하나요?',
+      a: '구매하신 이용권은 결제 시점부터 선택하신 기간(1개월 또는 3개월) 동안 유효합니다. 기간 내에는 해당 플랜의 모든 기능을 무제한으로 사용하실 수 있습니다.'
     },
     {
-      q: '플랜은 언제든지 변경할 수 있나요?',
-      a: '네, 언제든지 플랜을 업그레이드하거나 다운그레이드할 수 있습니다. 업그레이드 시 즉시 적용되며, 다운그레이드는 다음 결제 주기부터 적용됩니다.'
+      q: '3개월권이 더 저렴한 이유는?',
+      a: '장기 이용을 선택하시는 분들께 10% 할인 혜택을 드립니다. 1개월권을 3번 구매하는 것보다 3개월권을 한 번에 구매하시는 것이 더 경제적입니다.'
+    },
+    {
+      q: '이용권 만료 후에는 어떻게 되나요?',
+      a: '이용권 만료 후에는 자동으로 FREE 플랜으로 전환됩니다. 계속 사용하고 싶으시다면 새로운 이용권을 구매하시면 됩니다.'
     },
     {
       q: '환불 정책은 어떻게 되나요?',
-      a: '구매 후 7일 이내에는 이유 불문하고 전액 환불이 가능합니다. 단, 분석 기능을 5회 이상 사용한 경우 환불이 제한될 수 있습니다.'
-    },
-    {
-      q: 'Pro와 Expert의 차이점은 무엇인가요?',
-      a: 'Pro는 이직 준비 중인 재직자에게 적합하며, Expert는 면접 준비까지 포함된 올인원 솔루션입니다. Expert 플랜에서는 면접 가이드를 월 15회까지 생성할 수 있어 최종 합격까지 완벽하게 준비할 수 있습니다.'
+      a: '구매 후 7일 이내, 서비스를 5회 미만 사용하신 경우 전액 환불이 가능합니다.'
     },
   ],
   HEADHUNTER: [
     {
       q: '정산 기능은 어떻게 작동하나요?',
-      a: 'Pro 이상 플랜에서는 채용 성공 시 수수료 정산을 자동으로 계산하고 관리할 수 있는 기능을 제공합니다. 입사 완료 후보자의 연봉 정보를 입력하면 자동으로 정산 금액이 계산됩니다.'
+      a: 'PRO 이상 플랜에서는 채용 성공 시 수수료 정산을 자동으로 계산하고 관리할 수 있는 기능을 제공합니다.'
     },
     {
       q: '클라이언트 제안서는 어떻게 생성되나요?',
-      a: '후보자 분석 결과를 바탕으로 클라이언트에게 제시할 수 있는 전문적인 제안서를 AI가 자동으로 생성합니다. PDF 또는 HTML 형식으로 다운로드하여 바로 사용할 수 있습니다.'
+      a: '후보자 분석 결과를 바탕으로 클라이언트에게 제시할 수 있는 전문적인 제안서를 AI가 자동으로 생성합니다.'
     },
     {
-      q: '월 사용 횟수를 초과하면 어떻게 되나요?',
-      a: '사용 횟수 초과 시 다음 달까지 기다리거나, 상위 플랜으로 업그레이드하실 수 있습니다. 긴급한 경우 고객센터로 문의주시면 임시 크레딧을 제공해드립니다.'
-    },
-    {
-      q: '대시보드에서 어떤 정보를 확인할 수 있나요?',
-      a: 'Pro 이상 플랜에서는 전체 후보자 현황, 진행 중인 채용 프로세스, 월별 매칭 성과, 정산 내역 등을 한눈에 확인할 수 있는 통합 대시보드를 제공합니다.'
-    },
-  ],
-  DEFAULT: [
-    {
-      q: '회원가입은 필수인가요?',
-      a: '네, 이력서 분석 및 모든 기능을 사용하려면 Google 계정으로 로그인이 필요합니다. 로그인 후 무료 플랜으로 바로 시작할 수 있습니다.'
-    },
-    {
-      q: '플랜은 언제든지 변경할 수 있나요?',
-      a: '네, 언제든지 플랜을 업그레이드하거나 다운그레이드할 수 있습니다. 업그레이드 시 즉시 적용되며, 다운그레이드는 다음 결제 주기부터 적용됩니다.'
+      q: '이용권 만료 후에는 어떻게 되나요?',
+      a: '이용권 만료 후에는 자동으로 FREE 플랜으로 전환됩니다. 계속 사용하고 싶으시다면 새로운 이용권을 구매하시면 됩니다.'
     },
     {
       q: '환불 정책은 어떻게 되나요?',
-      a: '구매 후 7일 이내에는 이유 불문하고 전액 환불이 가능합니다. 단, 분석 기능을 5회 이상 사용한 경우 환불이 제한될 수 있습니다.'
-    },
-    {
-      q: '개인 구직자와 헤드헌터의 요금이 다른 이유는?',
-      a: '개인 구직자는 본인의 커리어 관리를 위해, 헤드헌터는 비즈니스 목적으로 서비스를 이용하시기 때문에 제공되는 기능과 가격이 차등 적용됩니다.'
+      a: '구매 후 7일 이내, 서비스를 5회 미만 사용하신 경우 전액 환불이 가능합니다.'
     },
   ],
 }
 
 export default function PlansClient({ userEmail, userType, currentPlan, isSuperAdminOrManager }: PlansClientProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null)
-  // Super Admin/Manager는 뷰 타입을 선택할 수 있음
   const [viewType, setViewType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(
     isSuperAdminOrManager ? 'JOBSEEKER' : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
   )
 
-  // Super Admin/Manager는 viewType에 따라, 일반 사용자는 userType에 따라 플랜 선택
+  // 각 플랜별 선택된 기간 (1개월 or 3개월)
+  const [selectedDuration, setSelectedDuration] = useState<Record<string, 1 | 3>>({
+    PRO: 1,
+    EXPERT: 1
+  })
+
   const effectiveType = isSuperAdminOrManager ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
-  const plans = effectiveType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
-  // FAQ 선택
-  const faqs = effectiveType === 'HEADHUNTER' ? faqData.HEADHUNTER : faqData.JOBSEEKER
+  // 현재 사용자 타입에 맞는 상품들 가져오기
+  const userProducts = getProductsByUserType(effectiveType)
 
-  // 타이틀 및 설명
+  // PRO, EXPERT 플랜별로 그룹화
+  const planGroups = {
+    PRO: userProducts.filter(p => p.plan === 'PRO'),
+    EXPERT: userProducts.filter(p => p.plan === 'EXPERT')
+  }
+
+  const freePlan = freePlanData[effectiveType]
+  const faqs = faqData[effectiveType]
+
   const content = {
     JOBSEEKER: {
       title: '나에게 맞는 플랜을 선택하세요',
@@ -219,16 +121,9 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
       subtitle: '후보자 분석 시간을 1/10로 단축하고, 매칭 정확도를 높이세요',
       badge: '💼 헤드헌터',
     },
-    DEFAULT: {
-      title: '나에게 맞는 플랜을 선택하세요',
-      subtitle: '합리적인 가격으로 커리어를 설계하고, 이직 성공률을 높이세요',
-      badge: '👋 환영합니다',
-    },
   }
 
-  const selected = isSuperAdminOrManager
-    ? content[effectiveType as keyof typeof content]
-    : (userType ? content[userType as keyof typeof content] || content.DEFAULT : content.DEFAULT)
+  const selected = content[effectiveType]
 
   return (
     <main style={{
@@ -274,7 +169,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           {selected.badge}
         </div>
 
-        {/* Super Admin/Manager용 뷰 전환 버튼 */}
+        {/* Admin 뷰 전환 버튼 */}
         {isSuperAdminOrManager && (
           <div style={{
             display: 'flex',
@@ -356,7 +251,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           borderRadius: 16,
           marginBottom: 80
         }}>
-          <span style={{ fontSize: 24 }}>🎉</span>
+          <span style={{ fontSize: 24 }}>🎁</span>
           <div style={{ textAlign: 'left' }}>
             <div style={{
               fontSize: 14,
@@ -364,13 +259,13 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
               color: '#fbbf24',
               marginBottom: 4
             }}>
-              7월 한정 할인
+              기간제 이용권 출시
             </div>
             <div style={{
               fontSize: 13,
               color: 'rgba(255,255,255,0.7)'
             }}>
-              모든 유료 플랜 30% 할인 중
+              3개월권 구매 시 10% 할인
             </div>
           </div>
         </div>
@@ -390,205 +285,345 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           gap: 24,
           marginBottom: 120
         }}>
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              style={{
-                background: plan.popular
-                  ? 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)'
-                  : 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
-                backdropFilter: 'blur(20px)',
-                border: plan.popular
-                  ? '2px solid rgba(34, 211, 238, 0.5)'
-                  : '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 24,
-                padding: 40,
-                position: 'relative',
-                transition: 'all 0.3s',
-                transform: plan.popular ? 'scale(1.05)' : 'scale(1)'
-              }}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <div style={{
-                  position: 'absolute',
-                  top: -12,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  padding: '6px 20px',
-                  background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
-                  color: '#ffffff',
-                  borderRadius: 20,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '0.05em',
-                  boxShadow: '0 4px 20px rgba(34, 211, 238, 0.4)'
-                }}>
-                  가장 인기
-                </div>
-              )}
-
-              {/* Current Plan Badge */}
-              {currentPlan === plan.name && (
-                <div style={{
-                  position: 'absolute',
-                  top: 20,
-                  right: 20,
-                  padding: '4px 12px',
-                  background: 'rgba(16, 185, 129, 0.2)',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
-                  color: '#10b981',
-                  borderRadius: 12,
-                  fontSize: 11,
-                  fontWeight: 700
-                }}>
-                  현재 플랜
-                </div>
-              )}
-
-              {/* Plan Name */}
+          {/* FREE 플랜 */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 24,
+              padding: 40,
+              position: 'relative',
+              transition: 'all 0.3s'
+            }}
+          >
+            {currentPlan === 'FREE' && (
               <div style={{
-                fontSize: 24,
-                fontWeight: 700,
-                color: '#ffffff',
-                marginBottom: 12
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                padding: '4px 12px',
+                background: 'rgba(16, 185, 129, 0.2)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                color: '#10b981',
+                borderRadius: 12,
+                fontSize: 11,
+                fontWeight: 700
               }}>
-                {plan.displayName}
+                현재 플랜
               </div>
+            )}
 
-              {/* Price */}
-              <div style={{ marginBottom: 16 }}>
-                {plan.price > 0 ? (
-                  <>
-                    <div style={{
-                      fontSize: 48,
-                      fontWeight: 800,
-                      color: plan.popular ? '#22d3ee' : '#ffffff',
-                      lineHeight: 1,
-                      marginBottom: 8
-                    }}>
-                      ₩{plan.price.toLocaleString()}
-                      <span style={{
-                        fontSize: 18,
+            <div style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: '#ffffff',
+              marginBottom: 12
+            }}>
+              Free
+            </div>
+
+            <div style={{
+              fontSize: 48,
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 1,
+              marginBottom: 16
+            }}>
+              무료
+            </div>
+
+            <div style={{
+              fontSize: 15,
+              color: 'rgba(255,255,255,0.7)',
+              marginBottom: 32,
+              paddingBottom: 32,
+              borderBottom: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              {freePlan.description}
+            </div>
+
+            <div style={{ marginBottom: 32 }}>
+              {freePlan.features.map((feature, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 12,
+                    marginBottom: 12,
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.9)'
+                  }}
+                >
+                  <span style={{ color: '#22d3ee', fontSize: 16 }}>✓</span>
+                  <span>{feature}</span>
+                </div>
+              ))}
+              {freePlan.limitations.map((limitation, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 12,
+                    marginBottom: 12,
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.4)',
+                    textDecoration: 'line-through'
+                  }}
+                >
+                  <span>✕</span>
+                  <span>{limitation}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link href="/analyze">
+              <button
+                style={{
+                  width: '100%',
+                  padding: '16px 32px',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: 12,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: currentPlan === 'FREE' ? 'default' : 'pointer',
+                  transition: 'all 0.3s',
+                  opacity: currentPlan === 'FREE' ? 0.5 : 1
+                }}
+                disabled={currentPlan === 'FREE'}
+              >
+                {currentPlan === 'FREE' ? '현재 사용 중' : '무료로 시작'}
+              </button>
+            </Link>
+          </div>
+
+          {/* PRO, EXPERT 플랜 */}
+          {(['PRO', 'EXPERT'] as const).map((planType) => {
+            const products = planGroups[planType]
+            const selectedProduct = products.find(p => p.duration === selectedDuration[planType])
+            if (!selectedProduct) return null
+
+            const isPopular = planType === 'PRO'
+
+            return (
+              <div
+                key={planType}
+                style={{
+                  background: isPopular
+                    ? 'linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)'
+                    : 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  border: isPopular
+                    ? '2px solid rgba(34, 211, 238, 0.5)'
+                    : '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 24,
+                  padding: 40,
+                  position: 'relative',
+                  transition: 'all 0.3s',
+                  transform: isPopular ? 'scale(1.05)' : 'scale(1)'
+                }}
+              >
+                {isPopular && (
+                  <div style={{
+                    position: 'absolute',
+                    top: -12,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '6px 20px',
+                    background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
+                    color: '#ffffff',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    boxShadow: '0 4px 20px rgba(34, 211, 238, 0.4)'
+                  }}>
+                    가장 인기
+                  </div>
+                )}
+
+                {currentPlan === planType && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 20,
+                    right: 20,
+                    padding: '4px 12px',
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    color: '#10b981',
+                    borderRadius: 12,
+                    fontSize: 11,
+                    fontWeight: 700
+                  }}>
+                    현재 플랜
+                  </div>
+                )}
+
+                <div style={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: '#ffffff',
+                  marginBottom: 16
+                }}>
+                  {planType}
+                </div>
+
+                {/* 기간 선택 버튼 */}
+                <div style={{
+                  display: 'flex',
+                  gap: 8,
+                  marginBottom: 20,
+                  padding: '4px',
+                  background: 'rgba(0,0,0,0.3)',
+                  borderRadius: 12
+                }}>
+                  {products.map((product) => (
+                    <button
+                      key={product.id}
+                      onClick={() => setSelectedDuration(prev => ({ ...prev, [planType]: product.duration as 1 | 3 }))}
+                      style={{
+                        flex: 1,
+                        padding: '10px 16px',
+                        background: selectedDuration[planType] === product.duration
+                          ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                          : 'transparent',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: 10,
+                        fontSize: 13,
                         fontWeight: 600,
-                        color: 'rgba(255,255,255,0.5)',
-                        marginLeft: 8
-                      }}>
-                        / 월
-                      </span>
-                    </div>
-                    {plan.originalPrice > plan.price && (
-                      <div style={{
-                        fontSize: 16,
-                        color: 'rgba(255,255,255,0.4)',
-                        textDecoration: 'line-through'
-                      }}>
-                        ₩{plan.originalPrice.toLocaleString()}
-                      </div>
-                    )}
-                  </>
-                ) : (
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        position: 'relative'
+                      }}
+                    >
+                      <div>{product.duration}개월</div>
+                      {product.discount && (
+                        <div style={{
+                          fontSize: 10,
+                          color: selectedDuration[planType] === product.duration ? '#fff' : '#fbbf24'
+                        }}>
+                          {product.discount}% 할인
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 가격 */}
+                <div style={{ marginBottom: 16 }}>
                   <div style={{
                     fontSize: 48,
                     fontWeight: 800,
-                    color: plan.popular ? '#22d3ee' : '#ffffff',
+                    color: isPopular ? '#22d3ee' : '#ffffff',
                     lineHeight: 1,
                     marginBottom: 8
                   }}>
-                    무료
+                    ₩{selectedProduct.price.toLocaleString()}
                   </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div style={{
-                fontSize: 15,
-                color: 'rgba(255,255,255,0.7)',
-                marginBottom: 32,
-                paddingBottom: 32,
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
-              }}>
-                {plan.description}
-              </div>
-
-              {/* Features */}
-              <div style={{ marginBottom: 32 }}>
-                {plan.features.map((feature, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 12,
-                      marginBottom: 12,
-                      fontSize: 14,
-                      color: 'rgba(255,255,255,0.9)'
-                    }}
-                  >
-                    <span style={{ color: '#22d3ee', fontSize: 16 }}>✓</span>
-                    <span>{feature}</span>
-                  </div>
-                ))}
-                {plan.limitations.map((limitation, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 12,
-                      marginBottom: 12,
-                      fontSize: 14,
+                  {selectedProduct.originalPrice && (
+                    <div style={{
+                      fontSize: 16,
                       color: 'rgba(255,255,255,0.4)',
                       textDecoration: 'line-through'
-                    }}
-                  >
-                    <span>✕</span>
-                    <span>{limitation}</span>
+                    }}>
+                      ₩{selectedProduct.originalPrice.toLocaleString()}
+                    </div>
+                  )}
+                  <div style={{
+                    fontSize: 14,
+                    color: 'rgba(255,255,255,0.5)',
+                    marginTop: 8
+                  }}>
+                    {selectedProduct.duration}개월 이용권
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* CTA Button */}
-              <Link href={plan.name === 'FREE' ? '/analyze' : `/payment?plan=${plan.name}`}>
-                <button
-                  style={{
-                    width: '100%',
-                    padding: '16px 32px',
-                    background: plan.popular
-                      ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
-                      : 'rgba(255,255,255,0.1)',
-                    color: '#ffffff',
-                    border: plan.popular ? 'none' : '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: 12,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    cursor: currentPlan === plan.name ? 'default' : 'pointer',
-                    transition: 'all 0.3s',
-                    opacity: currentPlan === plan.name ? 0.5 : 1
-                  }}
-                  disabled={currentPlan === plan.name}
-                  onMouseEnter={(e) => {
-                    if (currentPlan !== plan.name) {
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                      e.currentTarget.style.boxShadow = plan.popular
-                        ? '0 10px 30px rgba(34, 211, 238, 0.4)'
-                        : '0 10px 30px rgba(255,255,255,0.1)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  {currentPlan === plan.name
-                    ? '현재 사용 중'
-                    : plan.name === 'FREE'
-                    ? '무료로 시작'
-                    : `${plan.displayName} 시작하기`}
-                </button>
-              </Link>
-            </div>
-          ))}
+                {/* 설명 */}
+                <div style={{
+                  fontSize: 15,
+                  color: 'rgba(255,255,255,0.7)',
+                  marginBottom: 32,
+                  paddingBottom: 32,
+                  borderBottom: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  {effectiveType === 'JOBSEEKER'
+                    ? (planType === 'PRO' ? '본격적인 이직 준비 중인 재직자' : '최종 합격까지 끝내고 싶은 이직자')
+                    : (planType === 'PRO' ? '월 10-30건 매칭하는 헤드헌터' : '대형 헤드헌팅펌 / 리크루팅 에이전시')
+                  }
+                </div>
+
+                {/* 기능 */}
+                <div style={{ marginBottom: 32 }}>
+                  {selectedProduct.features.map((feature, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 12,
+                        marginBottom: 12,
+                        fontSize: 14,
+                        color: 'rgba(255,255,255,0.9)'
+                      }}
+                    >
+                      <span style={{ color: '#22d3ee', fontSize: 16 }}>✓</span>
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA 버튼 */}
+                {isSuperAdminOrManager ? (
+                  <button
+                    style={{
+                      width: '100%',
+                      padding: '16px 32px',
+                      background: 'rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: 12,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      cursor: 'not-allowed',
+                      transition: 'all 0.3s',
+                      opacity: 0.5
+                    }}
+                    disabled
+                  >
+                    관리자 계정은 결제 불가
+                  </button>
+                ) : (
+                  <Link href={`/payment?product=${selectedProduct.id}`}>
+                    <button
+                      style={{
+                        width: '100%',
+                        padding: '16px 32px',
+                        background: isPopular
+                          ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                          : 'rgba(255,255,255,0.1)',
+                        color: '#ffffff',
+                        border: isPopular ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: 12,
+                        fontSize: 16,
+                        fontWeight: 700,
+                        cursor: currentPlan === planType ? 'default' : 'pointer',
+                        transition: 'all 0.3s',
+                        opacity: currentPlan === planType ? 0.5 : 1
+                      }}
+                      disabled={currentPlan === planType}
+                    >
+                      {currentPlan === planType ? '현재 사용 중' : `${planType} 구매하기`}
+                    </button>
+                  </Link>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* FAQ Section */}
@@ -660,8 +695,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                     padding: '0 28px 24px',
                     fontSize: 15,
                     color: 'rgba(255,255,255,0.7)',
-                    lineHeight: 1.7,
-                    animation: 'fadeIn 0.3s ease-in'
+                    lineHeight: 1.7
                   }}>
                     {faq.a}
                   </div>
@@ -709,33 +743,12 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
               cursor: 'pointer',
               transition: 'all 0.3s',
               boxShadow: '0 10px 30px rgba(34, 211, 238, 0.3)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 15px 40px rgba(34, 211, 238, 0.4)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 10px 30px rgba(34, 211, 238, 0.3)'
             }}>
               무료로 시작하기 →
             </button>
           </Link>
         </div>
       </section>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </main>
   )
 }
