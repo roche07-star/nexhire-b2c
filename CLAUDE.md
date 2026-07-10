@@ -22,42 +22,33 @@ npm run lint            # Run ESLint
 
 ## Architecture
 
-### Background Job System (NEW - 2026-06-19)
+### Background Job System (계획 단계 - 2026-06-19)
 
-**All analysis features now use background Jobs for better UX:**
+**현재 상태 (2026-07-10):**
 
-1. **User Request** → API creates Job (0.5s)
-2. **Job ID returned** → Frontend starts polling
-3. **Backend processes** → Updates progress (60-120s)
-4. **Completion** → Result auto-displayed
+⚠️ **대부분 미구현** - 모든 분석 기능은 **동기 방식**으로 작동 중
 
-**Architecture:**
-```
-POST /api/analyze/[feature] → Job creation
-POST /api/jobs/[id]/process → Actual processing
-GET  /api/jobs/[id]         → Status polling (every 2s)
-```
+- 면접 가이드에 Job 생성 코드 일부 존재하나 즉시 동기 처리됨
+- Frontend polling 미구현 (실시간 진행 표시 없음)
+- 사용자는 60-180초 블로킹 대기
+- 기능 자체는 모두 정상 작동
 
-**Database:** `jobs` table in Supabase stores job state, progress, and results.
+**향후 계획:**
+- docs/BACKGROUND_JOB_SYSTEM.md에 설계 문서 있음
+- 완성 시 8-12시간 소요 예상
+- 현재는 우선순위 낮음 (기존 동기 방식 안정적)
 
-**Status:** 
-- ✅ Interview Guide: 100% complete
-- ⏸️ JD/Resume/Rewrite: Pattern set (process.ts needs completion)
+### Core Data Flow
 
-**See**: `docs/BACKGROUND_JOB_SYSTEM.md` for implementation details
-
-### Core Data Flow (Updated)
-
-1. **Resume Upload** → `app/api/analyze/route.ts` (Job-based)
-   - Creates Job → returns Job ID immediately
+1. **Resume Upload** → `app/api/analyze/route.ts`
    - User uploads resume (PDF/DOCX/HWP) or pastes text
    - Extract text via `lib/extractText.ts` (mammoth for DOCX, Claude Vision for image PDFs)
    - **PII masking** via `lib/maskPII.ts` (emails, phones, names → placeholders)
    - Masked text sent to Claude API for analysis
    - Original PII + analysis result saved to Supabase `analyses` table
+   - **Processing time**: 60-180s (synchronous)
 
-2. **JD Matching** → `app/api/analyze/jd/route.ts` (Job-based)
-   - Creates Job → returns Job ID immediately
+2. **JD Matching** → `app/api/analyze/jd/route.ts`
    - Takes analysis result + job description text
    - Claude compares and generates:
      - Fit score (0-100)
@@ -65,14 +56,14 @@ GET  /api/jobs/[id]         → Status polling (every 2s)
      - Matching points / gaps
      - Recommendation (APPLY/CONSIDER/SKIP)
    - Saved to `jd_analyses` table
+   - **Processing time**: 30-60s (synchronous)
 
-3. **Interview Guide** → `app/api/analyze/interview/route.ts` (✅ Job-based, fully working)
+3. **Interview Guide** → `app/api/analyze/interview/route.ts`
    - EXPERT plan only
-   - Creates Job → returns Job ID immediately
-   - Backend processes with real-time progress updates
    - Combines resume analysis + JD analysis
    - Claude generates structured interview prep guide
    - Saved to `interview_guides` table with 10-day expiry
+   - **Processing time**: 60-120s (synchronous)
 
 ### Key Modules
 
