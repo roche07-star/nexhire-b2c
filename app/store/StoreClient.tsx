@@ -221,6 +221,31 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
   return (
     <main className="store-page">
       <div className="store-container">
+        {/* Test Mode Warning */}
+        <div style={{
+          padding: '16px 20px',
+          background: 'rgba(251, 191, 36, 0.1)',
+          border: '2px solid rgba(251, 191, 36, 0.5)',
+          borderRadius: 12,
+          marginBottom: 24,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#fbbf24',
+            marginBottom: 4
+          }}>
+            ⚠️ 테스트 결제 모드
+          </div>
+          <div style={{
+            fontSize: 14,
+            color: 'rgba(255,255,255,0.7)'
+          }}>
+            실제 결제가 진행될 수 있습니다. 테스트용으로만 사용하세요.
+          </div>
+        </div>
+
         <div className="store-header">
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
