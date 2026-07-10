@@ -847,11 +847,12 @@ function CandidateDetailModal({
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(0,0,0,0.75)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1002
+            zIndex: 1002,
+            backdropFilter: 'blur(4px)'
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -862,17 +863,44 @@ function CandidateDetailModal({
           <div
             style={{
               background: 'var(--card-bg)',
-              borderRadius: 12,
-              padding: 24,
+              borderRadius: 16,
+              padding: 32,
               width: '90%',
-              maxWidth: 400,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+              maxWidth: 480,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+              border: '2px solid #10b981'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20, color: 'var(--text)' }}>
-              합격 정보 수정
-            </h3>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              marginBottom: 24,
+              paddingBottom: 16,
+              borderBottom: '2px solid #10b981'
+            }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 20
+              }}>
+                ✏️
+              </div>
+              <div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>
+                  합격 정보 수정
+                </h3>
+                <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
+                  {candidate.candidate_name} - {candidate.company_name}
+                </p>
+              </div>
+            </div>
 
             <form
               onSubmit={async (e) => {
@@ -910,10 +938,18 @@ function CandidateDetailModal({
                 }
               }}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
-                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
-                    입사일
+                  <label style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'var(--text)',
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    📅 입사일
                   </label>
                   <input
                     type="date"
@@ -921,19 +957,30 @@ function CandidateDetailModal({
                     defaultValue={candidate.hired_date || ''}
                     style={{
                       width: '100%',
-                      padding: 10,
-                      border: '1px solid var(--border)',
-                      borderRadius: 6,
-                      fontSize: 14,
+                      padding: 12,
+                      border: '2px solid var(--border)',
+                      borderRadius: 8,
+                      fontSize: 15,
                       background: 'var(--bg)',
-                      color: 'var(--text)'
+                      color: 'var(--text)',
+                      transition: 'border-color 0.2s'
                     }}
+                    onFocus={(e) => e.target.style.borderColor = '#10b981'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
-                    수수료 (%)
+                  <label style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'var(--text)',
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    💰 수수료 (%)
                   </label>
                   <input
                     type="number"
@@ -945,19 +992,30 @@ function CandidateDetailModal({
                     placeholder="예: 20"
                     style={{
                       width: '100%',
-                      padding: 10,
-                      border: '1px solid var(--border)',
-                      borderRadius: 6,
-                      fontSize: 14,
+                      padding: 12,
+                      border: '2px solid var(--border)',
+                      borderRadius: 8,
+                      fontSize: 15,
                       background: 'var(--bg)',
-                      color: 'var(--text)'
+                      color: 'var(--text)',
+                      transition: 'border-color 0.2s'
                     }}
+                    onFocus={(e) => e.target.style.borderColor = '#10b981'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
-                    처우 / 연봉 (만원)
+                  <label style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'var(--text)',
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    💵 처우 / 연봉 (만원)
                   </label>
                   <input
                     type="number"
@@ -967,32 +1025,39 @@ function CandidateDetailModal({
                     placeholder="예: 5000"
                     style={{
                       width: '100%',
-                      padding: 10,
-                      border: '1px solid var(--border)',
-                      borderRadius: 6,
-                      fontSize: 14,
+                      padding: 12,
+                      border: '2px solid var(--border)',
+                      borderRadius: 8,
+                      fontSize: 15,
                       background: 'var(--bg)',
-                      color: 'var(--text)'
+                      color: 'var(--text)',
+                      transition: 'border-color 0.2s'
                     }}
+                    onFocus={(e) => e.target.style.borderColor = '#10b981'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
                 <button
                   type="button"
                   onClick={() => setShowEditPassedModal(false)}
                   disabled={isEditingPassed}
                   style={{
                     flex: 1,
-                    padding: 12,
+                    padding: 14,
                     background: 'var(--bg)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: isEditingPassed ? 'not-allowed' : 'pointer'
+                    border: '2px solid var(--border)',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    cursor: isEditingPassed ? 'not-allowed' : 'pointer',
+                    color: 'var(--text)',
+                    transition: 'all 0.2s'
                   }}
+                  onMouseEnter={(e) => !isEditingPassed && (e.currentTarget.style.borderColor = '#ef4444')}
+                  onMouseLeave={(e) => !isEditingPassed && (e.currentTarget.style.borderColor = 'var(--border)')}
                 >
                   취소
                 </button>
@@ -1001,18 +1066,32 @@ function CandidateDetailModal({
                   disabled={isEditingPassed}
                   style={{
                     flex: 1,
-                    padding: 12,
-                    background: '#10b981',
+                    padding: 14,
+                    background: isEditingPassed ? '#059669' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     border: 'none',
-                    borderRadius: 8,
+                    borderRadius: 10,
                     color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 600,
+                    fontSize: 15,
+                    fontWeight: 700,
                     cursor: isEditingPassed ? 'not-allowed' : 'pointer',
-                    opacity: isEditingPassed ? 0.6 : 1
+                    opacity: isEditingPassed ? 0.7 : 1,
+                    transition: 'all 0.2s',
+                    boxShadow: isEditingPassed ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isEditingPassed) {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isEditingPassed) {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
+                    }
                   }}
                 >
-                  {isEditingPassed ? '수정 중...' : '수정 완료'}
+                  {isEditingPassed ? '⏳ 수정 중...' : '✅ 수정 완료'}
                 </button>
               </div>
             </form>
