@@ -1161,6 +1161,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const target = goals.proposalTarget
               const current = hiringStats.active
               const percentage = Math.min(100, Math.round((current / target) * 100))
+              const currentMonth = new Date().getMonth() + 1
               return (
                 <div style={{
                   padding: '20px 24px',
@@ -1176,7 +1177,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    진행 중
+                    진행목표({currentMonth}월)
                   </div>
                   <div style={{
                     fontSize: 32,
@@ -1219,6 +1220,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const target = goals.hiredTarget
               const current = hiringStats.hired
               const percentage = Math.min(100, Math.round((current / target) * 100))
+              const currentMonth = new Date().getMonth() + 1
               return (
                 <div style={{
                   padding: '20px 24px',
@@ -1234,7 +1236,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    입사 목표
+                    입사목표({currentMonth}월)
                   </div>
                   <div style={{
                     fontSize: 32,
@@ -1277,6 +1279,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               const target = goals.passedTarget
               const current = hiringStats.passed
               const percentage = Math.min(100, Math.round((current / target) * 100))
+              const currentYear = new Date().getFullYear()
               return (
                 <div style={{
                   padding: '20px 24px',
@@ -1292,7 +1295,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     letterSpacing: '0.1em',
                     marginBottom: 16
                   }}>
-                    합격 목표
+                    합격목표({currentYear}년)
                   </div>
                   <div style={{
                     fontSize: 32,
@@ -1663,7 +1666,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   color: 'rgba(255,255,255,0.7)',
                   marginBottom: 8
                 }}>
-                  입사 목표 (명)
+                  입사목표({new Date().getMonth() + 1}월) (명)
                 </label>
                 <input
                   type="number"
@@ -1694,7 +1697,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   color: 'rgba(255,255,255,0.7)',
                   marginBottom: 8
                 }}>
-                  합격 목표 (명)
+                  합격목표({new Date().getFullYear()}년) (명)
                 </label>
                 <input
                   type="number"
@@ -1725,7 +1728,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   color: 'rgba(255,255,255,0.7)',
                   marginBottom: 8
                 }}>
-                  진행 중 목표 (명)
+                  진행목표({new Date().getMonth() + 1}월) (명)
                 </label>
                 <input
                   type="number"
