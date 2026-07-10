@@ -313,6 +313,45 @@ function StageColumn({
 
 // 후보자 카드
 function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; onClick: () => void }) {
+  // 합격 단계는 간소화 (이름, 회사, 입사일만)
+  if (candidate.stage === 'PASSED') {
+    return (
+      <div
+        onClick={onClick}
+        style={{
+          background: 'var(--bg)',
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          padding: 12,
+          cursor: 'pointer',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = 'none'
+        }}
+      >
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: 'var(--text)' }}>
+          {candidate.candidate_name}
+        </div>
+        <div style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>{candidate.company_name}</span>
+          {candidate.hired_date && (
+            <>
+              <span>•</span>
+              <span>📅 {new Date(candidate.hired_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}</span>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 다른 단계는 기존 표시
   return (
     <div
       onClick={onClick}
@@ -359,24 +398,6 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           lineHeight: 1.4
         }}>
           📝 {candidate.notes.length > 50 ? candidate.notes.slice(0, 50) + '...' : candidate.notes}
-        </div>
-      )}
-
-      {/* 합격 정보 */}
-      {candidate.stage === 'PASSED' && (candidate.hired_date || candidate.fee || candidate.salary) && (
-        <div style={{
-          marginTop: 8,
-          padding: 8,
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          borderRadius: 6,
-          fontSize: 11,
-          color: 'var(--muted)',
-          lineHeight: 1.5
-        }}>
-          {candidate.hired_date && <div>📅 입사: {new Date(candidate.hired_date).toLocaleDateString('ko-KR')}</div>}
-          {candidate.fee && <div>💰 수수료: {candidate.fee}%</div>}
-          {candidate.salary && <div>💵 연봉: {candidate.salary.toLocaleString()}만원</div>}
         </div>
       )}
     </div>
