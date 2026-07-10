@@ -131,10 +131,11 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hiringStats, setHiringStats] = useState({ active: 0, passed: 0, hired: 0, screening: 0 })
-  const [privacyMode, setPrivacyMode] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
+  const [editingActivityId, setEditingActivityId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState('')
   const [goals, setGoals] = useState({
     hiredTarget: 10,
     passedTarget: 20,
@@ -247,12 +248,31 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     fetchHiringProcessStats()
   }, [])
 
-  // 이름 마스킹 함수
-  const maskName = (name: string) => {
-    if (!privacyMode || !name || name.length === 0) return name
-    if (name.length === 1) return name
-    if (name.length === 2) return name[0] + '○'
-    return name[0] + '○'.repeat(name.length - 1)
+  // 후보자 이름 수정 함수
+  const updateCandidateName = async (activityId: string, activityType: 'resume' | 'jd', newName: string) => {
+    try {
+      const endpoint = activityType === 'resume'
+        ? `/api/analyses/${activityId}/update-name`
+        : `/api/jd-analyses/${activityId}/update-name`
+
+      const res = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName })
+      })
+
+      if (res.ok) {
+        // 통계 다시 불러오기
+        fetchStats()
+        setEditingActivityId(null)
+        setEditingName('')
+      } else {
+        alert('이름 수정 실패')
+      }
+    } catch (e) {
+      console.error('Failed to update name:', e)
+      alert('이름 수정 실패')
+    }
   }
 
   const fetchStats = async () => {
@@ -733,37 +753,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             )}
           </div>
 
-          {/* 프라이버시 모드 토글 */}
-          <button
-            onClick={() => setPrivacyMode(!privacyMode)}
-            style={{
-              padding: '12px 24px',
-              background: privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)',
-              color: privacyMode ? '#a78bfa' : '#ffffff',
-              border: privacyMode ? '1px solid rgba(167, 139, 250, 0.5)' : '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: 14,
-              transition: 'all 0.3s',
-              letterSpacing: '-0.01em',
-              backdropFilter: 'blur(10px)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.3)' : 'rgba(255,255,255,0.1)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = privacyMode ? 'rgba(167, 139, 250, 0.2)' : 'rgba(255,255,255,0.05)'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            <span>{privacyMode ? '🔒' : '🔓'}</span>
-            <span>익명 모드</span>
-          </button>
 
           {/* 새로고침 버튼 */}
           <button
@@ -1415,7 +1404,69 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                       }}>
                         {activity.type === 'resume' ? '📋 이력서' : '📊 JD'}
                       </span>
-                      <span>{maskName(activity.name)}</span>
+                      {editingActivityId === activity.id ? (
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => {
+                            if (editingName.trim() && editingName !== activity.name) {
+                              updateCandidateName(activity.id, activity.type, editingName.trim())
+                            } else {
+                              setEditingActivityId(null)
+                              setEditingName('')
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              if (editingName.trim() && editingName !== activity.name) {
+                                updateCandidateName(activity.id, activity.type, editingName.trim())
+                              } else {
+                                setEditingActivityId(null)
+                                setEditingName('')
+                              }
+                            } else if (e.key === 'Escape') {
+                              setEditingActivityId(null)
+                              setEditingName('')
+                            }
+                          }}
+                          autoFocus
+                          style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: '1px solid rgba(34, 211, 238, 0.5)',
+                            borderRadius: 4,
+                            padding: '4px 8px',
+                            color: '#ffffff',
+                            fontSize: 15,
+                            fontWeight: 600,
+                            outline: 'none',
+                            minWidth: 120
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingActivityId(activity.id)
+                            setEditingName(activity.name)
+                          }}
+                          style={{
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            borderRadius: 4,
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent'
+                          }}
+                        >
+                          {activity.name}
+                        </span>
+                      )}
                     </div>
                     <div style={{
                       fontSize: 13,
