@@ -2851,7 +2851,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                 }}
                               >
                                 <div className="jd-saved-card-left">
-                                  <span className="jd-saved-company">{item.result.company}</span>
+                                  <span className="jd-saved-company">
+                                    {item.result.candidate_name && (
+                                      <strong style={{ color: '#a78bfa', marginRight: '8px' }}>
+                                        {item.result.candidate_name}
+                                      </strong>
+                                    )}
+                                    {item.result.company}
+                                  </span>
                                   <span className="jd-saved-resume">{item.result.position ?? item.result.resume_job_title ?? '이력서 분석'}</span>
                                 </div>
                                 <div className="jd-saved-card-right">
