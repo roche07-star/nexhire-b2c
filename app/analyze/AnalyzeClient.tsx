@@ -4783,8 +4783,8 @@ function JDResults({
                 ↓ HTML 리포트 다운로드
               </button>
 
-              {/* 지원하기 버튼 */}
-              {userType !== 'HEADHUNTER' && (
+              {/* 지원하기 버튼 (구직자 전용) */}
+              {userType !== 'HEADHUNTER' && userType !== 'MANAGER' && userType !== 'SUPER_ADMIN' && (
                 <button
                   className="analyze-download-btn"
                   style={{
