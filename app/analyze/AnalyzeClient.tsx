@@ -2518,8 +2518,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       }}
                       userType={userType}
                     />
-                    {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
-                    {userType === 'HEADHUNTER' && isPro && (
+                    {/* 헤드헌터/매니저: 채용 프로세스 추가 버튼 */}
+                    {(userType === 'HEADHUNTER' || userType === 'MANAGER') && isPro && (
                       <div style={{ marginBottom: '16px', marginTop: '16px', position: 'relative', zIndex: 10 }}>
                         <button
                           ref={hiringButtonRef}
@@ -2581,8 +2581,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
                       userType={userType}
                     />
-                    {/* 헤드헌터: 채용 프로세스 추가 버튼 */}
-                    {userType === 'HEADHUNTER' && isPro && (
+                    {/* 헤드헌터/매니저: 채용 프로세스 추가 버튼 */}
+                    {(userType === 'HEADHUNTER' || userType === 'MANAGER') && isPro && (
                       <div style={{ marginBottom: '16px', marginTop: '16px', position: 'relative', zIndex: 10 }}>
                         <button
                           ref={hiringButtonRef}
@@ -4626,7 +4626,7 @@ function JDResults({
         })()}
 
         {/* 제안서 생성 중 뱃지 */}
-        {userType === 'HEADHUNTER' && proposalGenerating && (
+        {(userType === 'HEADHUNTER' || userType === 'MANAGER') && proposalGenerating && (
           <div style={{
             display: 'inline-block',
             background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -4808,7 +4808,7 @@ function JDResults({
         )}
 
         {/* 제안서 생성/다운로드 버튼 */}
-        {userType === 'HEADHUNTER' && analysisItem && (
+        {(userType === 'HEADHUNTER' || userType === 'MANAGER') && analysisItem && (
           <>
             {analysisItem.result.plan === 'FREE' ? (
               // FREE 플랜: 자물쇠 표시
