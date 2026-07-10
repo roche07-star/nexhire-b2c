@@ -226,6 +226,8 @@ function StageColumn({
 }) {
   const color = PIPELINE_STAGE_COLORS[stage]
 
+  console.log('StageColumn:', stage, 'onAddClick:', !!onAddClick)
+
   return (
     <div style={{
       background: 'var(--surface)',
