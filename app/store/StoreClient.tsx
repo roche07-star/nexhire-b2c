@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { loadTossPayments } from '@tosspayments/payment-sdk'
+import { useState } from 'react'
+import * as PortOne from '@portone/browser-sdk/v2'
 
 interface Product {
   id: string
@@ -139,35 +139,10 @@ interface Props {
 
 export default function StoreClient({ isManager, userEmail, userName }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [isPaymentReady, setIsPaymentReady] = useState(false)
-  const tossPaymentsRef = useRef<any>(null)
-
-  // 토스페이먼츠 초기화
-  useEffect(() => {
-    const initTossPayments = async () => {
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
-      if (!clientKey) {
-        console.error('토스페이먼츠 클라이언트 키가 없습니다')
-        return
-      }
-
-      try {
-        const tossPayments = await loadTossPayments(clientKey)
-        tossPaymentsRef.current = tossPayments
-        setIsPaymentReady(true)
-      } catch (error) {
-        console.error('토스페이먼츠 초기화 실패:', error)
-      }
-    }
-
-    initTossPayments()
-  }, [])
+  const [isProcessing, setIsProcessing] = useState(false)
 
   async function handlePurchase(product: Product) {
-    if (!tossPaymentsRef.current) {
-      alert('결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
-      return
-    }
+    if (isProcessing) return
 
     if (!userEmail) {
       alert('로그인이 필요합니다.')
@@ -175,29 +150,71 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
       return
     }
 
-    try {
-      // orderId: 영문, 숫자, -, _ 만 허용 (6-64자)
-      // STORE 상품 구매임을 표시: store_feature_timestamp_random
-      const timestamp = Date.now()
-      const randomStr = Math.random().toString(36).substring(2, 8)
-      const orderId = `store_${product.feature}_${timestamp}_${randomStr}`
-      const orderName = product.name
+    setIsProcessing(true)
+    setSelectedProduct(null)
 
-      await tossPaymentsRef.current.requestPayment('카드', {
-        amount: product.price,
-        orderId,
-        orderName,
-        successUrl: `${window.location.origin}/store/success`,
-        failUrl: `${window.location.origin}/store/fail`,
-        customerEmail: userEmail,
-        customerName: userName || '고객',
+    try {
+      // Step 1: 서버에 결제 준비 요청
+      const prepareRes = await fetch('/api/store/prepare', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: product.id,
+          productName: product.name,
+          feature: product.feature,
+          amount: product.price,
+        })
       })
-    } catch (error) {
-      console.error('결제 요청 실패:', error)
-      // 사용자가 결제창을 닫은 경우는 에러 메시지 표시 안 함
-      if (error && typeof error === 'object' && 'code' in error && error.code !== 'USER_CANCEL') {
-        alert('결제 요청에 실패했습니다.')
+
+      if (!prepareRes.ok) {
+        const errorData = await prepareRes.json()
+        throw new Error(errorData.error || '결제 준비 실패')
       }
+
+      const { paymentId, orderId } = await prepareRes.json()
+
+      // Step 2: PortOne 결제창 호출
+      const response = await PortOne.requestPayment({
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
+        paymentId,
+        orderName: product.name,
+        totalAmount: product.price,
+        currency: 'KRW',
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
+        payMethod: 'CARD',
+        customer: {
+          email: userEmail,
+        },
+      })
+
+      // Step 3: 결제 결과 처리
+      if (response && 'code' in response) {
+        // 결제 실패
+        throw new Error(response.message || '결제가 취소되었습니다')
+      }
+
+      // Step 4: 서버에 결제 검증 요청
+      const verifyRes = await fetch('/api/store/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId,
+          orderId,
+        })
+      })
+
+      if (!verifyRes.ok) {
+        const errorData = await verifyRes.json()
+        throw new Error(errorData.error || '결제 검증 실패')
+      }
+
+      // 결제 성공 → 완료 페이지로 이동
+      window.location.href = `/store/success?orderId=${orderId}`
+
+    } catch (err: any) {
+      console.error('Payment error:', err)
+      alert(err.message || '결제 처리 중 오류가 발생했습니다')
+      setIsProcessing(false)
     }
   }
 
@@ -247,9 +264,9 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
                 <button
                   className="btn-purchase"
                   onClick={() => setSelectedProduct(product)}
-                  disabled={!isPaymentReady}
+                  disabled={isManager || isProcessing}
                 >
-                  {isPaymentReady ? '구매하기' : '로딩 중...'}
+                  {isManager ? '관리자 계정은 구매 불가' : (isProcessing ? '처리 중...' : '구매하기')}
                 </button>
               </div>
             </div>
@@ -287,7 +304,7 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
                 </ul>
 
                 <div className="modal-notice">
-                  <p>💳 토스페이먼츠 안전 결제</p>
+                  <p>💳 NHN KCP 안전 결제</p>
                   <p>결제 완료 후 즉시 쿠폰이 발급됩니다 (유효기간 3개월)</p>
                 </div>
               </div>
@@ -302,8 +319,9 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
                 <button
                   className="btn-modal-confirm"
                   onClick={() => handlePurchase(selectedProduct)}
+                  disabled={isProcessing}
                 >
-                  결제하기
+                  {isProcessing ? '처리 중...' : '결제하기'}
                 </button>
               </div>
             </div>
