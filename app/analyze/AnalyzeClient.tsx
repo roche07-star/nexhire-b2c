@@ -290,6 +290,77 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [initialIsPro])
 
+  // 🔍 성능 측정 (Option 1 - 미르팀)
+  useEffect(() => {
+    if (!initialLoading && typeof window !== 'undefined') {
+      // 약간의 지연 후 측정 (모든 리소스 로드 완료 대기)
+      setTimeout(() => {
+        const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('🚀 /analyze 페이지 로딩 분석 (미르팀)')
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+        if (perfData) {
+          console.log('📊 로딩 단계별 시간:')
+          console.log('  DNS 조회:', Math.round(perfData.domainLookupEnd - perfData.domainLookupStart), 'ms')
+          console.log('  서버 연결:', Math.round(perfData.connectEnd - perfData.connectStart), 'ms')
+          console.log('  요청→응답:', Math.round(perfData.responseStart - perfData.requestStart), 'ms')
+          console.log('  HTML 다운로드:', Math.round(perfData.responseEnd - perfData.responseStart), 'ms')
+          console.log('  DOM 파싱:', Math.round(perfData.domInteractive - perfData.responseEnd), 'ms')
+          console.log('  리소스 로딩:', Math.round(perfData.loadEventStart - perfData.domContentLoadedEventEnd), 'ms')
+          console.log('  ────────────────────────────')
+          console.log('  ⏱️  총 로딩 시간:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms')
+        }
+
+        // Paint 타이밍
+        const paintEntries = performance.getEntriesByType('paint')
+        if (paintEntries.length > 0) {
+          console.log('\n🎨 렌더링 타이밍:')
+          paintEntries.forEach((entry) => {
+            console.log(`  ${entry.name}:`, Math.round(entry.startTime), 'ms')
+          })
+        }
+
+        // JS 파일 크기 분석
+        const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+        const jsFiles = resources
+          .filter(r => r.name.includes('.js') && r.name.includes('/_next/'))
+          .map(r => ({
+            name: r.name.split('/').pop()?.slice(0, 40) || '',
+            size: Math.round((r.transferSize || 0) / 1024),
+            duration: Math.round(r.duration)
+          }))
+          .sort((a, b) => b.size - a.size)
+          .slice(0, 10)
+
+        if (jsFiles.length > 0) {
+          console.log('\n📦 JS 파일 TOP 10:')
+          console.table(jsFiles)
+
+          const totalJsSize = jsFiles.reduce((sum, f) => sum + f.size, 0)
+          console.log('  총 JS 크기:', totalJsSize, 'KB')
+        }
+
+        // API 호출 분석
+        const apiCalls = resources
+          .filter(r => r.name.includes('/api/'))
+          .map(r => ({
+            api: r.name.split('/api/')[1]?.split('?')[0] || '',
+            duration: Math.round(r.duration),
+            size: Math.round((r.transferSize || 0) / 1024)
+          }))
+
+        if (apiCalls.length > 0) {
+          console.log('\n🌐 API 호출:')
+          console.table(apiCalls)
+        }
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
+      }, 1000)
+    }
+  }, [initialLoading])
+
   // URL parameter로 JD 탭으로 직접 진입
   useEffect(() => {
     const tab = searchParams.get('tab')

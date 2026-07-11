@@ -21,6 +21,43 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
     fetchCandidates()
   }, [])
 
+  // 🔍 성능 측정 (Option 1 - 미르팀)
+  useEffect(() => {
+    if (!loading && typeof window !== 'undefined') {
+      setTimeout(() => {
+        const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('🚀 /pipeline 페이지 로딩 분석 (미르팀)')
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+        if (perfData) {
+          console.log('📊 로딩 단계별 시간:')
+          console.log('  ⏱️  총 로딩 시간:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms')
+        }
+
+        const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+        const jsFiles = resources
+          .filter(r => r.name.includes('.js') && r.name.includes('/_next/'))
+          .map(r => ({
+            name: r.name.split('/').pop()?.slice(0, 40) || '',
+            size: Math.round((r.transferSize || 0) / 1024)
+          }))
+          .sort((a, b) => b.size - a.size)
+          .slice(0, 5)
+
+        if (jsFiles.length > 0) {
+          console.log('\n📦 JS 파일 TOP 5:')
+          console.table(jsFiles)
+          const totalJsSize = jsFiles.reduce((sum, f) => sum + f.size, 0)
+          console.log('  총 JS 크기:', totalJsSize, 'KB')
+        }
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
+      }, 1000)
+    }
+  }, [loading])
+
   async function fetchCandidates() {
     try {
       const res = await fetch('/api/pipeline')
