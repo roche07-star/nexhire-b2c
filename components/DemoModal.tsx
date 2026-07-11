@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const careerPaths = [
   {
@@ -116,16 +116,34 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
   const [activeCareer, setActiveCareer] = useState(1)
   const [demoTab, setDemoTab] = useState(0)
   const [expandedQ, setExpandedQ] = useState<number | null>(0)
+
+  // localStorage에서 타입 읽기
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      return (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') ? saved : 'JOBSEEKER'
+    }
+    return 'JOBSEEKER'
+  })
+
+  // 타입 변경 이벤트 리스닝
+  useEffect(() => {
+    const handleTypeChange = (e: CustomEvent) => setSelectedType(e.detail)
+    window.addEventListener('landing_type_change', handleTypeChange as EventListener)
+    return () => window.removeEventListener('landing_type_change', handleTypeChange as EventListener)
+  }, [])
+
   const active = careerPaths[activeCareer]
   const color = recColor[jdDemo.recommendation]
 
-  const isHeadhunter = userType === 'HEADHUNTER'
+  const effectiveType = userType || selectedType
+  const isHeadhunter = effectiveType === 'HEADHUNTER'
 
   // 탭 구성
   const jobseekerTabs = [
     { icon: '📊', label: '이력서 분석' },
     { icon: '📋', label: 'JD 적합도' },
-    { icon: '✍️', label: '이력서 생성' },
+    { icon: '📝', label: '업무 Report' },
     { icon: '🎤', label: '면접 가이드' },
   ]
 
