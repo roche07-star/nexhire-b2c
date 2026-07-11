@@ -148,7 +148,7 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
               <div className="demo-dot" />
               <div className="demo-dot" />
             </div>
-            <div className="demo-title-bar">jobizic.io/analyze</div>
+            <div className="demo-title-bar">jobizic.com/analyze</div>
           </div>
 
           <div className="demo-hero-tabs">
