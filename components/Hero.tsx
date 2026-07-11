@@ -152,7 +152,10 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
           </div>
 
           <div className="demo-hero-tabs">
-            {['📊 이력서 분석', '📋 JD 적합도', '🎤 면접 가이드'].map((label, i) => (
+            {(effectiveType === 'HEADHUNTER'
+              ? ['📊 후보자 분석', '📋 JD 매칭', '📝 제안서 생성']
+              : ['📊 이력서 분석', '📋 JD 적합도', '🎤 면접 가이드']
+            ).map((label, i) => (
               <button
                 key={i}
                 className={`demo-hero-tab${heroTab === i ? ' active' : ''}`}
@@ -168,7 +171,7 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
               <div className="demo-upload">
                 <div className="upload-icon">📄</div>
                 <div className="upload-label">
-                  <strong>이력서를 드래그하거나 클릭</strong><br />
+                  <strong>{effectiveType === 'HEADHUNTER' ? '후보자 이력서를 드래그하거나 클릭' : '이력서를 드래그하거나 클릭'}</strong><br />
                   PDF, DOCX / 최대 10MB
                 </div>
                 <div className="typewriter">JOBIZIC 분석 중...</div>
@@ -176,20 +179,20 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
               <div className="demo-result">
                 <div className="result-tag">✦ 분석 완료</div>
                 <div className="result-score">
-                  <div className="score-label">MATCH SCORE</div>
-                  <div className="score-row"><span className="score-name">직무 적합도</span><span className="score-val">87%</span></div>
+                  <div className="score-label">{effectiveType === 'HEADHUNTER' ? 'CANDIDATE SCORE' : 'MATCH SCORE'}</div>
+                  <div className="score-row"><span className="score-name">{effectiveType === 'HEADHUNTER' ? '기술 역량' : '직무 적합도'}</span><span className="score-val">87%</span></div>
                   <div className="score-bar-wrap"><div className="score-bar" style={{ width: '87%' }} /></div>
                   <div className="score-row"><span className="score-name">시장 경쟁력</span><span className="score-val">74%</span></div>
                   <div className="score-bar-wrap"><div className="score-bar" style={{ width: '74%' }} /></div>
-                  <div className="score-row"><span className="score-name">성장 가능성</span><span className="score-val">92%</span></div>
+                  <div className="score-row"><span className="score-name">{effectiveType === 'HEADHUNTER' ? '클라이언트 적합도' : '성장 가능성'}</span><span className="score-val">92%</span></div>
                   <div className="score-bar-wrap"><div className="score-bar" style={{ width: '92%' }} /></div>
                 </div>
                 <div className="result-direction">
-                  <div className="dir-label">💡 커리어 경로 추천</div>
+                  <div className="dir-label">{effectiveType === 'HEADHUNTER' ? '💼 추천 포지션' : '💡 커리어 경로 추천'}</div>
                   <div className="dir-items">
-                    <div className="dir-item">BASELINE — B2B 마케팅 팀장</div>
-                    <div className="dir-item highlighted">RECOMMENDED — PM (AI/SaaS) ⭐</div>
-                    <div className="dir-item">STRETCH — SaaS 창업 / VC</div>
+                    <div className="dir-item">{effectiveType === 'HEADHUNTER' ? '시니어 개발자 (연봉 9000-11000만원)' : 'BASELINE — B2B 마케팅 팀장'}</div>
+                    <div className="dir-item highlighted">{effectiveType === 'HEADHUNTER' ? '테크리드 (연봉 12000-14000만원) ⭐' : 'RECOMMENDED — PM (AI/SaaS) ⭐'}</div>
+                    <div className="dir-item">{effectiveType === 'HEADHUNTER' ? 'CTO / VP of Eng (연봉 15000만원+)' : 'STRETCH — SaaS 창업 / VC'}</div>
                   </div>
                 </div>
               </div>
