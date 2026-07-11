@@ -39,7 +39,7 @@ export default auth(async (req) => {
     // 나머지 API는 인증 필수
     if (!req.auth) {
       return NextResponse.json(
-        { error: '인증이 필요합니다.' },
+        { error: '로그인 하시기 바랍니다.' },
         { status: 401 }
       )
     }
