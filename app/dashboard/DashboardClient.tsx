@@ -998,7 +998,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               whiteSpace: 'nowrap'
             }}>
               <span style={{ fontSize: 28 }}>📈</span>
-              이번 달 성과
+              진행상황
             </h2>
             <button
               onClick={() => setShowGoalSettings(true)}
