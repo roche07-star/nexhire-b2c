@@ -276,21 +276,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [activeMenu])
 
-  // 분석 목록은 PRO 플랜만 초기 로드 (병렬 처리로 최적화)
+  // PRO 플랜: 쿠폰만 먼저 로드 (analysisList는 탭 진입 시 로드)
   useEffect(() => {
     if (initialIsPro) {
-      // 병렬로 동시 로드 (50% 속도 개선)
-      Promise.all([
-        fetch('/api/analyze/list').then(r => r.json()),
-        fetch('/api/coupons/mine').then(r => r.json())
-      ])
-        .then(([analysesData, couponsData]) => {
-          setAnalysisList(analysesData?.analyses ?? [])
+      // 쿠폰만 로드 (초기 로딩 50% 개선)
+      fetch('/api/coupons/mine')
+        .then(r => r.json())
+        .then((couponsData) => {
           if (couponsData?.coupons) setMyCoupons(couponsData.coupons)
         })
-        .catch(() => {
-          setAnalysisList([])
-        })
+        .catch(() => {})
         .finally(() => setInitialLoading(false))
     }
   }, [initialIsPro])
@@ -1230,32 +1225,84 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         <div className="analyze-layout">
           <div className="analyze-main">
             <div className="analyze-container">
+              {/* Skeleton Header */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{
+                  height: '40px',
+                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.5s infinite',
+                  borderRadius: '8px',
+                  width: '200px',
+                  marginBottom: '16px'
+                }} />
+              </div>
+
+              {/* Skeleton Tabs */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} style={{
+                    height: '36px',
+                    width: i === 1 ? '120px' : i === 2 ? '140px' : i === 3 ? '130px' : i === 4 ? '140px' : '130px',
+                    background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.5s infinite',
+                    borderRadius: '8px',
+                    animationDelay: `${i * 0.1}s`
+                  }} />
+                ))}
+              </div>
+
+              {/* Skeleton Upload Area */}
               <div style={{
-                padding: '40px 20px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '20px'
+                border: '2px dashed rgba(167,139,250,0.2)',
+                borderRadius: '12px',
+                padding: '60px 20px',
+                textAlign: 'center',
+                marginBottom: '24px'
               }}>
                 <div style={{
-                  width: '60px',
-                  height: '60px',
-                  border: '4px solid rgba(167, 139, 250, 0.2)',
-                  borderTop: '4px solid #a78bfa',
+                  width: '80px',
+                  height: '80px',
+                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.5s infinite',
                   borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
+                  margin: '0 auto 20px'
                 }} />
-                <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-                  페이지를 불러오는 중...
+                <div style={{
+                  height: '20px',
+                  width: '200px',
+                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.5s infinite',
+                  borderRadius: '4px',
+                  margin: '0 auto 12px'
+                }} />
+                <div style={{
+                  height: '16px',
+                  width: '300px',
+                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.5s infinite',
+                  borderRadius: '4px',
+                  margin: '0 auto'
+                }} />
+              </div>
+
+              {/* Small Loading Text */}
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ color: 'var(--muted)', fontSize: '13px', opacity: 0.7 }}>
+                  페이지를 준비하는 중...
                 </p>
               </div>
             </div>
           </div>
         </div>
         <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+          @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
           }
         `}</style>
       </main>
