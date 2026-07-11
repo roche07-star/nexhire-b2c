@@ -13,13 +13,14 @@ const individualSteps = [
 ]
 
 const headhunterSteps = [
-  // 후보자 관련 (1-4단계)
+  // 후보자 관련 (1-5단계)
   { num: '01', icon: '📤', title: '후보자 이력서 업로드', desc: '후보자 이력서를 업로드하세요. 개인정보는 자동으로 보호됩니다.', category: 'candidate' },
   { num: '02', icon: '🧠', title: 'JOBIZIC 후보자 분석', desc: '강점, 약점, 시장 가치를 점수화하고 추천 포지션과 연봉 밴드를 제시합니다.', category: 'candidate' },
   { num: '03', icon: '📋', title: 'JD 매칭 분석', desc: '클라이언트 JD를 입력하면 적합도를 분석하고 제안 전략을 자동 생성합니다.', category: 'candidate' },
   { num: '04', icon: '📝', title: '제안 Report 생성', desc: '후보자 강점, JD 분석, 예상 질문이 포함된 클라이언트 제안서를 HTML/PDF로 다운로드합니다.', category: 'candidate' },
-  // 시스템 관리 (5단계)
-  { num: '05', icon: '⚙️', title: '프로세스 관리', desc: '채용 프로세스 추적, 후보자 현황 관리, 정산 자동화까지 통합 관리합니다.', category: 'system' },
+  { num: '05', icon: '✏️', title: '최적화 이력서 생성', desc: 'JD에 맞춰 후보자 이력서를 재작성합니다. 매칭 강점은 부각하고 클라이언트가 선호하는 형식으로 최적화합니다.', category: 'candidate' },
+  // 시스템 관리 (6단계)
+  { num: '06', icon: '⚙️', title: '프로세스 관리', desc: '채용 프로세스 추적, 후보자 현황 관리, 정산 자동화까지 통합 관리합니다.', category: 'system' },
 ]
 
 export default function HowItWorks({ userType }: { userType?: RegularUserType | null }) {
@@ -45,8 +46,8 @@ export default function HowItWorks({ userType }: { userType?: RegularUserType | 
       sub: '업무 성과 관리부터 이력서 최신화, 면접 준비까지 한 번에.',
     },
     HEADHUNTER: {
-      title: '후보자 분석 (1-4단계)\n+ 프로세스 관리 (5단계)',
-      sub: '후보자 분석, 제안 Report부터 채용 프로세스 관리까지 한 곳에서.',
+      title: '후보자 분석 (1-5단계)\n+ 프로세스 관리 (6단계)',
+      sub: '후보자 분석, 제안서, 이력서 최적화부터 프로세스 관리까지 한 곳에서.',
     },
   }
 
