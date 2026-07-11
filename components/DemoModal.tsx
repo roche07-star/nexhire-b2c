@@ -193,32 +193,57 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           </p>
         </div>
 
-        <div className="demo-feature-tabs">
-          {tabs.map((t, i) => (
+        <div className="demo-feature-tabs" style={isHeadhunter ? { flexDirection: 'column' } : undefined}>
+          {isHeadhunter ? (
             <>
-              {isHeadhunter && i === 4 && (
-                <div key={`divider-${i}`} style={{
-                  width: '100%',
-                  height: '1px',
-                  background: 'var(--border)',
-                  margin: '8px 0',
-                  position: 'relative'
+              {/* 후보자 분석 그룹 (0-3) */}
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                {tabs.slice(0, 4).map((t, i) => (
+                  <button
+                    key={i}
+                    className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
+                    onClick={() => setDemoTab(i)}
+                  >
+                    {t.icon} {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 구분선 */}
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                margin: '16px 0 12px',
+              }}>
+                <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                <span style={{
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap'
                 }}>
-                  <span style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    background: 'var(--background)',
-                    padding: '0 12px',
-                    fontSize: '11px',
-                    color: 'var(--muted)',
-                    fontWeight: 600
-                  }}>
-                    ⚙️ 시스템 관리
-                  </span>
-                </div>
-              )}
+                  ⚙️ 시스템 관리
+                </span>
+                <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              </div>
+
+              {/* 시스템 관리 그룹 (4-5) */}
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                {tabs.slice(4).map((t, i) => (
+                  <button
+                    key={i + 4}
+                    className={`demo-feature-tab${demoTab === i + 4 ? ' active' : ''}`}
+                    onClick={() => setDemoTab(i + 4)}
+                  >
+                    {t.icon} {t.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            tabs.map((t, i) => (
               <button
                 key={i}
                 className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
@@ -226,8 +251,8 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
               >
                 {t.icon} {t.label}
               </button>
-            </>
-          ))}
+            ))
+          )}
         </div>
 
         <div className="demo-modal-body">
