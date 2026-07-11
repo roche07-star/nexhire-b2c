@@ -136,7 +136,7 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
       <p className="hero-sub">{selected.sub}</p>
 
       <div className="hero-actions">
-        <Link href="/analyze"><button className="btn-hero">이력서 분석 시작하기 →</button></Link>
+        <Link href="/login?callbackUrl=/analyze"><button className="btn-hero">이력서 분석 시작하기 →</button></Link>
         <button className="btn-hero-ghost" onClick={() => setShowDemo(true)}>데모 보기</button>
       </div>
 
