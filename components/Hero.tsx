@@ -11,7 +11,7 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
   const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
 
   useEffect(() => {
-    const t = setInterval(() => setHeroTab((prev) => (prev + 1) % 3), 3800)
+    const t = setInterval(() => setHeroTab((prev) => (prev + 1) % 4), 4000)
     return () => clearInterval(t)
   }, [])
 
@@ -153,8 +153,8 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
 
           <div className="demo-hero-tabs">
             {(effectiveType === 'HEADHUNTER'
-              ? ['📊 후보자 분석', '📋 JD 매칭', '📝 제안서 생성']
-              : ['📊 이력서 분석', '📋 JD 적합도', '🎤 면접 가이드']
+              ? ['📊 후보자 분석', '📋 JD 매칭', '📝 제안서 생성', '⚙️ 프로세스 관리']
+              : ['📊 이력서 분석', '📋 JD 적합도', '📝 업무 Report', '🎤 면접 가이드']
             ).map((label, i) => (
               <button
                 key={i}
@@ -220,25 +220,89 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
             </div>
           )}
 
-          {heroTab === 2 && (
+          {heroTab === 2 && effectiveType === 'JOBSEEKER' && (
             <div className="demo-body demo-body-interview">
               <div className="mini-jd-header">
-                <span className="mini-jd-co">🎤 면접 가이드</span>
-                <span className="mini-jd-pos">토스 / PM (AI Growth)</span>
+                <span className="mini-jd-co">📝 업무 Report</span>
+                <span className="mini-jd-pos">2026년 6월 성과 정리</span>
               </div>
               <div className="mini-interview-list">
                 <div className="mini-q-item expanded">
-                  <div className="mini-q-row"><span className="mini-q-num">Q1</span><span className="mini-q-text">B2B SaaS GTM 전략 수립/실행 경험?</span></div>
-                  <div className="mini-q-answer">→ MQL 220건, SQL 전환율 28% 달성. ABM으로 전환율 40% 향상…</div>
+                  <div className="mini-q-row"><span className="mini-q-num">✦</span><span className="mini-q-text">신규 결제 시스템 구축 완료</span></div>
+                  <div className="mini-q-answer">→ TPS 2배 향상 (500→1000), 결제 성공률 98.7% 달성. Redis 캐싱 도입으로 응답속도 40% 개선</div>
                 </div>
-                <div className="mini-q-item"><span className="mini-q-num">Q2</span><span className="mini-q-text">기능 우선순위 결정 프레임워크?</span></div>
-                <div className="mini-q-item"><span className="mini-q-num">Q3</span><span className="mini-q-text">토스에서 가장 먼저 해결할 문제?</span></div>
-                <div className="mini-q-item"><span className="mini-q-num">Q4</span><span className="mini-q-text">SQL 기반 비즈니스 인사이트 도출 사례?</span></div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">A/B 테스트 프레임워크 설계</span></div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">주니어 개발자 2명 온보딩 리드</span></div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">기술 블로그 2건 작성 (조회수 5K+)</span></div>
               </div>
               <div className="mini-reverse-bar">
-                💬 역질문 3가지 &nbsp;/&nbsp;
-                <span style={{ color: 'var(--muted2)' }}>역할 / 도전 / 기대</span>
+                💾 이력서 자동 반영 &nbsp;/&nbsp;
+                <span style={{ color: 'var(--muted2)' }}>월간 누적 → 최신 이력서 생성</span>
               </div>
+            </div>
+          )}
+
+          {heroTab === 2 && effectiveType === 'HEADHUNTER' && (
+            <div className="demo-body demo-body-interview">
+              <div className="mini-jd-header">
+                <span className="mini-jd-co">📝 클라이언트 제안서</span>
+                <span className="mini-jd-pos">토스 / 시니어 백엔드 (김OO 후보)</span>
+              </div>
+              <div className="mini-interview-list">
+                <div className="mini-q-item expanded">
+                  <div className="mini-q-row"><span className="mini-q-num">✦</span><span className="mini-q-text">후보자 강점 요약</span></div>
+                  <div className="mini-q-answer">→ 결제 시스템 5년 경험, TPS 최적화 전문성. 토스 기술 스택 80% 일치</div>
+                </div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">적합도 근거: 82점 (HIGH FIT)</span></div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">예상 면접 질문 10개 포함</span></div>
+                <div className="mini-q-item"><span className="mini-q-num">✦</span><span className="mini-q-text">연봉 협상 가이드 (12000-14000만원)</span></div>
+              </div>
+              <div className="mini-reverse-bar">
+                📥 HTML/PDF 다운로드 &nbsp;/&nbsp;
+                <span style={{ color: 'var(--muted2)' }}>클라이언트 즉시 공유</span>
+              </div>
+            </div>
+          )}
+
+          {heroTab === 3 && (
+            <div className="demo-body demo-body-interview">
+              <div className="mini-jd-header">
+                <span className="mini-jd-co">{effectiveType === 'HEADHUNTER' ? '⚙️ 프로세스 관리' : '🎤 면접 가이드'}</span>
+                <span className="mini-jd-pos">{effectiveType === 'HEADHUNTER' ? '파이프라인 현황' : '토스 / PM (AI Growth)'}</span>
+              </div>
+              {effectiveType === 'JOBSEEKER' ? (
+                <>
+                  <div className="mini-interview-list">
+                    <div className="mini-q-item expanded">
+                      <div className="mini-q-row"><span className="mini-q-num">Q1</span><span className="mini-q-text">B2B SaaS GTM 전략 수립/실행 경험?</span></div>
+                      <div className="mini-q-answer">→ MQL 220건, SQL 전환율 28% 달성. ABM으로 전환율 40% 향상…</div>
+                    </div>
+                    <div className="mini-q-item"><span className="mini-q-num">Q2</span><span className="mini-q-text">기능 우선순위 결정 프레임워크?</span></div>
+                    <div className="mini-q-item"><span className="mini-q-num">Q3</span><span className="mini-q-text">토스에서 가장 먼저 해결할 문제?</span></div>
+                    <div className="mini-q-item"><span className="mini-q-num">Q4</span><span className="mini-q-text">SQL 기반 비즈니스 인사이트 도출 사례?</span></div>
+                  </div>
+                  <div className="mini-reverse-bar">
+                    💬 역질문 3가지 &nbsp;/&nbsp;
+                    <span style={{ color: 'var(--muted2)' }}>역할 / 도전 / 기대</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mini-interview-list">
+                    <div className="mini-q-item expanded">
+                      <div className="mini-q-row"><span className="mini-q-num">📊</span><span className="mini-q-text">진행 중 12건 (서류전형 5 / 면접 4 / 최종 3)</span></div>
+                      <div className="mini-q-answer">→ 이번 주 면접 일정 4건, 다음 주 최종 결과 2건 예정</div>
+                    </div>
+                    <div className="mini-q-item"><span className="mini-q-num">💰</span><span className="mini-q-text">6월 정산: 2건 합격 (수수료 3,200만원)</span></div>
+                    <div className="mini-q-item"><span className="mini-q-num">📅</span><span className="mini-q-text">이번 주 클라이언트 미팅 3건</span></div>
+                    <div className="mini-q-item"><span className="mini-q-num">🎯</span><span className="mini-q-text">목표 대비 진행률: 73% (목표 5000만원)</span></div>
+                  </div>
+                  <div className="mini-reverse-bar">
+                    📈 실시간 대시보드 &nbsp;/&nbsp;
+                    <span style={{ color: 'var(--muted2)' }}>정산 자동화</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
