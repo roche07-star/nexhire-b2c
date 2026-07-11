@@ -365,48 +365,53 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           )}
 
           {/* ────────────────────────────────────── */}
-          {/* 개인 구직자: Tab 2 = 이력서 생성 */}
+          {/* 개인 구직자: Tab 2 = 업무 Report */}
           {/* 헤드헌터: Tab 2 = 클라이언터 제안서 */}
           {/* ────────────────────────────────────── */}
           {demoTab === 2 && !isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
-                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
-                <span className="jd-demo-pos">{jdDemo.position}</span>
+                <span className="jd-demo-co">📝 업무 Report 관리</span>
+                <span className="jd-demo-pos">2026년 7월 성과 정리</span>
               </div>
 
-              <div className="results-label" style={{ marginBottom: 10 }}>✍️ JD 맞춤 이력서 자동 생성</div>
+              <div className="results-label" style={{ marginBottom: 10 }}>📊 주간/월간 업무 성과 자동 정리 → 이력서 반영</div>
 
               <div className="demo-summary-block">
                 <p className="result-summary">
-                  원본 이력서와 JD 분석 결과를 기반으로 <strong>매칭 강점은 부각</strong>하고 <strong>부족한 점은 보완</strong>하여 이력서를 자동으로 재작성합니다.
+                  프로젝트별 성과 지표와 핵심 기여 내용을 누적 관리합니다. <strong>월간 Report를 업데이트</strong>하면 최신 성과가 자동으로 이력서에 반영되어, 이직 준비 시 즉시 활용할 수 있습니다.
                 </p>
               </div>
 
               <div className="demo-grid" style={{ marginTop: 16 }}>
                 <div className="results-section">
-                  <div className="results-label">원본 이력서</div>
+                  <div className="results-label">✦ 7월 주요 성과 (4건)</div>
                   <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
-                    <strong>[주요 업무]</strong><br/>
-                    • B2B SaaS 제품 마케팅 전략 수립<br/>
-                    • SQL 기반 데이터 분석 및 성과 측정<br/>
-                    • 마케팅 캠페인 기획 및 실행
+                    <strong>1. 신규 결제 시스템 구축 완료</strong><br/>
+                    → TPS 2배 향상 (500→1000), 결제 성공률 98.7% 달성<br/>
+                    → Redis 캐싱 도입으로 응답속도 40% 개선<br/><br/>
+                    <strong>2. A/B 테스트 프레임워크 설계</strong><br/>
+                    → 실험 기반 의사결정 체계 구축<br/><br/>
+                    <strong>3. 주니어 개발자 2명 온보딩 리드</strong><br/><br/>
+                    <strong>4. 기술 블로그 2건 작성 (조회수 5K+)</strong>
                   </div>
                 </div>
                 <div className="results-section">
-                  <div className="results-label">생성된 이력서 (JD 최적화)</div>
+                  <div className="results-label">💾 이력서 자동 반영 결과</div>
                   <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'rgba(232,255,71,0.1)', borderRadius: '8px', border: '1px solid rgba(232,255,71,0.2)' }}>
-                    <strong>[주요 업무 및 성과]</strong><br/>
-                    • <strong>B2B SaaS 제품의 GTM 전략 수립 및 실행</strong> (PM 필수 역량)<br/>
-                    • <strong>SQL로 사용자 퍼널 분석, 전환율 50% 개선</strong> (데이터 기반 의사결정)<br/>
-                    • <strong>Figma로 프로덕트 개선안 제안, 5건 반영</strong> (프로덕트 감각)
+                    <strong>[최신 이력서 업데이트]</strong><br/>
+                    • 결제 시스템 성능 개선 (TPS 2배↑)<br/>
+                    • 데이터 기반 A/B 테스트 프레임워크 구축<br/>
+                    • 팀 리딩 경험 (온보딩 2명)<br/>
+                    • 기술 커뮤니케이션 역량 (블로그 5K+ 조회)<br/><br/>
+                    <span style={{ color: 'var(--primary)' }}>→ 성과가 구체적 수치와 함께 이력서에 자동 반영됨</span>
                   </div>
                 </div>
                 <div className="results-section">
-                  <div className="results-label">💡 변경 사항</div>
+                  <div className="results-label">💡 관리 효과</div>
                   <ul className="result-list">
-                    <li><strong>GTM 전략</strong> → PM 핵심 역량으로 강조</li>
-                    <li><strong>구체적 성과 수치</strong> 추가 (전환율 50% 개선)</li>
+                    <li><strong>실시간 성과 누적</strong> → 이력서 최신 상태 유지</li>
+                    <li><strong>구체적 수치 기록</strong> → 면접 시 즉답 가능</li>
                     <li><strong>Figma 프로덕트 제안</strong> 경험 부각</li>
                     <li><strong>데이터 기반 의사결정</strong> 키워드 삽입</li>
                   </ul>
