@@ -501,101 +501,137 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 </p>
               </div>
 
-              <div className="results-label" style={{ marginTop: 16 }}>🏢 진행 중인 포지션: Product Manager</div>
-
-              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* 통계 카드 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginTop: 16 }}>
                 {[
-                  { name: '김OO', status: '최종 합격', stage: 4, color: '#22d3ee', nextAction: '입사일 협의 중', date: '2026-06-25' },
-                  { name: '이OO', status: '2차 면접 대기', stage: 3, color: '#e8ff47', nextAction: '2차 면접 일정 조율', date: '2026-06-28' },
-                  { name: '박OO', status: '1차 면접 합격', stage: 2, color: '#a78bfa', nextAction: '2차 면접 제안 예정', date: '2026-06-30' },
-                ].map((candidate, i) => (
-                  <div key={i} style={{ background: 'var(--surface2)', borderRadius: '12px', padding: '16px', border: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <div>
-                        <span style={{ fontSize: '16px', fontWeight: 700 }}>{candidate.name}</span>
-                        <span style={{
-                          marginLeft: '8px',
-                          padding: '4px 10px',
-                          background: candidate.color + '20',
-                          color: candidate.color,
-                          borderRadius: '6px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          border: `1px solid ${candidate.color}40`
-                        }}>
-                          {candidate.status}
-                        </span>
+                  { label: '전체', value: 8, color: '#a78bfa' },
+                  { label: '진행 중', value: 5, color: '#fbbf24' },
+                  { label: '합격', value: 2, color: '#22d3ee' },
+                  { label: '입사', value: 1, color: '#10b981' },
+                ].map((stat) => (
+                  <div key={stat.label} style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted2)', marginBottom: '6px' }}>{stat.label}</div>
+                    <div style={{ fontSize: '28px', fontWeight: 700, color: stat.color }}>{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 다가오는 일정 */}
+              <div style={{ marginTop: 20, padding: '16px', background: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '12px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '12px', color: '#fbbf24' }}>📅 다가오는 일정</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {[
+                    { name: '이OO', company: '네이버', action: '2차 면접 일정 조율', date: '6/28' },
+                    { name: '박OO', company: '카카오', action: '처우 협의 시작', date: '6/30' },
+                    { name: '김OO', company: '토스', action: '입사일 확정', date: '7/1' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: '20px' }}>📌</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 600 }}>{item.name} · {item.company}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{item.action}</div>
                       </div>
-                      <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{candidate.date}</span>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#fbbf24' }}>{item.date}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 후보자 프로세스 카드 */}
+              <div className="results-label" style={{ marginTop: 20 }}>진행 중인 후보자</div>
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { name: '김OO', company: '토스', position: 'Product Manager', stage: 6, stageLabel: '입사', color: '#059669', nextAction: '입사일 확정', date: '2026-06-25' },
+                  { name: '이OO', company: '네이버', position: 'Backend Engineer', stage: 2, stageLabel: '2차 면접', color: '#fb923c', nextAction: '2차 면접 일정 조율', date: '2026-06-28' },
+                  { name: '박OO', company: '카카오', position: 'Frontend Developer', stage: 4, stageLabel: '처우 협의', color: '#3b82f6', nextAction: '처우 협의 진행', date: '2026-06-30' },
+                ].map((candidate, i) => (
+                  <div key={i} style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '16px',
+                    padding: '20px'
+                  }}>
+                    {/* 후보자 이름 - 강조 */}
+                    <div style={{
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      marginBottom: '12px',
+                      padding: '10px 14px',
+                      background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(167, 139, 250, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
+                    }}>
+                      <span>👤</span>
+                      <span>{candidate.name}</span>
+                      <span style={{
+                        padding: '4px 10px',
+                        background: candidate.color + '20',
+                        color: candidate.color,
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        border: `1px solid ${candidate.color}40`,
+                        marginLeft: 'auto'
+                      }}>
+                        {candidate.stageLabel}
+                      </span>
+                    </div>
+
+                    {/* 회사 • 포지션 */}
+                    <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--border)' }}>
+                      🏢 {candidate.company} • {candidate.position}
                     </div>
 
                     {/* 프로세스 바 */}
-                    <div style={{ position: 'relative', height: '6px', background: 'var(--border)', borderRadius: '3px', marginBottom: '12px' }}>
+                    <div style={{ position: 'relative', height: '10px', background: 'var(--border)', borderRadius: '5px', marginBottom: '16px' }}>
                       <div style={{
                         position: 'absolute',
                         left: 0,
                         top: 0,
                         height: '100%',
-                        width: `${(candidate.stage / 4) * 100}%`,
+                        width: `${(candidate.stage / 6) * 100}%`,
                         background: candidate.color,
-                        borderRadius: '3px',
-                        transition: 'width 0.3s'
+                        borderRadius: '5px',
+                        transition: 'width 0.3s',
+                        boxShadow: `0 0 10px ${candidate.color}40`
                       }} />
                     </div>
 
-                    {/* 단계 표시 */}
+                    {/* 7단계 표시 */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                      {['서류', '1차', '2차', '최종'].map((step, idx) => (
+                      {['서류', '1차', '2차', '최종', '처우', '합격', '입사'].map((step, idx) => (
                         <span key={idx} style={{
                           fontSize: '10px',
-                          color: idx < candidate.stage ? candidate.color : 'var(--muted)',
-                          fontWeight: idx < candidate.stage ? 600 : 400
+                          color: idx <= candidate.stage ? candidate.color : 'var(--muted)',
+                          fontWeight: idx <= candidate.stage ? 600 : 400
                         }}>
                           {step}
                         </span>
                       ))}
                     </div>
 
+                    {/* 다음 액션 */}
                     <div style={{
-                      padding: '10px 12px',
-                      background: 'var(--surface)',
+                      padding: '12px',
+                      background: 'var(--surface2)',
                       borderRadius: '8px',
                       fontSize: '12px'
                     }}>
                       <span style={{ color: 'var(--muted2)' }}>다음 액션:</span>{' '}
                       <span style={{ fontWeight: 600 }}>{candidate.nextAction}</span>
+                      <span style={{ color: 'var(--muted)', marginLeft: '8px' }}>({candidate.date})</span>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="demo-grid" style={{ marginTop: 16 }}>
-                <div className="results-section">
-                  <div className="results-label">📋 진행 통계</div>
-                  <ul className="result-list">
-                    <li>총 후보자: 8명</li>
-                    <li>서류 합격: 5명 (62.5%)</li>
-                    <li>1차 면접 합격: 3명 (60%)</li>
-                    <li>최종 합격: 1명</li>
-                  </ul>
-                </div>
-                <div className="results-section">
-                  <div className="results-label">⏰ 다가오는 일정</div>
-                  <ul className="result-list">
-                    <li>이OO - 2차 면접 (6/28)</li>
-                    <li>박OO - 2차 제안 (6/30)</li>
-                    <li>김OO - 입사일 확정 (7/1)</li>
-                  </ul>
-                </div>
-                <div className="results-section">
-                  <div className="results-label">💡 프로세스 관리 기능</div>
-                  <ul className="result-list">
-                    <li>후보자별 진행 단계 실시간 추적</li>
-                    <li>다음 액션 알림</li>
-                    <li>면접 일정 관리</li>
-                    <li>진행 통계 및 전환율 분석</li>
-                  </ul>
-                </div>
               </div>
             </>
           )}
