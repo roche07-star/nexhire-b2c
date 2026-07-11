@@ -166,15 +166,29 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
         <div className="demo-modal-header">
           <div className="section-label">SAMPLE ANALYSIS — EXPERT</div>
           <h2 className="demo-modal-title">
-            {isHeadhunter ? '후보자: 김OO (30세, 여)' : '3년차 B2B SaaS 마케터'}{' '}
-            <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>
-              {isHeadhunter ? ', 희망연봉 5,000만원' : ', 연봉 3,800만원'}
-            </span>
+            {isHeadhunter && demoTab < 4
+              ? <>
+                  후보자: 김OO (30세, 여){' '}
+                  <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>
+                    , 희망연봉 5,000만원
+                  </span>
+                </>
+              : isHeadhunter
+                ? '⚙️ 시스템 관리 — 채용 프로세스 & 정산'
+                : <>
+                    3년차 B2B SaaS 마케터{' '}
+                    <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>
+                      , 연봉 3,800만원
+                    </span>
+                  </>
+            }
           </h2>
           <p className="demo-modal-sub">
-            {isHeadhunter
-              ? '실제 분석 결과는 업로드한 후보자 이력서 내용에 따라 달라집니다.'
-              : '실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.'
+            {isHeadhunter && demoTab >= 4
+              ? '여러 후보자와 포지션의 채용 프로세스를 통합 관리하고, 합격자 정산을 자동 계산합니다.'
+              : isHeadhunter
+                ? '실제 분석 결과는 업로드한 후보자 이력서 내용에 따라 달라집니다.'
+                : '실제 분석 결과는 업로드한 이력서 내용에 따라 달라집니다.'
             }
           </p>
         </div>
