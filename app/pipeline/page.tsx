@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
@@ -7,6 +8,31 @@ import Footer from '@/components/Footer'
 
 export const metadata = {
   title: '파이프라인 관리 — Jobizic',
+}
+
+// 파이프라인 Skeleton (Option 3)
+function PipelineSkeleton() {
+  return (
+    <main style={{ padding: '60px 20px', textAlign: 'center', minHeight: '60vh' }}>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        border: '3px solid rgba(167,139,250,0.3)',
+        borderTopColor: '#a78bfa',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        margin: '0 auto 20px'
+      }} />
+      <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
+        파이프라인 로딩 중...
+      </p>
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </main>
+  )
 }
 
 export default async function PipelinePage() {
@@ -62,7 +88,9 @@ export default async function PipelinePage() {
   return (
     <>
       <Nav />
-      <PipelineClient userEmail={email} userPlan={userData.plan} />
+      <Suspense fallback={<PipelineSkeleton />}>
+        <PipelineClient userEmail={email} userPlan={userData.plan} />
+      </Suspense>
       <Footer />
     </>
   )
