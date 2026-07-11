@@ -114,8 +114,16 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     // 수정본 저장 기능
     function saveModifiedProposal() {
       try {
+        // 저장 버튼 임시 숨김
+        const saveBtn = document.querySelector('.save-btn')
+        const originalDisplay = saveBtn ? saveBtn.style.display : ''
+        if (saveBtn) saveBtn.style.display = 'none'
+
         // 현재 HTML 전체 가져오기
         const htmlContent = document.documentElement.outerHTML
+
+        // 저장 버튼 다시 표시
+        if (saveBtn) saveBtn.style.display = originalDisplay
 
         // Blob 생성
         const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
@@ -157,17 +165,14 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       <h1>${proposal.title || '후보자 추천 요약'}</h1>
       <div class="meta">
         <span>${proposal.company || jdAnalysis.company}</span>
-        <span class="divider">|</span>
+        <span class="divider">/</span>
         <span>${proposal.position || jdAnalysis.position}</span>
-        <span class="divider">|</span>
+        <span class="divider">/</span>
         <span>${proposal.date || date}</span>
       </div>
     </div>
 
     <div class="content">
-      <!-- 수정 안내 -->
-      <div class="edit-hint">이 문서는 직접 편집할 수 있습니다. 원하는 부분을 클릭하여 수정하세요.</div>
-
       <!-- 추천 요약 -->
       <div class="section">
         <div class="section-title">01 후보자 추천 요약</div>
@@ -259,7 +264,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     </div>
 
     <div class="footer">
-      <div>본 추천서는 JOBIZIC 헤드헌터 시스템으로 생성되었습니다.</div>
+      <div>© 2026 Jobizic. All rights reserved.</div>
       <div>생성일시: ${new Date().toLocaleString('ko-KR')}</div>
     </div>
   </div>
