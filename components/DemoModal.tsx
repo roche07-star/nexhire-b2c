@@ -180,13 +180,38 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
 
         <div className="demo-feature-tabs">
           {tabs.map((t, i) => (
-            <button
-              key={i}
-              className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
-              onClick={() => setDemoTab(i)}
-            >
-              {t.icon} {t.label}
-            </button>
+            <>
+              {isHeadhunter && i === 3 && (
+                <div key="divider" style={{
+                  width: '100%',
+                  height: '1px',
+                  background: 'var(--border)',
+                  margin: '8px 0',
+                  position: 'relative'
+                }}>
+                  <span style={{
+                    position: 'absolute',
+                    top: '-10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'var(--background)',
+                    padding: '0 12px',
+                    fontSize: '11px',
+                    color: 'var(--muted)',
+                    fontWeight: 600
+                  }}>
+                    ⚙️ 시스템 관리
+                  </span>
+                </div>
+              )}
+              <button
+                key={i}
+                className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
+                onClick={() => setDemoTab(i)}
+              >
+                {t.icon} {t.label}
+              </button>
+            </>
           ))}
         </div>
 
