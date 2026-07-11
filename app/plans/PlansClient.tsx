@@ -96,7 +96,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
     EXPERT: 1
   })
 
-  const effectiveType = isSuperAdminOrManager ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
+  // 비로그인 또는 관리자는 선택한 viewType 사용, 일반 로그인 사용자는 본인 타입 고정
+  const effectiveType = (!userEmail || isSuperAdminOrManager) ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
 
   // 현재 사용자 타입에 맞는 상품들 가져오기
   const userProducts = getProductsByUserType(effectiveType)
