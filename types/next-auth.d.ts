@@ -7,6 +7,7 @@ declare module 'next-auth' {
       role: 'MANAGER' | 'USER'  // DEPRECATED
       plan: 'FREE' | 'PRO' | 'EXPERT'
       userType?: UserType | null
+      hasConsent?: boolean
     } & DefaultSession['user']
   }
 }

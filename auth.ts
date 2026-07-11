@@ -78,19 +78,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // ✅ RLS 정책을 위해 JWT에 email 포함 (CRITICAL)
         token.email = user.email
 
-        // ✅ DB 기반 권한 검증: user_type으로 판단
-        const { data } = await supabase
-          .from('users')
-          .select('plan, user_type')
-          .eq('email', user.email)
-          .maybeSingle()
+        // ✅ DB 기반 권한 검증: user_type + 동의 정보 병렬 조회
+        const [
+          { data: userData },
+          { data: consentData }
+        ] = await Promise.all([
+          supabase
+            .from('users')
+            .select('plan, user_type')
+            .eq('email', user.email)
+            .maybeSingle(),
+          supabase
+            .from('consents')
+            .select('id')
+            .eq('user_email', user.email)
+            .eq('consent_type', 'privacy_required')
+            .eq('is_agreed', true)
+            .is('withdrawn_at', null)
+            .maybeSingle()
+        ])
 
-        token.plan = data?.plan ?? 'FREE'
-        token.userType = data?.user_type ?? null
+        token.plan = userData?.plan ?? 'FREE'
+        token.userType = userData?.user_type ?? null
+        token.hasConsent = !!consentData
 
         // DEPRECATED: role은 하위 호환성을 위해 유지
         // SUPER_ADMIN 또는 MANAGER는 'MANAGER' role
-        const isAdmin = data?.user_type === 'SUPER_ADMIN' || data?.user_type === 'MANAGER'
+        const isAdmin = userData?.user_type === 'SUPER_ADMIN' || userData?.user_type === 'MANAGER'
         token.role = isAdmin ? 'MANAGER' : 'USER'
       }
       return token
@@ -100,6 +114,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as 'MANAGER' | 'USER'
         session.user.plan = token.plan as 'FREE' | 'PRO' | 'EXPERT'
         session.user.userType = token.userType as UserType | null
+        session.user.hasConsent = token.hasConsent as boolean
       }
       return session
     },
