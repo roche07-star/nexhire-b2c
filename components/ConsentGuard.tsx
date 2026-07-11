@@ -21,42 +21,68 @@ export default function ConsentGuard({ children }: { children: React.ReactNode }
   const [hasConsent, setHasConsent] = useState(false)
 
   useEffect(() => {
-    // 로딩 중이거나 비로그인 상태면 패스
-    if (status === 'loading' || status === 'unauthenticated') {
-      setChecking(false)
-      return
-    }
-
-    // 공개 페이지면 패스
-    if (PUBLIC_PATHS.includes(pathname)) {
-      setChecking(false)
-      setHasConsent(true)
-      return
-    }
-
-    // 로그인 상태에서 세션으로 동의 여부 확인 (API 호출 제거)
-    if (session?.user?.email) {
-      // MANAGER는 동의 절차 건너뛰기
-      if (session.user.role === 'MANAGER') {
-        setHasConsent(true)
+    async function checkConsent() {
+      // 로딩 중이거나 비로그인 상태면 패스
+      if (status === 'loading' || status === 'unauthenticated') {
         setChecking(false)
         return
       }
 
-      // 세션에서 동의 정보 확인
-      const hasUserType = !!session.user.userType
-      const hasConsentFromSession = session.user.hasConsent ?? false
-
-      if (hasConsentFromSession && hasUserType) {
-        setHasConsent(true)
+      // 공개 페이지면 패스
+      if (PUBLIC_PATHS.includes(pathname)) {
         setChecking(false)
-      } else {
-        // 동의하지 않았거나 user_type이 없는 경우 /consent로 리다이렉트
-        router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+        setHasConsent(true)
+        return
       }
-    } else {
-      setChecking(false)
+
+      // 로그인 상태에서 동의 여부 확인
+      if (session?.user?.email) {
+        // MANAGER는 동의 절차 건너뛰기
+        if (session.user.role === 'MANAGER') {
+          setHasConsent(true)
+          setChecking(false)
+          return
+        }
+
+        // 세션에 hasConsent가 있으면 세션 사용 (신규 로그인)
+        if (session.user.hasConsent !== undefined) {
+          const hasUserType = !!session.user.userType
+          const hasConsentFromSession = session.user.hasConsent
+
+          if (hasConsentFromSession && hasUserType) {
+            setHasConsent(true)
+            setChecking(false)
+          } else {
+            router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+          }
+        } else {
+          // 세션에 hasConsent가 없으면 API 호출 (기존 로그인 유저 - fallback)
+          try {
+            const res = await fetch('/api/consents/check')
+
+            if (res.ok) {
+              const data = await res.json()
+
+              if (data.hasConsent && data.hasUserType) {
+                setHasConsent(true)
+                setChecking(false)
+              } else {
+                router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+              }
+            } else {
+              router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+            }
+          } catch (err) {
+            console.error('[ConsentGuard] Error:', err)
+            router.push(`/consent?callbackUrl=${encodeURIComponent(pathname)}`)
+          }
+        }
+      } else {
+        setChecking(false)
+      }
     }
+
+    checkConsent()
   }, [session, status, pathname, router])
 
   // 체크 중이거나 동의하지 않은 경우 로딩 표시
