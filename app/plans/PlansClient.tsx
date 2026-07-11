@@ -179,8 +179,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           </div>
         </div>
 
-        {/* Admin 뷰 전환 버튼 */}
-        {isSuperAdminOrManager && (
+        {/* 뷰 전환 버튼 (비로그인 또는 관리자) */}
+        {(!userEmail || isSuperAdminOrManager) && (
           <div style={{
             display: 'flex',
             gap: 12,
