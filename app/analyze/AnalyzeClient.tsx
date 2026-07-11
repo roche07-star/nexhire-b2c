@@ -40,6 +40,22 @@ import {
 } from '@/constants/analyze'
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null }) {
+  // 🚨 즉시 실행 - 페이지 로드 확인
+  if (typeof window !== 'undefined') {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('✅ AnalyzeClient 로드됨! (미르팀)')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+    // 3초 후 성능 측정
+    setTimeout(() => {
+      console.log('\n🔍 성능 측정 시작...\n')
+      const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+      if (perfData) {
+        console.log('⏱️ 총 로딩 시간:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms')
+      }
+    }, 3000)
+  }
+
   const {
     state: analysisState,
     startAnalysis,
