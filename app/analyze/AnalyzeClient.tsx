@@ -33,8 +33,6 @@ import {
   REWRITE_LOADING_STEPS,
   INTERVIEW_LOADING_STEPS,
 } from '@/constants/analyze'
-}
-}
 
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null }) {
   const {
