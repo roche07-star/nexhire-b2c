@@ -153,22 +153,6 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
         zIndex: 1,
         textAlign: 'center'
       }}>
-        {/* Badge */}
-        <div style={{
-          display: 'inline-block',
-          padding: '8px 20px',
-          background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%)',
-          border: '1px solid rgba(34, 211, 238, 0.3)',
-          borderRadius: 20,
-          color: '#22d3ee',
-          fontSize: 14,
-          fontWeight: 700,
-          marginBottom: 24,
-          letterSpacing: '-0.01em'
-        }}>
-          {selected.badge}
-        </div>
-
         {/* Test Mode Warning */}
         <div style={{
           padding: '16px 20px',
@@ -258,43 +242,13 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
         <p style={{
           fontSize: 20,
           color: 'rgba(255,255,255,0.7)',
-          marginBottom: 48,
+          marginBottom: 80,
           lineHeight: 1.6,
           maxWidth: 600,
-          margin: '0 auto 48px'
+          margin: '0 auto 80px'
         }}>
           {selected.subtitle}
         </p>
-
-        {/* 할인 배너 */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '16px 32px',
-          background: 'rgba(251, 191, 36, 0.1)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          borderRadius: 16,
-          marginBottom: 80
-        }}>
-          <span style={{ fontSize: 24 }}>🎁</span>
-          <div style={{ textAlign: 'left' }}>
-            <div style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#fbbf24',
-              marginBottom: 4
-            }}>
-              기간제 이용권 출시
-            </div>
-            <div style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.7)'
-            }}>
-              3개월권 구매 시 10% 할인
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* Plans Grid */}
