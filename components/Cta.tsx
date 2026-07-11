@@ -41,7 +41,7 @@ export default function Cta({ userType }: { userType?: RegularUserType | null })
       <div className="cta-inner reveal">
         <h2>{selected.headline}</h2>
         <p>{selected.sub}</p>
-        <Link href="/analyze">
+        <Link href="/login?callbackUrl=/analyze">
           <button className="btn-hero">{selected.btnText}</button>
         </Link>
       </div>
