@@ -548,29 +548,61 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 <span className="jd-demo-pos">{jdDemo.position}</span>
               </div>
 
-              <div className="results-label" style={{ marginBottom: 10 }}>🎤 예상 질문 & 이력서 기반 모범 답변</div>
-              <div className="interview-questions-list">
-                {interviewQuestions.map((item, i) => (
-                  <div
-                    key={i}
-                    className={`interview-q-item${expandedQ === i ? ' expanded' : ''}`}
-                    onClick={() => setExpandedQ(expandedQ === i ? null : i)}
-                  >
-                    <div className="interview-q-row">
-                      <span className="interview-q-num">Q{i + 1}</span>
-                      <span className="interview-q-text">{item.q}</span>
-                      <span className="interview-q-toggle">{expandedQ === i ? '▲' : '▼'}</span>
-                    </div>
-                    {expandedQ === i && (
-                      <div className="interview-q-answer">
-                        {item.a
-                          ? <><span className="interview-q-answer-label">모범 답변</span>{item.a}</>
-                          : <span style={{ color: 'var(--muted)' }}>내 이력서 기반 모범 답변이 생성됩니다.</span>
-                        }
-                      </div>
-                    )}
+              <div className="results-label" style={{ marginBottom: 10 }}>🎤 6개 섹션 면접 완전 정복</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  단순 예상 질문이 아닌, <strong>자기소개부터 역질문, 체크리스트까지</strong> 면접 전 과정을 체계적으로 준비합니다.
+                </p>
+              </div>
+
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="results-section">
+                  <div className="results-label">SECTION 1 — 핵심 포지셔닝 메시지</div>
+                  <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
+                    "B2B SaaS GTM 전략과 데이터 분석으로 제품 성장을 이끄는 PM"
                   </div>
-                ))}
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 2 — 자기소개 설계</div>
+                  <ul className="result-list">
+                    <li>1분 자기소개 스크립트 제공</li>
+                    <li>직무 연관성 강조 포인트</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 3 — 예상 질문 & 답변 가이드 (6가지)</div>
+                  <ul className="result-list">
+                    <li>A. 이직 사유</li>
+                    <li>B. 도메인 갭 대응</li>
+                    <li>C. 역량 검증 (STAR 기법)</li>
+                    <li>D. 프로젝트 경험 심화</li>
+                    <li>E. 입사 후 계획</li>
+                    <li>F. 희망 연봉</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 4 — 강점 & 리스크 대응</div>
+                  <ul className="result-list">
+                    <li>내 강점 3가지 + 어필 방법</li>
+                    <li>예상 리스크 + 대응 화법</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 5 — 역질문 추천</div>
+                  <ul className="result-list">
+                    <li>역할/도전/기대 관점 질문 3가지</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 6 — 면접 전 체크리스트</div>
+                  <ul className="result-list">
+                    <li>준비물, 복장, 시간 확인 등</li>
               </div>
 
               <div className="results-label" style={{ marginTop: 20, marginBottom: 10 }}>💬 역질문 — 면접관에게 꼭 물어볼 것</div>
@@ -665,21 +697,27 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
 
               <div className="demo-summary-block">
                 <p className="result-summary">
-                  합격자 정보, 입사일, 연봉, 수수료율을 입력하면 <strong>정산 금액을 자동으로 계산</strong>하고 <strong>연도별 통계</strong>를 제공합니다.
+                  합격자 정보, 역할 분담, 수수료율을 입력하면 <strong>실매출액 → 개인 매출액 → 인센티브 → 순수익</strong>까지 자동 계산하고 <strong>전환액 기준 인센티브</strong>를 자동 적용합니다.
                 </p>
               </div>
 
               <div className="demo-scores" style={{ marginTop: 16 }}>
                 <div className="results-label">2026년 실적 요약</div>
                 {[
-                  { label: '총 매출', val: '84,000,000원' },
-                  { label: '전환액 (회수)', val: '67,000,000원' },
-                  { label: '미수금 (대기)', val: '17,000,000원' },
+                  { label: '실매출액', val: '84,000,000원', desc: '연봉 × 수수료율' },
+                  { label: '개인 매출액', val: '45,200,000원', desc: '실매출 × 내 비율' },
+                  { label: '인센티브', val: '35,640,000원', desc: '전환액 70% → 100%' },
+                  { label: '순수익 (세후)', val: '34,464,360원', desc: '세금 3.3% 차감' },
                 ].map((s) => (
-                  <div key={s.label} className="result-score-row">
-                    <div className="score-meta">
-                      <span className="score-name">{s.label}</span>
-                      <span className="score-val" style={{ color: 'var(--primary)' }}>{s.val}</span>
+                  <div key={s.label} style={{ marginBottom: '12px' }}>
+                    <div className="result-score-row">
+                      <div className="score-meta">
+                        <span className="score-name">{s.label}</span>
+                        <span className="score-val" style={{ color: 'var(--primary)' }}>{s.val}</span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px', paddingLeft: '4px' }}>
+                      {s.desc}
                     </div>
                   </div>
                 ))}
@@ -687,38 +725,27 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
 
               <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="results-section">
-                  <div className="results-label">📊 월별 매출</div>
-                  <ul className="result-list">
-                    <li>1월: 9,500,000원</li>
-                    <li>2월: 11,800,000원</li>
-                    <li>3월: 13,200,000원</li>
-                    <li>4월: 12,500,000원</li>
-                    <li>5월: 15,000,000원</li>
-                    <li>6월: 22,000,000원 (최고)</li>
-                  </ul>
-                </div>
-                <div className="results-section">
                   <div className="results-label">🎯 목표 달성률</div>
                   <div className="result-score-row">
                     <div className="score-meta">
-                      <span className="score-name">연간 목표 (1억)</span>
-                      <span className="score-val">84%</span>
+                      <span className="score-name">연간 목표 5,000만원 (이월액 500만원)</span>
+                      <span className="score-val">82%</span>
                     </div>
                     <div className="score-bar-wrap">
-                      <div className="score-bar" style={{ width: '84%' }} />
+                      <div className="score-bar" style={{ width: '82%' }} />
                     </div>
                   </div>
                   <p className="result-summary" style={{ fontSize: '12px', marginTop: 8 }}>
-                    현재 진행률로 <strong>목표 달성 가능</strong> (예상: 1.05억)
+                    전환액 기준 45,200,000원 / 목표 55,000,000원 (목표+이월)
                   </p>
                 </div>
                 <div className="results-section">
                   <div className="results-label">💡 정산 관리 기능</div>
                   <ul className="result-list">
-                    <li>합격자별 정산 내역 자동 기록</li>
-                    <li>입사일 기준 수수료 자동 계산</li>
-                    <li>전환액/미수금 실시간 집계</li>
-                    <li>연도별 통계 및 목표 달성률</li>
+                    <li>PM/서처 역할별 매출 분담 (my_ratio)</li>
+                    <li>전환액 기준 인센티브율 자동 전환 (70% → 100%)</li>
+                    <li>세금 3.3% 자동 차감</li>
+                    <li>연도별 목표 + 이월액 관리</li>
                   </ul>
                 </div>
               </div>
@@ -727,20 +754,20 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
               <div style={{ background: 'var(--surface2)', borderRadius: '8px', padding: '12px', fontSize: '13px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', fontWeight: 600, marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border)' }}>
                   <span>이름</span>
-                  <span>입사일</span>
+                  <span>역할</span>
                   <span>연봉</span>
-                  <span>수수료</span>
+                  <span>개인매출</span>
                 </div>
                 {[
-                  { name: '김OO', date: '2026-06-01', salary: '4,500만원', fee: '11,250,000원' },
-                  { name: '이OO', date: '2026-05-15', salary: '5,200만원', fee: '13,000,000원' },
-                  { name: '박OO', date: '2026-04-20', salary: '3,800만원', fee: '9,500,000원' },
+                  { name: '김OO', role: 'PM 50%', salary: '4,500만원', personal: '3,825,000원' },
+                  { name: '이OO', role: 'PM 단독', salary: '5,200만원', personal: '8,840,000원' },
+                  { name: '박OO', role: '서처 50%', salary: '3,800만원', personal: '3,230,000원' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', padding: '6px 0' }}>
                     <span>{item.name}</span>
-                    <span style={{ color: 'var(--muted)' }}>{item.date}</span>
+                    <span style={{ color: 'var(--muted)' }}>{item.role}</span>
                     <span>{item.salary}</span>
-                    <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{item.fee}</span>
+                    <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{item.personal}</span>
                   </div>
                 ))}
               </div>
