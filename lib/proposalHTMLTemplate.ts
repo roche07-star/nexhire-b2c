@@ -1,6 +1,12 @@
 export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnalysis: any): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '. ')
 
+  // "·" 문자를 ","로 변환하는 헬퍼 함수
+  const replaceDot = (text: string | undefined | null): string => {
+    if (!text) return ''
+    return String(text).replace(/·/g, ', ')
+  }
+
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -176,7 +182,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       <!-- 추천 요약 -->
       <div class="section">
         <div class="section-title">01 후보자 추천 요약</div>
-        <div class="summary editable" contenteditable="true" data-placeholder="추천 요약을 입력하세요">${proposal.summary || '추천 요약이 생성되지 않았습니다.'}</div>
+        <div class="summary editable" contenteditable="true" data-placeholder="추천 요약을 입력하세요">${replaceDot(proposal.summary) || '추천 요약이 생성되지 않았습니다.'}</div>
       </div>
 
       <!-- 후보자 정보 -->
@@ -215,7 +221,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         <div class="section-title">03 핵심 강점</div>
         <ul class="strength-list">
           ${(proposal.strengths || resumeAnalysis.strengths || []).map((s: string) =>
-            `<li class="strength-item editable" contenteditable="true" data-placeholder="강점을 입력하세요">${s}</li>`
+            `<li class="strength-item editable" contenteditable="true" data-placeholder="강점을 입력하세요">${replaceDot(s)}</li>`
           ).join('')}
         </ul>
       </div>
@@ -226,15 +232,15 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         <div class="fit-grid">
           <div class="fit-card">
             <div class="fit-title">기술적 적합성</div>
-            <div class="fit-value editable" contenteditable="true" data-placeholder="기술적 적합성을 입력하세요">${proposal.fit_analysis?.technical_fit || '기술적 요구사항을 충족합니다.'}</div>
+            <div class="fit-value editable" contenteditable="true" data-placeholder="기술적 적합성을 입력하세요">${replaceDot(proposal.fit_analysis?.technical_fit) || '기술적 요구사항을 충족합니다.'}</div>
           </div>
           <div class="fit-card">
             <div class="fit-title">문화적 적합성</div>
-            <div class="fit-value editable" contenteditable="true" data-placeholder="문화적 적합성을 입력하세요">${proposal.fit_analysis?.cultural_fit || '조직 문화에 잘 적응할 것으로 예상됩니다.'}</div>
+            <div class="fit-value editable" contenteditable="true" data-placeholder="문화적 적합성을 입력하세요">${replaceDot(proposal.fit_analysis?.cultural_fit) || '조직 문화에 잘 적응할 것으로 예상됩니다.'}</div>
           </div>
           <div class="fit-card">
             <div class="fit-title">성장 가능성</div>
-            <div class="fit-value editable" contenteditable="true" data-placeholder="성장 가능성을 입력하세요">${proposal.fit_analysis?.growth_potential || '장기적인 발전 가능성이 높습니다.'}</div>
+            <div class="fit-value editable" contenteditable="true" data-placeholder="성장 가능성을 입력하세요">${replaceDot(proposal.fit_analysis?.growth_potential) || '장기적인 발전 가능성이 높습니다.'}</div>
           </div>
         </div>
       </div>
