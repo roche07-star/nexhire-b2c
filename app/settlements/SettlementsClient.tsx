@@ -74,17 +74,26 @@ export default function SettlementsClient() {
     }
   }, [selectedYear, session])
 
-  // 사용자별 전환액/미수금 로드
+  // 사용자별 + 연도별 전환액/미수금 로드
   useEffect(() => {
     if (session?.user?.email && typeof window !== 'undefined') {
       const userEmail = session.user.email
-      const savedGoal = localStorage.getItem(`settlements_goalAmount_${userEmail}`)
-      const savedCarryover = localStorage.getItem(`settlements_carryover_${userEmail}`)
+      const savedGoal = localStorage.getItem(`settlements_goalAmount_${userEmail}_${selectedYear}`)
+      const savedCarryover = localStorage.getItem(`settlements_carryover_${userEmail}_${selectedYear}`)
 
-      if (savedGoal) setGoalAmount(parseInt(savedGoal))
-      if (savedCarryover) setCarryover(parseInt(savedCarryover))
+      if (savedGoal) {
+        setGoalAmount(parseInt(savedGoal))
+      } else {
+        setGoalAmount(5000) // 기본값
+      }
+
+      if (savedCarryover) {
+        setCarryover(parseInt(savedCarryover))
+      } else {
+        setCarryover(0) // 기본값
+      }
     }
-  }, [session?.user?.email])
+  }, [session?.user?.email, selectedYear]) // selectedYear 추가
 
   const loadSettlements = async () => {
     setLoading(true)
@@ -352,7 +361,7 @@ export default function SettlementsClient() {
                     const newGoal = parseInt(tempGoal) || 0
                     setGoalAmount(newGoal)
                     if (session?.user?.email) {
-                      localStorage.setItem(`settlements_goalAmount_${session.user.email}`, String(newGoal))
+                      localStorage.setItem(`settlements_goalAmount_${session.user.email}_${selectedYear}`, String(newGoal))
                     }
                     setEditingGoal(false)
                   }}
@@ -399,7 +408,7 @@ export default function SettlementsClient() {
                     const newCarryover = parseInt(tempCarryover) || 0
                     setCarryover(newCarryover)
                     if (session?.user?.email) {
-                      localStorage.setItem(`settlements_carryover_${session.user.email}`, String(newCarryover))
+                      localStorage.setItem(`settlements_carryover_${session.user.email}_${selectedYear}`, String(newCarryover))
                     }
                     setEditingCarryover(false)
                   }}
