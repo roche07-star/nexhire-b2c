@@ -375,7 +375,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                   transition: 'all 0.3s',
                   opacity: (userEmail && currentPlan === 'FREE') ? 0.5 : 1
                 }}
-                disabled={userEmail && currentPlan === 'FREE'}
+                disabled={!!(userEmail && currentPlan === 'FREE')}
               >
                 {(userEmail && currentPlan === 'FREE') ? '현재 사용 중' : '무료로 시작'}
               </button>
