@@ -301,6 +301,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [file, setFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true) // 페이지 초기 로딩
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [savedAnalysis, setSavedAnalysis] = useState<SavedAnalysis | null>(null)
   const [isPro] = useState(initialIsPro)
@@ -446,7 +447,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
   // FREE 유저 초기 데이터 병렬 로드
   useEffect(() => {
-    if (initialIsPro) return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
+    if (initialIsPro) {
+      setInitialLoading(false)
+      return  // Pro는 분석 목록 탭이 있으므로 latest 불필요
+    }
 
     // latest 분석과 쿠폰을 병렬로 로드
     Promise.all([
@@ -465,6 +469,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         if (couponsData?.coupons) setMyCoupons(couponsData.coupons)
       })
       .catch(() => {})
+      .finally(() => setInitialLoading(false))
   }, [initialIsPro])
 
   // 자동 큐 처리: 분석 완료 후 다음 파일 자동 분석
@@ -530,6 +535,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .catch(() => {
           setAnalysisList([])
         })
+        .finally(() => setInitialLoading(false))
     }
   }, [initialIsPro])
 
@@ -1459,6 +1465,45 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       }
       setJdLoading(false)
     }
+  }
+
+  // 초기 로딩 Skeleton UI
+  if (initialLoading) {
+    return (
+      <main className="analyze-page">
+        <div className="analyze-layout">
+          <div className="analyze-main">
+            <div className="analyze-container">
+              <div style={{
+                padding: '40px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '20px'
+              }}>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  border: '4px solid rgba(167, 139, 250, 0.2)',
+                  borderTop: '4px solid #a78bfa',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
+                  페이지를 불러오는 중...
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </main>
+    )
   }
 
   return (
