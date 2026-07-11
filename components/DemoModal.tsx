@@ -601,6 +601,8 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                   <div className="results-label">SECTION 6 — 면접 전 체크리스트</div>
                   <ul className="result-list">
                     <li>준비물, 복장, 시간 확인 등</li>
+                  </ul>
+                </div>
               </div>
 
               <div className="results-label" style={{ marginTop: 20, marginBottom: 10 }}>💬 역질문 — 면접관에게 꼭 물어볼 것</div>
