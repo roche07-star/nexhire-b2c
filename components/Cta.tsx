@@ -5,17 +5,13 @@ import Link from 'next/link'
 import type { RegularUserType } from '@/types/user'
 
 export default function Cta({ userType }: { userType?: RegularUserType | null }) {
-  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
-
-  // localStorage에서 선택한 타입 불러오기
-  useEffect(() => {
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('landing_user_type')
-      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
-        setSelectedType(saved)
-      }
+      return (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') ? saved : 'JOBSEEKER'
     }
-  }, [])
+    return 'JOBSEEKER'
+  })
   // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
   const effectiveType = userType || selectedType
 

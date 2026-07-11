@@ -8,21 +8,19 @@ import DemoModal from './DemoModal'
 export default function Hero({ userType }: { userType?: RegularUserType | null }) {
   const [showDemo, setShowDemo] = useState(false)
   const [heroTab, setHeroTab] = useState(0)
-  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
-
-  useEffect(() => {
-    const t = setInterval(() => setHeroTab((prev) => (prev + 1) % 4), 4000)
-    return () => clearInterval(t)
-  }, [])
-
-  // localStorage에서 선택한 타입 불러오기
-  useEffect(() => {
+  const [mounted, setMounted] = useState(false)
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('landing_user_type')
-      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
-        setSelectedType(saved)
-      }
+      return (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') ? saved : 'JOBSEEKER'
     }
+    return 'JOBSEEKER'
+  })
+
+  useEffect(() => {
+    setMounted(true)
+    const t = setInterval(() => setHeroTab((prev) => (prev + 1) % 4), 4000)
+    return () => clearInterval(t)
   }, [])
 
   // 선택한 타입 localStorage에 저장
