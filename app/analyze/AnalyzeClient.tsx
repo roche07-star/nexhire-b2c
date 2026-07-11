@@ -1219,94 +1219,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   }
 
   // 초기 로딩 Skeleton UI
+  // 초기 로딩 중에는 아무것도 표시하지 않음 (가장 빠름)
   if (initialLoading) {
-    return (
-      <main className="analyze-page">
-        <div className="analyze-layout">
-          <div className="analyze-main">
-            <div className="analyze-container">
-              {/* Skeleton Header */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{
-                  height: '40px',
-                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'shimmer 1.5s infinite',
-                  borderRadius: '8px',
-                  width: '200px',
-                  marginBottom: '16px'
-                }} />
-              </div>
-
-              {/* Skeleton Tabs */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} style={{
-                    height: '36px',
-                    width: i === 1 ? '120px' : i === 2 ? '140px' : i === 3 ? '130px' : i === 4 ? '140px' : '130px',
-                    background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 1.5s infinite',
-                    borderRadius: '8px',
-                    animationDelay: `${i * 0.1}s`
-                  }} />
-                ))}
-              </div>
-
-              {/* Skeleton Upload Area */}
-              <div style={{
-                border: '2px dashed rgba(167,139,250,0.2)',
-                borderRadius: '12px',
-                padding: '60px 20px',
-                textAlign: 'center',
-                marginBottom: '24px'
-              }}>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'shimmer 1.5s infinite',
-                  borderRadius: '50%',
-                  margin: '0 auto 20px'
-                }} />
-                <div style={{
-                  height: '20px',
-                  width: '200px',
-                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'shimmer 1.5s infinite',
-                  borderRadius: '4px',
-                  margin: '0 auto 12px'
-                }} />
-                <div style={{
-                  height: '16px',
-                  width: '300px',
-                  background: 'linear-gradient(90deg, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.05) 50%, rgba(167,139,250,0.1) 100%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'shimmer 1.5s infinite',
-                  borderRadius: '4px',
-                  margin: '0 auto'
-                }} />
-              </div>
-
-              {/* Small Loading Text */}
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ color: 'var(--muted)', fontSize: '13px', opacity: 0.7 }}>
-                  페이지를 준비하는 중...
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <style>{`
-          @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-          }
-        `}</style>
-      </main>
-    )
+    return null
   }
 
   return (
