@@ -290,14 +290,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [initialIsPro])
 
-  // 🔍 성능 측정 (Option 1 - 미르팀)
+  // 🔍 성능 측정 (Option 1 - 미르팀) - 강제 실행
   useEffect(() => {
-    console.log('🔍 [디버그] initialLoading:', initialLoading, 'window:', typeof window)
-
-    if (!initialLoading && typeof window !== 'undefined') {
-      console.log('✅ [디버그] 성능 측정 시작!')
-      // 약간의 지연 후 측정 (모든 리소스 로드 완료 대기)
+    if (typeof window !== 'undefined') {
+      // 무조건 3초 후 실행 (조건 제거)
       setTimeout(() => {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('🚀 성능 측정 시작! (미르팀)')
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
         const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
 
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
@@ -360,9 +360,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         }
 
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
-      }, 1000)
+      }, 3000) // 3초 후 실행
     }
-  }, [initialLoading])
+  }, []) // 페이지 로드 시 1번만 실행
 
   // URL parameter로 JD 탭으로 직접 진입
   useEffect(() => {
