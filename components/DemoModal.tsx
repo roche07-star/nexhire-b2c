@@ -372,58 +372,56 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">📝 업무 Report 관리</span>
-                <span className="jd-demo-pos">2026년 7월 성과 정리</span>
+                <span className="jd-demo-pos">2026년 7월 현황</span>
               </div>
 
-              <div className="results-label" style={{ marginBottom: 10 }}>📊 주간/월간 업무 성과 자동 정리 → 이력서 반영</div>
+              <div className="results-label" style={{ marginBottom: 10 }}>📊 주간 입력 → AI HTML 생성 → 월간 자동 집계</div>
 
               <div className="demo-summary-block">
                 <p className="result-summary">
-                  프로젝트별 성과 지표와 핵심 기여 내용을 누적 관리합니다. <strong>월간 Report를 업데이트</strong>하면 최신 성과가 자동으로 이력서에 반영되어, 이직 준비 시 즉시 활용할 수 있습니다.
+                  주간 업무를 간단히 입력하면 <strong>AI가 HTML Report를 자동 생성</strong>하고, 월말에 <strong>월간 Report로 자동 집계</strong>합니다. 이력서 업데이트 시 최신 성과를 즉시 반영할 수 있습니다.
                 </p>
               </div>
 
-              <div className="demo-grid" style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="results-section">
-                  <div className="results-label">✦ 7월 주요 성과 (4건)</div>
+                  <div className="results-label">1단계: 조직 정보 설정</div>
                   <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
-                    <strong>1. 신규 결제 시스템 구축 완료</strong><br/>
-                    → TPS 2배 향상 (500→1000), 결제 성공률 98.7% 달성<br/>
-                    → Redis 캐싱 도입으로 응답속도 40% 개선<br/><br/>
-                    <strong>2. A/B 테스트 프레임워크 설계</strong><br/>
-                    → 실험 기반 의사결정 체계 구축<br/><br/>
-                    <strong>3. 주니어 개발자 2명 온보딩 리드</strong><br/><br/>
-                    <strong>4. 기술 블로그 2건 작성 (조회수 5K+)</strong>
+                    회사명 또는 학교명 입력 (최초 1회만)
                   </div>
                 </div>
+
                 <div className="results-section">
-                  <div className="results-label">💾 이력서 자동 반영 결과</div>
+                  <div className="results-label">2단계: 주간 업무 입력</div>
+                  <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
+                    <strong>[입력 예시]</strong><br/>
+                    - 결제 시스템 Redis 캐싱 도입, 응답속도 40% 개선<br/>
+                    - A/B 테스트 프레임워크 설계 완료<br/>
+                    - 주니어 개발자 2명 온보딩 진행
+                  </div>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">3단계: AI가 HTML Report 자동 생성</div>
                   <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'rgba(232,255,71,0.1)', borderRadius: '8px', border: '1px solid rgba(232,255,71,0.2)' }}>
-                    <strong>[최신 이력서 업데이트]</strong><br/>
-                    • 결제 시스템 성능 개선 (TPS 2배↑)<br/>
-                    • 데이터 기반 A/B 테스트 프레임워크 구축<br/>
-                    • 팀 리딩 경험 (온보딩 2명)<br/>
-                    • 기술 커뮤니케이션 역량 (블로그 5K+ 조회)<br/><br/>
-                    <span style={{ color: 'var(--primary)' }}>→ 성과가 구체적 수치와 함께 이력서에 자동 반영됨</span>
+                    <strong>OOO 회사 주간 업무 Report (7/1-7/7)</strong><br/><br/>
+                    • <strong>결제 시스템 성능 개선</strong><br/>
+                    &nbsp;&nbsp;→ Redis 캐싱 도입으로 응답속도 40% 향상<br/><br/>
+                    • <strong>A/B 테스트 프레임워크 설계</strong><br/>
+                    &nbsp;&nbsp;→ 데이터 기반 의사결정 체계 구축<br/><br/>
+                    • <strong>팀 온보딩</strong><br/>
+                    &nbsp;&nbsp;→ 주니어 개발자 2명 교육 진행
                   </div>
                 </div>
+
                 <div className="results-section">
-                  <div className="results-label">💡 관리 효과</div>
+                  <div className="results-label">4단계: 월간 Report 자동 집계</div>
                   <ul className="result-list">
-                    <li><strong>실시간 성과 누적</strong> → 이력서 최신 상태 유지</li>
-                    <li><strong>구체적 수치 기록</strong> → 면접 시 즉답 가능</li>
-                    <li><strong>Figma 프로덕트 제안</strong> 경험 부각</li>
-                    <li><strong>데이터 기반 의사결정</strong> 키워드 삽입</li>
+                    <li>해당 월의 모든 주간 Report 자동 병합</li>
+                    <li>월별로 성과 확인 가능</li>
+                    <li>이력서 작성 시 최신 성과 즉시 활용</li>
                   </ul>
                 </div>
-              </div>
-
-              <div className="results-label" style={{ marginTop: 16 }}>📝 자기소개서 최적화</div>
-              <div className="result-summary" style={{ fontSize: '13px', padding: '12px', background: 'var(--surface2)', borderRadius: '8px' }}>
-                저는 B2B SaaS 기업에서 <strong>GTM 전략 수립과 실행을 주도</strong>하며 <strong>데이터 기반 의사결정</strong>을 실천해온 마케터입니다.
-                SQL로 직접 퍼널을 분석하고 개선안을 도출하여 <strong>전환율을 50% 향상</strong>시켰으며,
-                Figma를 활용해 프로덕트 개선안을 제안한 경험이 있습니다.
-                이러한 경험을 바탕으로 <strong>사용자와 비즈니스 양쪽의 관점</strong>에서 문제를 해결하는 PM이 되고자 합니다.
               </div>
             </>
           )}
