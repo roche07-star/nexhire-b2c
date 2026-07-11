@@ -719,7 +719,6 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                     <li>입사일 기준 수수료 자동 계산</li>
                     <li>전환액/미수금 실시간 집계</li>
                     <li>연도별 통계 및 목표 달성률</li>
-                    <li>Excel 다운로드 지원</li>
                   </ul>
                 </div>
               </div>
