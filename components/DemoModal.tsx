@@ -151,6 +151,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
     { icon: '👤', label: '후보자 분석' },
     { icon: '📋', label: 'JD 매칭' },
     { icon: '📄', label: '클라이언트 제안서' },
+    { icon: '🎤', label: '면접 가이드' },
     { icon: '📊', label: '채용 프로세스', badge: '⚙️' },
     { icon: '💰', label: '정산 기능', badge: '⚙️' },
   ]
@@ -181,8 +182,8 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
         <div className="demo-feature-tabs">
           {tabs.map((t, i) => (
             <>
-              {isHeadhunter && i === 3 && (
-                <div key="divider" style={{
+              {isHeadhunter && i === 4 && (
+                <div key={`divider-${i}`} style={{
                   width: '100%',
                   height: '1px',
                   background: 'var(--border)',
@@ -451,7 +452,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {demoTab === 3 && isHeadhunter && (
+          {demoTab === 4 && isHeadhunter && (
             <>
               <div className="results-label" style={{ marginBottom: 10 }}>📊 채용 프로세스 관리 (⚙️ 시스템 기능)</div>
 
@@ -714,9 +715,94 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           )}
 
           {/* ────────────────────────────────────── */}
-          {/* 헤드헌터: Tab 4 = 정산 기능 (시스템 관리) */}
+          {/* 헤드헌터: Tab 3 = 면접 가이드 */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 4 && isHeadhunter && (
+          {demoTab === 3 && isHeadhunter && (
+            <>
+              <div className="jd-demo-company-bar">
+                <span className="jd-demo-co">🏢 {jdDemo.company}</span>
+                <span className="jd-demo-pos">{jdDemo.position}</span>
+              </div>
+
+              <div className="results-label" style={{ marginBottom: 10 }}>🎤 후보자 면접 가이드 생성</div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  후보자가 면접에서 예상되는 <strong>핵심 질문</strong>과 <strong>추천 답변 전략</strong>을 6개 섹션으로 체계적으로 정리합니다.
+                </p>
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">SECTION 1 — 핵심 포지셔닝 메시지</div>
+                  <ul className="result-list">
+                    <li>"B2B SaaS PM으로 데이터 기반 성장 전략을 실행한 경험"</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 2 — 자기소개 설계 (60초)</div>
+                  <ul className="result-list">
+                    <li>현재 역할, 핵심 성과, 지원 동기를 연결</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="results-section" style={{ marginTop: 16 }}>
+                <div className="results-label">SECTION 3 — 예상 질문 & 답변 가이드</div>
+                <ul className="result-list">
+                  <li><strong>Q1:</strong> "왜 PM으로 전환하려고 하시나요?"<br/>
+                    <span style={{ color: 'var(--muted)', fontSize: '13px' }}>→ 데이터 분석→프로덕트 전략 자연스러운 흐름 강조</span>
+                  </li>
+                  <li><strong>Q2:</strong> "SQL 기반 퍼널 분석 성과를 구체적으로 설명해주세요"<br/>
+                    <span style={{ color: 'var(--muted)', fontSize: '13px' }}>→ STAR 기법: 상황/과제/액션/결과(50% 개선)</span>
+                  </li>
+                  <li><strong>Q3:</strong> "스타트업 경험을 어떻게 활용하실 건가요?"<br/>
+                    <span style={{ color: 'var(--muted)', fontSize: '13px' }}>→ 빠른 실행력, 리소스 제약 속 우선순위 관리 경험</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="demo-grid" style={{ marginTop: 16 }}>
+                <div className="results-section">
+                  <div className="results-label">SECTION 4 — 강점 & 리스크 대응</div>
+                  <ul className="result-list">
+                    <li>강점: 데이터 기반 의사결정, GTM 전략 수립</li>
+                    <li>리스크: 프로덕트 스펙 작성 경험 → "현재 학습 중" 강조</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">SECTION 5 — 역질문 추천</div>
+                  <ul className="result-list">
+                    <li>"PM 조직 구조와 의사결정 프로세스가 궁금합니다"</li>
+                    <li>"이 포지션의 첫 6개월 목표는 무엇인가요?"</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="results-section" style={{ marginTop: 16 }}>
+                <div className="results-label">SECTION 6 — 면접 전 체크리스트</div>
+                <ul className="result-list">
+                  <li>✅ 회사 최근 뉴스/프로덕트 업데이트 확인</li>
+                  <li>✅ JD 핵심 요구사항 3가지 암기</li>
+                  <li>✅ 본인 성과 수치 (50% 개선, SQL 분석 등) 숙지</li>
+                  <li>✅ 면접 30분 전 도착, 복장 확인</li>
+                </ul>
+              </div>
+
+              <div className="demo-summary-block" style={{ marginTop: 20, background: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+                <p className="result-summary" style={{ color: '#fbbf24' }}>
+                  💡 <strong>클라이언트 제안 시 활용:</strong> 이 면접 가이드를 제안서에 첨부하면 후보자 준비도를 어필할 수 있습니다.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* ────────────────────────────────────── */}
+          {/* 헤드헌터: Tab 5 = 정산 기능 (시스템 관리) */}
+          {/* ────────────────────────────────────── */}
+          {demoTab === 5 && isHeadhunter && (
             <>
               <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 (⚙️ 시스템 기능)</div>
 
