@@ -8,11 +8,29 @@ import DemoModal from './DemoModal'
 export default function Hero({ userType }: { userType?: RegularUserType | null }) {
   const [showDemo, setShowDemo] = useState(false)
   const [heroTab, setHeroTab] = useState(0)
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
 
   useEffect(() => {
     const t = setInterval(() => setHeroTab((prev) => (prev + 1) % 3), 3800)
     return () => clearInterval(t)
   }, [])
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 선택한 타입 localStorage에 저장
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('landing_user_type', selectedType)
+    }
+  }, [selectedType])
 
   // 개인/헤드헌터 맞춤 콘텐츠
   const content = {
@@ -46,29 +64,67 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
         </>
       ),
     },
-    DEFAULT: {
-      badge: '재직 중 이직 준비 직장인을 위한 JOBIZIC 커리어 코치',
-      headline: (
-        <>
-          이력서 하나로,<br />
-          <span className="line2">다음 커리어를 설계하세요</span>
-        </>
-      ),
-      sub: (
-        <>
-          현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          JOBIZIC 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
-        </>
-      ),
-    },
   }
 
-  const selected = userType ? content[userType] : content.DEFAULT
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+  const selected = content[effectiveType]
 
   return (
     <section className="hero">
       <div className="hero-bg" />
       <div className="hero-grid" />
+
+      {/* 타입 선택 토글 (비로그인만) */}
+      {!userType && (
+        <div style={{
+          display: 'flex',
+          gap: 12,
+          justifyContent: 'center',
+          marginBottom: 32,
+          position: 'relative',
+          zIndex: 10
+        }}>
+          <button
+            onClick={() => setSelectedType('JOBSEEKER')}
+            style={{
+              padding: '10px 24px',
+              background: selectedType === 'JOBSEEKER'
+                ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                : 'rgba(255,255,255,0.05)',
+              color: '#ffffff',
+              border: selectedType === 'JOBSEEKER' ? 'none' : '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 12,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            🎯 개인 구직자
+          </button>
+          <button
+            onClick={() => setSelectedType('HEADHUNTER')}
+            style={{
+              padding: '10px 24px',
+              background: selectedType === 'HEADHUNTER'
+                ? 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)'
+                : 'rgba(255,255,255,0.05)',
+              color: '#ffffff',
+              border: selectedType === 'HEADHUNTER' ? 'none' : '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 12,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            💼 헤드헌터
+          </button>
+        </div>
+      )}
 
       <div className="hero-badge">
         <div className="badge-dot" />

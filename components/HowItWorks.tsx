@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import type { RegularUserType } from '@/types/user'
 
 const individualSteps = [
@@ -19,7 +22,21 @@ const headhunterSteps = [
 ]
 
 export default function HowItWorks({ userType }: { userType?: RegularUserType | null }) {
-  const steps = userType === 'HEADHUNTER' ? headhunterSteps : individualSteps
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+  const steps = effectiveType === 'HEADHUNTER' ? headhunterSteps : individualSteps
 
   const content = {
     JOBSEEKER: {
@@ -30,13 +47,9 @@ export default function HowItWorks({ userType }: { userType?: RegularUserType | 
       title: '후보자 분석 (1-4단계)\n+ 시스템 관리 (5단계)',
       sub: '후보자 관련 업무부터 채용 프로세스 관리까지 한 곳에서.',
     },
-    DEFAULT: {
-      title: '5단계로\n서류부터 면접까지 준비됩니다',
-      sub: '복잡한 설정 없이, 이력서 하나만 있으면 됩니다.',
-    },
   }
 
-  const selected = userType ? content[userType] : content.DEFAULT
+  const selected = content[effectiveType]
 
   return (
     <section id="how">

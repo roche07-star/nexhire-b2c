@@ -1,3 +1,8 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import type { RegularUserType } from '@/types/user'
+
 const features = [
   {
     icon: '🔍',
@@ -33,9 +38,22 @@ const features = [
   },
 ]
 
-import type { RegularUserType } from '@/types/user'
-
 export default function Features({ userType }: { userType?: RegularUserType | null }) {
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+
   const content = {
     JOBSEEKER: {
       title: '단순 분석이 아닌\n실행 가능한 인사이트',
@@ -45,13 +63,9 @@ export default function Features({ userType }: { userType?: RegularUserType | nu
       title: '후보자 분석부터\n클라이언트 제안까지 자동화',
       sub: '시간은 후보자 소싱과 관계 구축에 집중하세요. 분석은 AI가 대신합니다.',
     },
-    DEFAULT: {
-      title: '단순 분석이 아닌\n실행 가능한 인사이트',
-      sub: '헤드헌터의 시각으로 이력서를 읽고, AI의 속도로 전략을 제시합니다.',
-    },
   }
 
-  const selected = userType ? content[userType] : content.DEFAULT
+  const selected = content[effectiveType]
 
   return (
     <section id="features">
