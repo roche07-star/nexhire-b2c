@@ -71,6 +71,12 @@ export default function Faq({ userType }: { userType?: RegularUserType | null })
     return 'JOBSEEKER'
   })
 
+  useEffect(() => {
+    const handleTypeChange = (e: CustomEvent) => setSelectedType(e.detail)
+    window.addEventListener('landing_type_change', handleTypeChange as EventListener)
+    return () => window.removeEventListener('landing_type_change', handleTypeChange as EventListener)
+  }, [])
+
   // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
   const effectiveType = userType || selectedType
   const faqs = effectiveType === 'HEADHUNTER' ? headhunterFaqs : individualFaqs

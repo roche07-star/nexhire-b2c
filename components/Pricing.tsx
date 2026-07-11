@@ -79,6 +79,15 @@ export default function Pricing({ userType }: { userType?: RegularUserType | nul
     return 'JOBSEEKER'
   })
 
+  // Hero에서 타입 변경 시 동기화
+  useEffect(() => {
+    const handleTypeChange = (e: CustomEvent) => {
+      setSelectedType(e.detail)
+    }
+    window.addEventListener('landing_type_change', handleTypeChange as EventListener)
+    return () => window.removeEventListener('landing_type_change', handleTypeChange as EventListener)
+  }, [])
+
   // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
   const effectiveType = userType || selectedType
   const plans = effectiveType === 'HEADHUNTER' ? headhunterPlans : individualPlans

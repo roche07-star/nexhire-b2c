@@ -23,10 +23,12 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
     return () => clearInterval(t)
   }, [])
 
-  // 선택한 타입 localStorage에 저장
+  // 선택한 타입 localStorage에 저장 + 커스텀 이벤트 발생
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('landing_user_type', selectedType)
+      // 다른 컴포넌트들에게 타입 변경 알림
+      window.dispatchEvent(new CustomEvent('landing_type_change', { detail: selectedType }))
     }
   }, [selectedType])
 
