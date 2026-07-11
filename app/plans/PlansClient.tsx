@@ -278,7 +278,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
               transition: 'all 0.3s'
             }}
           >
-            {currentPlan === 'FREE' && (
+            {userEmail && currentPlan === 'FREE' && (
               <div style={{
                 position: 'absolute',
                 top: 20,
@@ -360,7 +360,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
               ))}
             </div>
 
-            <Link href="/analyze">
+            <Link href={!userEmail ? '/login?callbackUrl=/analyze' : '/analyze'}>
               <button
                 style={{
                   width: '100%',
@@ -371,13 +371,13 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                   borderRadius: 12,
                   fontSize: 16,
                   fontWeight: 700,
-                  cursor: currentPlan === 'FREE' ? 'default' : 'pointer',
+                  cursor: (userEmail && currentPlan === 'FREE') ? 'default' : 'pointer',
                   transition: 'all 0.3s',
-                  opacity: currentPlan === 'FREE' ? 0.5 : 1
+                  opacity: (userEmail && currentPlan === 'FREE') ? 0.5 : 1
                 }}
-                disabled={currentPlan === 'FREE'}
+                disabled={userEmail && currentPlan === 'FREE'}
               >
-                {currentPlan === 'FREE' ? '현재 사용 중' : '무료로 시작'}
+                {(userEmail && currentPlan === 'FREE') ? '현재 사용 중' : '무료로 시작'}
               </button>
             </Link>
           </div>
@@ -427,7 +427,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                   </div>
                 )}
 
-                {currentPlan === planType && (
+                {userEmail && currentPlan === planType && (
                   <div style={{
                     position: 'absolute',
                     top: 20,
