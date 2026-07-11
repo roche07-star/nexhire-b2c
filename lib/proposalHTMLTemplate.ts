@@ -210,6 +210,10 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
             <div class="info-value editable" contenteditable="true" data-placeholder="연봉을 입력하세요">${proposal.candidate_info?.current_salary || '협의 필요'}</div>
           </div>
           <div class="info-item">
+            <div class="info-label">희망 연봉</div>
+            <div class="info-value editable" contenteditable="true" data-placeholder="희망 연봉을 입력하세요">${proposal.candidate_info?.desired_salary || '협의 필요'}</div>
+          </div>
+          <div class="info-item">
             <div class="info-label">출근 가능</div>
             <div class="info-value editable" contenteditable="true" data-placeholder="입사 가능일을 입력하세요">${proposal.candidate_info?.availability || '협의 후 결정'}</div>
           </div>
