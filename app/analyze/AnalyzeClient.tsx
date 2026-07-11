@@ -292,7 +292,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
   // 🔍 성능 측정 (Option 1 - 미르팀)
   useEffect(() => {
+    console.log('🔍 [디버그] initialLoading:', initialLoading, 'window:', typeof window)
+
     if (!initialLoading && typeof window !== 'undefined') {
+      console.log('✅ [디버그] 성능 측정 시작!')
       // 약간의 지연 후 측정 (모든 리소스 로드 완료 대기)
       setTimeout(() => {
         const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
