@@ -9,12 +9,12 @@ interface SavedTabProps {
   sharingId: string | null
   deletingAnalysisId: string | null
   isPro: boolean
-  userType: string | null
+  userType: string | null | undefined
   userEmail: string | null
   showHiringModal: boolean
   hiringProcessCreating: boolean
   hiringModalTop: number
-  hiringButtonRef: React.RefObject<HTMLButtonElement>
+  hiringButtonRef: React.RefObject<HTMLButtonElement | null>
   hiringJDInfo: {
     candidateName: string
     companyName: string
