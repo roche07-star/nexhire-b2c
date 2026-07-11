@@ -33,7 +33,7 @@ export default function Footer() {
         <div>JOBIZIC | 대표: 박영철</div>
         <div>사업자등록번호: 566-18-02615</div>
         <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
-        <div>전화: 070-8095-5546 | 이메일: jobizic.biz@gmail.com</div>
+        <div>전화: 070-8095-5546 | 이메일: roche@jobizic.com</div>
         <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
       </div>
 
