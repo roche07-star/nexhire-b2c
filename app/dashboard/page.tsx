@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { supabase } from '@/lib/supabase'
 import DashboardClient from './DashboardClient'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -49,19 +48,12 @@ export default async function DashboardPage() {
     redirect('/admin')
   }
 
-  // 사용자 플랜 및 유형 확인
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('plan, user_type')
-    .eq('email', email)
-    .single()
-
-  if (userError || !userData) {
-    redirect('/login')
-  }
+  // 세션에서 직접 가져오기 (DB 쿼리 제거)
+  const plan = session.user.plan ?? 'FREE'
+  const userType = session.user.userType
 
   // 개인 구직자는 /analyze로 리다이렉트
-  if (userData.user_type === 'JOBSEEKER') {
+  if (userType === 'JOBSEEKER') {
     redirect('/analyze')
   }
 
@@ -73,8 +65,8 @@ export default async function DashboardPage() {
       <Suspense fallback={<DashboardSkeleton />}>
         <DashboardClient
           userEmail={email}
-          userPlan={userData.plan}
-          userType={userData.user_type}
+          userPlan={plan}
+          userType={userType}
         />
       </Suspense>
       <Footer />

@@ -4,7 +4,6 @@ import Footer from '@/components/Footer'
 import AnalyzeClient from './AnalyzeClient'
 import ConsentGuard from '@/components/ConsentGuard'
 import { auth } from '@/auth'
-import { supabase } from '@/lib/supabase'
 
 export const metadata = { title: '이력서 분석 — Jobizic' }
 
@@ -49,19 +48,15 @@ export default async function AnalyzePage() {
     const session = await auth()
     if (session?.user?.email) {
       userEmail = session.user.email
-      const role = (session.user as { role?: string }).role ?? 'USER'
-      const { data } = await supabase
-        .from('users')
-        .select('plan, user_type')
-        .eq('email', userEmail)
-        .maybeSingle()
-      const plan = data?.plan ?? 'FREE'
-      userType = data?.user_type ?? null
+      // 세션에서 직접 가져오기 (DB 쿼리 제거)
+      const plan = session.user.plan ?? 'FREE'
+      userType = session.user.userType ?? null
+      const role = session.user.role ?? 'USER'
       isExpert = plan === 'EXPERT' || role === 'MANAGER'
       isPro = plan === 'PRO' || isExpert
     }
   } catch {
-    // auth/DB 에러 시 기본 렌더링
+    // auth 에러 시 기본 렌더링
   }
 
   return (

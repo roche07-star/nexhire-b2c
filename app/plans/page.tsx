@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { supabase } from '@/lib/supabase'
 import PlansClient from './PlansClient'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -18,19 +17,11 @@ export default async function PlansPage() {
   let isSuperAdminOrManager = false
 
   if (session?.user?.email) {
-    // 사용자 정보 조회
-    const { data: userData } = await supabase
-      .from('users')
-      .select('user_type, plan')
-      .eq('email', session.user.email)
-      .single()
-
-    if (userData) {
-      userType = userData.user_type
-      currentPlan = userData.plan
-      // Super Admin 또는 Manager인 경우
-      isSuperAdminOrManager = userData.user_type === 'SUPER_ADMIN' || userData.user_type === 'MANAGER'
-    }
+    // 세션에서 직접 가져오기 (DB 쿼리 제거)
+    userType = session.user.userType ?? null
+    currentPlan = session.user.plan ?? 'FREE'
+    // Super Admin 또는 Manager인 경우
+    isSuperAdminOrManager = userType === 'SUPER_ADMIN' || userType === 'MANAGER'
   }
 
   return (

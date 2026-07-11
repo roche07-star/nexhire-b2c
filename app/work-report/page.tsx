@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import WorkReportClient from './WorkReportClient'
@@ -18,15 +17,12 @@ export default async function WorkReportPage() {
     redirect('/login')
   }
 
-  // 사용자 플랜 조회
-  const { data: userData } = await supabase
-    .from('users')
-    .select('plan, user_type')
-    .eq('email', session.user.email)
-    .single()
+  // 세션에서 직접 가져오기 (DB 쿼리 제거)
+  const plan = session.user.plan ?? 'FREE'
+  const userType = session.user.userType
 
-  const isPro = userData?.plan === 'PRO' || userData?.plan === 'EXPERT'
-  const isHeadhunter = userData?.user_type === 'HEADHUNTER'
+  const isPro = plan === 'PRO' || plan === 'EXPERT'
+  const isHeadhunter = userType === 'HEADHUNTER'
 
   return (
     <>

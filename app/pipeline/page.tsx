@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { supabase } from '@/lib/supabase'
 import PipelineClient from './PipelineClient'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -44,19 +43,11 @@ export default async function PipelinePage() {
 
   const email = session.user.email
 
-  // 사용자 플랜 확인
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('plan')
-    .eq('email', email)
-    .single()
-
-  if (userError || !userData) {
-    redirect('/login')
-  }
+  // 세션에서 직접 가져오기 (DB 쿼리 제거)
+  const plan = session.user.plan ?? 'FREE'
 
   // PRO 플랜 이상만 접근 가능
-  if (userData.plan !== 'PRO' && userData.plan !== 'EXPERT') {
+  if (plan !== 'PRO' && plan !== 'EXPERT') {
     return (
       <>
         <Nav />
@@ -89,7 +80,7 @@ export default async function PipelinePage() {
     <>
       <Nav />
       <Suspense fallback={<PipelineSkeleton />}>
-        <PipelineClient userEmail={email} userPlan={userData.plan} />
+        <PipelineClient userEmail={email} userPlan={plan} />
       </Suspense>
       <Footer />
     </>
