@@ -39,14 +39,14 @@ export default async function Home() {
       <div className="promo-banner">
         <div className="promo-content">
           <span className="promo-text">
-            ⚡ <strong>7월 한정 특가</strong> PRO 플랜 30% 할인
+            ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인
             <span className="promo-price">
-              <span className="price-original">9,900원</span>
+              <span className="price-original">29,700원</span>
               <span className="price-arrow">→</span>
-              <span className="price-sale">6,930원</span>
+              <span className="price-sale">26,700원</span>
             </span>
           </span>
-          <Link href="/payment" className="promo-cta">
+          <Link href="/plans" className="promo-cta">
             지금 시작하기 →
           </Link>
         </div>
