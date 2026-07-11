@@ -1,3 +1,6 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { RegularUserType } from '@/types/user'
 
@@ -68,8 +71,21 @@ const headhunterPlans = [
 ]
 
 export default function Pricing({ userType }: { userType?: RegularUserType | null }) {
-  // 헤드헌터만 headhunterPlans, 나머지(비로그인, 개인, 미선택)는 individualPlans
-  const plans = userType === 'HEADHUNTER' ? headhunterPlans : individualPlans
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+  const plans = effectiveType === 'HEADHUNTER' ? headhunterPlans : individualPlans
 
   const content = {
     JOBSEEKER: {
@@ -80,13 +96,9 @@ export default function Pricing({ userType }: { userType?: RegularUserType | nul
       title: '후보자 분석 시간을\n1/10로 단축하세요',
       sub: '월 정액제로 무제한 분석. 헤드헌터의 시간은 더 가치 있는 곳에.',
     },
-    DEFAULT: {
-      title: '합리적인 가격으로\n커리어를 설계하세요',
-      sub: '첫 분석은 무료. 부담 없이 시작해보세요.', // 비로그인 = 개인 요금제 표시
-    },
   }
 
-  const selected = userType ? content[userType] : content.DEFAULT
+  const selected = content[effectiveType]
 
   return (
     <section id="pricing">

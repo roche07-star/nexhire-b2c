@@ -1,7 +1,24 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { RegularUserType } from '@/types/user'
 
 export default function Cta({ userType }: { userType?: RegularUserType | null }) {
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+
   const content = {
     JOBSEEKER: {
       headline: <>지금 이력서를<br />업로드하세요</>,
@@ -13,14 +30,9 @@ export default function Cta({ userType }: { userType?: RegularUserType | null })
       sub: <>10분이면 후보자 분석부터 클라이언트 제안 전략까지 완성됩니다.<br />첫 분석은 완전 무료입니다.</>,
       btnText: '무료 분석 시작하기 →',
     },
-    DEFAULT: {
-      headline: <>지금 이력서를<br />업로드하세요</>,
-      sub: <>3분이면 커리어 방향과 JD 전략이 명확해집니다.<br />첫 분석은 완전 무료입니다.</>,
-      btnText: '무료 분석 시작하기 →',
-    },
-  } as const
+  }
 
-  const selected = userType && userType in content ? content[userType] : content.DEFAULT
+  const selected = content[effectiveType]
 
   return (
     <div className="cta-section">

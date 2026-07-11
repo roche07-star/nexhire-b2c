@@ -1,4 +1,9 @@
-const personas = [
+'use client'
+
+import { useState, useEffect } from 'react'
+import type { RegularUserType } from '@/types/user'
+
+const jobseekerPersonas = [
   {
     cls: 'before',
     stage: 'Before',
@@ -35,7 +40,59 @@ const personas = [
   },
 ]
 
-export default function Persona() {
+const headhunterPersonas = [
+  {
+    cls: 'before',
+    stage: 'Before',
+    title: '후보자 분석에 시간 쓰는 헤드헌터',
+    items: [
+      '후보자 이력서를 일일이 읽고 정리하는 데 시간 소요',
+      '클라이언트 JD와 후보자 매칭 판단이 주관적',
+      '제안서 작성에 매번 1-2시간씩 투입',
+      '정산 관리를 엑셀로 수동으로 처리',
+    ],
+  },
+  {
+    cls: 'during',
+    stage: 'Jobizic 사용',
+    title: 'JOBIZIC AI가 분석 중',
+    items: [
+      '후보자 이력서 업로드 → 3분 내 강점/약점/연봉 밴드 자동 분석',
+      '클라이언트 JD 입력 → 적합도 점수 + 매칭 포인트 + 리스크 자동 도출',
+      '클라이언트 제안서 자동 생성 → HTML/PDF 다운로드',
+      'JD 맞춤 후보자 이력서 최적화 + 예상 면접 질문 생성',
+      '합격자 정산 자동 계산 + 연도별 목표 달성률 추적',
+    ],
+  },
+  {
+    cls: 'after',
+    stage: 'After',
+    title: '효율적으로 후보자 관리하는 헤드헌터',
+    items: [
+      '후보자 분석 시간 1/10 단축, 소싱에 집중',
+      '객관적 데이터 기반 매칭으로 클라이언트 신뢰 확보',
+      '제안서 자동 생성으로 빠른 후보자 제안',
+      '정산 자동화로 행정 업무 부담 감소',
+    ],
+  },
+]
+
+export default function Persona({ userType }: { userType?: RegularUserType | null }) {
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+  const personas = effectiveType === 'HEADHUNTER' ? headhunterPersonas : jobseekerPersonas
   return (
     <div className="persona-section">
       <div style={{ maxWidth: 1100, margin: '0 auto' }} className="reveal">

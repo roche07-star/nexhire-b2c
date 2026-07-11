@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { RegularUserType } from '@/types/user'
 
 const individualFaqs = [
@@ -63,7 +63,21 @@ const headhunterFaqs = [
 
 export default function Faq({ userType }: { userType?: RegularUserType | null }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null)
-  const faqs = userType === 'HEADHUNTER' ? headhunterFaqs : individualFaqs
+  const [selectedType, setSelectedType] = useState<'JOBSEEKER' | 'HEADHUNTER'>('JOBSEEKER')
+
+  // localStorage에서 선택한 타입 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('landing_user_type')
+      if (saved === 'HEADHUNTER' || saved === 'JOBSEEKER') {
+        setSelectedType(saved)
+      }
+    }
+  }, [])
+
+  // 로그인 사용자는 본인 타입, 비로그인은 선택한 타입
+  const effectiveType = userType || selectedType
+  const faqs = effectiveType === 'HEADHUNTER' ? headhunterFaqs : individualFaqs
 
   return (
     <section id="faq" style={{ maxWidth: 720 }}>
