@@ -12,6 +12,7 @@ import { generateJDReportHTML, downloadJDReport } from '@/lib/jdReportHTMLTempla
 
 // 탭별 동적 import (초기 로딩 최적화)
 const RewriteTab = dynamic(() => import('./RewriteTab'), { ssr: false })
+const SavedTab = dynamic(() => import('./SavedTab'), { ssr: false })
 import type {
   CareerPath,
   AnalysisResult,
@@ -1417,155 +1418,33 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
             {/* 분석 다시보기 모드 */}
             {activeMenu === 'saved' && (
-              <div className="jd-section">
-                {savedSelectedItem ? (
-                  <>
-                    <button className="jd-back-btn" onClick={() => setSavedSelectedItem(null)}>
-                      ← 목록으로
-                    </button>
-                    <div className="analyze-saved-notice">
-                      <span>📂 저장된 분석 결과</span>
-                      <span className="analyze-saved-date">
-                        분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
-                      </span>
-                    </div>
-                    <AnalysisResults
-                      result={savedSelectedItem.result}
-                      analysisId={savedSelectedItem.id}
-                      isPro={isPro}
-                      userType={userType}
-                      userEmail={userEmail}
-                      showHiringModal={showHiringModal}
-                      setShowHiringModal={setShowHiringModal}
-                      hiringProcessCreating={hiringProcessCreating}
-                      setHiringProcessCreating={setHiringProcessCreating}
-                      hiringModalTop={hiringModalTop}
-                      setHiringModalTop={setHiringModalTop}
-                      hiringButtonRef={hiringButtonRef}
-                      hiringJDInfo={hiringJDInfo}
-                      setHiringJDInfo={setHiringJDInfo}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <div className="jd-list-title">분석 결과를 선택하세요</div>
-
-                    {/* 검색/필터 */}
-                    {analysisList && analysisList.length > 0 && (
-                      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                        <input
-                          type="text"
-                          className="form-input"
-                          placeholder="직무명 또는 요약 검색..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          style={{ flex: 1 }}
-                        />
-                        <select
-                          className="form-input"
-                          value={minScore}
-                          onChange={(e) => setMinScore(Number(e.target.value))}
-                          style={{ width: 150 }}
-                        >
-                          <option value={0}>전체 점수</option>
-                          <option value={70}>70점 이상</option>
-                          <option value={80}>80점 이상</option>
-                          <option value={90}>90점 이상</option>
-                        </select>
-                      </div>
-                    )}
-
-                    {savedListLoading ? (
-                      <div className="jd-list-loading">불러오는 중...</div>
-                    ) : !analysisList || analysisList.length === 0 ? (
-                      <div className="jd-no-analysis">저장된 분석 결과가 없습니다. 먼저 이력서를 분석해 주세요.</div>
-                    ) : (() => {
-                        const filteredList = analysisList.filter(item => {
-                          // 검색어 필터
-                          const searchLower = searchQuery.toLowerCase()
-                          const matchesSearch = !searchQuery ||
-                            (item.result.job_title?.toLowerCase().includes(searchLower)) ||
-                            (item.result.summary?.toLowerCase().includes(searchLower))
-
-                          // 점수 필터
-                          const matchesScore = !minScore || (item.result.scores?.job_fit ?? 0) >= minScore
-
-                          return matchesSearch && matchesScore
-                        })
-
-                        return filteredList.length === 0 ? (
-                          <div className="jd-no-analysis">검색 조건에 맞는 분석 결과가 없습니다.</div>
-                        ) : (
-                          <div className="jd-saved-list">
-                            {filteredList.map((item) => (
-                          <div key={item.id} className="jd-saved-card" onClick={() => setSavedSelectedItem(item)}>
-                            <div className="jd-saved-card-left">
-                              <span className="jd-saved-company">
-                                <strong
-                                  style={{
-                                    color: item.result.candidate_name ? '#a78bfa' : '#888',
-                                    marginRight: '8px',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline dotted',
-                                  }}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    const newName = prompt('후보자 이름을 입력하세요:', item.result.candidate_name || '')
-                                    if (newName !== null && newName.trim() !== item.result.candidate_name) {
-                                      fetch(`/api/analysis/${item.id}`, {
-                                        method: 'PATCH',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ candidate_name: newName.trim() })
-                                      }).then(res => {
-                                        if (res.ok) {
-                                          // 목록 새로고침
-                                          window.location.reload()
-                                        } else {
-                                          alert('이름 저장에 실패했습니다.')
-                                        }
-                                      })
-                                    }
-                                  }}
-                                  title="클릭하여 이름 수정"
-                                >
-                                  {item.result.candidate_name || '미정'}
-                                </strong>
-                                {item.result.job_title ?? '이력서 분석'}
-                              </span>
-                              <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
-                            </div>
-                            <div className="jd-saved-card-right">
-                              <span className="jd-saved-score" style={{ color: 'var(--accent)' }}>
-                                {item.result.scores?.job_fit ?? '—'}%
-                              </span>
-                              <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
-                            </div>
-                            <button
-                              className="saved-share-btn"
-                              onClick={(e) => handleShare(item.id, e)}
-                              disabled={sharingId === item.id}
-                              title="공유 URL 복사"
-                              style={{ marginRight: 8 }}
-                            >
-                              {sharingId === item.id ? '⏳' : '🔗'}
-                            </button>
-                            <button
-                              className="saved-delete-btn"
-                              onClick={(e) => handleDeleteAnalysis(item.id, e)}
-                              disabled={deletingAnalysisId === item.id}
-                              title="삭제"
-                            >
-                              {deletingAnalysisId === item.id ? '…' : '×'}
-                            </button>
-                          </div>
-                            ))}
-                          </div>
-                        )
-                      })()
-                    }
-                  </>
-                )}
-              </div>
+              <SavedTab
+                savedSelectedItem={savedSelectedItem}
+                analysisList={analysisList}
+                savedListLoading={savedListLoading}
+                searchQuery={searchQuery}
+                minScore={minScore}
+                sharingId={sharingId}
+                deletingAnalysisId={deletingAnalysisId}
+                isPro={isPro}
+                userType={userType}
+                userEmail={userEmail}
+                showHiringModal={showHiringModal}
+                hiringProcessCreating={hiringProcessCreating}
+                hiringModalTop={hiringModalTop}
+                hiringButtonRef={hiringButtonRef}
+                hiringJDInfo={hiringJDInfo}
+                onSetSavedSelectedItem={setSavedSelectedItem}
+                onSetSearchQuery={setSearchQuery}
+                onSetMinScore={setMinScore}
+                onShare={handleShare}
+                onDelete={handleDeleteAnalysis}
+                onSetShowHiringModal={setShowHiringModal}
+                onSetHiringProcessCreating={setHiringProcessCreating}
+                onSetHiringModalTop={setHiringModalTop}
+                onSetHiringJDInfo={setHiringJDInfo}
+                AnalysisResults={AnalysisResults}
+              />
             )}
 
             {/* Re-Writing 모드 */}
