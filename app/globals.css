@@ -20,6 +20,7 @@ body {
   color: #ffffff !important;
   font-family: 'Noto Sans KR', sans-serif;
   overflow-x: hidden;
+  cursor: auto !important;
 }
 
 /* NAV */
