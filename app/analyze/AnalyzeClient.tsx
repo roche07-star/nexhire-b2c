@@ -2658,7 +2658,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </div>
                       <div className="loading-progress-text">{Math.round(progress)}%</div>
                     </div>
-                    <div className="loading-text">{loadingMsg || 'JOBIZIC 헤드헌터가 이력서를 검토하고 있습니다...'}</div>
+                    <div className="loading-text">{loadingMsg || 'JOBIZIC이 이력서를 검토하고 있습니다...'}</div>
                     <div className="loading-time">약 {estimatedTime}초 소요 예상</div>
                     <div className="loading-background-notice">
                       💡 <strong>백그라운드로 실행 중</strong> - 다른 탭으로 이동하셔도 됩니다. 완료 시 알림을 보내드립니다.

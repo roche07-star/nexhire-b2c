@@ -18,7 +18,7 @@ const jobseekerPersonas = [
   {
     cls: 'during',
     stage: 'Jobizic 사용',
-    title: 'JOBIZIC 헤드헌터가 분석 중',
+    title: 'JOBIZIC이 분석 중',
     items: [
       '이력서 업로드 → 3분 내 분석 완료 (개인정보 자동 마스킹)',
       '직무 적합도/시장 경쟁력/성장 가능성 점수 + 커리어 경로 3가지',

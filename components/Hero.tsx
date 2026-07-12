@@ -45,7 +45,7 @@ export default function Hero({ userType }: { userType?: RegularUserType | null }
       sub: (
         <>
           현직에 있으면서 조용히 이직을 준비 중이라면.<br />
-          JOBIZIC 헤드헌터가 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
+          JOBIZIC이 내 이력서를 분석하고, 지원할 회사/직무/연봉 전략까지 설계합니다.
         </>
       ),
     },
