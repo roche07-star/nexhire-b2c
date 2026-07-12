@@ -69,8 +69,8 @@ function ConsentPageContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    // skip-type이 아닐 때만 user_type 검증
-    if (!skipType && !userType) {
+    // user_type 필수 검증
+    if (!userType) {
       setError('사용자 유형을 선택해주세요.')
       return
     }
@@ -152,7 +152,7 @@ function ConsentPageContent() {
         )}
 
         <form onSubmit={handleSubmit} className="consent-form">
-          {/* 사용자 유형 선택 */}
+          {/* 사용자 유형 선택 - skip-type일 때도 user_type이 없으면 표시 */}
           {!userType && (
             <div className="user-type-form">
               <div className="user-type-cards">
