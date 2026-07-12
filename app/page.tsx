@@ -10,7 +10,7 @@ import Faq from '@/components/Faq'
 import Cta from '@/components/Cta'
 import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
-import Link from 'next/link'
+import PromoBanner from '@/components/PromoBanner'
 
 export default async function Home() {
   const session = await auth()
@@ -34,24 +34,7 @@ export default async function Home() {
   return (
     <>
       <ScrollReveal />
-
-      {/* 7월 한정 할인 배너 */}
-      <div className="promo-banner">
-        <div className="promo-content">
-          <span className="promo-text">
-            ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인
-            <span className="promo-price">
-              <span className="price-original">29,700원</span>
-              <span className="price-arrow">→</span>
-              <span className="price-sale">26,700원</span>
-            </span>
-          </span>
-          <Link href="/plans" className="promo-cta">
-            지금 시작하기 →
-          </Link>
-        </div>
-      </div>
-
+      <PromoBanner />
       <Nav />
       <Hero userType={userType} />
       <HowItWorks userType={userType} />

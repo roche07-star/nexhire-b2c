@@ -4246,6 +4246,7 @@ footer.footer-container {
   nav {
     padding: 6px 10px;
     gap: 5px;
+    top: 100px;
   }
   .nav-logo-icon { width: 18px; height: 18px; }
   .nav-logo-text { font-size: 11px; letter-spacing: 0.3px; }
@@ -4264,7 +4265,7 @@ footer.footer-container {
   }
 
   /* HERO */
-  .hero { padding: 50px 10px 25px; }
+  .hero { padding: 140px 10px 25px; }
   .hero h1 { font-size: clamp(22px, 7vw, 36px); margin-bottom: 10px; }
   .hero-sub { font-size: 11px; margin-bottom: 18px; }
   .hero-badge {
@@ -5174,8 +5175,7 @@ footer.footer-container {
    프로모션 배너 (최상단 고정)
    ═══════════════════════════════════════════════════════ */
 .promo-banner {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   padding: 20px 20px 12px 20px;
@@ -5189,6 +5189,25 @@ footer.footer-container {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.promo-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  line-height: 1;
+}
+
+.promo-close:hover {
+  opacity: 1;
 }
 
 .promo-text {
@@ -5246,12 +5265,17 @@ footer.footer-container {
 /* 모바일 최적화 */
 @media (max-width: 768px) {
   .promo-banner {
-    padding: 16px 16px 10px 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 40px 12px 16px;
+    z-index: 200;
   }
 
   .promo-content {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     text-align: center;
   }
 
@@ -5273,6 +5297,13 @@ footer.footer-container {
     width: 100%;
     padding: 10px 20px;
   }
+
+  .promo-close {
+    top: 8px;
+    right: 8px;
+    font-size: 18px;
+  }
+}
 }
 
 /* MODAL */
