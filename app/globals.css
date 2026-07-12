@@ -5120,6 +5120,21 @@ footer.footer-container {
   .mobile-only {
     display: block;
   }
+
+  /* 햄버거 버튼을 로고 옆으로 이동 */
+  .nav-links {
+    order: -1;
+    margin-left: 8px;
+  }
+
+  .nav-logo {
+    order: -2;
+  }
+
+  .nav-cta {
+    order: 0;
+    margin-left: auto;
+  }
 }
 
 /* 인사이트 반응형 레이아웃 */
