@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import * as PortOne from '@portone/browser-sdk/v2'
+import { loadTossPayments } from '@tosspayments/payment-sdk'
+import type { PaymentGateway } from '@/lib/payment-gateway'
 
 interface Product {
   id: string
@@ -135,11 +137,14 @@ interface Props {
   isManager: boolean
   userEmail: string | null
   userName: string | null
+  paymentGateway: PaymentGateway
 }
 
-export default function StoreClient({ isManager, userEmail, userName }: Props) {
+export default function StoreClient({ isManager, userEmail, userName, paymentGateway }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  console.log('[StoreClient] Payment Gateway:', paymentGateway)
 
   async function handlePurchase(product: Product) {
     if (isProcessing) return
@@ -154,62 +159,87 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
     setSelectedProduct(null)
 
     try {
-      // Step 1: 서버에 결제 준비 요청
-      const prepareRes = await fetch('/api/store/prepare', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: product.id,
-          productName: product.name,
-          feature: product.feature,
+      if (paymentGateway === 'TOSS') {
+        // 토스페이먼츠 결제 흐름
+        const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY
+        if (!clientKey) {
+          throw new Error('토스페이먼츠 클라이언트 키가 없습니다.')
+        }
+
+        const tossPayments = await loadTossPayments(clientKey)
+
+        const timestamp = Date.now()
+        const randomStr = Math.random().toString(36).substring(2, 8)
+        const orderId = `store_${product.feature}_${timestamp}_${randomStr}`
+
+        await tossPayments.requestPayment('카드', {
           amount: product.price,
-        })
-      })
-
-      if (!prepareRes.ok) {
-        const errorData = await prepareRes.json()
-        throw new Error(errorData.error || '결제 준비 실패')
-      }
-
-      const { paymentId, orderId } = await prepareRes.json()
-
-      // Step 2: PortOne 결제창 호출
-      const response = await PortOne.requestPayment({
-        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
-        paymentId,
-        orderName: product.name,
-        totalAmount: product.price,
-        currency: 'KRW',
-        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
-        payMethod: 'CARD',
-        customer: {
-          email: userEmail,
-        },
-      })
-
-      // Step 3: 결제 결과 처리
-      if (response && 'code' in response) {
-        // 결제 실패
-        throw new Error(response.message || '결제가 취소되었습니다')
-      }
-
-      // Step 4: 서버에 결제 검증 요청
-      const verifyRes = await fetch('/api/store/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentId,
           orderId,
+          orderName: product.name,
+          successUrl: `${window.location.origin}/store/toss-success`,
+          failUrl: `${window.location.origin}/store/fail`,
+          customerEmail: userEmail,
+          customerName: userName || '고객',
         })
-      })
+      } else {
+        // PortOne 결제 흐름 (기존)
+        // Step 1: 서버에 결제 준비 요청
+        const prepareRes = await fetch('/api/store/prepare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: product.id,
+            productName: product.name,
+            feature: product.feature,
+            amount: product.price,
+          })
+        })
 
-      if (!verifyRes.ok) {
-        const errorData = await verifyRes.json()
-        throw new Error(errorData.error || '결제 검증 실패')
+        if (!prepareRes.ok) {
+          const errorData = await prepareRes.json()
+          throw new Error(errorData.error || '결제 준비 실패')
+        }
+
+        const { paymentId, orderId } = await prepareRes.json()
+
+        // Step 2: PortOne 결제창 호출
+        const response = await PortOne.requestPayment({
+          storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
+          paymentId,
+          orderName: product.name,
+          totalAmount: product.price,
+          currency: 'KRW',
+          channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
+          payMethod: 'CARD',
+          customer: {
+            email: userEmail,
+          },
+        })
+
+        // Step 3: 결제 결과 처리
+        if (response && 'code' in response) {
+          // 결제 실패
+          throw new Error(response.message || '결제가 취소되었습니다')
+        }
+
+        // Step 4: 서버에 결제 검증 요청
+        const verifyRes = await fetch('/api/store/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentId,
+            orderId,
+          })
+        })
+
+        if (!verifyRes.ok) {
+          const errorData = await verifyRes.json()
+          throw new Error(errorData.error || '결제 검증 실패')
+        }
+
+        // 결제 성공 → 완료 페이지로 이동
+        window.location.href = `/store/success?orderId=${orderId}`
       }
-
-      // 결제 성공 → 완료 페이지로 이동
-      window.location.href = `/store/success?orderId=${orderId}`
 
     } catch (err: any) {
       console.error('Payment error:', err)
@@ -329,7 +359,9 @@ export default function StoreClient({ isManager, userEmail, userName }: Props) {
                 </ul>
 
                 <div className="modal-notice">
-                  <p>💳 NHN KCP 안전 결제</p>
+                  <p>
+                    {paymentGateway === 'TOSS' ? '💳 토스페이먼츠 안전 결제' : '💳 NHN KCP 안전 결제'}
+                  </p>
                   <p>결제 완료 후 즉시 쿠폰이 발급됩니다 (유효기간 3개월)</p>
                 </div>
               </div>

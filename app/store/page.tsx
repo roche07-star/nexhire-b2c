@@ -2,6 +2,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import StoreClient from './StoreClient'
 import { auth } from '@/auth'
+import { getPaymentGatewayMode } from '@/lib/payment-gateway'
 
 export const metadata = { title: 'STORE — Jobizic' }
 
@@ -21,10 +22,19 @@ export default async function StorePage() {
     // ignore auth errors
   }
 
+  // 결제 게이트웨이 모드 확인
+  const gateway = await getPaymentGatewayMode()
+  console.log('[Store Page] Gateway mode:', gateway)
+
   return (
     <>
       <Nav />
-      <StoreClient isManager={isManager} userEmail={userEmail} userName={userName} />
+      <StoreClient
+        isManager={isManager}
+        userEmail={userEmail}
+        userName={userName}
+        paymentGateway={gateway}
+      />
       <Footer />
     </>
   )
