@@ -5268,13 +5268,18 @@ footer.footer-container {
 
 /* 모바일 최적화 */
 @media (max-width: 768px) {
-  /* 모바일: 상단 배너 숨김, 하단 배너만 표시 */
+  /* 모바일: 상단 배너 숨김, 하단에 고정 */
   .promo-banner-desktop {
     display: none;
   }
 
   .promo-banner-mobile-bottom {
     display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
   }
 
   .promo-banner {
