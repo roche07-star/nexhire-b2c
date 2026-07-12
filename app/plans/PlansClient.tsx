@@ -114,7 +114,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
   const content = {
     JOBSEEKER: {
       title: '나에게 맞는 플랜을\n선택하세요',
-      subtitle: '합리적인 가격으로 커리어를 설계하고, 이직 성공률을 높이세요',
+      subtitle: '합리적인 가격으로 커리어를 설계하고,\n이직 성공률을 높이세요',
       badge: '🎯 개인 구직자',
       buttonLabel: <>🎯 개인 구직자<br/>플랜</>,
     },
@@ -251,7 +251,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           marginBottom: 80,
           lineHeight: 1.6,
           maxWidth: 600,
-          margin: '0 auto 80px'
+          margin: '0 auto 80px',
+          whiteSpace: 'pre-line'
         }}>
           {selected.subtitle}
         </p>
