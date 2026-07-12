@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 /**
@@ -17,11 +17,20 @@ export default function ConsentGuard({ children }: { children: React.ReactNode }
   const { data: session, status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [checking, setChecking] = useState(true)
   const [hasConsent, setHasConsent] = useState(false)
 
   useEffect(() => {
     async function checkConsent() {
+      // 방금 동의 완료한 경우 체크 건너뛰기 (무한 루프 방지)
+      if (searchParams.get('just-consented') === 'true') {
+        console.log('[ConsentGuard] Just consented, skipping check')
+        setHasConsent(true)
+        setChecking(false)
+        return
+      }
+
       // 로딩 중이거나 비로그인 상태면 패스
       if (status === 'loading' || status === 'unauthenticated') {
         setChecking(false)
@@ -83,7 +92,7 @@ export default function ConsentGuard({ children }: { children: React.ReactNode }
     }
 
     checkConsent()
-  }, [session, status, pathname, router])
+  }, [session, status, pathname, router, searchParams])
 
   // 체크 중이거나 동의하지 않은 경우 로딩 표시
   if (checking || (status === 'authenticated' && !hasConsent)) {

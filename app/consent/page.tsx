@@ -113,8 +113,8 @@ function ConsentPageContent() {
         throw new Error(data.error || '동의 처리 실패')
       }
 
-      // 동의 완료 후 리다이렉트 (세션 갱신을 위해 /api/after-login 경유)
-      window.location.href = '/api/after-login'
+      // 동의 완료 후 리다이렉트 - ConsentGuard 우회를 위해 플래그 추가
+      window.location.href = '/analyze?just-consented=true'
 
     } catch (err: any) {
       console.error(err)
