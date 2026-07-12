@@ -10,10 +10,9 @@ interface NavLinksProps {
   isHeadhunter: boolean
   isManager: boolean
   isSuperAdmin: boolean
-  isLoggedIn: boolean
 }
 
-export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin, isLoggedIn }: NavLinksProps) {
+export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin }: NavLinksProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -31,11 +30,7 @@ export default function NavLinks({ isPro, isHeadhunter, isManager, isSuperAdmin,
     }
   }
 
-  const menuItems = !isLoggedIn
-    ? [
-        { href: '/plans', label: '플랜정책' },
-      ]
-    : isSuperAdmin
+  const menuItems = isSuperAdmin
     ? [
         { href: '/admin', label: '관리자' },
         { href: '/admin/settlements', label: '정산' },
