@@ -432,8 +432,77 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           )}
 
           {/* ────────────────────────────────────── */}
-          {/* 개인 구직자: Tab 2 = 업무 Report */}
-          {/* 헤드헌터: Tab 2 = 클라이언터 제안서 */}
+          {/* 공통: Tab 2 = 이력서 생성 */}
+          {/* ────────────────────────────────────── */}
+          {demoTab === 2 && (
+            <>
+              <div className="jd-demo-company-bar">
+                <span className="jd-demo-co">✏️ JD 맞춤 이력서 생성</span>
+                <span className="jd-demo-pos">토스 PM 포지션 최적화</span>
+              </div>
+
+              <div className="results-label" style={{ marginBottom: 10 }}>
+                💡 JD 분석 결과를 바탕으로 <strong>합격 확률을 높이는 이력서</strong>를 AI가 자동 생성합니다
+              </div>
+
+              <div className="demo-summary-block">
+                <p className="result-summary">
+                  기존 이력서의 <strong>핵심 강점은 유지</strong>하면서, <strong>부족한 부분은 보완</strong>하고, <strong>JD 키워드에 맞춰 재구성</strong>합니다.
+                  PRD 작성 경험 부재를 포트폴리오로 보완하고, GTM 성과를 숫자 중심으로 재작성합니다.
+                </p>
+              </div>
+
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="results-section">
+                  <div className="results-label">📌 개선 포인트 (JD 분석 기반)</div>
+                  <ul className="result-list">
+                    <li><strong>PRD 경험 부재</strong> → 사이드 프로젝트 PRD 샘플 추가 권장</li>
+                    <li><strong>GTM 성과 모호함</strong> → "MQL 220건, 전환율 28%, SQL 40% 개선" 등 구체적 수치로 재작성</li>
+                    <li><strong>B2C 경험 없음</strong> → 토스 앱 분석 경험 추가 (면접 대비)</li>
+                  </ul>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">📝 AI 생성 이력서 — Before/After</div>
+
+                  <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ padding: '12px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                      <div style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600, marginBottom: 6 }}>❌ BEFORE (기존)</div>
+                      <div style={{ fontSize: '13px', lineHeight: 1.6 }}>
+                        <strong>B2B SaaS 마케팅 매니저</strong> (2024.03 ~ 현재)<br/>
+                        • GTM 전략 수립 및 실행<br/>
+                        • 리드 생성 캠페인 운영<br/>
+                        • 데이터 분석을 통한 성과 개선
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: 'rgba(34,197,94,0.1)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                      <div style={{ fontSize: '11px', color: '#22c55e', fontWeight: 600, marginBottom: 6 }}>✅ AFTER (AI 최적화)</div>
+                      <div style={{ fontSize: '13px', lineHeight: 1.6 }}>
+                        <strong>B2B SaaS Growth Marketing Manager</strong> (2024.03 ~ 현재)<br/>
+                        • <strong>GTM 전략 0→1 설계·실행</strong>: ICP 정의 후 LinkedIn + 콜드 이메일 시퀀스 구축, 6개월간 <strong>MQL 220건 생성, SQL 전환율 28% 달성</strong><br/>
+                        • <strong>데이터 기반 퍼널 최적화</strong>: SQL 직접 작성해 병목 구간 분석, ABM 캠페인 도입으로 <strong>전환율 +40% 개선</strong><br/>
+                        • <strong>OKR 기반 성과 관리</strong>: 주간 대시보드 구축, 팀 KPI 달성률 92% 유지
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="results-section">
+                  <div className="results-label">🎯 추가 권장사항</div>
+                  <ul className="result-list">
+                    <li>포트폴리오: 가상의 토스 신기능 PRD 1건 작성 (GitHub 또는 Notion 링크)</li>
+                    <li>자기소개서: "마케터에서 PM으로 전환하는 이유" 맥락 명확히 서술</li>
+                    <li>면접 준비: 토스 최신 기능 10개 분석 후 PMF 관점 답변 준비</li>
+                  </ul>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ────────────────────────────────────── */}
+          {/* 개인 구직자: Tab 3 = 업무 Report */}
+          {/* 헤드헌터: Tab 3 = 클라이언터 제안서 */}
           {/* ────────────────────────────────────── */}
           {demoTab === 3 && !isHeadhunter && (
             <>
