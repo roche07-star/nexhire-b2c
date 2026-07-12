@@ -44,13 +44,20 @@ export default async function PaymentPage({
   // 결제 게이트웨이 모드 확인
   const gateway = await getPaymentGatewayMode()
 
-  // 모드에 따라 다른 결제 클라이언트 렌더링
-  const PaymentComponent = gateway === 'TOSS' ? TossPaymentClient : PortOnePaymentClient
+  console.log('[Payment Page] Gateway mode:', gateway)
+  console.log('[Payment Page] Product:', productId)
 
-  return (
-    <PaymentComponent
-      product={product}
-      userEmail={session.user.email}
-    />
-  )
+  // 모드에 따라 다른 결제 클라이언트 렌더링
+  if (gateway === 'TOSS') {
+    console.log('[Payment Page] Using TossPaymentClient')
+    return <TossPaymentClient />
+  } else {
+    console.log('[Payment Page] Using PortOnePaymentClient')
+    return (
+      <PortOnePaymentClient
+        product={product}
+        userEmail={session.user.email}
+      />
+    )
+  }
 }
