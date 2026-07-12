@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
-export default function PromoBanner() {
+export default function PromoBanner({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
 
@@ -24,7 +24,7 @@ export default function PromoBanner() {
   // 마운트 전에는 항상 표시 (SSR 일치)
   if (!mounted) {
     return (
-      <div className="promo-banner">
+      <div className={`promo-banner${className ? ' ' + className : ''}`}>
         <div className="promo-content">
           <span className="promo-text">
             ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인
@@ -48,7 +48,7 @@ export default function PromoBanner() {
   if (!isVisible) return null
 
   return (
-    <div className="promo-banner">
+    <div className={`promo-banner${className ? ' ' + className : ''}`}>
       <div className="promo-content">
         <span className="promo-text">
           ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인

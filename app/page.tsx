@@ -34,7 +34,7 @@ export default async function Home() {
   return (
     <>
       <ScrollReveal />
-      <PromoBanner />
+      <PromoBanner className="promo-banner-desktop" />
       <Nav />
       <Hero userType={userType} />
       <HowItWorks userType={userType} />
@@ -43,6 +43,9 @@ export default async function Home() {
       <Pricing userType={userType} />
       <Faq userType={userType} />
       <Cta userType={userType} />
+      <div className="promo-banner-mobile-bottom">
+        <PromoBanner />
+      </div>
       <Footer />
     </>
   )
