@@ -5688,3 +5688,20 @@ footer.footer-container {
   }
 }
 
+
+/* 플랜 페이지 모바일 최적화 */
+@media (max-width: 768px) {
+  .plans-hero {
+    padding: 100px 20px 40px !important;
+  }
+
+  .plans-hero h1 {
+    font-size: 28px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .plans-hero p {
+    font-size: 14px !important;
+    margin-bottom: 40px !important;
+  }
+}

@@ -113,14 +113,16 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
 
   const content = {
     JOBSEEKER: {
-      title: '나에게 맞는 플랜을 선택하세요',
+      title: '나에게 맞는 플랜을\n선택하세요',
       subtitle: '합리적인 가격으로 커리어를 설계하고, 이직 성공률을 높이세요',
       badge: '🎯 개인 구직자',
+      buttonLabel: <>🎯 개인 구직자<br/>플랜</>,
     },
     HEADHUNTER: {
-      title: '비즈니스를 위한 최적의 플랜',
+      title: '비즈니스를 위한\n최적의 플랜',
       subtitle: '후보자 분석 시간을 1/10로 단축하고, 매칭 정확도를 높이세요',
       badge: '💼 헤드헌터',
+      buttonLabel: <>💼 헤드헌터<br/>플랜</>,
     },
   }
 
@@ -146,7 +148,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
       }} />
 
       {/* Hero Section */}
-      <section style={{
+      <section className="plans-hero" style={{
         padding: '140px 24px 80px',
         maxWidth: 1200,
         margin: '0 auto',
@@ -201,10 +203,11 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                 fontSize: 14,
                 fontWeight: 700,
                 cursor: 'pointer',
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                lineHeight: 1.5
               }}
             >
-              🎯 개인 구직자 플랜
+              {content.JOBSEEKER.buttonLabel}
             </button>
             <button
               onClick={() => setViewType('HEADHUNTER')}
@@ -219,10 +222,11 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                 fontSize: 14,
                 fontWeight: 700,
                 cursor: 'pointer',
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                lineHeight: 1.5
               }}
             >
-              💼 헤드헌터 플랜
+              {content.HEADHUNTER.buttonLabel}
             </button>
           </div>
         )}
@@ -234,7 +238,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
           color: '#ffffff',
           marginBottom: 20,
           letterSpacing: '-0.03em',
-          lineHeight: 1.2
+          lineHeight: 1.2,
+          whiteSpace: 'pre-line'
         }}>
           {selected.title}
         </h1>
