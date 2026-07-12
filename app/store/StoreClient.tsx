@@ -176,7 +176,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           amount: product.price,
           orderId,
           orderName: product.name,
-          successUrl: `${window.location.origin}/store/toss-success`,
+          successUrl: `${window.location.origin}/store/success`,
           failUrl: `${window.location.origin}/store/fail`,
           customerEmail: userEmail,
           customerName: userName || '고객',

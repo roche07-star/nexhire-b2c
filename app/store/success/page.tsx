@@ -15,38 +15,53 @@ function SuccessPageContent() {
       const paymentKey = searchParams.get('paymentKey')
       const amount = searchParams.get('amount')
 
-      console.log('결제 확인 시작:', { orderId, paymentKey, amount })
+      console.log('[Store Success] 결제 확인 시작:', { orderId, paymentKey, amount })
 
-      if (!orderId || !paymentKey || !amount) {
-        console.error('결제 정보 누락:', { orderId, paymentKey, amount })
+      if (!orderId) {
+        console.error('[Store Success] orderId 누락')
+        setError('결제 정보가 올바르지 않습니다.')
+        setIsProcessing(false)
+        return
+      }
+
+      // PortOne 결제 (이미 verify에서 쿠폰 발급 완료)
+      if (!paymentKey) {
+        console.log('[Store Success] PortOne 결제 - 이미 처리 완료')
+        setIsProcessing(false)
+        return
+      }
+
+      // 토스페이먼츠 결제 - confirm 호출 필요
+      if (!amount) {
+        console.error('[Store Success] 토스페이먼츠인데 amount 누락:', { orderId, paymentKey, amount })
         setError('결제 정보가 올바르지 않습니다.')
         setIsProcessing(false)
         return
       }
 
       try {
-        console.log('API 호출 시작: /api/store/confirm')
+        console.log('[Store Success] 토스페이먼츠 API 호출: /api/store/confirm')
         const res = await fetch('/api/store/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, paymentKey, amount }),
         })
 
-        console.log('API 응답 상태:', res.status)
+        console.log('[Store Success] API 응답 상태:', res.status)
         const data = await res.json()
-        console.log('API 응답 데이터:', data)
+        console.log('[Store Success] API 응답 데이터:', data)
 
         if (!res.ok) {
-          console.error('API 오류:', data)
+          console.error('[Store Success] API 오류:', data)
           setError(data.error || '결제 처리 중 오류가 발생했습니다.')
           setIsProcessing(false)
           return
         }
 
-        console.log('결제 확인 완료')
+        console.log('[Store Success] 결제 확인 완료')
         setIsProcessing(false)
       } catch (err) {
-        console.error('결제 확인 오류:', err)
+        console.error('[Store Success] 결제 확인 오류:', err)
         setError('결제 처리 중 오류가 발생했습니다.')
         setIsProcessing(false)
       }

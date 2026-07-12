@@ -2,61 +2,29 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
+import { type Product } from '@/lib/products'
 
-function PaymentPageContent() {
+interface TossPaymentClientProps {
+  product: Product
+  userEmail: string
+}
+
+function PaymentPageContent({ product, userEmail }: TossPaymentClientProps) {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const tossPaymentsRef = useRef<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [currentPlan, setCurrentPlan] = useState<string>('FREE')
 
   const userType = session?.user?.userType
-  const plan = searchParams.get('plan') || 'PRO' // URL 파라미터로 플랜 확인
+  const plan = product.id // 'PRO' 또는 'EXPERT'
 
   // 플랜 비교
   const planHierarchy: Record<string, number> = { FREE: 0, PRO: 1, EXPERT: 2 }
-  const isDowngrade = planHierarchy[currentPlan] > planHierarchy[plan]
-  const isSamePlan = currentPlan === plan
-
-  // 가격 계산 (플랜 + userType 기준)
-  const getPriceInfo = () => {
-    const isHeadhunter = userType === 'HEADHUNTER'
-
-    if (plan === 'EXPERT') {
-      // EXPERT 플랜
-      if (isHeadhunter) {
-        return {
-          original: 49900,
-          discounted: 34930, // 30% 할인
-          name: 'JOBIZIC EXPERT (헤드헌터)',
-        }
-      }
-      return {
-        original: 29900,
-        discounted: 20930, // 30% 할인
-        name: 'JOBIZIC EXPERT (구직자)',
-      }
-    }
-
-    // PRO 플랜 (기본)
-    if (isHeadhunter) {
-      return {
-        original: 19900,
-        discounted: 13930,
-        name: 'JOBIZIC PRO (헤드헌터)',
-      }
-    }
-    return {
-      original: 9900,
-      discounted: 6930,
-      name: 'JOBIZIC PRO (구직자)',
-    }
-  }
-
-  const priceInfo = getPriceInfo()
+  const isDowngrade = planHierarchy[currentPlan] > planHierarchy[product.plan]
+  const isSamePlan = currentPlan === product.plan
 
   useEffect(() => {
     // 세션 로딩 중이면 대기
@@ -113,20 +81,17 @@ function PaymentPageContent() {
     if (!tossPaymentsRef.current) return
 
     try {
-      // orderId: 영문, 숫자, -, _ 만 허용 (6-64자)
-      // plan 정보를 orderId에 포함 (정산 시스템 연동)
       const timestamp = Date.now()
       const randomStr = Math.random().toString(36).substring(2, 8)
-      const orderId = `order_${plan}_${timestamp}_${randomStr}`
-      const orderName = priceInfo.name
+      const orderId = `order_${product.id}_${timestamp}_${randomStr}`
 
       await tossPaymentsRef.current.requestPayment('카드', {
-        amount: priceInfo.discounted,
+        amount: product.price,
         orderId,
-        orderName,
+        orderName: product.name,
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
-        customerEmail: session?.user?.email,
+        customerEmail: userEmail,
         customerName: session?.user?.name || '고객',
       })
     } catch (error) {
@@ -174,18 +139,20 @@ function PaymentPageContent() {
             marginBottom: 12,
           }}>
             <span style={{ color: 'var(--muted2)' }}>상품</span>
-            <span style={{ fontWeight: 600 }}>{priceInfo.name}</span>
+            <span style={{ fontWeight: 600 }}>{product.name}</span>
           </div>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: 12,
-          }}>
-            <span style={{ color: 'var(--muted2)' }}>정가</span>
-            <span style={{ textDecoration: 'line-through', color: 'var(--muted2)' }}>
-              {priceInfo.original.toLocaleString()}원
-            </span>
-          </div>
+          {product.originalPrice && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: 12,
+            }}>
+              <span style={{ color: 'var(--muted2)' }}>정가</span>
+              <span style={{ textDecoration: 'line-through', color: 'var(--muted2)' }}>
+                {product.originalPrice.toLocaleString()}원
+              </span>
+            </div>
+          )}
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -194,21 +161,23 @@ function PaymentPageContent() {
           }}>
             <span style={{ fontSize: 18, fontWeight: 700 }}>결제 금액</span>
             <span style={{ fontSize: 24, fontWeight: 700, color: '#ef4444' }}>
-              {priceInfo.discounted.toLocaleString()}원
+              {product.price.toLocaleString()}원
             </span>
           </div>
-          <div style={{
-            marginTop: 8,
-            padding: 8,
-            background: 'rgba(239, 68, 68, 0.1)',
-            borderRadius: 6,
-            textAlign: 'center',
-            fontSize: 13,
-            color: '#ef4444',
-            fontWeight: 600,
-          }}>
-            🎉 7월 한정 30% 할인 적용
-          </div>
+          {product.discount && (
+            <div style={{
+              marginTop: 8,
+              padding: 8,
+              background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: 6,
+              textAlign: 'center',
+              fontSize: 13,
+              color: '#ef4444',
+              fontWeight: 600,
+            }}>
+              🎉 {product.discount}% 할인 적용
+            </div>
+          )}
         </div>
 
         {/* 결제 위젯 */}
@@ -225,7 +194,7 @@ function PaymentPageContent() {
             color: 'var(--muted2)',
           }}>
             현재 플랜: <strong style={{ color: 'var(--text)' }}>{currentPlan}</strong>
-            {isSamePlan && ' → 만료일 30일 연장'}
+            {isSamePlan && ` → ${product.duration}개월 연장`}
             {isDowngrade && ' (다운그레이드는 설정에서 가능합니다)'}
           </div>
         )}
@@ -248,8 +217,8 @@ function PaymentPageContent() {
         >
           {isLoading ? '로딩 중...' :
            isDowngrade ? '다운그레이드 불가' :
-           isSamePlan ? `${priceInfo.discounted.toLocaleString()}원 결제하기 (연장)` :
-           `${priceInfo.discounted.toLocaleString()}원 결제하기`}
+           isSamePlan ? `${product.price.toLocaleString()}원 결제하기 (연장)` :
+           `${product.price.toLocaleString()}원 결제하기`}
         </button>
 
         {/* 안내 문구 */}
@@ -276,10 +245,10 @@ function PaymentPageContent() {
   )
 }
 
-export default function PaymentPage() {
+export default function TossPaymentClient({ product, userEmail }: TossPaymentClientProps) {
   return (
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>로딩 중...</div>}>
-      <PaymentPageContent />
+      <PaymentPageContent product={product} userEmail={userEmail} />
     </Suspense>
   )
 }

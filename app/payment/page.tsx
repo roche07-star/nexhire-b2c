@@ -50,7 +50,12 @@ export default async function PaymentPage({
   // 모드에 따라 다른 결제 클라이언트 렌더링
   if (gateway === 'TOSS') {
     console.log('[Payment Page] Using TossPaymentClient')
-    return <TossPaymentClient />
+    return (
+      <TossPaymentClient
+        product={product}
+        userEmail={session.user.email}
+      />
+    )
   } else {
     console.log('[Payment Page] Using PortOnePaymentClient')
     return (
