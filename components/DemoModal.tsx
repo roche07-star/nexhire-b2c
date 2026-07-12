@@ -143,6 +143,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
   const jobseekerTabs = [
     { icon: '📊', label: '이력서 분석' },
     { icon: '📋', label: 'JD 적합도' },
+    { icon: '✏️', label: '이력서 생성' },
     { icon: '📝', label: '업무 Report' },
     { icon: '🎤', label: '면접 가이드' },
   ]
@@ -150,6 +151,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
   const headhunterTabs = [
     { icon: '👤', label: '후보자 분석' },
     { icon: '📋', label: 'JD 매칭' },
+    { icon: '✏️', label: '이력서 생성' },
     { icon: '📄', label: '클라이언트 제안서' },
     { icon: '🎤', label: '면접 가이드' },
     { icon: '📊', label: '채용 프로세스', badge: '⚙️' },
@@ -166,7 +168,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
         <div className="demo-modal-header">
           <div className="section-label">SAMPLE ANALYSIS — EXPERT</div>
           <h2 className="demo-modal-title">
-            {isHeadhunter && demoTab < 4
+            {isHeadhunter && demoTab < 5
               ? <>
                   후보자: 김OO (30세, 여){' '}
                   <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '18px' }}>
@@ -184,7 +186,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             }
           </h2>
           <p className="demo-modal-sub">
-            {isHeadhunter && demoTab >= 4
+            {isHeadhunter && demoTab >= 5
               ? '여러 후보자와 포지션의 채용 프로세스를 통합 관리하고, 합격자 정산을 자동 계산합니다.'
               : isHeadhunter
                 ? '실제 분석 결과는 업로드한 후보자 이력서 내용에 따라 달라집니다.'
@@ -196,9 +198,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
         <div className="demo-feature-tabs" style={isHeadhunter ? { flexDirection: 'column' } : undefined}>
           {isHeadhunter ? (
             <>
-              {/* 후보자 분석 그룹 (0-3) */}
+              {/* 후보자 분석 그룹 (0-4) */}
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                {tabs.slice(0, 4).map((t, i) => (
+                {tabs.slice(0, 5).map((t, i) => (
                   <button
                     key={i}
                     className={`demo-feature-tab${demoTab === i ? ' active' : ''}`}
@@ -229,13 +231,13 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
               </div>
 
-              {/* 시스템 관리 그룹 (4-5) */}
+              {/* 시스템 관리 그룹 (5-6) */}
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-                {tabs.slice(4).map((t, i) => (
+                {tabs.slice(5).map((t, i) => (
                   <button
-                    key={i + 4}
-                    className={`demo-feature-tab${demoTab === i + 4 ? ' active' : ''}`}
-                    onClick={() => setDemoTab(i + 4)}
+                    key={i + 5}
+                    className={`demo-feature-tab${demoTab === i + 5 ? ' active' : ''}`}
+                    onClick={() => setDemoTab(i + 5)}
                   >
                     {t.icon} {t.label}
                   </button>
@@ -433,7 +435,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           {/* 개인 구직자: Tab 2 = 업무 Report */}
           {/* 헤드헌터: Tab 2 = 클라이언터 제안서 */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 2 && !isHeadhunter && (
+          {demoTab === 3 && !isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">📝 업무 Report 관리</span>
@@ -491,7 +493,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {demoTab === 4 && isHeadhunter && (
+          {demoTab === 5 && isHeadhunter && (
             <>
               <div className="results-label" style={{ marginBottom: 10 }}>📊 채용 프로세스 관리 (⚙️ 시스템 기능)</div>
 
@@ -640,7 +642,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           {/* 개인 구직자: Tab 3 = 면접 가이드 */}
           {/* 헤드헌터: Tab 2 = 클라이언트 제안서 */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 3 && !isHeadhunter && (
+          {demoTab === 4 && !isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
@@ -718,7 +720,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
             </>
           )}
 
-          {demoTab === 2 && isHeadhunter && (
+          {demoTab === 3 && isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
@@ -792,7 +794,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           {/* ────────────────────────────────────── */}
           {/* 헤드헌터: Tab 3 = 면접 가이드 */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 3 && isHeadhunter && (
+          {demoTab === 4 && isHeadhunter && (
             <>
               <div className="jd-demo-company-bar">
                 <span className="jd-demo-co">🏢 {jdDemo.company}</span>
@@ -877,7 +879,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           {/* ────────────────────────────────────── */}
           {/* 헤드헌터: Tab 5 = 정산 기능 (시스템 관리) */}
           {/* ────────────────────────────────────── */}
-          {demoTab === 5 && isHeadhunter && (
+          {demoTab === 6 && isHeadhunter && (
             <>
               <div className="results-label" style={{ marginBottom: 10 }}>💰 정산 기능 (⚙️ 시스템 기능)</div>
 
