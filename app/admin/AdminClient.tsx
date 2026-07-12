@@ -43,7 +43,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'tokens' | 'audit-logs'
+type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'tokens' | 'audit-logs'
 
 interface Stats {
   total: number
@@ -123,6 +123,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   })
   const [announcementModalTab, setAnnouncementModalTab] = useState<'edit' | 'preview'>('edit')
 
+  // 결제 게이트웨이 설정 state
+  const [paymentMode, setPaymentMode] = useState<'TEST' | 'REAL'>('TEST')
+  const [paymentGatewayLoading, setPaymentGatewayLoading] = useState(false)
+
   // Phase 1: 유저 목록 로드
   async function loadUsers() {
     setUsersLoading(true)
@@ -167,6 +171,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
 
   useEffect(() => {
     loadStats()
+    loadPaymentGatewayMode()
   }, [])
 
   async function openUserDetail(email: string) {
@@ -421,6 +426,55 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     }
   }
 
+  // 결제 게이트웨이 모드 불러오기
+  async function loadPaymentGatewayMode() {
+    if (!isSuperAdmin) return
+
+    try {
+      const res = await fetch('/api/admin/payment-gateway')
+      const data = await res.json()
+      if (res.ok) {
+        setPaymentMode(data.mode)
+      }
+    } catch (err) {
+      console.error('Failed to load payment gateway mode:', err)
+    }
+  }
+
+  // 결제 게이트웨이 모드 변경
+  async function changePaymentGatewayMode(newMode: 'TEST' | 'REAL') {
+    if (!isSuperAdmin) return
+
+    const confirmMsg = newMode === 'REAL'
+      ? '⚠️ 실결제 모드(PortOne)로 전환하시겠습니까?\n실제 결제가 진행됩니다!'
+      : '테스트 모드(토스페이먼츠)로 전환하시겠습니까?'
+
+    if (!confirm(confirmMsg)) return
+
+    setPaymentGatewayLoading(true)
+    try {
+      const res = await fetch('/api/admin/payment-gateway', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: newMode })
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setPaymentMode(newMode)
+        setMsg(data.message || '결제 게이트웨이 모드가 변경되었습니다.')
+        setTimeout(() => setMsg(null), 3000)
+      } else {
+        alert(data.error || '모드 변경 실패')
+      }
+    } catch (err) {
+      console.error('Failed to change payment gateway mode:', err)
+      alert('모드 변경 중 오류가 발생했습니다.')
+    } finally {
+      setPaymentGatewayLoading(false)
+    }
+  }
+
   // 공지사항 생성/수정
   async function handleSaveAnnouncement() {
     try {
@@ -599,6 +653,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
           {isSuperAdmin && (
             <>
+              <button className={`admin-tab-btn${tab === 'payment-gateway' ? ' active' : ''}`} onClick={() => onTabChange('payment-gateway')}>💳 결제 설정</button>
               <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
               <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
             </>
@@ -1544,6 +1599,109 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               </>
             )}
           </>
+        )}
+
+        {/* 결제 게이트웨이 설정 */}
+        {tab === 'payment-gateway' && isSuperAdmin && (
+          <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <div style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              marginBottom: 24
+            }}>
+              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>💳 결제 게이트웨이 설정</h2>
+              <p style={{ color: '#666', marginBottom: 24 }}>
+                테스트 모드와 실결제 모드를 전환할 수 있습니다.
+              </p>
+
+              <div style={{
+                background: paymentMode === 'REAL' ? '#fef2f2' : '#f0f9ff',
+                border: `2px solid ${paymentMode === 'REAL' ? '#fecaca' : '#bfdbfe'}`,
+                borderRadius: 12,
+                padding: 20,
+                marginBottom: 24
+              }}>
+                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>
+                  {paymentMode === 'REAL' ? '🔴 실결제 모드 (PortOne)' : '🟢 테스트 모드 (토스페이먼츠)'}
+                </div>
+                <div style={{ fontSize: 14, color: '#666' }}>
+                  {paymentMode === 'REAL'
+                    ? '실제 결제가 진행됩니다. 고객에게 요금이 청구됩니다.'
+                    : '테스트 결제만 가능합니다. 실제 요금이 청구되지 않습니다.'}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  onClick={() => changePaymentGatewayMode('TEST')}
+                  disabled={paymentMode === 'TEST' || paymentGatewayLoading}
+                  style={{
+                    flex: 1,
+                    padding: '16px 24px',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: paymentMode === 'TEST' ? '2px solid #3b82f6' : '2px solid #e5e7eb',
+                    background: paymentMode === 'TEST' ? '#eff6ff' : '#fff',
+                    color: paymentMode === 'TEST' ? '#3b82f6' : '#666',
+                    cursor: paymentMode === 'TEST' || paymentGatewayLoading ? 'not-allowed' : 'pointer',
+                    opacity: paymentMode === 'TEST' || paymentGatewayLoading ? 0.6 : 1,
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  🧪 테스트 모드
+                  <div style={{ fontSize: 12, fontWeight: 400, marginTop: 4 }}>토스페이먼츠</div>
+                </button>
+
+                <button
+                  onClick={() => changePaymentGatewayMode('REAL')}
+                  disabled={paymentMode === 'REAL' || paymentGatewayLoading}
+                  style={{
+                    flex: 1,
+                    padding: '16px 24px',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: paymentMode === 'REAL' ? '2px solid #ef4444' : '2px solid #e5e7eb',
+                    background: paymentMode === 'REAL' ? '#fef2f2' : '#fff',
+                    color: paymentMode === 'REAL' ? '#ef4444' : '#666',
+                    cursor: paymentMode === 'REAL' || paymentGatewayLoading ? 'not-allowed' : 'pointer',
+                    opacity: paymentMode === 'REAL' || paymentGatewayLoading ? 0.6 : 1,
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  💰 실결제 모드
+                  <div style={{ fontSize: 12, fontWeight: 400, marginTop: 4 }}>PortOne</div>
+                </button>
+              </div>
+
+              {paymentGatewayLoading && (
+                <div style={{ textAlign: 'center', marginTop: 16, color: '#666' }}>
+                  모드 변경 중...
+                </div>
+              )}
+            </div>
+
+            {/* 안내 사항 */}
+            <div style={{
+              background: '#fffbeb',
+              border: '2px solid #fef3c7',
+              borderRadius: 12,
+              padding: 20
+            }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#92400e' }}>
+                ⚠️ 주의사항
+              </div>
+              <ul style={{ margin: 0, paddingLeft: 20, color: '#78350f', lineHeight: 1.8 }}>
+                <li>실결제 모드로 전환 시 즉시 고객에게 실제 요금이 청구됩니다.</li>
+                <li>테스트가 완료된 후에만 실결제 모드로 전환하세요.</li>
+                <li>모드 변경은 즉시 반영되며, 모든 결제 페이지에 적용됩니다.</li>
+                <li>변경 이력은 접근 로그에 기록됩니다.</li>
+              </ul>
+            </div>
+          </div>
         )}
 
         {tab === 'coupons' && (

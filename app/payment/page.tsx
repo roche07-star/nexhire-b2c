@@ -1,8 +1,10 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import PaymentClient from './PaymentClient'
+import TossPaymentClient from './TossPaymentClient'
+import PortOnePaymentClient from './PortOnePaymentClient'
 import { getProductById, type ProductId } from '@/lib/products'
 import { supabase } from '@/lib/supabase'
+import { getPaymentGatewayMode } from '@/lib/payment-gateway'
 
 export default async function PaymentPage({
   searchParams,
@@ -39,8 +41,14 @@ export default async function PaymentPage({
     redirect('/plans')
   }
 
+  // 결제 게이트웨이 모드 확인
+  const gateway = await getPaymentGatewayMode()
+
+  // 모드에 따라 다른 결제 클라이언트 렌더링
+  const PaymentComponent = gateway === 'TOSS' ? TossPaymentClient : PortOnePaymentClient
+
   return (
-    <PaymentClient
+    <PaymentComponent
       product={product}
       userEmail={session.user.email}
     />
