@@ -113,8 +113,18 @@ function ConsentPageContent() {
         throw new Error(data.error || '동의 처리 실패')
       }
 
-      // 동의 완료 후 리다이렉트 - ConsentGuard 우회를 위해 플래그 추가
-      window.location.href = '/analyze?just-consented=true'
+      // 동의 완료 후 세션 갱신을 위해 잠시 대기 후 리다이렉트
+      console.log('[consent] Consent saved, waiting for session refresh...')
+
+      // ConsentGuard 우회를 위해 플래그 저장
+      localStorage.setItem('just_consented', 'true')
+
+      // 세션 갱신을 위해 1초 대기
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // 동의 완료 후 리다이렉트
+      console.log('[consent] Redirecting to analyze...')
+      window.location.href = '/analyze'
 
     } catch (err: any) {
       console.error(err)
