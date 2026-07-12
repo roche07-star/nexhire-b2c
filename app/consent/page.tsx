@@ -25,10 +25,8 @@ function ConsentPageContent() {
     // skip-type=true면 DB에서 user_type 조회
     if (skipType) {
       fetchExistingUserType()
-    } else {
-      // 이미 동의한 사용자인지 체크
-      checkExistingConsent()
     }
+    // checkExistingConsent() 제거 - 무한 루프 방지
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipType])
 
@@ -113,17 +111,8 @@ function ConsentPageContent() {
         throw new Error(data.error || '동의 처리 실패')
       }
 
-      // 동의 완료 후 세션 갱신을 위해 잠시 대기 후 리다이렉트
-      console.log('[consent] Consent saved, waiting for session refresh...')
-
-      // ConsentGuard 우회를 위해 플래그 저장
-      localStorage.setItem('just_consented', 'true')
-
-      // 세션 갱신을 위해 1초 대기
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // 동의 완료 후 리다이렉트
-      console.log('[consent] Redirecting to analyze...')
+      // 동의 완료 후 바로 리다이렉트
+      console.log('[consent] Consent saved, redirecting to analyze...')
       window.location.href = '/analyze'
 
     } catch (err: any) {

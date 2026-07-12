@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import AnalyzeClient from './AnalyzeClient'
-import ConsentGuard from '@/components/ConsentGuard'
 import { auth } from '@/auth'
 
 export const metadata = { title: '이력서 분석 — Jobizic' }
@@ -60,7 +59,7 @@ export default async function AnalyzePage() {
   }
 
   return (
-    <ConsentGuard>
+    <>
       <Nav />
       <Suspense fallback={<AnalyzeSkeleton />}>
         <AnalyzeClient
@@ -71,6 +70,6 @@ export default async function AnalyzePage() {
         />
       </Suspense>
       <Footer />
-    </ConsentGuard>
+    </>
   )
 }
