@@ -5182,9 +5182,13 @@ footer.footer-container {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* PC: 하단 배너 숨김 */
-.promo-banner-mobile-bottom {
-  display: none;
+/* PC: 하단 배너 sticky */
+.promo-banner-bottom {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
 }
 
 .promo-content {
@@ -5269,18 +5273,9 @@ footer.footer-container {
 
 /* 모바일 최적화 */
 @media (max-width: 768px) {
-  /* 모바일: 상단 배너 숨김, 하단에 고정 */
-  .promo-banner-desktop {
-    display: none;
-  }
-
-  .promo-banner-mobile-bottom {
-    display: block;
+  /* 모바일: 하단에 fixed */
+  .promo-banner-bottom {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 200;
   }
 
   .promo-banner {
