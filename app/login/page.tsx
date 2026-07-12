@@ -20,7 +20,7 @@ export default function LoginPage() {
 
         <div className="login-headline">
           <h1 className="login-title">커리어를 설계하세요</h1>
-          <p className="login-sub">이력서 분석부터 JD 매칭까지, JOBIZIC이 도와드립니다</p>
+          <p className="login-sub">이력서 분석, JD매칭, 그리고 이력서 생성까지{'\n'}JOBIZIC이 도와 드립니다</p>
         </div>
 
         <div className="login-divider" />

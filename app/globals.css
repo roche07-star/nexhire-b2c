@@ -863,7 +863,7 @@ footer.footer-container {
   margin: 0;
   letter-spacing: -0.5px;
 }
-.login-sub { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.6; }
+.login-sub { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.6; white-space: pre-line; }
 .login-divider {
   width: 100%;
   height: 1px;
