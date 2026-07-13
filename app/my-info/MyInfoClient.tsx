@@ -44,23 +44,9 @@ const FEATURE_LINKS: Record<string, string> = {
 }
 
 export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
-  const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
+  const [coupons] = useState<CouponWithDetails[]>(initialCoupons)
 
-  // 페이지 진입 시 최신 쿠폰 데이터 가져오기
-  useEffect(() => {
-    const fetchLatestCoupons = async () => {
-      try {
-        const res = await fetch('/api/coupons/mine')
-        if (res.ok) {
-          const data = await res.json()
-          setCoupons(data.coupons || [])
-        }
-      } catch (e) {
-        console.error('Failed to fetch coupons:', e)
-      }
-    }
-    fetchLatestCoupons()
-  }, [])
+  // useEffect 제거: 서버에서 이미 최신 데이터를 가져옴
 
   const isExpired = (expiresAt: string | null) => {
     if (!expiresAt) return false
