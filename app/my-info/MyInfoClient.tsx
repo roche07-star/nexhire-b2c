@@ -18,6 +18,7 @@ interface Payment {
   paid_at: string
   transaction_id: string | null
   description: string | null
+  payment_gateway?: string | null
 }
 
 interface Props {
@@ -365,21 +366,24 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                       거래 ID: {payment.transaction_id || '-'}
                     </div>
 
-                    <button
-                      onClick={() => window.open(`/api/receipt/${payment.id}`, '_blank')}
-                      style={{
-                        padding: '8px 16px',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      📄 영수증 보기
-                    </button>
+                    {/* REAL 모드 결제만 영수증 보기 */}
+                    {payment.payment_gateway === 'portone' && (
+                      <button
+                        onClick={() => window.open(`/api/receipt/${payment.id}`, '_blank')}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 8,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        📄 영수증 보기
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
