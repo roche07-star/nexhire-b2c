@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { sendPaymentNotification } from '@/lib/telegram'
 
 /**
  * STORE 상품 결제 확인 및 쿠폰 발급
@@ -203,6 +204,20 @@ export async function POST(req: NextRequest) {
 
         coupons.push(coupon)
       }
+    }
+
+    // 텔레그램 알림 전송
+    try {
+      await sendPaymentNotification({
+        type: 'coupon',
+        userEmail: session.user.email,
+        productName,
+        amount: Number(amount),
+        gateway: '토스페이먼츠 (TEST)',
+      })
+    } catch (err) {
+      console.error('텔레그램 알림 전송 실패:', err)
+      // 알림 실패해도 결제는 성공으로 처리
     }
 
     return NextResponse.json({

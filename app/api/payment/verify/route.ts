@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { getProductById } from '@/lib/products'
+import { sendPaymentNotification } from '@/lib/telegram'
 
 export async function POST(req: NextRequest) {
   try {
@@ -121,6 +122,20 @@ export async function POST(req: NextRequest) {
     if (orderUpdateError) {
       console.error('Order update error:', orderUpdateError)
       // 플랜은 업데이트되었으므로 에러는 로그만 남기고 성공 반환
+    }
+
+    // 텔레그램 알림 전송
+    try {
+      await sendPaymentNotification({
+        type: 'plan',
+        userEmail: session.user.email,
+        productName: product.name,
+        amount: product.price,
+        gateway: 'PortOne (REAL)',
+      })
+    } catch (err) {
+      console.error('텔레그램 알림 전송 실패:', err)
+      // 알림 실패해도 결제는 성공으로 처리
     }
 
     return NextResponse.json({

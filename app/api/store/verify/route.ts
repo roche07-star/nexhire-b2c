@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { sendPaymentNotification } from '@/lib/telegram'
 
 export async function POST(req: NextRequest) {
   try {
@@ -199,6 +200,20 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error('결제 내역 저장 실패:', err)
       // 로그만 남기고 계속 진행
+    }
+
+    // 텔레그램 알림 전송
+    try {
+      await sendPaymentNotification({
+        type: 'coupon',
+        userEmail: session.user.email,
+        productName: order.product_name,
+        amount: order.amount,
+        gateway: 'PortOne (REAL)',
+      })
+    } catch (err) {
+      console.error('텔레그램 알림 전송 실패:', err)
+      // 알림 실패해도 결제는 성공으로 처리
     }
 
     return NextResponse.json({
