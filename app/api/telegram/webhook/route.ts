@@ -6,12 +6,12 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function POST(req: NextRequest) {
   try {
-    // Secret Token 검증 (임시 비활성화 - Chat ID 확인용)
-    // const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
-    // if (secretToken !== process.env.TELEGRAM_SECRET_TOKEN) {
-    //   console.error('[Telegram Webhook] Invalid secret token')
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Secret Token 검증
+    const secretToken = req.headers.get('x-telegram-bot-api-secret-token')
+    if (secretToken !== process.env.TELEGRAM_SECRET_TOKEN) {
+      console.error('[Telegram Webhook] Invalid secret token')
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     const body = await req.json()
     console.log('[Telegram Webhook] ========================================')
