@@ -10,6 +10,14 @@ const FEATURE_LABEL: Record<string, string> = {
 const USAGE_LABEL: Record<string, string> = {
   analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서',
 }
+const FEATURE_LINKS: Record<string, string> = {
+  resume: '/analyze',
+  jd: '/analyze',
+  rewrite: '/analyze',
+  interview: '/analyze',
+  proposal: '/analyze',
+  storage: '/analyze',
+}
 
 // ✅ 중앙 타입 사용
 type CouponItem = Pick<CouponWithStatus, 'id' | 'code' | 'feature' | 'status' | 'expires_at' | 'claimed_at' | 'used_at'>
@@ -526,7 +534,14 @@ export default function MyInfoButton() {
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {info.coupons.map(c => (
-                          <div key={c.id} style={{
+                          <div
+                            key={c.id}
+                            onClick={() => {
+                              if (c.status === 'active') {
+                                window.location.href = FEATURE_LINKS[c.feature] || '/analyze'
+                              }
+                            }}
+                            style={{
                             background: '#fafafa',
                             border: '1px solid #f1f5f9',
                             borderRadius: 12,
@@ -536,8 +551,23 @@ export default function MyInfoButton() {
                             alignItems: 'flex-start',
                             flexWrap: 'wrap',
                             gap: 12,
-                            position: 'relative'
-                          }}>
+                            position: 'relative',
+                            cursor: c.status === 'active' ? 'pointer' : 'default',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (c.status === 'active') {
+                              e.currentTarget.style.transform = 'translateY(-2px)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)'
+                              e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)'
+                            e.currentTarget.style.boxShadow = 'none'
+                            e.currentTarget.style.borderColor = '#f1f5f9'
+                          }}
+                          >
                             <div style={{ flex: 1, minWidth: 200 }}>
                               <code style={{
                                 background: '#18181b',
