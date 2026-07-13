@@ -46,10 +46,6 @@ const FEATURE_LINKS: Record<string, string> = {
 export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
   const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
 
-  // 🔍 디버깅: payments 데이터 확인
-  console.log('[MyInfoClient] Received payments:', payments)
-  console.log('[MyInfoClient] Payments count:', payments.length)
-
   // 페이지 진입 시 최신 쿠폰 데이터 가져오기
   useEffect(() => {
     const fetchLatestCoupons = async () => {
@@ -166,27 +162,26 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {coupons
-                .filter(coupon => !coupon.used_at && remainingCredits(coupon) > 0)  // used_at 있으면 사용 완료
-                .map((coupon) => {
+              {coupons.map((coupon) => {
                 const expired = isExpired(coupon.expires_at)
                 const remaining = remainingCredits(coupon)
+                const isUsed = coupon.used_at || remaining <= 0
 
                 return (
                   <div
                     key={coupon.id}
                     onClick={() => {
-                      if (!expired && remaining > 0) {
+                      if (!expired && !isUsed && remaining > 0) {
                         window.location.href = FEATURE_LINKS[coupon.feature] || '/analyze'
                       }
                     }}
                     style={{
-                      background: expired ? 'var(--surface2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
-                      border: expired ? '1px solid var(--border)' : '1px solid rgba(59, 130, 246, 0.3)',
+                      background: (expired || isUsed) ? 'var(--surface2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
+                      border: (expired || isUsed) ? '1px solid var(--border)' : '1px solid rgba(59, 130, 246, 0.3)',
                       borderRadius: 12,
                       padding: 20,
-                      opacity: expired ? 0.6 : 1,
-                      cursor: (!expired && remaining > 0) ? 'pointer' : 'default',
+                      opacity: (expired || isUsed) ? 0.6 : 1,
+                      cursor: (!expired && !isUsed && remaining > 0) ? 'pointer' : 'default',
                       transition: 'transform 0.2s, box-shadow 0.2s',
                     }}
                     onMouseEnter={(e) => {
@@ -229,18 +224,20 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                         alignItems: 'flex-end',
                         gap: 8,
                       }}>
-                        {!expired && remaining > 0 && (
-                          <div style={{
-                            padding: '4px 12px',
-                            background: 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
-                            color: '#fff',
-                            borderRadius: 6,
-                            fontSize: 12,
-                            fontWeight: 700,
-                          }}>
-                            사용 가능
-                          </div>
-                        )}
+                        <div style={{
+                          padding: '4px 12px',
+                          background: isUsed
+                            ? '#9ca3af'
+                            : expired
+                            ? '#ef4444'
+                            : 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+                          color: '#fff',
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}>
+                          {isUsed ? '사용 완료' : expired ? '만료' : '사용 가능'}
+                        </div>
                         <div style={{
                           fontSize: 13,
                           color: 'var(--muted2)',
@@ -262,7 +259,11 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                         fontSize: 13,
                         color: 'var(--muted2)',
                       }}>
-                        {expired ? (
+                        {isUsed ? (
+                          <span style={{ color: '#9ca3af', fontWeight: 600 }}>
+                            ✓ 사용 완료
+                          </span>
+                        ) : expired ? (
                           <span style={{ color: '#ef4444', fontWeight: 600 }}>
                             ⚠️ 만료됨
                           </span>
@@ -275,7 +276,7 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                       <div style={{
                         fontSize: 16,
                         fontWeight: 700,
-                        color: expired ? 'var(--muted2)' : '#3b82f6',
+                        color: (isUsed || expired) ? 'var(--muted2)' : '#3b82f6',
                       }}>
                         남은 횟수: {remaining}회
                       </div>
@@ -301,23 +302,6 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
           }}>
             💳 결제 내역
           </h2>
-
-          {/* 🔍 디버깅: 데이터 표시 */}
-          <div style={{
-            background: '#fef3c7',
-            border: '2px solid #f59e0b',
-            borderRadius: 8,
-            padding: 16,
-            marginBottom: 16,
-            fontSize: 13,
-            fontFamily: 'monospace'
-          }}>
-            <div style={{ fontWeight: 700, marginBottom: 8 }}>🔍 디버깅 정보:</div>
-            <div>Payments 개수: {payments.length}</div>
-            <div style={{ marginTop: 8, maxHeight: 200, overflow: 'auto' }}>
-              {JSON.stringify(payments, null, 2)}
-            </div>
-          </div>
 
           {payments.length === 0 ? (
             <div style={{
