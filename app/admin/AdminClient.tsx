@@ -667,24 +667,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     return d.toLocaleDateString('ko-KR')
   }
 
-  function usageCell(count: number, plan: string, feature: 'analyze' | 'jd' | 'rewrite' | 'interview') {
-    const limit = PLAN_LIMITS[plan]?.[feature] ?? 0
-    if (limit === 0) return <span className="admin-count muted">—</span>
-    const remaining = Math.max(0, limit - count)
-    const pct = Math.min(100, Math.round((count / limit) * 100))
-    const cls = pct >= 100 ? 'full' : pct >= 70 ? 'warn' : ''
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-        <span className={`admin-count ${cls}`}>
-          {count}<span className="admin-count-limit">/{limit}</span>
-        </span>
-        <span style={{ fontSize: '11px', color: remaining === 0 ? '#ff4444' : '#999' }}>
-          {remaining}회 남음
-        </span>
-      </div>
-    )
-  }
-
   const filteredUsers = showOnlyHeadhunterSharing
     ? users.filter((u) => u.headhunter_sharing_enabled === true && u.user_type !== 'SUPER_ADMIN')
     : users.filter((u) => u.user_type !== 'SUPER_ADMIN')
