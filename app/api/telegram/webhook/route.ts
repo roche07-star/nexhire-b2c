@@ -28,9 +28,11 @@ export async function POST(req: NextRequest) {
       console.log('[Telegram Webhook] Username:', username)
       console.log('[Telegram Webhook] Text:', text)
 
-      // 환영 메시지 응답 (선택사항)
+      // 명령어 처리
       if (text === '/start') {
         await sendMessage(chatId, '안녕하세요! Jobizic 알림 봇입니다.\n결제 완료 시 자동으로 알림을 보내드립니다.')
+      } else if (text === '/chatid') {
+        await sendMessage(chatId, `🆔 당신의 Chat ID:\n\n<code>${chatId}</code>\n\n(이 숫자를 복사해서 관리자에게 전달하세요)`)
       }
     }
 
