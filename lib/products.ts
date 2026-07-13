@@ -34,10 +34,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'PRO',
     userType: 'JOBSEEKER',
     features: [
-      '이력서 분석 15회',
-      'JD 분석 15회',
-      '리라이팅 10회',
-      '면접 가이드 5회'
+      '이력서 분석 20회',
+      'JD 분석 20회',
+      '리라이팅 15회',
+      '면접 가이드 10회'
     ]
   },
   'jobseeker-pro-3m': {
@@ -50,10 +50,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'PRO',
     userType: 'JOBSEEKER',
     features: [
-      '이력서 분석 15회/월',
-      'JD 분석 15회/월',
-      '리라이팅 10회/월',
-      '면접 가이드 5회/월'
+      '이력서 분석 20회/월',
+      'JD 분석 20회/월',
+      '리라이팅 15회/월',
+      '면접 가이드 10회/월'
     ]
   },
 
@@ -66,10 +66,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'EXPERT',
     userType: 'JOBSEEKER',
     features: [
-      '이력서 분석 30회',
-      'JD 분석 30회',
+      '이력서 분석 50회',
+      'JD 분석 50회',
       '리라이팅 30회',
-      '면접 가이드 15회'
+      '면접 가이드 20회'
     ]
   },
   'jobseeker-expert-3m': {
@@ -82,10 +82,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'EXPERT',
     userType: 'JOBSEEKER',
     features: [
-      '이력서 분석 30회/월',
-      'JD 분석 30회/월',
+      '이력서 분석 50회/월',
+      'JD 분석 50회/월',
       '리라이팅 30회/월',
-      '면접 가이드 15회/월'
+      '면접 가이드 20회/월'
     ]
   },
 
@@ -134,7 +134,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     features: [
       '이력서 분석 50회',
       'JD 분석 50회',
-      '리라이팅 50회',
+      '리라이팅 25회',
       '면접 가이드 25회',
       '제안서 50회'
     ]
@@ -151,7 +151,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     features: [
       '이력서 분석 50회/월',
       'JD 분석 50회/월',
-      '리라이팅 50회/월',
+      '리라이팅 25회/월',
       '면접 가이드 25회/월',
       '제안서 50회/월'
     ]
