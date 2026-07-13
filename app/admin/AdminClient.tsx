@@ -23,6 +23,7 @@ interface User {
   downgrade_requested_at: string | null
   status: 'active' | 'withdrawing' | 'withdrawn'
   withdraw_requested_at: string | null
+  extra_credits?: Record<string, number> | null
 }
 
 // ✅ 중앙 타입 사용
@@ -1052,6 +1053,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : (() => {
                           const limits = PLAN_LIMITS[u.plan]
+                          const extraCredits = (u.extra_credits as Record<string, number> | null) || {}
                           return (
                             <div style={{
                               display: 'flex',
@@ -1060,10 +1062,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                               gap: 2,
                               fontSize: 12
                             }}>
-                              <div>📝 {u.analyze_count ?? 0}/{limits.analyze}</div>
-                              <div>📋 {u.jd_count ?? 0}/{limits.jd}</div>
-                              <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite}</div>
-                              <div>🎤 {u.interview_count ?? 0}/{limits.interview}</div>
+                              <div>📝 {u.analyze_count ?? 0}/{limits.analyze + (extraCredits.resume || 0)}</div>
+                              <div>📋 {u.jd_count ?? 0}/{limits.jd + (extraCredits.jd || 0)}</div>
+                              <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
+                              <div>🎤 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
                             </div>
                           )
                         })()}

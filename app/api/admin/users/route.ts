@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   // 기본 쿼리 (현재 관리자 제외, 탈퇴 완료한 사용자만 제외, withdrawing은 포함)
   let query = supabase
     .from('users')
-    .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at, status, withdraw_requested_at', { count: 'exact' })
+    .select('email, name, image, plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, monthly_reset_at, created_at, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, downgrade_requested_at, status, withdraw_requested_at, extra_credits', { count: 'exact' })
     .neq('email', session.user.email)
     .neq('status', 'withdrawn')
 
