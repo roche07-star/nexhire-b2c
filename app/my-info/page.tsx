@@ -16,11 +16,16 @@ export default async function MyInfoPage() {
   }
 
   // 쿠폰 조회 (claimed_by로 조회)
-  const { data: coupons } = await supabase
+  const { data: coupons, error: couponsError } = await supabase
     .from('coupons')
     .select('*')
     .eq('claimed_by', session.user.email)
+    .is('deleted_at', null)  // 삭제되지 않은 쿠폰만
     .order('created_at', { ascending: false })
+
+  console.log('[MyInfo] Coupons count:', coupons?.length || 0)
+  console.log('[MyInfo] Coupons:', coupons)
+  console.log('[MyInfo] Coupons error:', couponsError)
 
   // 결제 내역 조회 (성공한 결제만, 취소/환불 제외)
   const { data: payments, error: paymentsError } = await supabase
