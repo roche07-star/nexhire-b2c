@@ -8,7 +8,7 @@ import Link from 'next/link'
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const [isProcessing, setIsProcessing] = useState(true)
   const [error, setError] = useState('')
   const [plan, setPlan] = useState('PRO')
@@ -54,6 +54,8 @@ function PaymentSuccessContent() {
 
         if (data.plan) {
           setPlan(data.plan)
+          // 세션 갱신 (UI에 즉시 반영)
+          await update()
         }
         setIsProcessing(false)
       } catch (err: any) {
