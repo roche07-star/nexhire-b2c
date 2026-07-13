@@ -86,6 +86,46 @@ ${emoji} <b>${typeLabel} 완료</b>
 }
 
 /**
+ * 관리자에게 환불 알림 전송
+ */
+export async function sendRefundNotification(data: {
+  type: 'plan' | 'coupon'
+  userEmail: string
+  productName: string
+  amount: number
+  reason?: string
+  transactionId: string
+}): Promise<boolean> {
+  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID
+
+  if (!adminChatId) {
+    console.log('[Telegram] TELEGRAM_ADMIN_CHAT_ID not configured')
+    return false
+  }
+
+  const emoji = '🔄'
+  const typeLabel = data.type === 'plan' ? '플랜' : '쿠폰'
+
+  const text = `
+${emoji} <b>환불 처리 완료</b>
+
+👤 사용자: ${data.userEmail}
+📦 상품: ${data.productName} (${typeLabel})
+💰 금액: ${data.amount.toLocaleString()}원
+📝 사유: ${data.reason || '사용자 취소'}
+🔢 거래: ${data.transactionId.substring(0, 20)}...
+
+⏰ ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
+`.trim()
+
+  return sendTelegramMessage({
+    chatId: adminChatId,
+    text,
+    parseMode: 'HTML',
+  })
+}
+
+/**
  * Webhook 설정
  */
 export async function setWebhook(webhookUrl: string, secretToken?: string): Promise<boolean> {

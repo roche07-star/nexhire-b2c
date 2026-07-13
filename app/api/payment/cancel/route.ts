@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { sendRefundNotification } from '@/lib/telegram'
 
 /**
  * 결제 취소 처리
@@ -82,6 +83,21 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[Payment Cancel] Success:', transaction_id)
+
+    // 5. 텔레그램 환불 알림 전송
+    try {
+      await sendRefundNotification({
+        type: payment.plan === 'STORE' ? 'coupon' : 'plan',
+        userEmail: payment.user_email,
+        productName: payment.description || payment.plan,
+        amount: payment.amount,
+        reason: reason || '사용자 취소',
+        transactionId: transaction_id,
+      })
+    } catch (err) {
+      console.error('[Payment Cancel] 텔레그램 알림 전송 실패:', err)
+      // 알림 실패해도 취소는 성공으로 처리
+    }
 
     return NextResponse.json({
       success: true,
