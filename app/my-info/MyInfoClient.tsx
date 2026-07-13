@@ -46,6 +46,10 @@ const FEATURE_LINKS: Record<string, string> = {
 export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
   const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
 
+  // 🔍 디버깅: payments 데이터 확인
+  console.log('[MyInfoClient] Received payments:', payments)
+  console.log('[MyInfoClient] Payments count:', payments.length)
+
   // 페이지 진입 시 최신 쿠폰 데이터 가져오기
   useEffect(() => {
     const fetchLatestCoupons = async () => {
@@ -297,6 +301,23 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
           }}>
             💳 결제 내역
           </h2>
+
+          {/* 🔍 디버깅: 데이터 표시 */}
+          <div style={{
+            background: '#fef3c7',
+            border: '2px solid #f59e0b',
+            borderRadius: 8,
+            padding: 16,
+            marginBottom: 16,
+            fontSize: 13,
+            fontFamily: 'monospace'
+          }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>🔍 디버깅 정보:</div>
+            <div>Payments 개수: {payments.length}</div>
+            <div style={{ marginTop: 8, maxHeight: 200, overflow: 'auto' }}>
+              {JSON.stringify(payments, null, 2)}
+            </div>
+          </div>
 
           {payments.length === 0 ? (
             <div style={{
