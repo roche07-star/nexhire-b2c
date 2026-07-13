@@ -939,7 +939,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                     <th>유저</th>
                     <th>플랜</th>
                     <th>유형</th>
-                    <th>전체 사용량</th>
+                    <th>사용량 (분석/JD/생성/면접)</th>
                     <th>다음 초기화</th>
                     <th>가입일</th>
                     <th>헤드헌터 공유</th>
@@ -1052,18 +1052,18 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : (() => {
                           const limits = PLAN_LIMITS[u.plan]
-                          const total = (u.analyze_count ?? 0) + (u.jd_count ?? 0) + (u.rewrite_count ?? 0) + (u.interview_count ?? 0)
-                          const totalLimit = limits.analyze + limits.jd + limits.rewrite + limits.interview
-                          const pct = totalLimit > 0 ? Math.min(100, Math.round((total / totalLimit) * 100)) : 0
-                          const color = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981'
                           return (
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                              <span style={{ fontSize: 14, fontWeight: 600, color }}>
-                                {total}/{totalLimit}
-                              </span>
-                              <span style={{ fontSize: 11, color: '#71717a' }}>
-                                ({pct}%)
-                              </span>
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'flex-start',
+                              gap: 2,
+                              fontSize: 12
+                            }}>
+                              <div>📝 {u.analyze_count ?? 0}/{limits.analyze}</div>
+                              <div>📋 {u.jd_count ?? 0}/{limits.jd}</div>
+                              <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite}</div>
+                              <div>🎤 {u.interview_count ?? 0}/{limits.interview}</div>
                             </div>
                           )
                         })()}
