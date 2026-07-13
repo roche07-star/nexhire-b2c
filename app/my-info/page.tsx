@@ -23,11 +23,16 @@ export default async function MyInfoPage() {
     .order('created_at', { ascending: false })
 
   // 결제 내역 조회 (모든 구매 내역: STORE + 플랜 구독)
-  const { data: payments } = await supabase
+  const { data: payments, error: paymentsError } = await supabase
     .from('payments')
     .select('*')
     .eq('user_email', session.user.email)
     .order('paid_at', { ascending: false })
+
+  console.log('[MyInfo] User:', session.user.email)
+  console.log('[MyInfo] Payments count:', payments?.length || 0)
+  console.log('[MyInfo] Payments:', payments)
+  console.log('[MyInfo] Error:', paymentsError)
 
   return (
     <>
