@@ -57,12 +57,16 @@ export async function GET() {
   // 쿠폰으로 획득한 추가 사용 횟수
   const extraCredits = user?.extra_credits || {}
 
-  const usage = {
+  const usage: Record<string, { used: number; limit: number }> = {
     analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze + (extraCredits.resume || 0) },
     jd:        { used: user?.jd_count ?? 0,        limit: limits.jd + (extraCredits.jd || 0) },
     rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite + (extraCredits.rewrite || 0) },
     interview: { used: user?.interview_count ?? 0, limit: limits.interview + (extraCredits.interview || 0) },
-    proposal:  { used: user?.proposal_count ?? 0,  limit: limits.proposal + (extraCredits.proposal || 0) },
+  }
+
+  // 헤드헌터만 클라이언트 제안서 표시
+  if (userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN') {
+    usage.proposal = { used: user?.proposal_count ?? 0, limit: limits.proposal + (extraCredits.proposal || 0) }
   }
 
   const couponList = (coupons ?? []).map(c => ({
