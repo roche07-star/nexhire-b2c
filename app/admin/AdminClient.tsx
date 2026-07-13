@@ -2193,7 +2193,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                             <span>{FEATURE_LABELS[String(c.feature)] ?? String(c.feature)}</span>
                             <span>
                               {remaining > 0 ? `남은 횟수: ${remaining}회` : '사용 완료'}
-                              {c.used_at && ` (${new Date(String(c.used_at)).toLocaleDateString('ko-KR')})`}
+                              {c.used_at ? ` (${new Date(String(c.used_at)).toLocaleDateString('ko-KR')})` : ''}
                             </span>
                             <span className="admin-date">등록: {new Date(String(c.claimed_at)).toLocaleDateString('ko-KR')}</span>
                           </div>
