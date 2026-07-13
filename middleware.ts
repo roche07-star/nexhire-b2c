@@ -7,6 +7,7 @@ const PUBLIC_API_ROUTES = [
   '/api/auth',
   '/api/share',
   '/api/audit', // Eve → Adam 접근 로그 (API Key 인증)
+  '/api/telegram', // 텔레그램 Webhook (Secret Token 검증)
 ]
 
 export default auth(async (req) => {
