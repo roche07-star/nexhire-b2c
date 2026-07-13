@@ -28,10 +28,29 @@ interface User {
 
 // ✅ 중앙 타입 사용
 
-const PLAN_LIMITS: Record<string, Record<string, number>> = {
-  FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
-  PRO:    { analyze: 30, jd: 30, rewrite: 10, interview: 10 },
-  EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 25 },
+type UserTypeKey = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
+
+const PLAN_LIMITS: Record<UserTypeKey, Record<string, Record<string, number>>> = {
+  JOBSEEKER: {
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
+    PRO:    { analyze: 15, jd: 15, rewrite: 10, interview: 5 },
+    EXPERT: { analyze: 30, jd: 30, rewrite: 30, interview: 15 },
+  },
+  HEADHUNTER: {
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
+    PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 10 },
+    EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 25 },
+  },
+  MANAGER: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+  },
+  SUPER_ADMIN: {
+    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
+  },
 }
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -1052,7 +1071,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         {u.user_type === 'SUPER_ADMIN' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : (() => {
-                          const limits = PLAN_LIMITS[u.plan]
+                          const userType = (u.user_type || 'JOBSEEKER') as UserTypeKey
+                          const limits = PLAN_LIMITS[userType]?.[u.plan] || PLAN_LIMITS.JOBSEEKER.FREE
                           const extraCredits = (u.extra_credits as Record<string, number> | null) || {}
                           return (
                             <div style={{
@@ -2165,7 +2185,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 <>
                   {u && (() => {
                     const plan = String(u.plan) as 'FREE' | 'PRO' | 'EXPERT'
-                    const limits = PLAN_LIMITS[plan]
+                    const userType = (u.user_type || 'JOBSEEKER') as UserTypeKey
+                    const limits = PLAN_LIMITS[userType]?.[plan] || PLAN_LIMITS.JOBSEEKER.FREE
                     const extraCredits = (u.extra_credits as Record<string, number> | null) || {}
 
                     return (
