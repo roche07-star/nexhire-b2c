@@ -157,29 +157,14 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                 return (
                   <div
                     key={coupon.id}
-                    onClick={() => {
-                      if (!expired && !isUsed && remaining > 0) {
-                        window.location.href = FEATURE_LINKS[coupon.feature] || '/analyze'
-                      }
-                    }}
                     style={{
                       background: (expired || isUsed) ? 'var(--surface2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%)',
                       border: (expired || isUsed) ? '1px solid var(--border)' : '1px solid rgba(59, 130, 246, 0.3)',
                       borderRadius: 12,
                       padding: 20,
                       opacity: (expired || isUsed) ? 0.6 : 1,
-                      cursor: (!expired && !isUsed && remaining > 0) ? 'pointer' : 'default',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!expired && remaining > 0) {
-                        e.currentTarget.style.transform = 'translateY(-2px)'
-                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.2)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = 'none'
+                      cursor: 'default',
+                      transition: 'opacity 0.2s',
                     }}
                   >
                     <div style={{
@@ -255,8 +240,8 @@ export default function MyInfoClient({ coupons: initialCoupons, payments }: Prop
                             ⚠️ 만료됨
                           </span>
                         ) : (
-                          <span>
-                            💡 클릭하여 사용하기
+                          <span style={{ color: '#10b981', fontWeight: 600 }}>
+                            ✓ 보유 중
                           </span>
                         )}
                       </div>
