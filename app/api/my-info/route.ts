@@ -25,7 +25,7 @@ export async function GET() {
       .is('withdrawn_at', null),
   ])
 
-  const plan = user?.plan ?? 'FREE'
+  const plan = (user?.plan ?? 'FREE') as Plan
   const userType = (user?.user_type ?? 'JOBSEEKER') as UserType
   const limits = PLAN_LIMITS[userType]?.[plan] ?? PLAN_LIMITS.JOBSEEKER.FREE
   const now = new Date()
