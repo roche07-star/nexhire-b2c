@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { Coupon } from '@/lib/types/coupon'
 import AnnouncementModal from '@/components/AnnouncementModal'
-import { PLAN_LIMITS as CENTRAL_PLAN_LIMITS, type UserType as CentralUserType } from '@/lib/usageLimits'
+import { PLAN_LIMITS as CENTRAL_PLAN_LIMITS, type UserType as CentralUserType } from '@/lib/constants/planLimits'
 
 interface User {
   email: string
