@@ -35,7 +35,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at')
+      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used_at, expires_at, claimed_at')
@@ -54,12 +54,15 @@ export async function GET() {
   const limits = PLAN_LIMITS[userType]?.[plan] ?? PLAN_LIMITS.JOBSEEKER.FREE
   const now = new Date()
 
+  // 쿠폰으로 획득한 추가 사용 횟수
+  const extraCredits = user?.extra_credits || {}
+
   const usage = {
-    analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze },
-    jd:        { used: user?.jd_count ?? 0,        limit: limits.jd },
-    rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite },
-    interview: { used: user?.interview_count ?? 0, limit: limits.interview },
-    proposal:  { used: user?.proposal_count ?? 0,  limit: limits.proposal },
+    analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze + (extraCredits.resume || 0) },
+    jd:        { used: user?.jd_count ?? 0,        limit: limits.jd + (extraCredits.jd || 0) },
+    rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite + (extraCredits.rewrite || 0) },
+    interview: { used: user?.interview_count ?? 0, limit: limits.interview + (extraCredits.interview || 0) },
+    proposal:  { used: user?.proposal_count ?? 0,  limit: limits.proposal + (extraCredits.proposal || 0) },
   }
 
   const couponList = (coupons ?? []).map(c => ({

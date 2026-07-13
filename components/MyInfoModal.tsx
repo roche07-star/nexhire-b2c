@@ -58,6 +58,7 @@ export default function MyInfoButton() {
   const [restorableData, setRestorableData] = useState<any>(null)
   const [restoring, setRestoring] = useState(false)
   const [canceling, setCanceling] = useState(false)
+  const [activatingCoupon, setActivatingCoupon] = useState<string | null>(null)
   const modalContentRef = useRef<HTMLDivElement>(null)
 
   // 모달 열릴 때 스크롤 맨 위로
@@ -134,6 +135,34 @@ export default function MyInfoButton() {
     } catch (err) {
       console.error(err)
       alert('오류가 발생했습니다.')
+    }
+  }
+
+  async function activateCoupon(couponId: string, feature: string) {
+    if (!confirm(`쿠폰을 활성화하시겠습니까?\n\n${FEATURE_LABEL[feature] || feature} 사용 횟수가 즉시 증가합니다.`)) {
+      return
+    }
+
+    setActivatingCoupon(couponId)
+    try {
+      const res = await fetch(`/api/coupons/activate/${couponId}`, {
+        method: 'POST',
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setCouponMsg({ text: `✅ ${data.message}`, ok: true })
+        // 정보 새로고침
+        const res2 = await fetch('/api/my-info')
+        setInfo(await res2.json())
+      } else {
+        alert(data.error ?? '활성화에 실패했습니다.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setActivatingCoupon(null)
     }
   }
 
@@ -537,8 +566,8 @@ export default function MyInfoButton() {
                           <div
                             key={c.id}
                             onClick={() => {
-                              if (c.status === 'active') {
-                                window.location.href = FEATURE_LINKS[c.feature] || '/analyze'
+                              if (c.status === 'active' && !activatingCoupon) {
+                                activateCoupon(c.id, c.feature)
                               }
                             }}
                             style={{
@@ -552,11 +581,12 @@ export default function MyInfoButton() {
                             flexWrap: 'wrap',
                             gap: 12,
                             position: 'relative',
-                            cursor: c.status === 'active' ? 'pointer' : 'default',
+                            cursor: (c.status === 'active' && !activatingCoupon) ? 'pointer' : 'default',
+                            opacity: activatingCoupon === c.id ? 0.6 : 1,
                             transition: 'all 0.2s'
                           }}
                           onMouseEnter={(e) => {
-                            if (c.status === 'active') {
+                            if (c.status === 'active' && !activatingCoupon) {
                               e.currentTarget.style.transform = 'translateY(-2px)'
                               e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)'
                               e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'
