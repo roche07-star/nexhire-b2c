@@ -14,7 +14,9 @@ export async function POST(req: NextRequest) {
     // }
 
     const body = await req.json()
-    console.log('[Telegram Webhook] Received:', JSON.stringify(body, null, 2))
+    console.log('[Telegram Webhook] ========================================')
+    console.log('[Telegram Webhook] FULL BODY:', JSON.stringify(body, null, 2))
+    console.log('[Telegram Webhook] ========================================')
 
     // 메시지가 있으면 로그 (Chat ID 확인용)
     if (body.message) {
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       const text = body.message.text
       const username = body.message.chat.username
 
-      console.log('[Telegram Webhook] Chat ID:', chatId)
+      console.log('[Telegram Webhook] ⭐⭐⭐ Chat ID:', chatId, '⭐⭐⭐')
       console.log('[Telegram Webhook] Username:', username)
       console.log('[Telegram Webhook] Text:', text)
 
