@@ -43,7 +43,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'tokens' | 'audit-logs'
+type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'telegram' | 'tokens' | 'audit-logs'
 
 interface Stats {
   total: number
@@ -127,6 +127,12 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [paymentMode, setPaymentMode] = useState<'TEST' | 'REAL'>('TEST')
   const [paymentGatewayLoading, setPaymentGatewayLoading] = useState(false)
 
+  // 텔레그램 설정 state
+  const [telegramStatus, setTelegramStatus] = useState<any>(null)
+  const [telegramLoading, setTelegramLoading] = useState(false)
+  const [telegramResult, setTelegramResult] = useState<any>(null)
+  const [telegramError, setTelegramError] = useState('')
+
   // Phase 1: 유저 목록 로드
   async function loadUsers() {
     setUsersLoading(true)
@@ -172,7 +178,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   useEffect(() => {
     loadStats()
     loadPaymentGatewayMode()
-  }, [])
+    if (tab === 'telegram') {
+      loadTelegramStatus()
+    }
+  }, [tab])
 
   async function openUserDetail(email: string) {
     setDetailEmail(email)
@@ -475,6 +484,65 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     }
   }
 
+  // 텔레그램 상태 로드
+  async function loadTelegramStatus() {
+    if (!isSuperAdmin) return
+
+    setTelegramLoading(true)
+    try {
+      const res = await fetch('/api/admin/telegram/setup')
+      const data = await res.json()
+
+      if (res.ok) {
+        setTelegramStatus(data)
+        setTelegramError('')
+      } else {
+        setTelegramStatus({ configured: false, message: data.error })
+      }
+    } catch (err) {
+      console.error('Failed to load telegram status:', err)
+      setTelegramStatus({ configured: false, message: '상태 확인 실패' })
+    } finally {
+      setTelegramLoading(false)
+    }
+  }
+
+  // 텔레그램 Webhook 설정
+  async function setupTelegramWebhook() {
+    if (!isSuperAdmin) return
+
+    setTelegramLoading(true)
+    setTelegramError('')
+    setTelegramResult(null)
+
+    try {
+      const res = await fetch('/api/admin/telegram/setup', {
+        method: 'POST',
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        let errorMsg = data.error || '설정에 실패했습니다.'
+        if (data.details) {
+          errorMsg += `\n\n상세: ${data.details}`
+        }
+        setTelegramError(errorMsg)
+        return
+      }
+
+      setTelegramResult(data)
+      setTelegramError('')
+
+      // 성공 후 상태 자동 갱신
+      setTimeout(() => loadTelegramStatus(), 1000)
+    } catch (err: any) {
+      setTelegramError(`오류가 발생했습니다: ${err.message || '알 수 없는 오류'}`)
+    } finally {
+      setTelegramLoading(false)
+    }
+  }
+
   // 공지사항 생성/수정
   async function handleSaveAnnouncement() {
     try {
@@ -654,6 +722,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           {isSuperAdmin && (
             <>
               <button className={`admin-tab-btn${tab === 'payment-gateway' ? ' active' : ''}`} onClick={() => onTabChange('payment-gateway')}>💳 결제 설정</button>
+              <button className={`admin-tab-btn${tab === 'telegram' ? ' active' : ''}`} onClick={() => onTabChange('telegram')}>🤖 텔레그램</button>
               <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
               <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
             </>
@@ -1700,6 +1769,272 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 <li>모드 변경은 즉시 반영되며, 모든 결제 페이지에 적용됩니다.</li>
                 <li>변경 이력은 접근 로그에 기록됩니다.</li>
               </ul>
+            </div>
+          </div>
+        )}
+
+        {tab === 'telegram' && isSuperAdmin && (
+          <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            {/* 현재 상태 */}
+            <div style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              marginBottom: 24
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <div>
+                  <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>🤖 텔레그램 봇 관리</h2>
+                  <p style={{ color: '#666', marginBottom: 0 }}>결제 완료 시 관리자에게 알림을 전송합니다</p>
+                </div>
+                <button
+                  onClick={loadTelegramStatus}
+                  disabled={telegramLoading}
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: 14,
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    background: '#fff',
+                    cursor: telegramLoading ? 'not-allowed' : 'pointer',
+                    opacity: telegramLoading ? 0.6 : 1
+                  }}
+                >
+                  {telegramLoading ? '확인 중...' : '🔄 상태 새로고침'}
+                </button>
+              </div>
+
+              {telegramLoading && !telegramStatus ? (
+                <div style={{ padding: 40, textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, color: '#666' }}>상태 확인 중...</div>
+                </div>
+              ) : telegramStatus ? (
+                <div style={{
+                  padding: 20,
+                  borderRadius: 12,
+                  backgroundColor: telegramStatus.configured ? '#f0fdf4' : '#fef9c3',
+                  border: `2px solid ${telegramStatus.configured ? '#86efac' : '#fde047'}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                    <span style={{ fontSize: 24 }}>{telegramStatus.configured ? '✅' : '⚙️'}</span>
+                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>
+                      {telegramStatus.configured ? '✨ 설정 완료 - 사용 준비됨!' : '설정이 필요합니다'}
+                    </h3>
+                  </div>
+                  {telegramStatus.botInfo && (
+                    <div style={{ fontSize: 14, marginTop: 16 }}>
+                      <div style={{ display: 'grid', gap: 8 }}>
+                        <div>
+                          <span style={{ color: '#666' }}>봇 이름:</span>{' '}
+                          <strong>{telegramStatus.botInfo.first_name}</strong>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Username:</span>{' '}
+                          <strong>@{telegramStatus.botInfo.username}</strong>
+                        </div>
+                        {telegramStatus.webhookUrl && (
+                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #e5e7eb' }}>
+                            <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Webhook URL</div>
+                            <code style={{
+                              fontSize: 11,
+                              padding: '8px 12px',
+                              background: '#f3f4f6',
+                              borderRadius: 6,
+                              display: 'block',
+                              wordBreak: 'break-all',
+                            }}>
+                              {telegramStatus.webhookUrl}
+                            </code>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {!telegramStatus.configured && telegramStatus.message && (
+                    <p style={{ margin: '12px 0 0 0', fontSize: 14, color: '#666' }}>
+                      {telegramStatus.message}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            {/* Webhook 설정 */}
+            <div style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              marginBottom: 24
+            }}>
+              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>
+                {telegramStatus?.configured ? '🔄 Webhook 재설정' : '⚙️ Webhook 설정'}
+              </h3>
+              <p style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>
+                {telegramStatus?.configured
+                  ? '설정을 변경하거나 문제가 있을 때 다시 설정할 수 있습니다.'
+                  : '텔레그램 봇과 서버를 연결합니다. 버튼을 클릭하면 자동으로 설정됩니다.'}
+              </p>
+
+              <button
+                onClick={setupTelegramWebhook}
+                disabled={telegramLoading}
+                style={{
+                  padding: '14px 28px',
+                  fontSize: 16,
+                  fontWeight: 600,
+                  borderRadius: 10,
+                  border: 'none',
+                  background: telegramStatus?.configured
+                    ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#fff',
+                  cursor: telegramLoading ? 'not-allowed' : 'pointer',
+                  opacity: telegramLoading ? 0.6 : 1,
+                }}
+              >
+                {telegramLoading ? '설정 중...' : telegramStatus?.configured ? '🔄 다시 설정하기' : '🚀 지금 설정하기'}
+              </button>
+
+              {!telegramStatus?.configured && (
+                <p style={{ marginTop: 12, fontSize: 12, color: '#666' }}>
+                  💡 환경 변수(TELEGRAM_BOT_TOKEN 등)가 설정되어 있어야 합니다
+                </p>
+              )}
+            </div>
+
+            {/* 성공 결과 */}
+            {telegramResult && (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0.1))',
+                border: '2px solid rgba(34, 197, 94, 0.4)',
+                borderRadius: 16,
+                padding: 24,
+                marginBottom: 24
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <span style={{ fontSize: 28 }}>🎉</span>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#16a34a' }}>
+                    설정이 완료되었습니다!
+                  </h3>
+                </div>
+
+                <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: 12,
+                    background: '#fff',
+                    borderRadius: 8,
+                  }}>
+                    <span style={{ fontSize: 20 }}>{telegramResult.webhook ? '✅' : '❌'}</span>
+                    <span style={{ fontWeight: 500 }}>Webhook:</span>
+                    <span style={{ color: telegramResult.webhook ? '#16a34a' : '#dc2626' }}>
+                      {telegramResult.webhook ? '설정 완료' : '설정 실패'}
+                    </span>
+                  </div>
+                </div>
+
+                {telegramResult.warning && (
+                  <div style={{
+                    padding: 12,
+                    backgroundColor: '#fef3c7',
+                    border: '1px solid #fde047',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-line'
+                  }}>
+                    ⚠️ {telegramResult.warning}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 에러 */}
+            {telegramError && (
+              <div style={{
+                background: '#fef2f2',
+                border: '2px solid #fecaca',
+                borderRadius: 16,
+                padding: 24,
+                marginBottom: 24
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <span style={{ fontSize: 28 }}>⚠️</span>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#dc2626' }}>
+                    오류가 발생했습니다
+                  </h3>
+                </div>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                  {telegramError}
+                </p>
+              </div>
+            )}
+
+            {/* 환경 변수 체크리스트 */}
+            <div style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>📋 환경 변수 체크리스트</h3>
+              <p style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>
+                Vercel에 다음 환경 변수가 설정되어 있어야 합니다:
+              </p>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {[
+                  { key: 'TELEGRAM_BOT_TOKEN', desc: '봇 토큰 (@BotFather에서 발급)' },
+                  { key: 'TELEGRAM_SECRET_TOKEN', desc: 'Webhook 보안 토큰 (자동 생성)' },
+                  { key: 'TELEGRAM_ADMIN_CHAT_ID', desc: '관리자 텔레그램 채팅 ID' }
+                ].map((env) => (
+                  <div key={env.key} style={{
+                    padding: 14,
+                    background: '#f9fafb',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}>
+                    <code style={{ fontSize: 13, fontWeight: 600, color: '#3b82f6', flex: '0 0 auto' }}>
+                      {env.key}
+                    </code>
+                    <span style={{ fontSize: 13, color: '#666' }}>{env.desc}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{
+                marginTop: 16,
+                padding: 14,
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: 8,
+              }}>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}>
+                  💡 <strong>참고:</strong> 환경 변수 변경 후에는 반드시 Vercel을 재배포해야 적용됩니다.
+                </p>
+              </div>
+
+              <div style={{
+                marginTop: 16,
+                padding: 14,
+                backgroundColor: '#fef9c3',
+                border: '1px solid #fde047',
+                borderRadius: 8,
+              }}>
+                <p style={{ margin: '0 0 8px 0', fontSize: 13, fontWeight: 600 }}>
+                  📱 TELEGRAM_ADMIN_CHAT_ID 확인 방법:
+                </p>
+                <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, lineHeight: 1.6 }}>
+                  <li>봇과 대화 시작 (/start 명령어)</li>
+                  <li>Webhook 로그에서 chat_id 확인</li>
+                  <li>또는 @userinfobot 사용</li>
+                </ol>
+              </div>
             </div>
           </div>
         )}
