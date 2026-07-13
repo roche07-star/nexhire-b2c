@@ -2161,30 +2161,44 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               const couponsUsed = detailData.coupons as Array<Record<string, unknown>>
               return (
                 <>
-                  {u && (
-                    <div className="admin-detail-section">
-                      <div className="admin-detail-label">플랜, 사용량</div>
-                      <div className="admin-detail-row">
-                        <span className={`plan-badge ${String(u.plan).toLowerCase()}`}>{String(u.plan)}</span>
-                        <span>이력서 분석 {String(u.analyze_count)}회</span>
-                        <span>JD 분석 {String(u.jd_count)}회</span>
-                        <span>이력서 생성 {String(u.rewrite_count)}회</span>
-                        <span>면접 가이드 {String(u.interview_count)}회</span>
+                  {u && (() => {
+                    const plan = String(u.plan) as 'FREE' | 'PRO' | 'EXPERT'
+                    const limits = PLAN_LIMITS[plan]
+                    const extraCredits = (u.extra_credits as Record<string, number> | null) || {}
+
+                    return (
+                      <div className="admin-detail-section">
+                        <div className="admin-detail-label">플랜, 사용량</div>
+                        <div className="admin-detail-row">
+                          <span className={`plan-badge ${plan.toLowerCase()}`}>{plan}</span>
+                          <span>이력서 분석 {String(u.analyze_count)}/{limits.analyze + (extraCredits.resume || 0)}</span>
+                          <span>JD 분석 {String(u.jd_count)}/{limits.jd + (extraCredits.jd || 0)}</span>
+                          <span>이력서 생성 {String(u.rewrite_count)}/{limits.rewrite + (extraCredits.rewrite || 0)}</span>
+                          <span>면접 가이드 {String(u.interview_count)}/{limits.interview + (extraCredits.interview || 0)}</span>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )
+                  })()}
 
                   {couponsUsed.length > 0 && (
                     <div className="admin-detail-section">
                       <div className="admin-detail-label">등록한 쿠폰</div>
-                      {couponsUsed.map((c, i) => (
-                        <div key={i} className="admin-detail-row">
-                          <code>{String(c.code)}</code>
-                          <span>{FEATURE_LABELS[String(c.feature)] ?? String(c.feature)}</span>
-                          <span>{c.used_at ? '사용 완료' : '미사용'}</span>
-                          <span className="admin-date">{new Date(String(c.claimed_at)).toLocaleDateString('ko-KR')}</span>
-                        </div>
-                      ))}
+                      {couponsUsed.map((c, i) => {
+                        const credits = Number(c.credits) || 0
+                        const used = Number(c.used) || 0
+                        const remaining = credits - used
+                        return (
+                          <div key={i} className="admin-detail-row">
+                            <code>{String(c.code)}</code>
+                            <span>{FEATURE_LABELS[String(c.feature)] ?? String(c.feature)}</span>
+                            <span>
+                              {remaining > 0 ? `남은 횟수: ${remaining}회` : '사용 완료'}
+                              {c.used_at && ` (${new Date(String(c.used_at)).toLocaleDateString('ko-KR')})`}
+                            </span>
+                            <span className="admin-date">등록: {new Date(String(c.claimed_at)).toLocaleDateString('ko-KR')}</span>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
 
