@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import type { Coupon } from '@/lib/types/coupon'
 import AnnouncementModal from '@/components/AnnouncementModal'
+import { PLAN_LIMITS as CENTRAL_PLAN_LIMITS, type UserType as CentralUserType } from '@/lib/usageLimits'
 
 interface User {
   email: string
@@ -26,32 +27,9 @@ interface User {
   extra_credits?: Record<string, number> | null
 }
 
-// ✅ 중앙 타입 사용
-
-type UserTypeKey = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
-
-const PLAN_LIMITS: Record<UserTypeKey, Record<string, Record<string, number>>> = {
-  JOBSEEKER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
-    PRO:    { analyze: 15, jd: 15, rewrite: 10, interview: 5 },
-    EXPERT: { analyze: 30, jd: 30, rewrite: 30, interview: 15 },
-  },
-  HEADHUNTER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0 },
-    PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 10 },
-    EXPERT: { analyze: 50, jd: 50, rewrite: 50, interview: 25 },
-  },
-  MANAGER: {
-    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-  },
-  SUPER_ADMIN: {
-    FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    PRO:    { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-    EXPERT: { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999 },
-  },
-}
+// ✅ 중앙 PLAN_LIMITS 사용 (lib/usageLimits.ts에서 import)
+const PLAN_LIMITS = CENTRAL_PLAN_LIMITS
+type UserTypeKey = CentralUserType
 
 const FEATURE_LABELS: Record<string, string> = {
   storage: '이력서 추가 저장',
@@ -1074,6 +1052,14 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                           const userType = (u.user_type || 'JOBSEEKER') as UserTypeKey
                           const limits = PLAN_LIMITS[userType]?.[u.plan] || PLAN_LIMITS.JOBSEEKER.FREE
                           const extraCredits = (u.extra_credits as Record<string, number> | null) || {}
+                          console.log('🔍 Admin Debug:', {
+                            email: u.email,
+                            userType,
+                            plan: u.plan,
+                            limits,
+                            extraCredits,
+                            total: limits.analyze + (extraCredits.resume || 0)
+                          })
                           return (
                             <div style={{
                               display: 'flex',
