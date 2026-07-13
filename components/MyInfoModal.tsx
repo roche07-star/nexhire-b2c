@@ -419,16 +419,17 @@ export default function MyInfoButton() {
                       gap: 12
                     }}>
                       {Object.entries(info.usage).map(([key, u]) => {
-                        if (u.limit === 0) return null
-                        const pct = Math.min(100, Math.round((u.used / u.limit) * 100))
-                        const color = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981'
+                        const isDisabled = u.limit === 0
+                        const pct = u.limit === 0 ? 0 : Math.min(100, Math.round((u.used / u.limit) * 100))
+                        const color = isDisabled ? '#9ca3af' : pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981'
 
                         return (
                           <div key={key} style={{
-                            background: '#fafafa',
-                            border: '1px solid #f1f5f9',
+                            background: isDisabled ? '#f5f5f5' : '#fafafa',
+                            border: isDisabled ? '1px solid #e5e5e5' : '1px solid #f1f5f9',
                             borderRadius: 12,
-                            padding: 14
+                            padding: 14,
+                            opacity: isDisabled ? 0.6 : 1
                           }}>
                             <div style={{
                               display: 'flex',
@@ -439,21 +440,22 @@ export default function MyInfoButton() {
                               <span style={{
                                 fontSize: 14,
                                 fontWeight: 600,
-                                color: '#18181b',
+                                color: isDisabled ? '#9ca3af' : '#18181b',
                                 letterSpacing: '-0.01em'
                               }}>
                                 {USAGE_LABEL[key]}
+                                {isDisabled && <span style={{ marginLeft: 6, fontSize: 11, color: '#9ca3af' }}>(비활성)</span>}
                               </span>
                               <span style={{
                                 fontSize: 18,
                                 fontWeight: 700,
-                                color,
+                                color: isDisabled ? '#9ca3af' : color,
                                 letterSpacing: '-0.02em'
                               }}>
                                 {u.used}
                                 <span style={{
                                   fontSize: 14,
-                                  color: '#a1a1aa',
+                                  color: isDisabled ? '#9ca3af' : '#a1a1aa',
                                   marginLeft: 2
                                 }}>
                                   /{u.limit}
