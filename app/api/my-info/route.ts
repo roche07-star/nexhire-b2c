@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase' // TODO: RLS 적용 후 supabaseClient로 변경
-import { PLAN_LIMITS, type UserType } from '@/lib/constants/planLimits'
+import { PLAN_LIMITS, type UserType, type Plan } from '@/lib/constants/planLimits'
 
 export async function GET() {
   const session = await auth()
