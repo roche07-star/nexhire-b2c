@@ -34,6 +34,17 @@ export async function GET(
       return NextResponse.json({ error: '영수증 정보가 없습니다' }, { status: 400 })
     }
 
+    // 결제 게이트웨이에 따라 다른 처리
+    const gateway = payment.payment_gateway || 'toss'
+
+    // PortOne (REAL 모드) 결제는 영수증 미지원
+    if (gateway === 'portone') {
+      return NextResponse.json(
+        { error: 'PortOne 결제는 영수증 기능을 지원하지 않습니다' },
+        { status: 400 }
+      )
+    }
+
     // 토스페이먼츠 API로 영수증 URL 조회
     const secretKey = process.env.TOSS_SECRET_KEY
     if (!secretKey) {
@@ -54,11 +65,22 @@ export async function GET(
     )
 
     if (!tossResponse.ok) {
-      console.error('토스 영수증 조회 실패:', await tossResponse.text())
-      return NextResponse.json({ error: '영수증 조회 실패' }, { status: 500 })
+      const errorText = await tossResponse.text()
+      console.error('토스 영수증 조회 실패:', errorText)
+
+      // TEST 모드 결제는 영수증이 없을 수 있음
+      return NextResponse.json(
+        {
+          error: 'TEST 모드 결제는 영수증이 제공되지 않습니다',
+          detail: '실제 결제 시에만 영수증 발급이 가능합니다'
+        },
+        { status: 400 }
+      )
     }
 
     const tossData = await tossResponse.json()
+
+    console.log('[Receipt] Toss data:', tossData)
 
     // 영수증 URL이 있으면 리다이렉트
     if (tossData.receipt?.url) {
@@ -66,7 +88,13 @@ export async function GET(
     }
 
     // 영수증 URL이 없으면 에러
-    return NextResponse.json({ error: '영수증 URL이 없습니다' }, { status: 400 })
+    return NextResponse.json(
+      {
+        error: 'TEST 모드 결제는 영수증이 제공되지 않습니다',
+        detail: '실제 결제 시에만 영수증 발급이 가능합니다'
+      },
+      { status: 400 }
+    )
   } catch (error: any) {
     console.error('영수증 조회 오류:', error)
     return NextResponse.json(
