@@ -55,6 +55,33 @@ export default function Footer() {
           <span className="footer-divider">·</span>
           <a href="/support">고객센터</a>
         </div>
+
+        {/* PG 심사용 테스트 페이지 */}
+        <div className="footer-test-links" style={{
+          marginTop: '20px',
+          fontSize: '11px',
+          color: 'rgba(255, 255, 255, 0.4)',
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center'
+        }}>
+          <span>PG 심사용:</span>
+          <a href="/verification/test" style={{
+            color: 'rgba(255, 255, 255, 0.5)',
+            textDecoration: 'none',
+            transition: 'color 0.2s'
+          }}>
+            본인인증 테스트
+          </a>
+          <span style={{ opacity: 0.3 }}>·</span>
+          <a href="/payment" style={{
+            color: 'rgba(255, 255, 255, 0.5)',
+            textDecoration: 'none',
+            transition: 'color 0.2s'
+          }}>
+            결제 테스트
+          </a>
+        </div>
       </div>
     </footer>
   )
