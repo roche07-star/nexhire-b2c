@@ -58,16 +58,19 @@ export default function Footer() {
 
         {/* PG 심사용 테스트 페이지 */}
         <div className="footer-test-links" style={{
-          marginTop: '20px',
+          marginTop: '32px',
+          paddingTop: '20px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.4)',
+          color: 'rgba(255, 255, 255, 0.35)',
           display: 'flex',
           gap: '12px',
-          alignItems: 'center'
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
           <span>PG 심사용:</span>
           <a href="/verification/test" style={{
-            color: 'rgba(255, 255, 255, 0.5)',
+            color: 'rgba(255, 255, 255, 0.45)',
             textDecoration: 'none',
             transition: 'color 0.2s'
           }}>
@@ -75,7 +78,7 @@ export default function Footer() {
           </a>
           <span style={{ opacity: 0.3 }}>·</span>
           <a href="/payment" style={{
-            color: 'rgba(255, 255, 255, 0.5)',
+            color: 'rgba(255, 255, 255, 0.45)',
             textDecoration: 'none',
             transition: 'color 0.2s'
           }}>
