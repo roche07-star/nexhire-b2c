@@ -77,7 +77,7 @@ export default function Footer() {
             본인인증 테스트
           </a>
           <span style={{ opacity: 0.3 }}>·</span>
-          <a href="/payment" style={{
+          <a href="/payment/test" style={{
             color: 'rgba(255, 255, 255, 0.45)',
             textDecoration: 'none',
             transition: 'color 0.2s'
