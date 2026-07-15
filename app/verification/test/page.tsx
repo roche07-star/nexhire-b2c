@@ -17,7 +17,7 @@ export default function VerificationTestPage() {
       // KG 이니시스 본인인증 요청 (기본 구성)
       const response = await PortOne.requestIdentityVerification({
         storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
-        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_VERIFICATION_CHANNEL_KEY!,
         identityVerificationId: `verification_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
       })
 
@@ -213,7 +213,7 @@ export default function VerificationTestPage() {
             <strong>Store ID:</strong> {process.env.NEXT_PUBLIC_PORTONE_STORE_ID || '미설정'}
           </div>
           <div>
-            <strong>Channel Key:</strong> {process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || '미설정'}
+            <strong>Channel Key:</strong> {process.env.NEXT_PUBLIC_PORTONE_VERIFICATION_CHANNEL_KEY || '미설정'}
           </div>
         </div>
       </div>
