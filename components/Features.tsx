@@ -105,20 +105,20 @@ export default function Features({ userType }: { userType?: RegularUserType | nu
   const selected = content[effectiveType]
 
   return (
-    <section id="features">
-      <div className="reveal">
-        <div className="section-label">Features</div>
-        <div className="section-title">{selected.title}</div>
-        <p className="section-sub">{selected.sub}</p>
+    <section id="features" className="ax-section">
+      <div className="ax-section-header reveal">
+        <div className="ax-section-label">FEATURES</div>
+        <h2 className="ax-section-title">{selected.title}</h2>
+        <p className="ax-section-desc">{selected.sub}</p>
       </div>
-      <div className="features-grid reveal">
-        {features.map((f) => (
-          <div key={f.title} className="feature-card">
-            <div className="feature-icon">{f.icon}</div>
-            <h3>{f.title}</h3>
-            <p>{f.desc}</p>
-            <div className="feature-tags">
-              {f.tags.map((tag) => <span key={tag} className="ftag">{tag}</span>)}
+
+      <div className="ax-features-list reveal">
+        {features.slice(0, 5).map((f, index) => (
+          <div key={f.title} className="ax-feature-item">
+            <div className="ax-feature-number">{String(index + 1).padStart(2, '0')}</div>
+            <div className="ax-feature-content">
+              <h3 className="ax-feature-title">{f.title}</h3>
+              <p className="ax-feature-desc">{f.desc}</p>
             </div>
           </div>
         ))}

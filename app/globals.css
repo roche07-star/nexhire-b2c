@@ -5815,3 +5815,137 @@ footer.footer-container {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ========================================
+   THEAXLABS 스타일 - 미니멀 디자인
+   ======================================== */
+
+/* 섹션 기본 */
+.ax-section {
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.ax-section-header {
+  margin-bottom: 80px;
+}
+
+.ax-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #999;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+.ax-section-title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #111;
+  margin-bottom: 24px;
+  white-space: pre-line;
+}
+
+.ax-section-desc {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #666;
+  max-width: 800px;
+}
+
+/* Features 리스트 */
+.ax-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ax-feature-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 48px;
+  padding: 60px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.ax-feature-item:first-child {
+  padding-top: 0;
+}
+
+.ax-feature-item:last-child {
+  border-bottom: none;
+}
+
+.ax-feature-number {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ccc;
+  font-family: 'Outfit', sans-serif;
+}
+
+.ax-feature-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ax-feature-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.3;
+}
+
+.ax-feature-desc {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #666;
+  max-width: 700px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .ax-section {
+    padding: 80px 24px;
+  }
+
+  .ax-section-header {
+    margin-bottom: 48px;
+  }
+
+  .ax-section-label {
+    font-size: 10px;
+    margin-bottom: 20px;
+  }
+
+  .ax-section-title {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .ax-section-desc {
+    font-size: 15px;
+  }
+
+  .ax-feature-item {
+    grid-template-columns: 50px 1fr;
+    gap: 20px;
+    padding: 40px 0;
+  }
+
+  .ax-feature-number {
+    font-size: 16px;
+  }
+
+  .ax-feature-title {
+    font-size: 20px;
+  }
+
+  .ax-feature-desc {
+    font-size: 14px;
+  }
+}
