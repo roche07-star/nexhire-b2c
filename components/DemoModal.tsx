@@ -264,8 +264,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
           {/* 헤드헌터: Tab 0 = 후보자 분석 */}
           {/* ────────────────────────────────────── */}
           {demoTab === 0 && (
-            <>
-              <div className="demo-scores">
+            <div className="results-wrap">
+              {/* MATCH SCORE */}
+              <div className="results-section">
                 <div className="results-label">MATCH SCORE</div>
                 {[
                   { label: '직무 적합도', val: 87 },
@@ -284,14 +285,31 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 ))}
               </div>
 
-              <div className="demo-summary-block">
+              {/* 종합 요약 */}
+              <div className="results-section">
                 <div className="results-label">종합 요약</div>
-                <p className="result-summary">
-                  B2B SaaS 기업에서 GTM 전략 수립과 실행을 주도한 3년차 마케터로, 데이터 기반 의사결정과 SQL 분석 역량이 강점입니다. PM 전환 시 즉시 전력이 가능하며, AI/SaaS 분야 Product Manager로의 커리어 전환을 강력히 추천합니다.
-                </p>
+                <div className="result-summary">
+                  <p style={{ marginBottom: 8 }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>포지셔닝</span>
+                    {' '}B2B SaaS 기업에서 GTM 전략 수립과 실행을 주도한 3년차 마케터
+                  </p>
+                  <p style={{ marginBottom: 8 }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>핵심 강점</span>
+                    {' '}데이터 기반 의사결정과 SQL 분석 역량, PM 전환 시 즉시 전력 가능
+                  </p>
+                  <p style={{ marginBottom: 8 }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>커리어 패턴</span>
+                    {' '}스타트업 초기 멤버로 0→1 성장 경험, B2B GTM 전 과정 실행
+                  </p>
+                  <p style={{ marginBottom: 8 }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>시장 제안</span>
+                    {' '}AI/SaaS 분야 Product Manager로의 커리어 전환 강력 추천
+                  </p>
+                </div>
               </div>
 
-              <div className="demo-grid">
+              {/* 핵심 키워드 + 강점 + 개선 포인트 */}
+              <div className="results-grid">
                 <div className="results-section">
                   <div className="results-label">핵심 키워드</div>
                   <div className="keyword-chips">
@@ -319,7 +337,9 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 </div>
               </div>
 
-              <div className="results-label" style={{ marginTop: 8 }}>💡 커리어 방향 분석</div>
+              {/* 커리어 방향 분석 */}
+              <div className="results-section">
+                <div className="results-label" style={{ marginTop: 8 }}>💡 커리어 방향 분석</div>
               <div className="career-cards">
                 {careerPaths.map((p, i) => (
                   <button
@@ -372,7 +392,8 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                   {active.points.map((p, i) => <li key={i}>{p}</li>)}
                 </ul>
               </div>
-            </>
+              </div> {/* results-section 닫기 */}
+            </div> {/* results-wrap 닫기 */}
           )}
 
           {/* ────────────────────────────────────── */}
