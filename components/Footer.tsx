@@ -69,14 +69,6 @@ export default function Footer() {
           justifyContent: 'center'
         }}>
           <span>PG 심사용:</span>
-          <a href="/verification/test" style={{
-            color: 'rgba(255, 255, 255, 0.45)',
-            textDecoration: 'none',
-            transition: 'color 0.2s'
-          }}>
-            본인인증 테스트
-          </a>
-          <span style={{ opacity: 0.3 }}>·</span>
           <a href="/payment/test" style={{
             color: 'rgba(255, 255, 255, 0.45)',
             textDecoration: 'none',
