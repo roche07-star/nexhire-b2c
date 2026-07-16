@@ -21,6 +21,14 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
   const [showJdSelect, setShowJdSelect] = useState(false)
   const [generatingProposal, setGeneratingProposal] = useState(false)
   const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({})
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     fetchResult()
@@ -243,24 +251,57 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
         </div>
       )}
 
-      {/* 강점 */}
-      {result.strengths && result.strengths.length > 0 && (
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 20,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}>
-          <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>✅ 강점</h2>
-          <ul style={{ margin: 0, paddingLeft: 20, color: '#333' }}>
-            {result.strengths.map((item: string, idx: number) => (
-              <li key={idx} style={{ marginBottom: 8, fontSize: 15 }}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* 핵심 키워드 + 강점 그리드 (모바일: 세로, 데스크톱: 좌우) */}
+      <div className="keyword-strength-grid" style={{
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr'
+      }}>
+        {/* 키워드 */}
+        {result.keywords && result.keywords.length > 0 && (
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 12,
+            padding: 16,
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          }}>
+            <h2 style={{ fontSize: 14, marginBottom: 12, color: '#1a1a1a' }}>🏷️ 핵심 키워드</h2>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {result.keywords.map((keyword: string, idx: number) => (
+                <span
+                  key={idx}
+                  style={{
+                    padding: '4px 8px',
+                    background: '#f0f0f0',
+                    borderRadius: 6,
+                    fontSize: 11,
+                    color: '#333',
+                  }}
+                >
+                  {keyword}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 강점 */}
+        {result.strengths && result.strengths.length > 0 && (
+          <div style={{
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 12,
+            padding: 16,
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          }}>
+            <h2 style={{ fontSize: 14, marginBottom: 12, color: '#1a1a1a' }}>✅ 강점</h2>
+            <ul style={{ margin: 0, paddingLeft: 16, color: '#333' }}>
+              {result.strengths.map((item: string, idx: number) => (
+                <li key={idx} style={{ marginBottom: 6, fontSize: 12 }}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* 개선점 */}
       {result.improvements && result.improvements.length > 0 && (
@@ -278,36 +319,6 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
               <li key={idx} style={{ marginBottom: 8, fontSize: 15 }}>{item}</li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {/* 키워드 */}
-      {result.keywords && result.keywords.length > 0 && (
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 20,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}>
-          <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>🏷️ 핵심 키워드</h2>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {result.keywords.map((keyword: string, idx: number) => (
-              <span
-                key={idx}
-                style={{
-                  padding: '6px 12px',
-                  background: '#f0f0f0',
-                  borderRadius: 6,
-                  fontSize: 14,
-                  color: '#333',
-                }}
-              >
-                {keyword}
-              </span>
-            ))}
-          </div>
         </div>
       )}
 
