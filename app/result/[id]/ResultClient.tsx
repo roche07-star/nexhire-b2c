@@ -20,7 +20,7 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
   const [jdList, setJdList] = useState<any[]>([])
   const [showJdSelect, setShowJdSelect] = useState(false)
   const [generatingProposal, setGeneratingProposal] = useState(false)
-  const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({}))
+  const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({})
 
   useEffect(() => {
     fetchResult()
