@@ -56,37 +56,36 @@ export default function HowItWorks({ userType }: { userType?: RegularUserType | 
   const selected = content[effectiveType]
 
   return (
-    <section id="how">
-      <div className="reveal">
-        <div className="section-label">How it works</div>
-        <div className="section-title">{selected.title}</div>
-        <p className="section-sub">{selected.sub}</p>
+    <section id="how" className="ax-section">
+      <div className="ax-section-header reveal">
+        <div className="ax-section-label">HOW IT WORKS</div>
+        <h2 className="ax-section-title">{selected.title}</h2>
+        <p className="ax-section-desc">{selected.sub}</p>
       </div>
-      <div className="how-grid reveal">
+
+      <div className="ax-features-list reveal">
         {steps.map((s) => (
-          <div
-            key={s.num}
-            className={`how-card ${(s as any).category === 'system' ? 'how-card-system' : ''}`}
-          >
-            <div className="how-num">{s.num}</div>
-            <div className="how-icon">{s.icon}</div>
-            <h3>{s.title}</h3>
-            <p>{s.desc}</p>
-            {(s as any).category === 'system' && (
-              <div style={{
-                marginTop: '12px',
-                padding: '6px 12px',
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px solid rgba(251, 191, 36, 0.3)',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#fbbf24',
-                textAlign: 'center'
-              }}>
-                ⚙️ 시스템 관리 기능
-              </div>
-            )}
+          <div key={s.num} className="ax-feature-item">
+            <div className="ax-feature-number">{s.num}</div>
+            <div className="ax-feature-content">
+              <h3 className="ax-feature-title">{s.title}</h3>
+              <p className="ax-feature-desc">{s.desc}</p>
+              {(s as any).category === 'system' && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '6px 12px',
+                  background: 'rgba(251, 191, 36, 0.1)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#fbbf24',
+                  textAlign: 'center'
+                }}>
+                  ⚙️ 시스템 관리 기능
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
