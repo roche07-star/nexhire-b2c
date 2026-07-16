@@ -236,18 +236,32 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
         </div>
       </div>
 
-      {/* 요약 */}
+      {/* 종합 요약 */}
       {result.summary && (
         <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
+          background: '#1a1a1a',
+          border: '1px solid #333',
           borderRadius: 12,
-          padding: 24,
+          padding: 0,
           marginBottom: 20,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
         }}>
-          <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>요약</h2>
-          <p style={{ color: '#333', lineHeight: 1.6, fontSize: 15 }}>{result.summary}</p>
+          <h2 style={{
+            fontSize: 14,
+            marginBottom: 0,
+            color: '#999',
+            padding: '20px 24px 16px',
+            borderBottom: '1px solid #333'
+          }}>종합 요약</h2>
+          <div style={{
+            borderLeft: '4px solid #e8ff47',
+            padding: '20px 24px',
+            color: '#d4d4d4',
+            lineHeight: 1.7,
+            fontSize: 14
+          }}>
+            {result.summary}
+          </div>
         </div>
       )}
 
