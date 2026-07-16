@@ -1120,6 +1120,13 @@ footer.footer-container {
   gap: 16px;
 }
 
+/* 데모 모달 내부 results-wrap */
+.demo-modal .results-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* ─── CAREER DIRECTION DEMO ─── */
 .career-cards {
   display: flex !important;
@@ -4414,6 +4421,18 @@ footer.footer-container {
   .demo-summary-block {
     padding: 12px;
     margin: 12px 0;
+  }
+
+  /* 데모 모달 모바일 */
+  .demo-modal .results-wrap {
+    gap: 16px !important;
+  }
+  .demo-modal .results-section {
+    padding: 16px !important;
+  }
+  .demo-modal .results-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
   .result-summary {
     font-size: 12px;

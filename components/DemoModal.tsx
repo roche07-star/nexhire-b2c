@@ -392,8 +392,10 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                   {active.points.map((p, i) => <li key={i}>{p}</li>)}
                 </ul>
               </div>
-              </div> {/* results-section 닫기 */}
-            </div> {/* results-wrap 닫기 */}
+              {/* results-section 닫기 */}
+              </div>
+            {/* results-wrap 닫기 */}
+            </div>
           )}
 
           {/* ────────────────────────────────────── */}
