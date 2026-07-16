@@ -5772,4 +5772,8 @@ footer.footer-container {
   .keyword-strength-grid {
     grid-template-columns: 1fr !important;
   }
+
+  .results-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
