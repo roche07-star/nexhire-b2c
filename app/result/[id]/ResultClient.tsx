@@ -20,15 +20,7 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
   const [jdList, setJdList] = useState<any[]>([])
   const [showJdSelect, setShowJdSelect] = useState(false)
   const [generatingProposal, setGeneratingProposal] = useState(false)
-  const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({})
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const [savedProposals, setSavedProposals] = useState<Record<string, { html: string; proposal: any }>>({}))
 
   useEffect(() => {
     fetchResult()
@@ -252,12 +244,7 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
       )}
 
       {/* 핵심 키워드 + 강점 (데스크톱: 좌우, 모바일: 세로) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-        gap: 12,
-        marginBottom: 20
-      }}>
+      <div className="keyword-strength-grid">
         {/* 키워드 */}
         {result.keywords && result.keywords.length > 0 && (
           <div style={{

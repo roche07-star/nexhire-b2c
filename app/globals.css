@@ -3209,10 +3209,10 @@ footer.footer-container {
 
 /* 이력서 분석 결과 - 핵심 키워드 + 강점 그리드 */
 .keyword-strength-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  margin-bottom: 20px !important;
 }
 
 /* ─── COUPON ADMIN ─── */
