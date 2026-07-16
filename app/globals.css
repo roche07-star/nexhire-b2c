@@ -4458,10 +4458,23 @@ footer.footer-container {
   .career-cards {
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px;
+    gap: 12px;
   }
   .career-card {
-    padding: 16px;
+    padding: 24px;
+  }
+  .career-card-type {
+    font-size: 9px;
+  }
+  .career-card-salary {
+    font-size: 14px;
+    word-break: keep-all;
+    word-wrap: break-word;
+  }
+  .career-card-desc {
+    font-size: 10px;
+    word-break: keep-all;
+    word-wrap: break-word;
   }
   .salary-band-wrap {
     padding: 12px;
