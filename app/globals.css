@@ -4393,7 +4393,7 @@ footer.footer-container {
     font-size: 14px;
   }
   .demo-modal-header {
-    padding: 28px 24px 0;
+    padding: 28px 16px 0;
   }
   .demo-modal-title {
     font-size: 26px;
@@ -4406,6 +4406,7 @@ footer.footer-container {
     line-height: 1.6;
   }
   .demo-modal-body {
+    padding: 0 16px 32px !important;
     max-height: calc(100vh - 280px);
   }
   .demo-feature-tabs {
@@ -4426,10 +4427,10 @@ footer.footer-container {
     gap: 12px !important;
   }
   .demo-scores {
-    padding: 12px;
+    padding: 24px;
   }
   .demo-summary-block {
-    padding: 12px;
+    padding: 24px;
     margin: 12px 0;
   }
 
@@ -4438,7 +4439,7 @@ footer.footer-container {
     gap: 16px !important;
   }
   .demo-modal .results-section {
-    padding: 16px !important;
+    padding: 24px !important;
   }
   .demo-modal .results-grid {
     grid-template-columns: 1fr !important;
