@@ -324,12 +324,12 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
                 {careerPaths.map((p, i) => (
                   <button
                     key={p.type}
-                    className={`career-card${i === activeCareer ? ' active' : ''}`}
+                    className={`career-card career-card--${p.type.toLowerCase()}${i === activeCareer ? ' active' : ''}`}
                     onClick={() => setActiveCareer(i)}
                   >
                     <div className="career-card-type">{p.type}</div>
                     <div className="career-card-salary" style={{ color: p.salaryColor }}>{p.salary}</div>
-                    <div className="career-card-title">{p.title}</div>
+                    <div className="career-card-desc">{p.desc}</div>
                   </button>
                 ))}
               </div>
