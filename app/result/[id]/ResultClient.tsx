@@ -312,6 +312,99 @@ export default function ResultClient({ analysisId, userType }: { analysisId: str
         </div>
       )}
 
+      {/* 추천 커리어 방향 */}
+      {result.career_paths && result.career_paths.length > 0 && (
+        <div style={{
+          background: '#fff',
+          border: '1px solid #e5e7eb',
+          borderRadius: 12,
+          padding: 24,
+          marginBottom: 20,
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        }}>
+          <h2 style={{ fontSize: 18, marginBottom: 16, color: '#1a1a1a' }}>💡 추천 커리어 방향</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {result.career_paths.map((path: any, idx: number) => (
+              <div
+                key={idx}
+                style={{
+                  padding: 16,
+                  background: path.type === 'RECOMMENDED' ? '#f0fdf4' : path.type === 'STRETCH' ? '#fef3c7' : '#f9fafb',
+                  border: `2px solid ${path.type === 'RECOMMENDED' ? '#22c55e' : path.type === 'STRETCH' ? '#f59e0b' : '#e5e7eb'}`,
+                  borderRadius: 8,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{
+                    padding: '4px 12px',
+                    background: path.type === 'RECOMMENDED' ? '#22c55e' : path.type === 'STRETCH' ? '#f59e0b' : '#6b7280',
+                    color: '#fff',
+                    borderRadius: 12,
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}>
+                    {path.label}
+                  </span>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#1a1a1a' }}>
+                    {path.title}
+                  </h3>
+                </div>
+                <p style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
+                  예상 연봉: {path.salary_range}
+                </p>
+
+                {/* 연봉 밴드 */}
+                {path.salary_bands && path.salary_bands.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#333' }}>
+                      📈 연봉 성장 예측
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {path.salary_bands.map((band: any, bidx: number) => (
+                        <div
+                          key={bidx}
+                          style={{
+                            flex: '1 1 auto',
+                            minWidth: '120px',
+                            padding: '8px 12px',
+                            background: '#fff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: 6,
+                          }}
+                        >
+                          <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>
+                            {band.period}
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>
+                            {band.min}~{band.max === 0 ? '협의' : band.max}만원
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 실전 조언 */}
+                {path.points && path.points.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#333' }}>
+                      🎯 실전 조언
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 20, color: '#555' }}>
+                      {path.points.map((point: string, pidx: number) => (
+                        <li key={pidx} style={{ marginBottom: 4, fontSize: 13, lineHeight: 1.5 }}>
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 하단 버튼 */}
       <div style={{ display: 'flex', gap: 12, marginTop: 32, flexWrap: 'wrap' }}>
         {userType === 'HEADHUNTER' && jdList.length > 0 && (
