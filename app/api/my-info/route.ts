@@ -34,7 +34,7 @@ export async function GET() {
   const extraCredits = user?.extra_credits || {}
 
   const usage: Record<string, { used: number; limit: number }> = {
-    analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze + (extraCredits.resume || 0) },
+    analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze + (extraCredits.analyze || 0) },
     jd:        { used: user?.jd_count ?? 0,        limit: limits.jd + (extraCredits.jd || 0) },
     rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite + (extraCredits.rewrite || 0) },
     interview: { used: user?.interview_count ?? 0, limit: limits.interview + (extraCredits.interview || 0) },
