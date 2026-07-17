@@ -109,19 +109,20 @@ export default function SavedTab({
         method: 'POST',
       })
 
+      const data = await res.json()
+
       if (!res.ok) {
-        const data = await res.json()
         alert(data.error || '이력서 생성 실패')
+        setGenerating(false)
         return
       }
 
-      const { resumeId } = await res.json()
-      setGeneratedResumeId(resumeId)
+      setGeneratedResumeId(data.resumeId)
+      setGenerating(false)
       alert('✅ 이력서가 생성되었습니다!')
     } catch (error) {
       console.error(error)
       alert('이력서 생성 중 오류가 발생했습니다.')
-    } finally {
       setGenerating(false)
     }
   }
