@@ -211,10 +211,16 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
             textAlign: 'center',
           }}
         >
-          <p>생성일: {new Date(resume.created_at).toLocaleString('ko-KR')}</p>
+          <p>생성일: {new Date(resume.created_at).toLocaleString('ko-KR', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+          })}</p>
           {resume.updated_at !== resume.created_at && (
             <p style={{ marginTop: '4px' }}>
-              최종 수정: {new Date(resume.updated_at).toLocaleString('ko-KR')}
+              최종 수정: {new Date(resume.updated_at).toLocaleString('ko-KR', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+              })}
             </p>
           )}
         </div>
