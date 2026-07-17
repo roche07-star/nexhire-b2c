@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface Resume {
   id: string
@@ -16,6 +16,13 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  // editing 모드로 전환 시 innerHTML 설정
+  useEffect(() => {
+    if (editing && contentRef.current) {
+      contentRef.current.innerHTML = resume.html_content
+    }
+  }, [editing, resume.html_content])
 
   const handleRegenerate = async () => {
     if (!confirm('이력서를 재생성하시겠습니까?\n\n기존 내용이 새로운 버전으로 교체됩니다.')) {
@@ -162,23 +169,29 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
             border: editing ? '2px solid #a78bfa' : 'none',
           }}
         >
-          <div
-            ref={contentRef}
-            contentEditable={editing}
-            suppressContentEditableWarning
-            dangerouslySetInnerHTML={!editing ? { __html: resume.html_content } : undefined}
-            style={{
-              padding: '40px',
-              color: '#000',
-              lineHeight: 1.6,
-              outline: editing ? '2px solid rgba(167, 139, 250, 0.2)' : 'none',
-              cursor: editing ? 'text' : 'default',
-            }}
-          >
-            {editing && resume.html_content && (
-              <div dangerouslySetInnerHTML={{ __html: resume.html_content }} />
-            )}
-          </div>
+          {editing ? (
+            <div
+              ref={contentRef}
+              contentEditable={true}
+              suppressContentEditableWarning
+              style={{
+                padding: '40px',
+                color: '#000',
+                lineHeight: 1.6,
+                outline: '2px solid rgba(167, 139, 250, 0.2)',
+                cursor: 'text',
+              }}
+            />
+          ) : (
+            <div
+              dangerouslySetInnerHTML={{ __html: resume.html_content }}
+              style={{
+                padding: '40px',
+                color: '#000',
+                lineHeight: 1.6,
+              }}
+            />
+          )}
         </div>
 
         {/* 메타 정보 */}
