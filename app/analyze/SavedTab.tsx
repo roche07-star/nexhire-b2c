@@ -185,14 +185,24 @@ export default function SavedTab({
                   👁️ 이력서 보기
                 </button>
               ) : (
-                <button
-                  className="btn btn-primary"
-                  onClick={handleGenerateResume}
-                  disabled={generating}
-                  style={{ fontSize: '16px', padding: '14px 32px' }}
-                >
-                  {generating ? '⏳ 생성 중...' : '📄 이력서 재생성'}
-                </button>
+                <>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleGenerateResume}
+                    disabled={generating}
+                    style={{ fontSize: '16px', padding: '14px 32px' }}
+                  >
+                    {generating ? '⏳ 생성 중...' : '📄 이력서 재생성'}
+                  </button>
+                  <p style={{
+                    marginTop: '12px',
+                    fontSize: '13px',
+                    color: 'var(--muted)',
+                    lineHeight: 1.5
+                  }}>
+                    분석된 결과를 바탕으로 개선된 이력서를 생성합니다.
+                  </p>
+                </>
               )}
               <style>{`
                 @keyframes spin {
