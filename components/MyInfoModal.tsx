@@ -660,8 +660,8 @@ export default function MyInfoButton() {
                                 </div>
                               )}
                             </div>
-                            {/* 삭제 버튼 (관리자만) */}
-                            {(info.userType === 'SUPER_ADMIN' || info.userType === 'MANAGER') && (
+                            {/* 삭제 버튼 (사용완료/만료 또는 관리자) */}
+                            {(c.status === 'used' || c.status === 'expired' || info.userType === 'SUPER_ADMIN' || info.userType === 'MANAGER') && (
                             <button
                               onClick={() => handleDeleteCoupon(c.id)}
                               style={{
@@ -687,7 +687,7 @@ export default function MyInfoButton() {
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.background = '#fef2f2'
                               }}
-                              title="쿠폰 삭제 (관리자 전용)"
+                              title={c.status === 'active' ? '쿠폰 삭제 (관리자 전용)' : '쿠폰 삭제'}
                             >
                               ×
                             </button>
