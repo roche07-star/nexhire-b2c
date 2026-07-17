@@ -135,7 +135,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
           disabled={regenerating || editing}
           style={{ minWidth: '120px' }}
         >
-          {regenerating ? '⏳ 재생성 중...' : '🔄 재생성'}
+          {regenerating ? '⏳ 생성 중...' : '🔄 재생성'}
         </button>
         <button
           className="btn btn-secondary"
@@ -260,7 +260,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
                 margin: '0 auto 20px',
               }}
             />
-            <p style={{ fontSize: '16px', fontWeight: 600 }}>이력서 재생성 중...</p>
+            <p style={{ fontSize: '16px', fontWeight: 600 }}>이력서 생성중...</p>
             <p style={{ marginTop: '8px', color: 'var(--muted)', fontSize: '14px' }}>
               약 60-90초 소요됩니다
             </p>
