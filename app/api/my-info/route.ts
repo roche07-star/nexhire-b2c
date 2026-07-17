@@ -55,7 +55,7 @@ export async function GET() {
 
   const couponList = (coupons ?? []).map(c => ({
     ...c,
-    status: c.used_at ? 'used'
+    status: c.used_at || (typeof c.used === 'number' && typeof c.credits === 'number' && c.used >= c.credits) ? 'used'
       : c.expires_at && new Date(c.expires_at) < now ? 'expired'
       : 'active',
   }))
