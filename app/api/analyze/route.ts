@@ -269,8 +269,19 @@ export async function POST(req: NextRequest) {
       console.log('[analyze] Usage check:', { email, allowed, limit, plan, remaining })
 
       if (!allowed) {
+        // 디버그 정보 포함 (클라이언트 콘솔에서 확인 가능)
         return NextResponse.json(
-          { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
+          {
+            error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.`,
+            debug: {
+              email,
+              plan,
+              limit,
+              remaining,
+              allowed,
+              message: '쿠폰이 있는데도 이 에러가 발생하면 Supabase coupons 테이블을 확인하세요.'
+            }
+          },
           { status: 403 }
         )
       }

@@ -1049,6 +1049,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       const res = await fetch('/api/analyze', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
+        // 디버그 정보 콘솔 출력
+        console.error('[analyze] API Error Response:', data)
+        if (data.debug) {
+          console.error('[analyze] Debug Info:', data.debug)
+        }
         setError(data.error || '알 수 없는 오류가 발생했습니다.')
         clearAnalysis() // 에러 시 뱃지 제거
       } else {
