@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
-import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { buildGenerateResumePrompt } from '@/lib/prompts/generate-resume'
 
 const supabase = createClient(
@@ -46,16 +45,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // 4. 건수 확인 (Manager는 무제한)
-    if (role !== 'MANAGER') {
-      const usage = await checkUsage(userEmail, 'resume')
-      if (!usage.allowed) {
-        return NextResponse.json({
-          error: '이력서 생성 건수가 부족합니다.',
-          upgradeRequired: true
-        }, { status: 403 })
-      }
-    }
+    // 4. 건수 확인 제거 (이력서 재생성은 무료)
 
     // 5. 이미 생성된 이력서가 있는지 확인
     const { data: existingResume } = await supabase
@@ -64,12 +54,7 @@ export async function POST(
       .eq('analysis_id', analysisId)
       .single()
 
-    if (existingResume) {
-      return NextResponse.json({
-        error: '이미 생성된 이력서가 있습니다. 이력서 보기를 이용해주세요.',
-        resumeId: existingResume.id
-      }, { status: 400 })
-    }
+    const isUpdate = !!existingResume
 
     // 6. Claude API 호출 (이력서 생성)
     const analysisResult = analysis.result
@@ -97,30 +82,49 @@ export async function POST(
       .join('\n')
       .trim()
 
-    // 7. DB에 저장
-    const { data: resume, error: insertError } = await supabase
-      .from('generated_resumes')
-      .insert({
-        analysis_id: analysisId,
-        user_email: userEmail,
-        html_content: htmlContent,
-      })
-      .select('id')
-      .single()
+    let resumeId: string
 
-    if (insertError || !resume) {
-      console.error('Insert error:', insertError)
-      return NextResponse.json({ error: '이력서 저장 실패' }, { status: 500 })
-    }
+    if (isUpdate) {
+      // 7-1. 기존 이력서 교체 (건수 차감 없음)
+      const { error: updateError } = await supabase
+        .from('generated_resumes')
+        .update({
+          html_content: htmlContent,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existingResume.id)
 
-    // 8. 건수 차감 (Manager는 제외)
-    if (role !== 'MANAGER') {
-      await incrementUsage(userEmail, 'resume')
+      if (updateError) {
+        console.error('Update error:', updateError)
+        return NextResponse.json({ error: '이력서 업데이트 실패' }, { status: 500 })
+      }
+
+      resumeId = existingResume.id
+    } else {
+      // 7-2. 새 이력서 생성 (건수 차감)
+      const { data: resume, error: insertError } = await supabase
+        .from('generated_resumes')
+        .insert({
+          analysis_id: analysisId,
+          user_email: userEmail,
+          html_content: htmlContent,
+        })
+        .select('id')
+        .single()
+
+      if (insertError || !resume) {
+        console.error('Insert error:', insertError)
+        return NextResponse.json({ error: '이력서 저장 실패' }, { status: 500 })
+      }
+
+      resumeId = resume.id
+      // 건수 차감 없음 (이력서 재생성 무료)
     }
 
     return NextResponse.json({
       success: true,
-      resumeId: resume.id,
+      resumeId,
+      isUpdate, // 클라이언트에 교체 여부 알림
     })
   } catch (error) {
     console.error('Generate resume error:', error)
