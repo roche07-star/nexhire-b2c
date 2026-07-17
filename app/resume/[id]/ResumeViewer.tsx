@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 interface Resume {
   id: string
@@ -13,6 +13,9 @@ interface Resume {
 
 export default function ResumeViewer({ resume }: { resume: Resume }) {
   const [regenerating, setRegenerating] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const handleRegenerate = async () => {
     if (!confirm('이력서를 재생성하시겠습니까?\n\n기존 내용이 새로운 버전으로 교체됩니다.')) {
@@ -42,13 +45,44 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
   }
 
   const handleDownload = () => {
-    const blob = new Blob([resume.html_content], { type: 'text/html;charset=utf-8' })
+    const content = editing && contentRef.current ? contentRef.current.innerHTML : resume.html_content
+    const blob = new Blob([content], { type: 'text/html;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `이력서_${new Date().toISOString().split('T')[0]}.html`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const handleSave = async () => {
+    if (!contentRef.current) return
+
+    const newContent = contentRef.current.innerHTML
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/resume/${resume.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html_content: newContent }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || '저장 실패')
+        return
+      }
+
+      alert('✅ 이력서가 저장되었습니다!')
+      setEditing(false)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert('저장 중 오류가 발생했습니다.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -86,11 +120,29 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
         <button
           className="btn btn-accent"
           onClick={handleRegenerate}
-          disabled={regenerating}
+          disabled={regenerating || editing}
           style={{ minWidth: '120px' }}
         >
           {regenerating ? '⏳ 재생성 중...' : '🔄 재생성'}
         </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => setEditing(!editing)}
+          disabled={regenerating}
+          style={{ minWidth: '120px' }}
+        >
+          {editing ? '👀 미리보기' : '✏️ 편집'}
+        </button>
+        {editing && (
+          <button
+            className="btn btn-primary"
+            onClick={handleSave}
+            disabled={saving}
+            style={{ minWidth: '120px' }}
+          >
+            {saving ? '💾 저장 중...' : '💾 저장'}
+          </button>
+        )}
       </div>
 
       {/* 이력서 내용 */}
@@ -105,18 +157,28 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
           style={{
             background: '#ffffff',
             borderRadius: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            boxShadow: editing ? '0 4px 20px rgba(167, 139, 250, 0.3)' : '0 4px 20px rgba(0,0,0,0.15)',
             overflow: 'hidden',
+            border: editing ? '2px solid #a78bfa' : 'none',
           }}
         >
           <div
-            dangerouslySetInnerHTML={{ __html: resume.html_content }}
+            ref={contentRef}
+            contentEditable={editing}
+            suppressContentEditableWarning
+            dangerouslySetInnerHTML={!editing ? { __html: resume.html_content } : undefined}
             style={{
               padding: '40px',
               color: '#000',
               lineHeight: 1.6,
+              outline: editing ? '2px solid rgba(167, 139, 250, 0.2)' : 'none',
+              cursor: editing ? 'text' : 'default',
             }}
-          />
+          >
+            {editing && resume.html_content && (
+              <div dangerouslySetInnerHTML={{ __html: resume.html_content }} />
+            )}
+          </div>
         </div>
 
         {/* 메타 정보 */}
