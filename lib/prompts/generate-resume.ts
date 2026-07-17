@@ -111,10 +111,42 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 - 줄 간격: 1.6
 - 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
 
+**중요: 레이아웃 구조**
+- ❌ position: absolute, fixed 절대 사용 금지
+- ❌ float 사용 금지
+- ✅ 모든 요소는 position: static 또는 relative만 사용
+- ✅ 문서 흐름(document flow)에 따라 위에서 아래로 배치
+- ✅ 섹션은 <section> 또는 <div>로 순차 배치
+- ✅ 각 섹션은 margin-bottom으로 간격 조절
+
 **주의사항:**
 - 개인정보가 원본에 없다면 [이름], [이메일], [전화번호] 플레이스홀더 사용
 - 과장하지 말고 사실 기반 작성
 - 마크다운 코드 블록(\`\`\`html) 없이 순수 HTML만 출력
+
+**HTML 구조 예시:**
+\`\`\`html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>이력서</title>
+  <style>
+    body { margin: 0; padding: 40px; font-family: 'Noto Sans KR', sans-serif; }
+    section { margin-bottom: 24px; position: relative; }
+    h2 { color: #2563eb; font-size: 20px; margin-bottom: 12px; }
+    /* position: absolute 금지! */
+  </style>
+</head>
+<body>
+  <section class="header">...</section>
+  <section class="summary">...</section>
+  <section class="skills">...</section>
+  <section class="experience">...</section>
+  <footer>JOBIZIC ...</footer>
+</body>
+</html>
+\`\`\`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
