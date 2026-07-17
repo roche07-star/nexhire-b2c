@@ -14,7 +14,7 @@ export async function GET() {
       .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
       .eq('email', email).single(),
     supabase.from('coupons')
-      .select('id, code, feature, used_at, expires_at, claimed_at')
+      .select('id, code, feature, used, credits, used_at, expires_at, claimed_at')
       .eq('claimed_by', email)
       .is('deleted_at', null)
       .order('claimed_at', { ascending: false }),
@@ -33,11 +33,19 @@ export async function GET() {
   // 쿠폰으로 획득한 추가 사용 횟수
   const extraCredits = user?.extra_credits || {}
 
+  // 쿠폰 사용 횟수 계산 (feature별)
+  const couponUsed: Record<string, number> = {}
+  ;(coupons ?? []).forEach(c => {
+    if (c.feature && typeof c.used === 'number' && typeof c.credits === 'number') {
+      couponUsed[c.feature] = (couponUsed[c.feature] || 0) + c.used
+    }
+  })
+
   const usage: Record<string, { used: number; limit: number }> = {
-    analyze:   { used: user?.analyze_count ?? 0,   limit: limits.analyze + (extraCredits.analyze || 0) },
-    jd:        { used: user?.jd_count ?? 0,        limit: limits.jd + (extraCredits.jd || 0) },
-    rewrite:   { used: user?.rewrite_count ?? 0,   limit: limits.rewrite + (extraCredits.rewrite || 0) },
-    interview: { used: user?.interview_count ?? 0, limit: limits.interview + (extraCredits.interview || 0) },
+    analyze:   { used: (user?.analyze_count ?? 0) + (couponUsed.analyze || 0),   limit: limits.analyze + (extraCredits.analyze || 0) },
+    jd:        { used: (user?.jd_count ?? 0) + (couponUsed.jd || 0),        limit: limits.jd + (extraCredits.jd || 0) },
+    rewrite:   { used: (user?.rewrite_count ?? 0) + (couponUsed.rewrite || 0),   limit: limits.rewrite + (extraCredits.rewrite || 0) },
+    interview: { used: (user?.interview_count ?? 0) + (couponUsed.interview || 0), limit: limits.interview + (extraCredits.interview || 0) },
   }
 
   // 헤드헌터만 클라이언트 제안서 표시
