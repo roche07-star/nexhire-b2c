@@ -744,7 +744,7 @@ ${maskedText.slice(0, 3000)}
     const resultToSave = JSON.parse(JSON.stringify(resultPayload)) as Record<string, unknown>
     const { data: insertData, error: insertError } = await supabase
       .from('analyses')
-      .insert({ user_email: email, result: resultToSave })
+      .insert({ user_email: email, result: resultToSave, original_text: maskedText })
       .select('id')
       .single()
     if (insertError) {
