@@ -107,7 +107,7 @@ export async function checkUsage(
   }
 
   // 플랜 한도 초과: 쿠폰 확인
-  const { data: allCoupons } = await supabase
+  const { data: allCoupons, error: couponError } = await supabase
     .from('coupons')
     .select('id, credits, used, expires_at')
     .eq('claimed_by', email)
@@ -115,10 +115,23 @@ export async function checkUsage(
     .gt('expires_at', new Date().toISOString()) // 만료되지 않음
     .order('expires_at', { ascending: true }) // 만료 임박 순
 
+  console.log(`[checkUsage] 쿠폰 조회:`, {
+    email,
+    feature,
+    totalCoupons: allCoupons?.length ?? 0,
+    couponError,
+    coupons: allCoupons
+  })
+
   // ✅ 타입 안정성: 남은 횟수가 있는 쿠폰만 필터링
   type CouponRow = { id: string; credits: number; used: number; expires_at: string | null }
   const availableCoupons = (allCoupons as CouponRow[] || []).filter(c => c.used < c.credits)
   const hasAvailableCoupon = availableCoupons.length > 0
+
+  console.log(`[checkUsage] 사용 가능 쿠폰:`, {
+    availableCount: availableCoupons.length,
+    totalRemaining: hasAvailableCoupon ? availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0) : 0
+  })
 
   return {
     allowed: hasAvailableCoupon,

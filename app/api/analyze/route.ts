@@ -263,8 +263,11 @@ export async function POST(req: NextRequest) {
     // 사용량 체크 (MANAGER 제외)
     let userPlan = 'FREE' // 기본값
     if (role !== 'MANAGER') {
-      const { allowed, limit, plan } = await checkUsage(email, 'analyze')
+      const { allowed, limit, plan, remaining } = await checkUsage(email, 'analyze')
       userPlan = plan // 사용자 플랜 저장
+
+      console.log('[analyze] Usage check:', { email, allowed, limit, plan, remaining })
+
       if (!allowed) {
         return NextResponse.json(
           { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 등록하세요.` },
