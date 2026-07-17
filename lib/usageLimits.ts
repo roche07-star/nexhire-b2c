@@ -187,10 +187,9 @@ export async function incrementUsage(email: string, feature: Feature): Promise<v
     .eq('feature', feature)
     .gt('expires_at', new Date().toISOString())
     .is('deleted_at', null)
-    .order('expires_at', { ascending: true })
-    .limit(1)
+    .order('expires_at', { ascending: true })  // 만료 임박 순
 
-  // ✅ 타입 안정성
+  // ✅ 타입 안정성: 사용 가능한 쿠폰 찾기 (used < credits)
   type CouponRow = { id: string; credits: number; used: number; expires_at: string | null }
   const availableCoupon = (coupons as CouponRow[] || []).find(c => c.used < c.credits)
 
