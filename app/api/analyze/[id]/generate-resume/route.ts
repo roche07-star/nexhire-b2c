@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { buildGenerateResumePrompt } from '@/lib/prompts/generate-resume'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -26,6 +27,7 @@ export async function POST(
 
     const userEmail = session.user.email
     const role = session.user.role ?? 'USER'
+    const plan = session.user.plan ?? 'FREE'
     const params = await context.params
     const analysisId = params.id
 
@@ -45,9 +47,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // 4. 건수 확인 제거 (이력서 재생성은 무료)
-
-    // 5. 이미 생성된 이력서가 있는지 확인
+    // 4. 이미 생성된 이력서가 있는지 확인
     const { data: existingResume } = await supabase
       .from('generated_resumes')
       .select('id')
@@ -55,6 +55,26 @@ export async function POST(
       .single()
 
     const isUpdate = !!existingResume
+
+    // 5. 플랜별 제한 체크
+    if (plan === 'FREE' && isUpdate) {
+      // FREE 플랜: 1번만 생성 가능 (재생성 불가)
+      return NextResponse.json({
+        error: 'FREE 플랜은 분석당 1개의 이력서만 생성 가능합니다. PRO 플랜으로 업그레이드하시면 무제한 재생성이 가능합니다.',
+        upgradeRequired: true
+      }, { status: 403 })
+    }
+
+    // 6. PRO/EXPERT 플랜: 건수 확인 (Manager는 무제한)
+    if (plan !== 'FREE' && role !== 'MANAGER') {
+      const usage = await checkUsage(userEmail, 'resume')
+      if (!usage.allowed) {
+        return NextResponse.json({
+          error: '이력서 생성 건수가 부족합니다.',
+          upgradeRequired: true
+        }, { status: 403 })
+      }
+    }
 
     // 6. Claude API 호출 (이력서 생성)
     const analysisResult = analysis.result
@@ -100,8 +120,13 @@ export async function POST(
       }
 
       resumeId = existingResume.id
+
+      // 7-1-1. PRO/EXPERT 재생성 시 건수 차감
+      if (plan !== 'FREE' && role !== 'MANAGER') {
+        await incrementUsage(userEmail, 'resume')
+      }
     } else {
-      // 7-2. 새 이력서 생성 (건수 차감)
+      // 7-2. 새 이력서 생성
       const { data: resume, error: insertError } = await supabase
         .from('generated_resumes')
         .insert({
@@ -118,7 +143,11 @@ export async function POST(
       }
 
       resumeId = resume.id
-      // 건수 차감 없음 (이력서 재생성 무료)
+
+      // 7-2-1. PRO/EXPERT 첫 생성 시 건수 차감 (FREE는 무료)
+      if (plan !== 'FREE' && role !== 'MANAGER') {
+        await incrementUsage(userEmail, 'resume')
+      }
     }
 
     return NextResponse.json({
