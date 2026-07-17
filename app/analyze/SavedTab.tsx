@@ -11,6 +11,7 @@ interface SavedTabProps {
   deletingAnalysisId: string | null
   isPro: boolean
   userType: string | null | undefined
+  userRole?: string
   userEmail: string | null
   showHiringModal: boolean
   hiringProcessCreating: boolean
@@ -46,6 +47,7 @@ export default function SavedTab({
   deletingAnalysisId,
   isPro,
   userType,
+  userRole,
   userEmail,
   showHiringModal,
   hiringProcessCreating,
@@ -123,7 +125,7 @@ export default function SavedTab({
           />
 
           {/* 이력서 재생성 버튼 (구직자만) */}
-          {userType?.toUpperCase() !== 'HEADHUNTER' && userType?.toUpperCase() !== 'MANAGER' && (
+          {userType?.toUpperCase() !== 'HEADHUNTER' && userRole !== 'MANAGER' && (
             <div style={{ marginTop: '32px', textAlign: 'center' }}>
               {generatedResumeId ? (
                 <button

@@ -1460,6 +1460,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 deletingAnalysisId={deletingAnalysisId}
                 isPro={isPro}
                 userType={userType}
+                userRole={userRole}
                 userEmail={userEmail}
                 showHiringModal={showHiringModal}
                 hiringProcessCreating={hiringProcessCreating}
