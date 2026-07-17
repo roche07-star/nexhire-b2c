@@ -20,6 +20,7 @@ ${originalText}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 분석 결과
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• 이름: ${analysisResult.candidate_name || '[이름]'}
 • 직무: ${analysisResult.job_title || '미지정'}
 • 경력: ${analysisResult.experience_years || 0}년
 • 핵심 키워드: ${(analysisResult.keywords || []).join(', ')}
@@ -90,10 +91,10 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 
 **포함할 섹션:**
 1. **기본 정보** (상단 헤더)
-   - 이름 (없으면 [이름])
-   - 연락처 (없으면 [전화번호])
-   - 이메일 (없으면 [이메일])
-   - 직무/포지션
+   - ❗이름: 분석 결과의 candidate_name 사용 (있으면 반드시 표시!)
+   - 연락처 (원본에서 추출, 없으면 [전화번호])
+   - 이메일 (원본에서 추출, 없으면 [이메일])
+   - ❗직무/포지션: 분석 결과의 job_title 사용 (반드시 표시!)
 
 2. **경력 요약** (3-5줄)
    - 총 경력 연수
@@ -127,7 +128,9 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 **디자인 가이드:**
 - 글꼴: Noto Sans KR, 맑은 고딕, sans-serif
 - 색상: 블랙(#000) 기본, 강조색(#2563eb) 섹션 제목
-- 여백: 상하좌우 40px, 섹션 간 24px
+- 여백:
+  * 데스크톱 (768px 이상): 상하좌우 40px, 섹션 간 24px
+  * 모바일 (768px 미만): 상하좌우 16px, 섹션 간 20px (화면 넓게 활용!)
 - 폰트 크기: 이름 28px, 섹션 제목 20px, 본문 14px
 - 줄 간격: 1.6
 - 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
@@ -151,16 +154,36 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>이력서</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이력서 - [이름]</title>
   <style>
-    body { margin: 0; padding: 40px; font-family: 'Noto Sans KR', sans-serif; }
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      line-height: 1.6;
+    }
     section { margin-bottom: 24px; position: relative; }
+    h1 { font-size: 28px; margin: 0 0 8px 0; }
     h2 { color: #2563eb; font-size: 20px; margin-bottom: 12px; }
+
+    /* 모바일 반응형: 화면 넓게 활용! */
+    @media (max-width: 768px) {
+      body { padding: 16px !important; }
+      section { margin-bottom: 20px; }
+      h1 { font-size: 24px; }
+      h2 { font-size: 18px; }
+    }
+
     /* position: absolute 금지! */
   </style>
 </head>
 <body>
-  <section class="header">...</section>
+  <section class="header">
+    <h1>[이름]</h1>
+    <p>[직무] · [경력]년</p>
+    ...
+  </section>
   <section class="summary">...</section>
   <section class="skills">...</section>
   <section class="experience">...</section>
