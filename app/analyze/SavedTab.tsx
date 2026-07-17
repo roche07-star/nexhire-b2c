@@ -157,27 +157,33 @@ export default function SavedTab({
             }}>
               {generating && (
                 <div style={{
-                  marginBottom: '16px',
-                  padding: '12px',
-                  background: 'rgba(232, 255, 71, 0.1)',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(232, 255, 71, 0.3)',
+                  marginBottom: '20px',
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  borderRadius: '12px',
+                  border: '2px solid #60a5fa',
+                  boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '12px'
+                  gap: '16px'
                 }}>
                   <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid rgba(232, 255, 71, 0.3)',
-                    borderTopColor: '#e8ff47',
+                    width: '28px',
+                    height: '28px',
+                    border: '3px solid rgba(255, 255, 255, 0.3)',
+                    borderTopColor: '#ffffff',
                     borderRadius: '50%',
                     animation: 'spin 0.8s linear infinite'
                   }} />
-                  <span style={{ color: '#e8ff47', fontWeight: 600, fontSize: '14px' }}>
-                    AI가 개선된 이력서를 작성하고 있습니다... (약 60-90초 소요)
-                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ color: '#ffffff', fontWeight: 700, fontSize: '16px' }}>
+                      ⏳ 이력서 분석 중...
+                    </span>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '13px' }}>
+                      AI가 개선된 이력서를 작성하고 있습니다 (약 60-90초 소요)
+                    </span>
+                  </div>
                 </div>
               )}
               {generatedResumeId ? (
