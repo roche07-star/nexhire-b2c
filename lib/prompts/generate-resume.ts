@@ -62,6 +62,8 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 2. **인라인 CSS**: 모든 스타일은 <style> 태그 또는 인라인으로 (외부 CSS 없이)
 3. **한국 기업용 레이아웃**: 깔끔하고 전문적인 디자인
 4. **인쇄 최적화**: A4 용지 기준 (210mm × 297mm)
+   - **여러 페이지 가능**: 경력이 많으면 2-3페이지로 작성 (내용 절대 생략 금지)
+   - CSS에 @page 설정 및 page-break-after 속성 사용
 5. **반응형 디자인**: 모바일에서도 읽기 쉽게
 6. **편집 가능**: contenteditable 속성 없이 (사용자가 직접 편집할 예정)
 
@@ -107,6 +109,7 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 - 여백: 상하좌우 40px, 섹션 간 24px
 - 폰트 크기: 이름 28px, 섹션 제목 20px, 본문 14px
 - 줄 간격: 1.6
+- 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
 
 **주의사항:**
 - 개인정보가 원본에 없다면 [이름], [이메일], [전화번호] 플레이스홀더 사용
