@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 import { buildGenerateResumePrompt } from '@/lib/prompts/generate-resume'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -46,15 +47,18 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // 4. 재생성 제한 (모든 플랜 1번 무료, 그 이후 차단)
-    const alreadyRegenerated = resume.created_at !== resume.updated_at
-    if (alreadyRegenerated) {
-      return NextResponse.json({
-        error: '이력서는 1번만 재생성할 수 있습니다. 추가 수정이 필요하시면 편집 기능을 이용해주세요.',
-      }, { status: 403 })
+    // 4. 건수 확인 (Manager는 무제한)
+    if (role !== 'MANAGER') {
+      const usage = await checkUsage(userEmail, 'resume')
+      if (!usage.allowed) {
+        return NextResponse.json({
+          error: '이력서 생성 건수가 부족합니다.',
+          upgradeRequired: true
+        }, { status: 403 })
+      }
     }
 
-    // 4. 분석 결과 조회
+    // 5. 분석 결과 조회
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
       .select('*')
@@ -65,7 +69,7 @@ export async function PUT(
       return NextResponse.json({ error: '분석 결과를 찾을 수 없습니다.' }, { status: 404 })
     }
 
-    // 5. Claude API 호출 (이력서 재생성)
+    // 6. Claude API 호출 (이력서 재생성)
     const analysisResult = analysis.result
     const originalText = analysis.original_text || ''
 
@@ -91,7 +95,7 @@ export async function PUT(
       .join('\n')
       .trim()
 
-    // 6. DB 업데이트 (기존 이력서 교체)
+    // 7. DB 업데이트 (기존 이력서 교체)
     const { error: updateError } = await supabase
       .from('generated_resumes')
       .update({
@@ -105,7 +109,10 @@ export async function PUT(
       return NextResponse.json({ error: '이력서 업데이트 실패' }, { status: 500 })
     }
 
-    // 건수 차감 없음!
+    // 8. 건수 차감 (모든 플랜)
+    if (role !== 'MANAGER') {
+      await incrementUsage(userEmail, 'resume')
+    }
 
     return NextResponse.json({
       success: true,

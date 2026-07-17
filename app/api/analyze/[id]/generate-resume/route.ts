@@ -121,8 +121,8 @@ export async function POST(
 
       resumeId = existingResume.id
 
-      // 7-1-1. PRO/EXPERT 재생성 시 건수 차감
-      if (plan !== 'FREE' && role !== 'MANAGER') {
+      // 7-1-1. 재생성 시 건수 차감 (모든 플랜)
+      if (role !== 'MANAGER') {
         await incrementUsage(userEmail, 'resume')
       }
     } else {
@@ -144,8 +144,8 @@ export async function POST(
 
       resumeId = resume.id
 
-      // 7-2-1. PRO/EXPERT 첫 생성 시 건수 차감 (FREE는 무료)
-      if (plan !== 'FREE' && role !== 'MANAGER') {
+      // 7-2-1. 첫 생성 시 건수 차감 (모든 플랜)
+      if (role !== 'MANAGER') {
         await incrementUsage(userEmail, 'resume')
       }
     }
