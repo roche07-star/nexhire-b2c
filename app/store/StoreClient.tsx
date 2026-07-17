@@ -11,7 +11,7 @@ interface Product {
   nameEn: string
   price: number
   originalPrice?: number
-  feature: 'storage' | 'resume' | 'jd' | 'rewrite' | 'proposal' | 'interview' | 'package'
+  feature: 'storage' | 'analyze' | 'resume' | 'jd' | 'rewrite' | 'proposal' | 'interview' | 'package'
   icon: string
   gradient: string
   description: string[]
@@ -24,7 +24,7 @@ const PRODUCTS: Product[] = [
     name: '이력서 분석',
     nameEn: 'Resume Analysis',
     price: 1900,
-    feature: 'resume',
+    feature: 'analyze',  // 수정: 'resume' → 'analyze'
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
     description: [
