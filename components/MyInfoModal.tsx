@@ -660,7 +660,8 @@ export default function MyInfoButton() {
                                 </div>
                               )}
                             </div>
-                            {/* 삭제 버튼 */}
+                            {/* 삭제 버튼 (관리자만) */}
+                            {(info.userType === 'SUPER_ADMIN' || info.userType === 'MANAGER') && (
                             <button
                               onClick={() => handleDeleteCoupon(c.id)}
                               style={{
@@ -686,10 +687,11 @@ export default function MyInfoButton() {
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.background = '#fef2f2'
                               }}
-                              title="쿠폰 삭제"
+                              title="쿠폰 삭제 (관리자 전용)"
                             >
                               ×
                             </button>
+                            )}
                           </div>
                         ))}
                       </div>

@@ -12,9 +12,15 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
+    // 🔒 관리자만 쿠폰 삭제 가능
+    const userType = session.user.userType
+    if (userType !== 'SUPER_ADMIN' && userType !== 'MANAGER') {
+      return NextResponse.json({ error: '쿠폰 삭제 권한이 없습니다. 관리자에게 문의하세요.' }, { status: 403 })
+    }
+
     const { id: couponId } = await params
 
-    // ✅ 타입 명시: 쿠폰 소유 확인
+    // ✅ 타입 명시: 쿠폰 확인
     const { data: coupon } = await supabase
       .from('coupons')
       .select('id, claimed_by, used_at')
@@ -23,10 +29,6 @@ export async function DELETE(
 
     if (!coupon) {
       return NextResponse.json({ error: '쿠폰을 찾을 수 없습니다.' }, { status: 404 })
-    }
-
-    if (coupon.claimed_by !== session.user.email) {
-      return NextResponse.json({ error: '본인의 쿠폰만 삭제할 수 있습니다.' }, { status: 403 })
     }
 
     // soft delete: deleted_at 설정
