@@ -105,8 +105,8 @@ export default function SavedTab({
 
     setGenerating(true)
 
-    // UI 업데이트를 위한 짧은 딜레이
-    await new Promise(resolve => setTimeout(resolve, 100))
+    // UI 업데이트를 위한 딜레이 (React 렌더링 보장)
+    await new Promise(resolve => setTimeout(resolve, 500))
 
     try {
       const res = await fetch(`/api/analyze/${savedSelectedItem.id}/generate-resume`, {
