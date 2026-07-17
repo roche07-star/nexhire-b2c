@@ -42,7 +42,7 @@ type UserRow = {
 export async function checkUsage(
   email: string,
   feature: Feature,
-): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number }> {
+): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number; couponDebug?: any }> {
   const { data } = await supabase
     .from('users')
     .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, monthly_reset_at')
@@ -138,6 +138,18 @@ export async function checkUsage(
     remaining: hasAvailableCoupon ? availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0) : 0,
     plan,
     limit,
+    couponDebug: {
+      totalCoupons: allCoupons?.length ?? 0,
+      availableCoupons: availableCoupons.length,
+      coupons: allCoupons?.map(c => ({
+        id: c.id,
+        credits: c.credits,
+        used: c.used,
+        remaining: c.credits - c.used,
+        expires_at: c.expires_at
+      })),
+      couponError: couponError?.message
+    }
   }
 }
 

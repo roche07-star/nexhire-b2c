@@ -263,10 +263,10 @@ export async function POST(req: NextRequest) {
     // 사용량 체크 (MANAGER 제외)
     let userPlan = 'FREE' // 기본값
     if (role !== 'MANAGER') {
-      const { allowed, limit, plan, remaining } = await checkUsage(email, 'analyze')
+      const { allowed, limit, plan, remaining, couponDebug } = await checkUsage(email, 'analyze')
       userPlan = plan // 사용자 플랜 저장
 
-      console.log('[analyze] Usage check:', { email, allowed, limit, plan, remaining })
+      console.log('[analyze] Usage check:', { email, allowed, limit, plan, remaining, couponDebug })
 
       if (!allowed) {
         // 디버그 정보 포함 (클라이언트 콘솔에서 확인 가능)
@@ -279,7 +279,8 @@ export async function POST(req: NextRequest) {
               limit,
               remaining,
               allowed,
-              message: '쿠폰이 있는데도 이 에러가 발생하면 Supabase coupons 테이블을 확인하세요.'
+              couponDebug,
+              message: '쿠폰이 있는데도 이 에러가 발생하면 아래 couponDebug를 확인하세요.'
             }
           },
           { status: 403 }
