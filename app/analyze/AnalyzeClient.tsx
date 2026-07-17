@@ -165,16 +165,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewViewingSaved, setInterviewViewingSaved] = useState<SavedInterviewGuide | null>(null)
   const [showNewInterview, setShowNewInterview] = useState(false)
 
-  // [디버깅] userType, userRole 값 확인
-  useEffect(() => {
-    console.log('🔍 [미르팀 디버깅]')
-    console.log('userType:', userType)
-    console.log('userRole:', userRole)
-    console.log('userType?.toUpperCase():', userType?.toUpperCase())
-    console.log('조건 체크 (HEADHUNTER):', userType?.toUpperCase() === 'HEADHUNTER')
-    console.log('조건 체크 (MANAGER):', userRole === 'MANAGER')
-  }, [userType, userRole])
-
   // 면접 가이드 목록 자동 로드 (생성 후 갱신용)
   useEffect(() => {
     if (activeMenu === 'interview' && interviewSavedList === null && !interviewSavedListLoading) {
