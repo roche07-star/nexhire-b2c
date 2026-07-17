@@ -1439,7 +1439,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (<>분석 Report<br/>및<br/>이력서 재생성</>) : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
+                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? '분석 & 이력서 재생성' : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 JOBIZIC이 3분 안에 커리어 방향을 제시합니다.</p>
