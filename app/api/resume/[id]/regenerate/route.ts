@@ -49,7 +49,7 @@ export async function PUT(
 
     // 4. 건수 확인 (Manager는 무제한)
     if (role !== 'MANAGER') {
-      const usage = await checkUsage(userEmail, 'resume')
+      const usage = await checkUsage(userEmail, 'rewrite')
       if (!usage.allowed) {
         return NextResponse.json({
           error: '이력서 생성 건수가 부족합니다.',
@@ -111,7 +111,7 @@ export async function PUT(
 
     // 8. 건수 차감 (모든 플랜)
     if (role !== 'MANAGER') {
-      await incrementUsage(userEmail, 'resume')
+      await incrementUsage(userEmail, 'rewrite')
     }
 
     return NextResponse.json({

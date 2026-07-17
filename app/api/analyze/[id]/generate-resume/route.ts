@@ -67,7 +67,7 @@ export async function POST(
 
     // 6. PRO/EXPERT 플랜: 건수 확인 (Manager는 무제한)
     if (plan !== 'FREE' && role !== 'MANAGER') {
-      const usage = await checkUsage(userEmail, 'resume')
+      const usage = await checkUsage(userEmail, 'rewrite')
       if (!usage.allowed) {
         return NextResponse.json({
           error: '이력서 생성 건수가 부족합니다.',
@@ -123,7 +123,7 @@ export async function POST(
 
       // 7-1-1. 재생성 시 건수 차감 (모든 플랜)
       if (role !== 'MANAGER') {
-        await incrementUsage(userEmail, 'resume')
+        await incrementUsage(userEmail, 'rewrite')
       }
     } else {
       // 7-2. 새 이력서 생성
@@ -146,7 +146,7 @@ export async function POST(
 
       // 7-2-1. 첫 생성 시 건수 차감 (모든 플랜)
       if (role !== 'MANAGER') {
-        await incrementUsage(userEmail, 'resume')
+        await incrementUsage(userEmail, 'rewrite')
       }
     }
 
