@@ -17,9 +17,17 @@ export async function DELETE(
     // ✅ 타입 명시: 쿠폰 확인
     const { data: coupon } = await supabase
       .from('coupons')
-      .select('id, claimed_by, used_at, expires_at')
+      .select('id, claimed_by, used_at, expires_at, credits, used, feature')
       .eq('id', couponId)
-      .single<{ id: string; claimed_by: string | null; used_at: string | null; expires_at: string | null }>()
+      .single<{
+        id: string
+        claimed_by: string | null
+        used_at: string | null
+        expires_at: string | null
+        credits: number | null
+        used: number | null
+        feature: string | null
+      }>()
 
     if (!coupon) {
       return NextResponse.json({ error: '쿠폰을 찾을 수 없습니다.' }, { status: 404 })
