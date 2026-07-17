@@ -112,6 +112,7 @@ export async function checkUsage(
     .select('id, credits, used, expires_at')
     .eq('claimed_by', email)
     .eq('feature', feature)
+    .is('deleted_at', null) // 삭제되지 않음
     .gt('expires_at', new Date().toISOString()) // 만료되지 않음
     .order('expires_at', { ascending: true }) // 만료 임박 순
 

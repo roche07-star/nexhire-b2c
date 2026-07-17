@@ -39,6 +39,9 @@ export async function DELETE(
       return NextResponse.json({ error: '사용 가능한 쿠폰은 삭제할 수 없습니다. 사용 완료 후 삭제 가능합니다.' }, { status: 403 })
     }
 
+    // 남은 크레딧 계산
+    const remainingCredits = Math.max(0, (coupon.credits || 0) - (coupon.used || 0))
+
     // soft delete: deleted_at 설정
     const { error } = await supabase
       .from('coupons')
@@ -48,6 +51,33 @@ export async function DELETE(
     if (error) {
       console.error('[coupons/delete]', error)
       return NextResponse.json({ error: '삭제에 실패했습니다.' }, { status: 500 })
+    }
+
+    // ✅ extra_credits에서 남은 크레딧 감소 (동기화)
+    if (remainingCredits > 0 && coupon.feature && coupon.claimed_by) {
+      const { data: user } = await supabase
+        .from('users')
+        .select('extra_credits')
+        .eq('email', coupon.claimed_by)
+        .single()
+
+      if (user) {
+        const extraCredits = user.extra_credits || {}
+        const currentExtra = extraCredits[coupon.feature] || 0
+        const newExtra = Math.max(0, currentExtra - remainingCredits)
+
+        await supabase
+          .from('users')
+          .update({
+            extra_credits: {
+              ...extraCredits,
+              [coupon.feature]: newExtra
+            }
+          })
+          .eq('email', coupon.claimed_by)
+
+        console.log(`[coupons/delete] extra_credits 감소: ${coupon.feature} -${remainingCredits}`)
+      }
     }
 
     return NextResponse.json({ success: true })
