@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import MyInfoButton from './MyInfoModal'
 import LogoutButton from './LogoutButton'
 import AnalysisBadge from './AnalysisBadge'
+import ResumeGeneratingBadge from './ResumeGeneratingBadge'
 import NavLinks from './NavLinks'
 
 const JobizicLogo = () => (
@@ -37,6 +38,7 @@ export default async function Nav({ minimal = false }: { minimal?: boolean }) {
       )}
       <div className="nav-cta">
         <AnalysisBadge />
+        <ResumeGeneratingBadge />
         {user ? (
           <div className="nav-user">
             {user.image && (

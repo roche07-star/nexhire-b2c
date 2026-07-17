@@ -104,6 +104,7 @@ export default function SavedTab({
     if (!savedSelectedItem || generating) return
 
     setGenerating(true)
+    localStorage.setItem('resumeGenerating', 'true') // 전역 표시용
 
     // UI 업데이트를 위한 딜레이 (React 렌더링 보장)
     await new Promise(resolve => setTimeout(resolve, 500))
@@ -118,16 +119,19 @@ export default function SavedTab({
       if (!res.ok) {
         alert(data.error || '이력서 생성 실패')
         setGenerating(false)
+        localStorage.removeItem('resumeGenerating') // 전역 표시 제거
         return
       }
 
       setGeneratedResumeId(data.resumeId)
       setGenerating(false)
+      localStorage.removeItem('resumeGenerating') // 전역 표시 제거
       alert('✅ 이력서가 생성되었습니다!')
     } catch (error) {
       console.error(error)
       alert('이력서 생성 중 오류가 발생했습니다.')
       setGenerating(false)
+      localStorage.removeItem('resumeGenerating') // 전역 표시 제거
     }
   }
 

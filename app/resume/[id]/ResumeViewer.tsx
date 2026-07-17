@@ -30,6 +30,8 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
     }
 
     setRegenerating(true)
+    localStorage.setItem('resumeGenerating', 'true') // 전역 표시용
+
     try {
       const res = await fetch(`/api/resume/${resume.id}/regenerate`, {
         method: 'PUT',
@@ -38,16 +40,19 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
       if (!res.ok) {
         const data = await res.json()
         alert(data.error || '재생성 실패')
+        setRegenerating(false)
+        localStorage.removeItem('resumeGenerating') // 전역 표시 제거
         return
       }
 
       alert('✅ 이력서가 재생성되었습니다!')
+      localStorage.removeItem('resumeGenerating') // 전역 표시 제거
       window.location.reload()
     } catch (error) {
       console.error(error)
       alert('재생성 중 오류가 발생했습니다.')
-    } finally {
       setRegenerating(false)
+      localStorage.removeItem('resumeGenerating') // 전역 표시 제거
     }
   }
 
