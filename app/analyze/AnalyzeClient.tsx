@@ -39,7 +39,7 @@ import {
   INTERVIEW_LOADING_STEPS,
 } from '@/constants/analyze'
 
-export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null }) {
+export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType, userRole }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null; userRole?: string }) {
   const {
     state: analysisState,
     startAnalysis,
@@ -1439,7 +1439,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
+                    {activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' || userRole === 'MANAGER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 JOBIZIC이 3분 안에 커리어 방향을 제시합니다.</p>

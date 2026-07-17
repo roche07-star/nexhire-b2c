@@ -42,6 +42,7 @@ export default async function AnalyzePage() {
   let isExpert = false
   let userEmail: string | null = null
   let userType: string | null = null
+  let role: string = 'USER'
 
   try {
     const session = await auth()
@@ -50,7 +51,7 @@ export default async function AnalyzePage() {
       // 세션에서 직접 가져오기 (DB 쿼리 제거)
       const plan = session.user.plan ?? 'FREE'
       userType = session.user.userType ?? null
-      const role = session.user.role ?? 'USER'
+      role = session.user.role ?? 'USER'
       isExpert = plan === 'EXPERT' || role === 'MANAGER'
       isPro = plan === 'PRO' || isExpert
     }
@@ -67,6 +68,7 @@ export default async function AnalyzePage() {
           initialIsExpert={isExpert}
           userEmail={userEmail}
           userType={userType}
+          userRole={role}
         />
       </Suspense>
       <Footer />
