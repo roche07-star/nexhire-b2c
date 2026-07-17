@@ -25,6 +25,8 @@ export async function PUT(
     }
 
     const userEmail = session.user.email
+    const plan = session.user.plan ?? 'FREE'
+    const role = session.user.role ?? 'USER'
     const params = await context.params
     const resumeId = params.id
 
@@ -42,6 +44,17 @@ export async function PUT(
     // 3. 권한 확인
     if (resume.user_email !== userEmail) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // 4. FREE 플랜 재생성 제한 (1번만 가능)
+    if (plan === 'FREE' && role !== 'MANAGER') {
+      const alreadyRegenerated = resume.created_at !== resume.updated_at
+      if (alreadyRegenerated) {
+        return NextResponse.json({
+          error: 'FREE 플랜은 이력서를 1번만 재생성할 수 있습니다. PRO 플랜으로 업그레이드하시면 무제한 재생성이 가능합니다.',
+          upgradeRequired: true
+        }, { status: 403 })
+      }
     }
 
     // 4. 분석 결과 조회
