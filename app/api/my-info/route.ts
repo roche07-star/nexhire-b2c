@@ -46,7 +46,6 @@ export async function GET() {
     jd:        { used: (user?.jd_count ?? 0) + (couponUsed.jd || 0),        limit: limits.jd + (extraCredits.jd || 0) },
     rewrite:   { used: (user?.rewrite_count ?? 0) + (couponUsed.rewrite || 0),   limit: limits.rewrite + (extraCredits.rewrite || 0) },
     interview: { used: (user?.interview_count ?? 0) + (couponUsed.interview || 0), limit: limits.interview + (extraCredits.interview || 0) },
-    resume:    { used: (user?.resume_count ?? 0) + (couponUsed.resume || 0),    limit: limits.resume + (extraCredits.resume || 0) },
   }
 
   // 헤드헌터만 클라이언트 제안서 표시
