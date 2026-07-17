@@ -4,12 +4,13 @@ import { PLAN_LIMITS, type Feature, type Plan, type UserType } from '@/lib/const
 // Re-export for backward compatibility
 export { PLAN_LIMITS, type Feature, type Plan, type UserType }
 
-const COUNT_COL: Record<Feature, 'analyze_count' | 'jd_count' | 'rewrite_count' | 'interview_count' | 'proposal_count'> = {
+const COUNT_COL: Record<Feature, 'analyze_count' | 'jd_count' | 'rewrite_count' | 'interview_count' | 'proposal_count' | 'resume_count'> = {
   analyze:   'analyze_count',
   jd:        'jd_count',
   rewrite:   'rewrite_count',
   interview: 'interview_count',
   proposal:  'proposal_count',
+  resume:    'resume_count',
 }
 
 const RPC_FN: Record<Feature, string> = {
@@ -18,6 +19,7 @@ const RPC_FN: Record<Feature, string> = {
   rewrite:   'increment_rewrite_count',
   interview: 'increment_interview_count',
   proposal:  'increment_proposal_count',
+  resume:    'increment_resume_count',
 }
 
 type UserRow = {
@@ -28,6 +30,7 @@ type UserRow = {
   rewrite_count: number
   interview_count: number
   proposal_count: number
+  resume_count: number
   monthly_reset_at: string | null
 }
 
@@ -42,7 +45,7 @@ export async function checkUsage(
 ): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number }> {
   const { data } = await supabase
     .from('users')
-    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, monthly_reset_at')
+    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, monthly_reset_at')
     .eq('email', email)
     .single()
 
