@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { AnalysisListItem } from '@/types/analyze'
 
 interface SavedTabProps {
@@ -67,6 +67,38 @@ export default function SavedTab({
 }: SavedTabProps) {
   const [generating, setGenerating] = useState(false)
   const [generatedResumeId, setGeneratedResumeId] = useState<string | null>(null)
+  const [checkingResume, setCheckingResume] = useState(false)
+
+  // 이미 생성된 이력서가 있는지 확인
+  const checkExistingResume = async (analysisId: string) => {
+    if (checkingResume) return
+
+    setCheckingResume(true)
+    try {
+      const res = await fetch(`/api/analyze/${analysisId}/check-resume`)
+      if (res.ok) {
+        const { resumeId } = await res.json()
+        if (resumeId) {
+          setGeneratedResumeId(resumeId)
+        } else {
+          setGeneratedResumeId(null)
+        }
+      }
+    } catch (error) {
+      console.error('Resume check error:', error)
+    } finally {
+      setCheckingResume(false)
+    }
+  }
+
+  // savedSelectedItem이 변경되면 이력서 확인
+  useEffect(() => {
+    if (savedSelectedItem?.id) {
+      checkExistingResume(savedSelectedItem.id)
+    } else {
+      setGeneratedResumeId(null)
+    }
+  }, [savedSelectedItem?.id])
 
   const handleGenerateResume = async () => {
     if (!savedSelectedItem || generating) return
