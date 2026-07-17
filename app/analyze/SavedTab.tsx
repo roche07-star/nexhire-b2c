@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { AnalysisListItem } from '@/types/analyze'
 
 interface SavedTabProps {
@@ -62,6 +63,35 @@ export default function SavedTab({
   onSetHiringJDInfo,
   AnalysisResults
 }: SavedTabProps) {
+  const [generating, setGenerating] = useState(false)
+  const [generatedResumeId, setGeneratedResumeId] = useState<string | null>(null)
+
+  const handleGenerateResume = async () => {
+    if (!savedSelectedItem || generating) return
+
+    setGenerating(true)
+    try {
+      const res = await fetch(`/api/analyze/${savedSelectedItem.id}/generate-resume`, {
+        method: 'POST',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || '이력서 생성 실패')
+        return
+      }
+
+      const { resumeId } = await res.json()
+      setGeneratedResumeId(resumeId)
+      alert('✅ 이력서가 생성되었습니다!')
+    } catch (error) {
+      console.error(error)
+      alert('이력서 생성 중 오류가 발생했습니다.')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   return (
     <div className="jd-section">
       {savedSelectedItem ? (
@@ -91,6 +121,35 @@ export default function SavedTab({
             hiringJDInfo={hiringJDInfo}
             setHiringJDInfo={onSetHiringJDInfo}
           />
+
+          {/* 이력서 재생성 버튼 (구직자만) */}
+          {userType?.toUpperCase() !== 'HEADHUNTER' && userType?.toUpperCase() !== 'MANAGER' && (
+            <div style={{ marginTop: '32px', textAlign: 'center' }}>
+              {generatedResumeId ? (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => window.open(`/resume/${generatedResumeId}`, '_blank')}
+                  style={{ fontSize: '16px', padding: '14px 32px' }}
+                >
+                  👁️ 이력서 보기
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary"
+                  onClick={handleGenerateResume}
+                  disabled={generating}
+                  style={{ fontSize: '16px', padding: '14px 32px' }}
+                >
+                  {generating ? '⏳ 생성 중...' : '📄 이력서 재생성'}
+                </button>
+              )}
+              {generating && (
+                <p style={{ marginTop: '12px', color: 'var(--muted)', fontSize: '14px' }}>
+                  AI가 개선된 이력서를 작성하고 있습니다... (약 60-90초 소요)
+                </p>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>
