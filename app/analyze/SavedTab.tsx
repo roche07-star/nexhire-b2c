@@ -107,26 +107,42 @@ export default function SavedTab({
               분석일: {new Date(savedSelectedItem.created_at).toLocaleDateString('ko-KR')}
             </span>
           </div>
-          <AnalysisResults
-            result={savedSelectedItem.result}
-            analysisId={savedSelectedItem.id}
-            isPro={isPro}
-            userType={userType}
-            userEmail={userEmail}
-            showHiringModal={showHiringModal}
-            setShowHiringModal={onSetShowHiringModal}
-            hiringProcessCreating={hiringProcessCreating}
-            setHiringProcessCreating={onSetHiringProcessCreating}
-            hiringModalTop={hiringModalTop}
-            setHiringModalTop={onSetHiringModalTop}
-            hiringButtonRef={hiringButtonRef}
-            hiringJDInfo={hiringJDInfo}
-            setHiringJDInfo={onSetHiringJDInfo}
-          />
 
-          {/* 이력서 재생성 버튼 (구직자만) */}
+          {/* 이력서 재생성 버튼 (구직자만) - 상단 배치 */}
           {userType?.toUpperCase() !== 'HEADHUNTER' && userRole !== 'MANAGER' && (
-            <div style={{ marginTop: '32px', textAlign: 'center' }}>
+            <div style={{
+              marginBottom: '24px',
+              padding: '20px',
+              background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
+              borderRadius: '12px',
+              border: '1px solid rgba(167, 139, 250, 0.2)',
+              textAlign: 'center'
+            }}>
+              {generating && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '12px',
+                  background: 'rgba(232, 255, 71, 0.1)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(232, 255, 71, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    border: '2px solid rgba(232, 255, 71, 0.3)',
+                    borderTopColor: '#e8ff47',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }} />
+                  <span style={{ color: '#e8ff47', fontWeight: 600, fontSize: '14px' }}>
+                    AI가 개선된 이력서를 작성하고 있습니다... (약 60-90초 소요)
+                  </span>
+                </div>
+              )}
               {generatedResumeId ? (
                 <button
                   className="btn btn-primary"
@@ -145,13 +161,30 @@ export default function SavedTab({
                   {generating ? '⏳ 생성 중...' : '📄 이력서 재생성'}
                 </button>
               )}
-              {generating && (
-                <p style={{ marginTop: '12px', color: 'var(--muted)', fontSize: '14px' }}>
-                  AI가 개선된 이력서를 작성하고 있습니다... (약 60-90초 소요)
-                </p>
-              )}
+              <style>{`
+                @keyframes spin {
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
             </div>
           )}
+
+          <AnalysisResults
+            result={savedSelectedItem.result}
+            analysisId={savedSelectedItem.id}
+            isPro={isPro}
+            userType={userType}
+            userEmail={userEmail}
+            showHiringModal={showHiringModal}
+            setShowHiringModal={onSetShowHiringModal}
+            hiringProcessCreating={hiringProcessCreating}
+            setHiringProcessCreating={onSetHiringProcessCreating}
+            hiringModalTop={hiringModalTop}
+            setHiringModalTop={onSetHiringModalTop}
+            hiringButtonRef={hiringButtonRef}
+            hiringJDInfo={hiringJDInfo}
+            setHiringJDInfo={onSetHiringJDInfo}
+          />
         </>
       ) : (
         <>
