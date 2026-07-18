@@ -155,10 +155,11 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 - 색상: 블랙(#000) 기본, 강조색(#2563eb) 섹션 제목
 - 여백:
   * 데스크톱 (768px 이상): 상하좌우 40px, 섹션 간 24px
-  * 모바일 (768px 미만): 상하좌우 16px, 섹션 간 20px (화면 넓게 활용!)
+  * 모바일 (768px 미만): 상하좌우 20px, 섹션 간 20px (화면 넓게 활용!)
 - 폰트 크기: 이름 28px, 섹션 제목 20px, 본문 14px
 - 줄 간격: 1.6
 - 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
+- **레이아웃**: body에 max-width 설정 금지! 전체 화면 사용
 
 **중요: 레이아웃 구조**
 - ❌ position: absolute, fixed 절대 사용 금지
@@ -182,11 +183,13 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>이력서 - [이름]</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       padding: 40px;
       font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
       line-height: 1.6;
+      max-width: 100% !important; /* 전체 화면 사용 */
     }
     section { margin-bottom: 24px; position: relative; }
     h1 { font-size: 28px; margin: 0 0 8px 0; }
@@ -194,7 +197,7 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 
     /* 모바일 반응형: 화면 넓게 활용! */
     @media (max-width: 768px) {
-      body { padding: 16px !important; }
+      body { padding: 20px !important; }
       section { margin-bottom: 20px; }
       h1 { font-size: 24px; }
       h2 { font-size: 18px; }

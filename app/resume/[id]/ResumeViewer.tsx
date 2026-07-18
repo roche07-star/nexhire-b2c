@@ -162,7 +162,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
         style={{
           maxWidth: '900px',
           margin: '0 auto',
-          padding: '40px 20px',
+          padding: '20px 12px',
         }}
       >
         <div
@@ -180,7 +180,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
               contentEditable={true}
               suppressContentEditableWarning
               style={{
-                padding: '40px',
+                padding: '20px',
                 color: '#000',
                 lineHeight: 1.6,
                 outline: '2px solid rgba(167, 139, 250, 0.2)',
@@ -191,7 +191,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
             <div
               dangerouslySetInnerHTML={{ __html: resume.html_content }}
               style={{
-                padding: '40px',
+                padding: '0',
                 color: '#000',
                 lineHeight: 1.6,
               }}
