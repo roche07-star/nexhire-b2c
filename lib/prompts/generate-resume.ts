@@ -155,7 +155,7 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 - 색상: 블랙(#000) 기본, 강조색(#2563eb) 섹션 제목
 - 여백:
   * 데스크톱 (768px 이상): 상하좌우 40px, 섹션 간 24px
-  * 모바일 (768px 미만): 상하좌우 20px, 섹션 간 20px (화면 넓게 활용!)
+  * 모바일 (768px 미만): 상하좌우 12px, 섹션 간 16px (화면 최대한 넓게!)
 - 폰트 크기: 이름 28px, 섹션 제목 20px, 본문 14px
 - 줄 간격: 1.6
 - 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
@@ -195,10 +195,10 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
     h1 { font-size: 28px; margin: 0 0 8px 0; }
     h2 { color: #2563eb; font-size: 20px; margin-bottom: 12px; }
 
-    /* 모바일 반응형: 화면 넓게 활용! */
+    /* 모바일 반응형: 화면 최대한 넓게! */
     @media (max-width: 768px) {
-      body { padding: 20px !important; }
-      section { margin-bottom: 20px; }
+      body { padding: 12px !important; }
+      section { margin-bottom: 16px; }
       h1 { font-size: 24px; }
       h2 { font-size: 18px; }
     }
