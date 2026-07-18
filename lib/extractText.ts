@@ -1,5 +1,6 @@
 import mammoth from 'mammoth'
 import Anthropic from '@anthropic-ai/sdk'
+import { callClaude } from '@/lib/claude-client'
 
 function detectFileType(buffer: Buffer): 'pdf' | 'docx' | 'doc' | 'hwp' | 'unknown' {
   if (buffer.length < 8) return 'unknown'
@@ -17,8 +18,7 @@ async function extractTextFromImagePDF(buffer: Buffer): Promise<string> {
   console.log('[extractText] Image-based PDF detected. Using Claude Vision OCR (may take 15-30 seconds)...')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await (client.messages.create as any)({
-    model: 'claude-haiku-4-5-20251001', // Haiku로 변경 (텍스트 추출은 Haiku로 충분, 3-5배 빠름)
+  const response = await (callClaude as any)({
     max_tokens: 8192, // 이력서가 길 수 있으므로 증가
     messages: [
       {

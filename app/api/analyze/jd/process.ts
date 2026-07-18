@@ -8,8 +8,7 @@ import { updateJobProgress, completeJob, failJob } from '@/lib/jobs'
 import { incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, OUTPUT_RULES } from '@/lib/prompts/base-headhunter'
 import { invalidateCache } from '@/lib/cache'
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+import { callClaude } from '@/lib/claude-client'
 
 // jdTool 정의는 기존 route.ts에서 복사 (생략)
 

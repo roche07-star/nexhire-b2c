@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import Anthropic from '@anthropic-ai/sdk'
+import { callClaude } from '@/lib/claude-client'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 /**
  * 이력서 분석 결과에 월간 Report를 자동으로 통합
@@ -110,8 +110,7 @@ AI 스러운 표현 절대 금지: "~을 통해", "~에 기여", "적극적으�
 
 TEXT만 출력하고, 다른 설명은 생략하세요.`
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const message = await callClaude({
         max_tokens: 4096,
         messages: [{ role: 'user', content: prompt }],
       })
@@ -157,8 +156,7 @@ AI 스러운 표현 절대 금지: "~을 통해", "~에 기여", "적극적으�
 
 TEXT만 출력하고, 다른 설명은 생략하세요.`
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const message = await callClaude({
         max_tokens: 4096,
         messages: [{ role: 'user', content: prompt }],
       })

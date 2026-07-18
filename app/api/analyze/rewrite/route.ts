@@ -7,10 +7,9 @@ import { generateResumeDocx, generateStandardDocx, RewriteResult } from '@/lib/g
 import { extractDocxParagraphs, DocxParagraph } from '@/lib/rewriteDocxInPlace'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { buildCoreCompetencyRules, buildFactPreservationRules, buildBasicSupplementRules } from '@/lib/prompts/rewrite-common'
+import { callClaude } from '@/lib/claude-client'
 
 export const maxDuration = 180 // 프롬프트 통일로 인한 길이 증가 대응
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // 🔍 토큰 사용량 로깅 헬퍼
 function logTokenUsage(stage: string, message: Anthropic.Messages.Message) {
@@ -744,8 +743,7 @@ export async function POST(req: NextRequest) {
       const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
       const prompts = buildTemplateDocxPrompts(paraList, nonEmpty.length, resumeText, jdContext, proposalData)
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const message = await callClaude({
         max_tokens: 5000,
         system: [{
           type: 'text',
@@ -973,8 +971,7 @@ ${maskedText}
 
 위 이력서를 Claude 추천 포맷으로 깔끔하게 재구성하세요.`
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const message = await callClaude({
         max_tokens: 12000,
         system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
         tool_choice: { type: 'tool', name: 'rewrite_resume' },
@@ -1116,8 +1113,7 @@ ${maskedText}
                 const resumeForCL = await extractText(buffer, originalFilename)
                 const piiValsCL = extractPIIValues(resumeForCL)
                 const clPrompts = buildCoverLetterPrompts(maskPIILocal(resumeForCL), jdContext)
-                const clMsg = await client.messages.create({
-                  model: 'claude-haiku-4-5-20251001',
+                const clMsg = await callClaude({
                   max_tokens: 2500,
                   system: [{
                     type: 'text',
@@ -1154,8 +1150,7 @@ ${maskedText}
           : Promise.resolve(null)
 
       const [message, clContent] = await Promise.all([
-        client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
+        callClaude({
           max_tokens: 5000,
           system: [{
             type: 'text',
@@ -1281,8 +1276,7 @@ ${maskedText}
     const maskedResumeText = maskPIILocal(resumeText)
     const prompts = buildSectionPrompts(maskedResumeText, jdContext, proposalData)
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const message = await callClaude({
       max_tokens: 6000,
       system: [{
         type: 'text',
@@ -1349,8 +1343,7 @@ ${maskedText}
       if (clSections.length > 0) {
         try {
           const clPrompts = buildCoverLetterPrompts(resumeText, jdContext)
-          const clMsg = await client.messages.create({
-            model: 'claude-haiku-4-5-20251001',
+          const clMsg = await callClaude({
             max_tokens: 2000,
             system: [{
               type: 'text',

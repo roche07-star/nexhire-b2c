@@ -7,8 +7,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { supabase } from '@/lib/supabase'
 import { updateJobProgress, completeJob, failJob } from '@/lib/jobs'
 import { incrementUsage } from '@/lib/usageLimits'
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+import { callClaude } from '@/lib/claude-client'
 
 function toArr(v: unknown): string[] {
   if (Array.isArray(v)) return v
@@ -238,8 +237,7 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
     // Step 4: Claude API 호출
     await updateJobProgress(jobId, 4, '면접 가이드를 생성하는 중... (60-90초 소요)')
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const message = await callClaude({
       max_tokens: 8192,
       system: [{
         type: 'text',

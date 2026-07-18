@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { callClaude } from '@/lib/claude-client'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
 export const maxDuration = 45
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const careerPathsTool: Anthropic.Tool = {
   name: 'generate_career_paths',
@@ -114,8 +114,7 @@ export async function POST(
 핵심 키워드: ${keywords}
 ${baseline ? `현재 경로(BASELINE) 참고: ${(baseline.title as string) ?? ''} (${(baseline.salary_range as string) ?? ''})` : ''}`
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const message = await callClaude({
       max_tokens: 2000,
       system: [{
         type: 'text',

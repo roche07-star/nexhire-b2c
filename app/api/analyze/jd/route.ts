@@ -5,10 +5,9 @@ import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, OUTPUT_RULES } from '@/lib/prompts/base-headhunter'
 import { invalidateCache } from '@/lib/cache'
+import { callClaude } from '@/lib/claude-client'
 
 export const maxDuration = 60
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const jdTool: Anthropic.Tool = {
   name: 'analyze_jd_fit',
@@ -334,8 +333,7 @@ ${companyWebInfo}
 [후보자 이력서 분석 결과]
 ${candidateProfile}`
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const message = await callClaude({
       max_tokens: 2500,
       system: [{
         type: 'text',

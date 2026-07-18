@@ -9,10 +9,9 @@ import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from 
 import { VALIDATION_PROMPT, ValidationResult } from '@/lib/prompts/validation'
 import { invalidateCache } from '@/lib/cache'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
+import { callClaude } from '@/lib/claude-client'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 // 🔐 보안: 마스킹 전 원본에서 이름 추출 (Claude API로 PII 전송 방지)
 function extractNameFromResume(text: string): string {
@@ -410,8 +409,7 @@ STEP 4 — 종합 요약 작성 (summary 필드)
 ${OUTPUT_RULES}
 - summary 각 항목은 반드시 개행(\n)으로 구분`
 
-      const basicMsg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const basicMsg = await callClaude({
         max_tokens: 2000,
         system: [{
           type: 'text',
@@ -476,8 +474,7 @@ ${maskedText.slice(0, 3000)}
 
 위 1차 분석 결과를 검증하고, 문제가 있으면 수정하십시오.`
 
-        const validationMsg = await client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
+        const validationMsg = await callClaude({
           max_tokens: 1500,
           tool_choice: { type: 'tool', name: 'validate_analysis' },
           tools: [validationTool],
@@ -595,8 +592,7 @@ ${keywords}
 
 3가지 경로를 generate_career_paths 도구로 출력하십시오.`
 
-        const careerMsg = await client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
+        const careerMsg = await callClaude({
           max_tokens: 2000,
           tool_choice: { type: 'tool', name: 'generate_career_paths' },
           tools: [proCareerTool],
@@ -644,8 +640,7 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 
 ${OUTPUT_RULES}`
 
-      const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+      const message = await callClaude({
         max_tokens: 2000,
         system: [{
           type: 'text',
@@ -685,8 +680,7 @@ ${maskedText.slice(0, 3000)}
 
 위 1차 분석 결과를 검증하고, 문제가 있으면 수정하십시오.`
 
-        const validationMsg = await client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
+        const validationMsg = await callClaude({
           max_tokens: 1500,
           tool_choice: { type: 'tool', name: 'validate_analysis' },
           tools: [validationTool],

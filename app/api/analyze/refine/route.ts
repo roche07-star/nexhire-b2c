@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { callClaude, streamClaude } from '@/lib/claude-client'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
 export const maxDuration = 60
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,8 +70,7 @@ ${userInput.trim()}
 ## 업그레이드된 커리어 전략
 - 항목 (직무명/연봉 수준 포함)`
 
-    const stream = client.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
+    const stream = streamClaude({
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }],
     })
