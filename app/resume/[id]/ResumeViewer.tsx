@@ -162,7 +162,7 @@ export default function ResumeViewer({ resume }: { resume: Resume }) {
         style={{
           maxWidth: '900px',
           margin: '0 auto',
-          padding: '16px 4px',
+          padding: '12px 0',
         }}
       >
         <div
