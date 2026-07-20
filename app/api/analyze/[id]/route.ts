@@ -78,17 +78,28 @@ export async function DELETE(
       .eq('user_email', email)
       .single()
 
+    // Storage 파일 삭제 (에러 무시 - 파일이 없을 수도 있음)
     if (row?.result?._file_path) {
-      await supabase.storage.from('resumes').remove([row.result._file_path as string])
+      try {
+        await supabase.storage.from('resumes').remove([row.result._file_path as string])
+      } catch (storageError) {
+        console.error('[analyze/delete] Storage delete error (ignored):', storageError)
+        // 파일 삭제 실패해도 계속 진행 (DB 레코드는 삭제)
+      }
     }
 
+    // DB 레코드 삭제
     const { error } = await supabase
       .from('analyses')
       .delete()
       .eq('id', id)
       .eq('user_email', email)
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+      console.error('[analyze/delete] DB delete error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
     return NextResponse.json({ ok: true })
   } catch (e) {
     console.error('[analyze/delete]', e)
