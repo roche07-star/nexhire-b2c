@@ -10,6 +10,7 @@ import { VALIDATION_PROMPT, ValidationResult } from '@/lib/prompts/validation'
 import { invalidateCache } from '@/lib/cache'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
 import { callClaude } from '@/lib/claude-client'
+import { handleAnthropicError } from '@/lib/handle-anthropic-error'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
@@ -954,6 +955,13 @@ ${maskedText.slice(0, 3000)}
     })
   } catch (e) {
     console.error('[analyze]', e)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+
+    const errorResponse = handleAnthropicError(e)
+
+    return NextResponse.json({
+      error: errorResponse.userMessage,
+      shouldContact: errorResponse.shouldContact,
+      errorCode: errorResponse.error
+    }, { status: 500 })
   }
 }
