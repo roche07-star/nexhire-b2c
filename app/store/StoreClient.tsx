@@ -246,7 +246,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         const response = await new Promise<any>((resolve, reject) => {
           window.IMP.request_pay(
             {
-              pg: 'kcp',
+              pg: 'kcp.AO09C',
               pay_method: 'card',
               merchant_uid: orderId,
               name: product.name,
