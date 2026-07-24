@@ -155,9 +155,11 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
 
   // PortOne V1 (아임포트) 스크립트 로드
   useEffect(() => {
+    const impCode = process.env.NEXT_PUBLIC_PORTONE_V1_IMP_CODE || 'imp54224231'
+
     // 이미 로드되었는지 확인
     if (window.IMP) {
-      window.IMP.init('imp54224231')
+      window.IMP.init(impCode)
       setImpLoaded(true)
       return
     }
@@ -169,7 +171,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
 
     script.onload = () => {
       if (window.IMP) {
-        window.IMP.init('imp54224231')
+        window.IMP.init(impCode)
         setImpLoaded(true)
       }
     }
