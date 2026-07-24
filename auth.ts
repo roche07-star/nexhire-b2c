@@ -19,7 +19,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        console.log('[Auth] Credentials login attempt:', {
+          email: credentials?.email,
+          hasPassword: !!credentials?.password
+        })
+
         if (!credentials?.email || !credentials?.password) {
+          console.log('[Auth] Missing email or password')
           return null
         }
 
@@ -33,7 +39,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           acc => acc.email === credentials.email && acc.password === credentials.password
         )
 
+        console.log('[Auth] Test account match:', {
+          email: credentials.email,
+          found: !!testAccount
+        })
+
         if (testAccount) {
+          console.log('[Auth] Test account login successful:', testAccount.email)
           // 테스트 계정 로그인 성공
           return {
             id: testAccount.email,
