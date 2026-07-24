@@ -10,18 +10,37 @@ export default function LoginClient() {
 
   async function handleEmailLogin(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!email || !password) {
+      alert('이메일과 비밀번호를 입력해주세요.')
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         email,
         password,
-        callbackUrl: '/api/after-login',
-        redirect: true,
+        redirect: false, // 수동 리다이렉트
       })
+
+      console.log('Login result:', result)
+
+      if (result?.error) {
+        console.error('Login error:', result.error)
+        alert(`로그인 실패: ${result.error}\n이메일 또는 비밀번호를 확인해주세요.`)
+        setIsLoading(false)
+      } else if (result?.ok) {
+        // 로그인 성공
+        window.location.href = '/api/after-login'
+      } else {
+        alert('로그인 중 알 수 없는 오류가 발생했습니다.')
+        setIsLoading(false)
+      }
     } catch (error) {
-      console.error('Login error:', error)
-      alert('로그인 실패: 이메일 또는 비밀번호를 확인해주세요.')
+      console.error('Login exception:', error)
+      alert(`로그인 실패: ${error}`)
       setIsLoading(false)
     }
   }
