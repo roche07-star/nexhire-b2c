@@ -19,15 +19,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log('[Auth] Credentials login attempt:', {
-          email: credentials?.email,
-          hasPassword: !!credentials?.password
-        })
-
         if (!credentials?.email || !credentials?.password) {
-          console.log('[Auth] Missing email or password')
+          console.log('[Auth] Missing credentials')
           return null
         }
+
+        // 명시적 타입 변환
+        const inputEmail = String(credentials.email).trim()
+        const inputPassword = String(credentials.password)
+
+        console.log('[Auth] Login attempt:', inputEmail)
 
         // 테스트 계정 체크 (하드코딩 - NHN KCP 심사용)
         const testAccounts = [
@@ -36,16 +37,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         ]
 
         const testAccount = testAccounts.find(
-          acc => acc.email === credentials.email && acc.password === credentials.password
+          acc => acc.email === inputEmail && acc.password === inputPassword
         )
 
-        console.log('[Auth] Test account match:', {
-          email: credentials.email,
-          found: !!testAccount
-        })
-
         if (testAccount) {
-          console.log('[Auth] Test account login successful:', testAccount.email)
+          console.log('[Auth] Test account login SUCCESS:', testAccount.email)
           // 테스트 계정 로그인 성공
           return {
             id: testAccount.email,
@@ -54,6 +50,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: null,
           }
         }
+
+        console.log('[Auth] No matching test account for:', inputEmail)
 
         // 일반 계정: DB에서 비밀번호 확인 (향후 확장 가능)
         const { data: user } = await supabase
