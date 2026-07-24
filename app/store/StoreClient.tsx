@@ -157,7 +157,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
   useEffect(() => {
     // 이미 로드되었는지 확인
     if (window.IMP) {
-      window.IMP.init(process.env.NEXT_PUBLIC_PORTONE_STORE_ID!)
+      window.IMP.init('imp54224231')
       setImpLoaded(true)
       return
     }
@@ -169,7 +169,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
 
     script.onload = () => {
       if (window.IMP) {
-        window.IMP.init(process.env.NEXT_PUBLIC_PORTONE_STORE_ID!)
+        window.IMP.init('imp54224231')
         setImpLoaded(true)
       }
     }
@@ -246,7 +246,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         const response = await new Promise<any>((resolve, reject) => {
           window.IMP.request_pay(
             {
-              pg: 'kcp.AO09C',
+              pg: 'kcp',
               pay_method: 'card',
               merchant_uid: orderId,
               name: product.name,
