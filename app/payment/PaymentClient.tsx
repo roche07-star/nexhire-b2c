@@ -1,9 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { type Product } from '@/lib/products'
-import * as PortOne from '@portone/browser-sdk/v2'
+
+// PortOne V1 (아임포트) 타입 선언
+declare global {
+  interface Window {
+    IMP: any
+  }
+}
 
 interface PaymentClientProps {
   product: Product
@@ -13,6 +19,31 @@ interface PaymentClientProps {
 export default function PaymentClient({ product, userEmail }: PaymentClientProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [impLoaded, setImpLoaded] = useState(false)
+
+  // PortOne V1 스크립트 로드
+  useEffect(() => {
+    const impCode = process.env.NEXT_PUBLIC_PORTONE_V1_IMP_CODE || 'imp54224231'
+
+    if (window.IMP) {
+      window.IMP.init(impCode)
+      setImpLoaded(true)
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://cdn.iamport.kr/v1/iamport.js'
+    script.async = true
+
+    script.onload = () => {
+      if (window.IMP) {
+        window.IMP.init(impCode)
+        setImpLoaded(true)
+      }
+    }
+
+    document.body.appendChild(script)
+  }, [])
 
   const handlePayment = async () => {
     setIsProcessing(true)
@@ -36,33 +67,41 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
 
       const { paymentId, orderId } = await prepareRes.json()
 
-      // Step 2: PortOne 결제창 호출
-      const response = await PortOne.requestPayment({
-        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
-        paymentId,
-        orderName: product.name,
-        totalAmount: product.price,
-        currency: 'KRW',
-        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
-        payMethod: 'CARD',
-        customer: {
-          email: userEmail,
-        },
-      })
-
-      // Step 3: 결제 결과 처리
-      if (response && 'code' in response) {
-        // 결제 실패
-        throw new Error(response.message || '결제가 취소되었습니다')
+      // Step 2: IMP 로드 확인
+      if (!window.IMP) {
+        throw new Error('결제 모듈이 로드되지 않았습니다. 페이지를 새로고침해주세요.')
       }
+
+      // Step 3: PortOne V1 결제창 호출
+      const siteCode = process.env.NEXT_PUBLIC_PORTONE_V1_SITE_CODE || 'AO09C'
+      const response = await new Promise<any>((resolve, reject) => {
+        window.IMP.request_pay(
+          {
+            pg: `kcp.${siteCode}`,
+            pay_method: 'card',
+            merchant_uid: orderId,
+            name: product.name,
+            amount: product.price,
+            buyer_email: userEmail,
+            m_redirect_url: `${window.location.origin}/payment/mobile-redirect`,
+          },
+          (response: any) => {
+            if (response.success || response.imp_success) {
+              resolve(response)
+            } else {
+              reject(new Error(response.error_msg || '결제가 취소되었습니다'))
+            }
+          }
+        )
+      })
 
       // Step 4: 서버에 결제 검증 요청
       const verifyRes = await fetch('/api/payment/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentId,
-          orderId,
+          paymentId: response.imp_uid || paymentId,
+          orderId: response.merchant_uid || orderId,
         })
       })
 
