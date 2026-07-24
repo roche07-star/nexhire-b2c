@@ -26,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // 테스트 계정 체크 (하드코딩 - NHN KCP 심사용)
         const testAccounts = [
           { email: 'kcp-test@jobizic.com', password: 'KCP2026test!', name: 'KCP Test' },
-          { email: 'roche07@gmail.com', password: 'KCP2026test!', name: '박영철 (ROCHE)' },
+          { email: 'roche07zn@gmail.com', password: 'KCP2026test!', name: '박영철 (ROCHE)' },
         ]
 
         const testAccount = testAccounts.find(
