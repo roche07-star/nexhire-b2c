@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
     const goals = userData?.goals || {
       hiredTarget: 10,
       passedTarget: 20,
-      proposalTarget: 10
+      proposalTarget: 10,
+      settlements: {} // 연도별 정산 목표
     }
 
     return NextResponse.json({ goals })
@@ -44,24 +45,33 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { hiredTarget, passedTarget, proposalTarget } = body
+    const { hiredTarget, passedTarget, proposalTarget, settlements } = body
 
-    // 유효성 검사
-    if (
-      typeof hiredTarget !== 'number' ||
-      typeof passedTarget !== 'number' ||
-      typeof proposalTarget !== 'number' ||
-      hiredTarget < 0 ||
-      passedTarget < 0 ||
-      proposalTarget < 0
-    ) {
-      return NextResponse.json({ error: 'Invalid goals data' }, { status: 400 })
+    // 기존 데이터 조회
+    const { data: userData } = await supabase
+      .from('users')
+      .select('goals')
+      .eq('email', session.user.email)
+      .single()
+
+    const currentGoals = userData?.goals || {}
+
+    // 새 목표 객체 생성
+    const goals = {
+      ...currentGoals,
+      ...(hiredTarget !== undefined && { hiredTarget }),
+      ...(passedTarget !== undefined && { passedTarget }),
+      ...(proposalTarget !== undefined && { proposalTarget }),
+      ...(settlements !== undefined && { settlements })
     }
 
-    const goals = {
-      hiredTarget,
-      passedTarget,
-      proposalTarget
+    // 유효성 검사 (선택적 필드)
+    if (
+      (hiredTarget !== undefined && (typeof hiredTarget !== 'number' || hiredTarget < 0)) ||
+      (passedTarget !== undefined && (typeof passedTarget !== 'number' || passedTarget < 0)) ||
+      (proposalTarget !== undefined && (typeof proposalTarget !== 'number' || proposalTarget < 0))
+    ) {
+      return NextResponse.json({ error: 'Invalid goals data' }, { status: 400 })
     }
 
     // Supabase에 저장
