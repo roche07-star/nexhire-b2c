@@ -24,15 +24,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         // 테스트 계정 체크 (하드코딩 - NHN KCP 심사용)
-        const testEmail = 'kcp-test@jobizic.com'
-        const testPassword = 'KCP2026test!'
+        const testAccounts = [
+          { email: 'kcp-test@jobizic.com', password: 'KCP2026test!', name: 'KCP Test' },
+          { email: 'roche07@gmail.com', password: 'KCP2026test!', name: '박영철 (ROCHE)' },
+        ]
 
-        if (credentials.email === testEmail && credentials.password === testPassword) {
+        const testAccount = testAccounts.find(
+          acc => acc.email === credentials.email && acc.password === credentials.password
+        )
+
+        if (testAccount) {
           // 테스트 계정 로그인 성공
           return {
-            id: 'kcp-test-user',
-            email: testEmail,
-            name: 'KCP Test',
+            id: testAccount.email,
+            email: testAccount.email,
+            name: testAccount.name,
             image: null,
           }
         }
