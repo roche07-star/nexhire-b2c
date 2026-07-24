@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { STORE_PRODUCTS } from '@/lib/store-products'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,6 +25,16 @@ export async function POST(req: NextRequest) {
 
     if (!productId || !productName || !feature || !amount) {
       return NextResponse.json({ error: '필수 파라미터 누락' }, { status: 400 })
+    }
+
+    // 가격 검증 (보안: 클라이언트 가격과 서버 가격 일치 확인)
+    const serverProduct = STORE_PRODUCTS[productId as keyof typeof STORE_PRODUCTS]
+    if (!serverProduct) {
+      return NextResponse.json({ error: '존재하지 않는 상품입니다' }, { status: 400 })
+    }
+    if (serverProduct.price !== amount) {
+      console.error('[Store] Price mismatch:', { productId, clientAmount: amount, serverAmount: serverProduct.price })
+      return NextResponse.json({ error: '가격 정보가 일치하지 않습니다' }, { status: 400 })
     }
 
     // 주문 ID 생성 (store_feature_timestamp_random)

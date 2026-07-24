@@ -1,7 +1,9 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
+import Credentials from 'next-auth/providers/credentials'
 import { supabase } from '@/lib/supabase'
 import type { UserType } from '@/types/user'
+import bcrypt from 'bcryptjs'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -9,6 +11,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    Credentials({
+      name: 'Email',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        // 테스트 계정 체크 (하드코딩 - NHN KCP 심사용)
+        const testEmail = 'kcp-test@jobizic.com'
+        const testPassword = 'KCP2026test!'
+
+        if (credentials.email === testEmail && credentials.password === testPassword) {
+          // 테스트 계정 로그인 성공
+          return {
+            id: 'kcp-test-user',
+            email: testEmail,
+            name: 'KCP Test',
+            image: null,
+          }
+        }
+
+        // 일반 계정: DB에서 비밀번호 확인 (향후 확장 가능)
+        const { data: user } = await supabase
+          .from('users')
+          .select('email, name, image, password_hash')
+          .eq('email', credentials.email as string)
+          .single()
+
+        if (!user || !user.password_hash) {
+          return null
+        }
+
+        const isValid = await bcrypt.compare(credentials.password as string, user.password_hash)
+        if (!isValid) {
+          return null
+        }
+
+        return {
+          id: user.email,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        }
+      }
     }),
   ],
   callbacks: {

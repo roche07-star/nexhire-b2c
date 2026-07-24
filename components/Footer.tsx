@@ -30,10 +30,11 @@ export default function Footer() {
     <footer className="footer-container">
       {/* 사업자 정보 - 가운데 배치 */}
       <div className="footer-info">
-        <div>JOBIZIC | 대표: 박영철</div>
+        <div>상호: JOBIZIC | 대표: 박영철</div>
         <div>사업자등록번호: 566-18-02615</div>
-        <div>주소: 경기도 수원시 장안구 화산로 87, 404호</div>
+        <div>사업장주소: 경기도 수원시 장안구 화산로 87, 404호</div>
         <div>전화: 070-8095-5546 | 이메일: roche@jobizic.com</div>
+        <div>통신판매업 신고: 제2026-수원장안-XXXX호 (신고번호 수령 후 업데이트)</div>
         <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
       </div>
 

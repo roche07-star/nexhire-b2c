@@ -40,6 +40,75 @@ export default function LoginPage() {
               Google로 계속하기
             </button>
           </form>
+
+          <div style={{ margin: '20px 0', textAlign: 'center', color: '#78716c', fontSize: '12px' }}>
+            또는
+          </div>
+
+          {/* NHN KCP 심사용 테스트 계정 로그인 */}
+          <form action={async (formData: FormData) => {
+            'use server'
+            const email = formData.get('email')
+            const password = formData.get('password')
+            await signIn('credentials', {
+              email,
+              password,
+              redirectTo: '/api/after-login'
+            })
+          }}>
+            <div style={{ marginBottom: '12px' }}>
+              <input
+                type="email"
+                name="email"
+                placeholder="이메일"
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '1px solid #d6d3d1',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="password"
+                name="password"
+                placeholder="비밀번호"
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '1px solid #d6d3d1',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#1c1917',
+                color: '#e8ff47',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              이메일로 로그인
+            </button>
+          </form>
+
+          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '11px', color: '#a8a29e' }}>
+            💡 PG 심사용 테스트 계정: kcp-test@jobizic.com
+          </p>
         </div>
 
         <p className="login-terms">
