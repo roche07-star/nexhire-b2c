@@ -100,10 +100,10 @@ export async function GET(req: NextRequest) {
       .lte('data_delete_at', new Date().toISOString())
 
     for (const user of withdrawnUsers ?? []) {
-      // 데이터 삭제
-      await supabase.from('analyses').delete().eq('user_email', user.email)
-      await supabase.from('jd_analyses').delete().eq('user_email', user.email)
+      // 데이터 삭제 (외래 키 순서: interview_guides → jd_analyses → analyses)
       await supabase.from('interview_guides').delete().eq('user_email', user.email)
+      await supabase.from('jd_analyses').delete().eq('user_email', user.email)
+      await supabase.from('analyses').delete().eq('user_email', user.email)
       await supabase.from('coupons').delete().eq('claimed_by', user.email)
 
       // 사용자 삭제

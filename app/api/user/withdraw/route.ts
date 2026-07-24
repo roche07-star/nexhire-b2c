@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
   if (userData.last_restored_at) {
     const restoredAt = new Date(userData.last_restored_at).toISOString()
 
-    // last_restored_at 이전 데이터 삭제 (복원한 이전 데이터)
-    await supabase.from('analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
-    await supabase.from('jd_analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
+    // last_restored_at 이전 데이터 삭제 (복원한 이전 데이터) - 외래 키 순서 준수
     await supabase.from('interview_guides').delete().eq('user_email', email).lt('created_at', restoredAt)
+    await supabase.from('jd_analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
+    await supabase.from('analyses').delete().eq('user_email', email).lt('created_at', restoredAt)
 
     console.log(`[withdraw] Deleted old data before ${restoredAt} for ${email}`)
   }

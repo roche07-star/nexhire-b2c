@@ -88,7 +88,19 @@ export async function DELETE(
       }
     }
 
-    // DB 레코드 삭제
+    // 1. 연관된 jd_analyses 먼저 삭제
+    const { error: jdError } = await supabase
+      .from('jd_analyses')
+      .delete()
+      .eq('analysis_id', id)
+      .eq('user_email', email)
+
+    if (jdError) {
+      console.error('[analyze/delete] JD analyses delete error:', jdError)
+      // JD 분석 삭제 실패는 계속 진행 (없을 수도 있음)
+    }
+
+    // 2. analyses 레코드 삭제
     const { error } = await supabase
       .from('analyses')
       .delete()
