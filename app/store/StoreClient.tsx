@@ -245,10 +245,11 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         const { paymentId, orderId } = await prepareRes.json()
 
         // Step 2: PortOne V1 결제창 호출 (Promise로 래핑)
+        const siteCode = process.env.NEXT_PUBLIC_PORTONE_V1_SITE_CODE || 'AO09C'
         const response = await new Promise<any>((resolve, reject) => {
           window.IMP.request_pay(
             {
-              pg: 'kcp',
+              pg: `kcp.${siteCode}`,
               pay_method: 'card',
               merchant_uid: orderId,
               name: product.name,
