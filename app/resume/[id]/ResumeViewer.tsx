@@ -32,23 +32,26 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
 
       // 경력 섹션 찾기 (h2, h3 태그 중에서)
       const headings = container.querySelectorAll('h1, h2, h3, h4')
-      let careerSection: Element | null = null
-      let careerHeading: Element | null = null
+      let foundCareerSection: Element | null = null
+      let foundCareerHeading: Element | null = null
 
       headings.forEach((heading) => {
         const text = heading.textContent?.trim() || ''
         if (text.includes('경력') || text.includes('Experience') || text.includes('Work')) {
-          careerHeading = heading
-          careerSection = heading.parentElement || heading.nextElementSibling
+          foundCareerHeading = heading
+          foundCareerSection = heading.parentElement || heading.nextElementSibling
         }
       })
 
-      if (careerSection && careerHeading) {
+      if (foundCareerSection && foundCareerHeading) {
         // 기존 워터마크 제거
         const existing = container.querySelector('.free-watermark-wrapper')
         if (existing) {
           existing.remove()
         }
+
+        // 타입 단언을 위한 참조
+        const careerSectionElement = foundCareerSection as Element
 
         // 경력 섹션을 감싸는 wrapper 생성
         const wrapper = document.createElement('div')
@@ -59,7 +62,7 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
         `
 
         // 경력 섹션 복제 및 블러 처리
-        const blurredSection = careerSection.cloneNode(true) as HTMLElement
+        const blurredSection = careerSectionElement.cloneNode(true) as HTMLElement
         blurredSection.style.cssText = `
           filter: blur(4px);
           pointer-events: none;
@@ -95,8 +98,8 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
         wrapper.appendChild(watermark)
 
         // 원래 경력 섹션을 wrapper로 교체
-        if (careerSection.parentNode) {
-          careerSection.parentNode.replaceChild(wrapper, careerSection)
+        if (careerSectionElement.parentNode) {
+          careerSectionElement.parentNode.replaceChild(wrapper, careerSectionElement)
         }
       }
     }

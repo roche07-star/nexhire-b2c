@@ -58,7 +58,7 @@ export default async function ResumePage({ params }: { params: Promise<{ id: str
   if (!canDownload) {
     // FREE 플랜: 플랜 한도 또는 쿠폰 확인
     const { PLAN_LIMITS } = await import('@/lib/constants/planLimits')
-    const limit = PLAN_LIMITS[userType as keyof typeof PLAN_LIMITS]?.[userPlan]?.rewrite || 0
+    const limit = PLAN_LIMITS[userType as keyof typeof PLAN_LIMITS]?.[userPlan as 'FREE' | 'PRO' | 'EXPERT']?.rewrite || 0
     const current = userData?.rewrite_count || 0
 
     // 플랜 한도 내
