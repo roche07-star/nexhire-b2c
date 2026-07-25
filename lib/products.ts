@@ -98,10 +98,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'PRO',
     userType: 'HEADHUNTER',
     features: [
-      '이력서 분석 20회',
-      'JD 분석 20회',
-      '이력서 생성 10회',
-      '면접 가이드 10회',
+      '이력서 분석 25회',
+      'JD 분석 25회',
+      '이력서 생성 15회',
+      '면접 가이드 15회',
       '제안서 20회'
     ]
   },
@@ -115,10 +115,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
     plan: 'PRO',
     userType: 'HEADHUNTER',
     features: [
-      '이력서 분석 20회/월',
-      'JD 분석 20회/월',
-      '이력서 생성 10회/월',
-      '면접 가이드 10회/월',
+      '이력서 분석 25회/월',
+      'JD 분석 25회/월',
+      '이력서 생성 15회/월',
+      '면접 가이드 15회/월',
       '제안서 20회/월'
     ]
   },
