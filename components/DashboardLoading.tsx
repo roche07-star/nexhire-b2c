@@ -18,10 +18,9 @@ export default function DashboardLoading() {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.15) 0%, transparent 50%)',
+        background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.1) 0%, transparent 50%)',
         pointerEvents: 'none',
-        zIndex: 0,
-        animation: 'gradientShift 15s ease infinite'
+        zIndex: 0
       }} />
 
       {/* Jobizic 로고 */}
@@ -65,10 +64,6 @@ export default function DashboardLoading() {
           50% {
             transform: scale(1.15);
           }
-        }
-        @keyframes gradientShift {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
         }
       `}</style>
     </main>
