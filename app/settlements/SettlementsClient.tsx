@@ -135,7 +135,9 @@ export default function SettlementsClient() {
       })
 
       if (!saveRes.ok) {
-        throw new Error('Failed to save')
+        const errorData = await saveRes.json().catch(() => ({ error: '알 수 없는 오류' }))
+        console.error('Failed to save settlement goals:', errorData)
+        throw new Error(errorData.error || 'Failed to save')
       }
 
       // localStorage에도 백업 저장
@@ -150,6 +152,7 @@ export default function SettlementsClient() {
         localStorage.setItem(`settlements_goalAmount_${session.user.email}_${selectedYear}`, String(yearGoals.goalAmount))
         localStorage.setItem(`settlements_carryover_${session.user.email}_${selectedYear}`, String(yearGoals.carryover))
       }
+      throw err // 에러를 다시 throw하여 호출자에게 전달
     }
   }
 
@@ -418,7 +421,12 @@ export default function SettlementsClient() {
                   onClick={async () => {
                     const newGoal = parseInt(tempGoal) || 0
                     setGoalAmount(newGoal)
-                    await saveSettlementGoals({ goalAmount: newGoal, carryover })
+                    try {
+                      await saveSettlementGoals({ goalAmount: newGoal, carryover })
+                      alert('✅ 전환액이 저장되었습니다.')
+                    } catch (err) {
+                      alert('⚠️ 저장에 실패했습니다. 다시 시도해주세요.')
+                    }
                     setEditingGoal(false)
                   }}
                   style={{ fontSize: '11px', padding: '4px 12px', background: '#b8860b', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
@@ -463,7 +471,12 @@ export default function SettlementsClient() {
                   onClick={async () => {
                     const newCarryover = parseInt(tempCarryover) || 0
                     setCarryover(newCarryover)
-                    await saveSettlementGoals({ goalAmount, carryover: newCarryover })
+                    try {
+                      await saveSettlementGoals({ goalAmount, carryover: newCarryover })
+                      alert('✅ 미수금이 저장되었습니다.')
+                    } catch (err) {
+                      alert('⚠️ 저장에 실패했습니다. 다시 시도해주세요.')
+                    }
                     setEditingCarryover(false)
                   }}
                   style={{ fontSize: '11px', padding: '4px 10px', background: '#3b82f6', color: '#1c1917', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
