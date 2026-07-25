@@ -37,7 +37,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 분석 20회',
       'JD 분석 20회',
       '이력서 생성 10회',
-      '면접 가이드 10회'
+      '면접 가이드 10회',
+      '주간 Report 4회',
+      '월간 Report 1회'
     ]
   },
   'jobseeker-pro-3m': {
@@ -53,7 +55,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 분석 20회/월',
       'JD 분석 20회/월',
       '이력서 생성 10회/월',
-      '면접 가이드 10회/월'
+      '면접 가이드 10회/월',
+      '주간 Report 4회/월',
+      '월간 Report 1회/월'
     ]
   },
 
@@ -69,7 +73,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 분석 30회',
       'JD 분석 30회',
       '이력서 생성 20회',
-      '면접 가이드 20회'
+      '면접 가이드 20회',
+      '주간 Report 4회',
+      '월간 Report 1회'
     ]
   },
   'jobseeker-expert-3m': {
@@ -85,7 +91,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 분석 30회/월',
       'JD 분석 30회/월',
       '이력서 생성 20회/월',
-      '면접 가이드 20회/월'
+      '면접 가이드 20회/월',
+      '주간 Report 4회/월',
+      '월간 Report 1회/월'
     ]
   },
 
@@ -102,7 +110,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 25회',
       '이력서 생성 15회',
       '면접 가이드 15회',
-      '제안서 20회'
+      '제안서 20회',
+      '주간 Report 4회',
+      '월간 Report 1회'
     ]
   },
   'headhunter-pro-3m': {
@@ -119,7 +129,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 25회/월',
       '이력서 생성 15회/월',
       '면접 가이드 15회/월',
-      '제안서 20회/월'
+      '제안서 20회/월',
+      '주간 Report 4회/월',
+      '월간 Report 1회/월'
     ]
   },
 
@@ -136,7 +148,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 50회',
       '이력서 생성 25회',
       '면접 가이드 25회',
-      '제안서 50회'
+      '제안서 50회',
+      '주간 Report 4회',
+      '월간 Report 1회'
     ]
   },
   'headhunter-expert-3m': {
@@ -153,7 +167,9 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 50회/월',
       '이력서 생성 25회/월',
       '면접 가이드 25회/월',
-      '제안서 50회/월'
+      '제안서 50회/월',
+      '주간 Report 4회/월',
+      '월간 Report 1회/월'
     ]
   }
 }

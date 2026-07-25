@@ -27,16 +27,21 @@ export default async function WorkReportPage() {
   const isPro = plan === 'PRO' || plan === 'EXPERT'
   const isHeadhunter = userType === 'HEADHUNTER'
 
-  // 주간 Report 사용량 조회
+  // 주간/월간 Report 사용량 조회
   const { data: userData } = await supabase
     .from('users')
-    .select('weekly_report_count, monthly_reset_at')
+    .select('weekly_report_count, monthly_report_count, monthly_reset_at')
     .eq('email', session.user.email)
     .single()
 
   const weeklyReportCount = userData?.weekly_report_count ?? 0
-  const limit = PLAN_LIMITS[userType][plan].weekly_report
-  const remaining = Math.max(0, limit - weeklyReportCount)
+  const monthlyReportCount = userData?.monthly_report_count ?? 0
+
+  const weeklyLimit = PLAN_LIMITS[userType][plan].weekly_report
+  const monthlyLimit = PLAN_LIMITS[userType][plan].monthly_report
+
+  const weeklyRemaining = Math.max(0, weeklyLimit - weeklyReportCount)
+  const monthlyRemaining = Math.max(0, monthlyLimit - monthlyReportCount)
 
   return (
     <>
@@ -46,7 +51,8 @@ export default async function WorkReportPage() {
         isPro={isPro}
         isHeadhunter={isHeadhunter}
         userPlan={plan}
-        weeklyReportRemaining={remaining}
+        weeklyReportRemaining={weeklyRemaining}
+        monthlyReportRemaining={monthlyRemaining}
       />
       <Footer />
     </>

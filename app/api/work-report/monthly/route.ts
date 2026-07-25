@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -87,6 +88,29 @@ export async function POST(request: NextRequest) {
 
     const userEmail = session.user.email
 
+    // 사용량 체크 (MANAGER/SUPER_ADMIN 제외)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('email', userEmail)
+      .single()
+
+    const userType = userData?.user_type
+    const isManager = userType === 'MANAGER' || userType === 'SUPER_ADMIN'
+
+    if (!isManager) {
+      const { allowed, remaining } = await checkUsage(userEmail, 'monthly_report')
+      if (!allowed) {
+        return NextResponse.json(
+          {
+            error: `월간 Report 생성 횟수를 초과했습니다.\n\n남은 횟수: ${remaining}회\n\n이번 달에는 더 이상 생성할 수 없습니다.`,
+            code: 'USAGE_LIMIT_EXCEEDED'
+          },
+          { status: 403 }
+        )
+      }
+    }
+
     // 해당 월의 주간 리포트 조회 (해당 월 1일 ~ 말일만 포함, 월 경계 주간 제외)
     const monthDate = new Date(monthOf)
     const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
@@ -119,15 +143,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 조직 정보 조회
-    const { data: userData } = await supabase
+    // 조직 정보 조회 (위에서 이미 userData 조회했으므로 추가 필드만 조회)
+    const { data: orgData } = await supabase
       .from('users')
       .select('organization, organization_type')
       .eq('email', userEmail)
       .single()
 
-    const organization = userData?.organization || '소속 정보 없음'
-    const orgType = userData?.organization_type || 'company'
+    const organization = orgData?.organization || '소속 정보 없음'
+    const orgType = orgData?.organization_type || 'company'
     const orgLabel = orgType === 'company' ? '회사' : '학교'
 
     // AI로 월간 리포트 생성
@@ -248,6 +272,11 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
     if (error) {
       console.error('Monthly report save error:', error)
       throw new Error('월간 리포트 저장 실패')
+    }
+
+    // 사용량 증가 (MANAGER/SUPER_ADMIN 제외, 신규 생성일 때만)
+    if (!isManager && !existingReport) {
+      await incrementUsage(userEmail, 'monthly_report')
     }
 
     // 월간 Report 생성 성공 후 해당 주간 Report 삭제

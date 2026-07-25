@@ -9,6 +9,7 @@ interface Props {
   isHeadhunter: boolean
   userPlan: string
   weeklyReportRemaining: number
+  monthlyReportRemaining: number
 }
 
 interface WeeklyReport {
@@ -26,7 +27,7 @@ interface MonthlyReport {
   created_at: string
 }
 
-export default function WorkReportClient({ userEmail, isPro, isHeadhunter, userPlan, weeklyReportRemaining }: Props) {
+export default function WorkReportClient({ userEmail, isPro, isHeadhunter, userPlan, weeklyReportRemaining, monthlyReportRemaining }: Props) {
   const router = useRouter()
 
   // 상태 관리
@@ -555,37 +556,71 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter, userP
 
             {/* 월간 보고 생성/업데이트 버튼 */}
             {filteredWeeklyReports.length >= 2 && (
-              <button
-                onClick={isPro ? handleGenerateMonthlyReport : () => router.push('/plans')}
-                disabled={isLoadingMonthly}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  background: isLoadingMonthly ? '#555' : !isPro
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : monthlyReport
-                      ? 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
-                      : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
-                  color: !isPro ? 'rgba(255, 255, 255, 0.5)' : '#fff',
-                  border: !isPro ? '2px dashed rgba(232, 255, 71, 0.4)' : 'none',
-                  borderRadius: '12px',
-                  cursor: isLoadingMonthly ? 'not-allowed' : 'pointer',
-                  marginTop: '20px',
-                  transition: 'transform 0.2s',
-                }}
-                onMouseEnter={(e) => !isLoadingMonthly && (e.currentTarget.style.transform = 'scale(1.02)')}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                {!isPro
-                  ? '🔒 월간 보고 생성 (PRO 플랜 전용)'
-                  : isLoadingMonthly
-                    ? '📊 월간 보고 처리 중...'
-                    : monthlyReport
-                      ? '🔄 월간 보고 업데이트 (주간보고 재정리)'
-                      : '📊 월간 보고 생성 (주간보고 정리)'}
-              </button>
+              <>
+                {/* 남은 횟수 표시 (PRO/EXPERT) */}
+                {isPro && (
+                  <div style={{
+                    marginTop: '20px',
+                    padding: '8px 12px',
+                    background: monthlyReportRemaining > 0
+                      ? 'rgba(33, 150, 243, 0.1)'
+                      : 'rgba(255, 71, 71, 0.1)',
+                    border: monthlyReportRemaining > 0
+                      ? '1px solid rgba(33, 150, 243, 0.3)'
+                      : '1px solid rgba(255, 71, 71, 0.3)',
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    fontSize: '14px',
+                    color: monthlyReportRemaining > 0 ? '#42A5F5' : '#ff4747',
+                  }}>
+                    {monthlyReportRemaining > 0
+                      ? `📊 이번 달 월간 Report 생성 가능 횟수: ${monthlyReportRemaining}회`
+                      : '🔒 이번 달 월간 Report 생성 횟수를 모두 사용했습니다.'}
+                  </div>
+                )}
+
+                <button
+                  onClick={!isPro
+                    ? () => router.push('/plans')
+                    : monthlyReportRemaining > 0
+                      ? handleGenerateMonthlyReport
+                      : undefined}
+                  disabled={isLoadingMonthly || (isPro && monthlyReportRemaining === 0)}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    background: isLoadingMonthly || !isPro || (isPro && monthlyReportRemaining === 0)
+                      ? '#555'
+                      : monthlyReport
+                        ? 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
+                        : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                    color: !isPro || (isPro && monthlyReportRemaining === 0) ? 'rgba(255, 255, 255, 0.5)' : '#fff',
+                    border: !isPro || (isPro && monthlyReportRemaining === 0) ? '2px dashed rgba(232, 255, 71, 0.4)' : 'none',
+                    borderRadius: '12px',
+                    cursor: isLoadingMonthly || !isPro || (isPro && monthlyReportRemaining === 0) ? 'not-allowed' : 'pointer',
+                    marginTop: isPro ? '12px' : '20px',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoadingMonthly && isPro && monthlyReportRemaining > 0) {
+                      e.currentTarget.style.transform = 'scale(1.02)'
+                    }
+                  }}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  {!isPro
+                    ? '🔒 월간 보고 생성 (PRO 플랜 전용)'
+                    : isPro && monthlyReportRemaining === 0
+                      ? '🔒 월간 보고 생성 (횟수 초과)'
+                      : isLoadingMonthly
+                        ? '📊 월간 보고 처리 중...'
+                        : monthlyReport
+                          ? '🔄 월간 보고 업데이트 (주간보고 재정리)'
+                          : '📊 월간 보고 생성 (주간보고 정리)'}
+                </button>
+              </>
             )}
           </div>
         )}
