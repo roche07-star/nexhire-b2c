@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Outfit, Noto_Sans_KR } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 // import CustomCursor from '@/components/CustomCursor'
 import Providers from '@/components/Providers'
@@ -30,6 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* <CustomCursor /> */}
           {children}
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
