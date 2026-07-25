@@ -88,8 +88,13 @@ const faqData = {
 
 export default function PlansClient({ userEmail, userType, currentPlan, isSuperAdminOrManager }: PlansClientProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null)
+
+  // KCP Test 계정은 구직자/헤드헌터 플랜 모두 선택 가능 (NHN KCP 카드사 심사용)
+  const isKcpTestAccount = userEmail === 'kcp-test@jobizic.com'
+  const canSwitchType = isSuperAdminOrManager || isKcpTestAccount
+
   const [viewType, setViewType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(
-    isSuperAdminOrManager ? 'JOBSEEKER' : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
+    canSwitchType ? 'JOBSEEKER' : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
   )
 
   // 각 플랜별 선택된 기간 (1개월 or 3개월)
@@ -98,8 +103,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
     EXPERT: 1
   })
 
-  // 비로그인 또는 관리자는 선택한 viewType 사용, 일반 로그인 사용자는 본인 타입 고정
-  const effectiveType = (!userEmail || isSuperAdminOrManager) ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
+  // 비로그인, 관리자, KCP Test 계정은 선택한 viewType 사용, 일반 로그인 사용자는 본인 타입 고정
+  const effectiveType = (!userEmail || canSwitchType) ? viewType : (userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER')
 
   // 현재 사용자 타입에 맞는 상품들 가져오기
   const userProducts = getProductsByUserType(effectiveType)
@@ -158,8 +163,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
         zIndex: 1,
         textAlign: 'center'
       }}>
-        {/* 뷰 전환 버튼 (비로그인 또는 관리자) */}
-        {(!userEmail || isSuperAdminOrManager) && (
+        {/* 뷰 전환 버튼 (비로그인, 관리자, KCP Test 계정) */}
+        {(!userEmail || canSwitchType) && (
           <div style={{
             display: 'flex',
             gap: 12,
