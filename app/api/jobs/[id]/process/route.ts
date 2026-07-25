@@ -92,15 +92,15 @@ export async function POST(
         break
 
       case 'rewrite':
-        // 리라이팅 처리 (임시)
+        // 이력서 생성 처리 (임시)
         {
           const { updateJobProgress, completeJob, failJob } = await import('@/lib/jobs')
           try {
-            await updateJobProgress(jobId, 1, '리라이팅 중...')
+            await updateJobProgress(jobId, 1, '이력서 생성 중...')
             // TODO: processRewriteJob 구현
-            await completeJob(jobId, { message: '리라이팅 완료 (임시)' })
+            await completeJob(jobId, { message: '이력서 생성 완료 (임시)' })
           } catch (err) {
-            await failJob(jobId, `리라이팅 실패: ${err instanceof Error ? err.message : 'Unknown'}`)
+            await failJob(jobId, `이력서 생성 실패: ${err instanceof Error ? err.message : 'Unknown'}`)
           }
         }
         break
