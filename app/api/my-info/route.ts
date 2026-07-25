@@ -11,7 +11,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
+      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used, credits, used_at, expires_at, claimed_at')
@@ -51,6 +51,12 @@ export async function GET() {
   // 헤드헌터만 클라이언트 제안서 표시
   if (userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN') {
     usage.proposal = { used: user?.proposal_count ?? 0, limit: limits.proposal + (extraCredits.proposal || 0) }
+  }
+
+  // 구직자/헤드헌터 모두 주간/월간 Report 표시
+  if (userType === 'JOBSEEKER' || userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN') {
+    usage.weekly_report = { used: user?.weekly_report_count ?? 0, limit: limits.weekly_report + (extraCredits.weekly_report || 0) }
+    usage.monthly_report = { used: user?.monthly_report_count ?? 0, limit: limits.monthly_report + (extraCredits.monthly_report || 0) }
   }
 
   const couponList = (coupons ?? []).map(c => ({

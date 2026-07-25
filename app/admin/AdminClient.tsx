@@ -15,6 +15,8 @@ interface User {
   jd_count: number
   rewrite_count: number
   interview_count: number
+  weekly_report_count: number
+  monthly_report_count: number
   monthly_reset_at: string | null
   created_at: string
   headhunter_sharing_enabled: boolean | null
@@ -208,7 +210,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     })
     if (res.ok) {
       setUsers((prev) => prev.map((u) => u.email === email
-        ? { ...u, plan, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0 }
+        ? { ...u, plan, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
         : u
       ))
       showMsg(`${email} → ${plan} 변경 완료 (사용량 초기화됨)`)
@@ -293,7 +295,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     })
     if (res.ok) {
       setUsers((prev) => prev.map((u) => u.email === email
-        ? { ...u, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0 }
+        ? { ...u, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
         : u
       ))
       showMsg(`${email} 사용량 초기화 완료`)
@@ -1054,6 +1056,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                               <div>📋 {u.jd_count ?? 0}/{limits.jd + (extraCredits.jd || 0)}</div>
                               <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
                               <div>🎤 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
+                              <div>📊 {u.weekly_report_count ?? 0}/{limits.weekly_report + (extraCredits.weekly_report || 0)}</div>
+                              <div>📅 {u.monthly_report_count ?? 0}/{limits.monthly_report + (extraCredits.monthly_report || 0)}</div>
                             </div>
                           )
                         })()}
