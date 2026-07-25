@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   description: 'JOBIZIC에서 사용하는 오픈소스 라이브러리 라이선스 정보',
 };
 
+// ISR: 24시간마다 재생성 (라이선스는 거의 변경되지 않음)
+export const revalidate = 86400;
+
 const licenses = [
   {
     name: 'Anthropic SDK',

@@ -2,8 +2,12 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { RegularUserType } from '@/types/user'
-import DemoModal from './DemoModal'
+
+const DemoModal = dynamic(() => import('./DemoModal'), {
+  ssr: false
+})
 
 export default function Hero({ userType }: { userType?: RegularUserType | null }) {
   const [showDemo, setShowDemo] = useState(false)

@@ -5,6 +5,9 @@ export const metadata = {
   title: '개인정보처리방침 — Jobizic',
 }
 
+// ISR: 1시간마다 재생성
+export const revalidate = 3600
+
 export default function PrivacyPage() {
   return (
     <>

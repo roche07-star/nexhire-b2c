@@ -6,6 +6,9 @@ export const metadata = {
   title: '이용약관 — Jobizic',
 }
 
+// ISR: 1시간마다 재생성
+export const revalidate = 3600
+
 export default function TermsPage() {
   return (
     <>
