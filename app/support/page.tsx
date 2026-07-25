@@ -9,7 +9,7 @@ export const metadata = { title: '고객센터 — Jobizic' }
 export default async function SupportPage() {
   const session = await auth()
   if (!session?.user) {
-    redirect('/api/auth/signin')
+    redirect('/login')
   }
 
   return (

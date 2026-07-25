@@ -14,7 +14,7 @@ export default async function PaymentPage({
   const session = await auth()
 
   if (!session?.user?.email) {
-    redirect('/auth/signin?callbackUrl=/payment')
+    redirect('/login?callbackUrl=/payment')
   }
 
   // Manager/Super Admin 체크

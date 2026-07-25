@@ -10,7 +10,7 @@ export default async function PaymentCompletePage({
   const session = await auth()
 
   if (!session?.user?.email) {
-    redirect('/auth/signin')
+    redirect('/login')
   }
 
   const params = await searchParams
