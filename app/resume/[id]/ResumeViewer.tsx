@@ -16,6 +16,7 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
+  const displayRef = useRef<HTMLDivElement>(null)
 
   // editing 모드로 전환 시 innerHTML 설정
   useEffect(() => {
@@ -23,6 +24,72 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
       contentRef.current.innerHTML = resume.html_content
     }
   }, [editing, resume.html_content])
+
+  // FREE 플랜 워터마크 추가
+  useEffect(() => {
+    if (userPlan === 'FREE' && !editing && displayRef.current) {
+      const container = displayRef.current
+
+      // 경력 섹션 찾기 (h2, h3 태그 중에서)
+      const headings = container.querySelectorAll('h1, h2, h3, h4')
+      let careerSection: Element | null = null
+
+      headings.forEach((heading) => {
+        const text = heading.textContent?.trim() || ''
+        if (text.includes('경력') || text.includes('Experience') || text.includes('Work')) {
+          careerSection = heading.parentElement || heading.nextElementSibling
+        }
+      })
+
+      if (careerSection) {
+        // 워터마크가 이미 있으면 제거
+        const existing = careerSection.querySelector('.free-watermark')
+        if (existing) {
+          existing.remove()
+        }
+
+        // 워터마크 추가
+        const watermark = document.createElement('div')
+        watermark.className = 'free-watermark'
+        watermark.innerHTML = `
+          <div style="
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
+            border: 2px dashed rgba(255, 152, 0, 0.4);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: center;
+          ">
+            <div style="
+              font-size: 18px;
+              font-weight: 700;
+              color: #f57c00;
+              margin-bottom: 8px;
+            ">
+              🔒 JOBIZIC FREE PLAN
+            </div>
+            <div style="
+              font-size: 14px;
+              color: #e65100;
+              line-height: 1.6;
+            ">
+              PRO 플랜으로 업그레이드하면<br/>
+              전체 경력사항 & 다운로드가 가능합니다
+            </div>
+          </div>
+        `
+
+        // 경력 섹션의 첫 번째 경력 항목 뒤에 삽입
+        const firstCareer = careerSection.querySelector('div, section, article')
+        if (firstCareer && firstCareer.nextSibling) {
+          careerSection.insertBefore(watermark, firstCareer.nextSibling)
+        } else {
+          careerSection.appendChild(watermark)
+        }
+      }
+    }
+  }, [userPlan, editing, resume.html_content])
 
   const handleRegenerate = async () => {
     if (!confirm('이력서를 재생성하시겠습니까?\n\n기존 내용이 새로운 버전으로 교체됩니다.')) {
@@ -195,6 +262,7 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
             />
           ) : (
             <div
+              ref={displayRef}
               dangerouslySetInnerHTML={{ __html: resume.html_content }}
               style={{
                 padding: '0',
