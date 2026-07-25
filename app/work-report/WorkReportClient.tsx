@@ -554,18 +554,20 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             {/* 월간 보고 생성/업데이트 버튼 */}
             {filteredWeeklyReports.length >= 2 && (
               <button
-                onClick={handleGenerateMonthlyReport}
+                onClick={isPro ? handleGenerateMonthlyReport : () => router.push('/plans')}
                 disabled={isLoadingMonthly}
                 style={{
                   width: '100%',
                   padding: '16px',
                   fontSize: '16px',
                   fontWeight: 600,
-                  background: isLoadingMonthly ? '#555' : monthlyReport
-                    ? 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
-                    : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
-                  color: '#fff',
-                  border: 'none',
+                  background: isLoadingMonthly ? '#555' : !isPro
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : monthlyReport
+                      ? 'linear-gradient(135deg, #2196F3 0%, #42A5F5 100%)'
+                      : 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                  color: !isPro ? 'rgba(255, 255, 255, 0.5)' : '#fff',
+                  border: !isPro ? '2px dashed rgba(232, 255, 71, 0.4)' : 'none',
                   borderRadius: '12px',
                   cursor: isLoadingMonthly ? 'not-allowed' : 'pointer',
                   marginTop: '20px',
@@ -574,11 +576,13 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
                 onMouseEnter={(e) => !isLoadingMonthly && (e.currentTarget.style.transform = 'scale(1.02)')}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
-                {isLoadingMonthly
-                  ? '📊 월간 보고 처리 중...'
-                  : monthlyReport
-                    ? '🔄 월간 보고 업데이트 (주간보고 재정리)'
-                    : '📊 월간 보고 생성 (주간보고 정리)'}
+                {!isPro
+                  ? '🔒 월간 보고 생성 (PRO 플랜 전용)'
+                  : isLoadingMonthly
+                    ? '📊 월간 보고 처리 중...'
+                    : monthlyReport
+                      ? '🔄 월간 보고 업데이트 (주간보고 재정리)'
+                      : '📊 월간 보고 생성 (주간보고 정리)'}
               </button>
             )}
           </div>
