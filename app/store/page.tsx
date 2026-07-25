@@ -1,8 +1,26 @@
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import StoreClient from './StoreClient'
+import dynamic from 'next/dynamic'
 import { auth } from '@/auth'
 import { getPaymentGatewayMode } from '@/lib/payment-gateway'
+
+const StoreClient = dynamic(() => import('./StoreClient'), {
+  loading: () => (
+    <div style={{ padding: '60px 20px', textAlign: 'center', minHeight: '60vh' }}>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        border: '3px solid rgba(167,139,250,0.3)',
+        borderTopColor: '#a78bfa',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        margin: '0 auto 20px'
+      }} />
+      <p style={{ color: 'var(--muted)', fontSize: '14px' }}>스토어 로딩 중...</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+})
 
 export const metadata = { title: 'STORE — Jobizic' }
 

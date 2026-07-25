@@ -1,10 +1,41 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import TossPaymentClient from './TossPaymentClient'
-import PortOnePaymentClient from './PortOnePaymentClient'
+import dynamic from 'next/dynamic'
 import { getProductById, type ProductId } from '@/lib/products'
 import { supabase } from '@/lib/supabase'
 import { getPaymentGatewayMode } from '@/lib/payment-gateway'
+
+const PaymentLoading = () => (
+  <div style={{
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'var(--bg)'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        border: '3px solid rgba(167,139,250,0.3)',
+        borderTopColor: '#a78bfa',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        margin: '0 auto 20px'
+      }} />
+      <p style={{ color: 'var(--muted)', fontSize: '14px' }}>결제 페이지 로딩 중...</p>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  </div>
+)
+
+const TossPaymentClient = dynamic(() => import('./TossPaymentClient'), {
+  loading: PaymentLoading
+})
+
+const PortOnePaymentClient = dynamic(() => import('./PortOnePaymentClient'), {
+  loading: PaymentLoading
+})
 
 export default async function PaymentPage({
   searchParams,
