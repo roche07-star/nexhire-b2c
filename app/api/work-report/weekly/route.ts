@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import Anthropic from '@anthropic-ai/sdk'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -108,12 +109,28 @@ export async function POST(request: NextRequest) {
 
     const userEmail = session.user.email
 
-    // 조직 정보 조회
+    // 사용량 체크 (MANAGER/SUPER_ADMIN 제외)
     const { data: userData } = await supabase
       .from('users')
-      .select('organization, organization_type')
+      .select('organization, organization_type, user_type')
       .eq('email', userEmail)
       .single()
+
+    const userType = userData?.user_type
+    const isManager = userType === 'MANAGER' || userType === 'SUPER_ADMIN'
+
+    if (!isManager) {
+      const { allowed, remaining } = await checkUsage(userEmail, 'weekly_report')
+      if (!allowed) {
+        return NextResponse.json(
+          {
+            error: `주간 Report 작성 횟수를 초과했습니다.\n\n남은 횟수: ${remaining}회\n\nPRO 플랜으로 업그레이드하면 무제한 사용 가능합니다.`,
+            code: 'USAGE_LIMIT_EXCEEDED'
+          },
+          { status: 403 }
+        )
+      }
+    }
 
     const organization = userData?.organization || '소속 정보 없음'
     const orgType = userData?.organization_type || 'company'
@@ -169,6 +186,11 @@ HTML만 출력하고, 다른 설명은 생략하세요.`,
     if (error) {
       console.error('Weekly report insert error:', error)
       throw new Error('주간 리포트 저장 실패')
+    }
+
+    // 사용량 증가 (MANAGER/SUPER_ADMIN 제외)
+    if (!isManager) {
+      await incrementUsage(userEmail, 'weekly_report')
     }
 
     return NextResponse.json({

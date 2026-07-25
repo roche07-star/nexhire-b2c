@@ -4,22 +4,24 @@ import { PLAN_LIMITS, type Feature, type Plan, type UserType } from '@/lib/const
 // Re-export for backward compatibility
 export { PLAN_LIMITS, type Feature, type Plan, type UserType }
 
-const COUNT_COL: Record<Feature, 'analyze_count' | 'jd_count' | 'rewrite_count' | 'interview_count' | 'proposal_count' | 'resume_count'> = {
-  analyze:   'analyze_count',
-  jd:        'jd_count',
-  rewrite:   'rewrite_count',
-  interview: 'interview_count',
-  proposal:  'proposal_count',
-  resume:    'resume_count',
+const COUNT_COL: Record<Feature, 'analyze_count' | 'jd_count' | 'rewrite_count' | 'interview_count' | 'proposal_count' | 'resume_count' | 'weekly_report_count'> = {
+  analyze:       'analyze_count',
+  jd:            'jd_count',
+  rewrite:       'rewrite_count',
+  interview:     'interview_count',
+  proposal:      'proposal_count',
+  resume:        'resume_count',
+  weekly_report: 'weekly_report_count',
 }
 
 const RPC_FN: Record<Feature, string> = {
-  analyze:   'increment_analyze_count',
-  jd:        'increment_jd_count',
-  rewrite:   'increment_rewrite_count',
-  interview: 'increment_interview_count',
-  proposal:  'increment_proposal_count',
-  resume:    'increment_resume_count',
+  analyze:       'increment_analyze_count',
+  jd:            'increment_jd_count',
+  rewrite:       'increment_rewrite_count',
+  interview:     'increment_interview_count',
+  proposal:      'increment_proposal_count',
+  resume:        'increment_resume_count',
+  weekly_report: 'increment_weekly_report_count',
 }
 
 type UserRow = {
@@ -31,6 +33,7 @@ type UserRow = {
   interview_count: number
   proposal_count: number
   resume_count: number
+  weekly_report_count: number
   monthly_reset_at: string | null
 }
 
@@ -45,7 +48,7 @@ export async function checkUsage(
 ): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number; couponDebug?: any }> {
   const { data } = await supabase
     .from('users')
-    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, monthly_reset_at')
+    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_reset_at')
     .eq('email', email)
     .single()
 
@@ -74,6 +77,7 @@ export async function checkUsage(
         rewrite_count: 0,
         interview_count: 0,
         proposal_count: 0,
+        weekly_report_count: 0,
         monthly_reset_at: nextReset.toISOString(),
       }).eq('email', email)
       row.analyze_count = 0
@@ -81,6 +85,7 @@ export async function checkUsage(
       row.rewrite_count = 0
       row.interview_count = 0
       row.proposal_count = 0
+      row.weekly_report_count = 0
     }
   } else if (resetResult && resetResult.length > 0) {
     const result = resetResult[0]
@@ -95,6 +100,7 @@ export async function checkUsage(
     row.rewrite_count = result.rewrite_count
     row.interview_count = result.interview_count
     row.proposal_count = result.proposal_count
+    row.weekly_report_count = result.weekly_report_count
   }
 
   const limit = PLAN_LIMITS[userType]?.[plan]?.[feature] ?? 0
@@ -162,7 +168,7 @@ export async function incrementUsage(email: string, feature: Feature): Promise<v
   // 현재 사용량 확인
   const { data } = await supabase
     .from('users')
-    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count')
+    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, weekly_report_count')
     .eq('email', email)
     .single()
 

@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import WorkReportClient from './WorkReportClient'
+import { supabase } from '@/lib/supabase'
+import { PLAN_LIMITS } from '@/lib/constants/planLimits'
+import type { Plan, UserType } from '@/lib/constants/planLimits'
 
 export const metadata: Metadata = {
   title: '업무 Report | JOBIZIC',
@@ -18,16 +21,33 @@ export default async function WorkReportPage() {
   }
 
   // 세션에서 직접 가져오기 (DB 쿼리 제거)
-  const plan = session.user.plan ?? 'FREE'
-  const userType = session.user.userType
+  const plan = (session.user.plan ?? 'FREE') as Plan
+  const userType = (session.user.userType ?? 'JOBSEEKER') as UserType
 
   const isPro = plan === 'PRO' || plan === 'EXPERT'
   const isHeadhunter = userType === 'HEADHUNTER'
 
+  // 주간 Report 사용량 조회
+  const { data: userData } = await supabase
+    .from('users')
+    .select('weekly_report_count, monthly_reset_at')
+    .eq('email', session.user.email)
+    .single()
+
+  const weeklyReportCount = userData?.weekly_report_count ?? 0
+  const limit = PLAN_LIMITS[userType][plan].weekly_report
+  const remaining = Math.max(0, limit - weeklyReportCount)
+
   return (
     <>
       <Nav />
-      <WorkReportClient userEmail={session.user.email} isPro={isPro} isHeadhunter={isHeadhunter} />
+      <WorkReportClient
+        userEmail={session.user.email}
+        isPro={isPro}
+        isHeadhunter={isHeadhunter}
+        userPlan={plan}
+        weeklyReportRemaining={remaining}
+      />
       <Footer />
     </>
   )

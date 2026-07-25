@@ -7,6 +7,8 @@ interface Props {
   userEmail: string
   isPro: boolean
   isHeadhunter: boolean
+  userPlan: string
+  weeklyReportRemaining: number
 }
 
 interface WeeklyReport {
@@ -24,7 +26,7 @@ interface MonthlyReport {
   created_at: string
 }
 
-export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Props) {
+export default function WorkReportClient({ userEmail, isPro, isHeadhunter, userPlan, weeklyReportRemaining }: Props) {
   const router = useRouter()
 
   // 상태 관리
@@ -759,27 +761,49 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             }}
           />
 
+          {/* 남은 횟수 표시 (FREE 플랜) */}
+          {userPlan === 'FREE' && (
+            <div style={{
+              marginTop: '12px',
+              padding: '8px 12px',
+              background: weeklyReportRemaining > 0
+                ? 'rgba(232, 255, 71, 0.1)'
+                : 'rgba(255, 71, 71, 0.1)',
+              border: weeklyReportRemaining > 0
+                ? '1px solid rgba(232, 255, 71, 0.3)'
+                : '1px solid rgba(255, 71, 71, 0.3)',
+              borderRadius: '8px',
+              textAlign: 'center',
+              fontSize: '14px',
+              color: weeklyReportRemaining > 0 ? '#e8ff47' : '#ff4747',
+            }}>
+              {weeklyReportRemaining > 0
+                ? `💡 이번 달 주간 Report 작성 가능 횟수: ${weeklyReportRemaining}회`
+                : '🔒 이번 달 주간 Report 작성 횟수를 모두 사용했습니다. PRO 플랜으로 업그레이드하세요!'}
+            </div>
+          )}
+
           <button
-            onClick={handleCreateWeeklyReport}
-            disabled={isGenerating || !organizationSaved}
+            onClick={weeklyReportRemaining > 0 ? handleCreateWeeklyReport : () => router.push('/plans')}
+            disabled={isGenerating || !organizationSaved || (userPlan === 'FREE' && weeklyReportRemaining === 0)}
             style={{
               width: '100%',
               padding: '20px',
               fontSize: '18px',
               fontWeight: 700,
-              background: isGenerating || !organizationSaved
+              background: isGenerating || !organizationSaved || (userPlan === 'FREE' && weeklyReportRemaining === 0)
                 ? 'rgba(255, 255, 255, 0.1)'
                 : weeklyInput.trim()
                   ? 'linear-gradient(135deg, #f0ff6b 0%, #e8ff47 50%, #f0ff6b 100%)'
                   : 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
-              color: isGenerating || !organizationSaved
+              color: isGenerating || !organizationSaved || (userPlan === 'FREE' && weeklyReportRemaining === 0)
                 ? 'rgba(255, 255, 255, 0.3)'
                 : weeklyInput.trim()
                   ? '#1e40af'
                   : '#000',
-              border: 'none',
+              border: userPlan === 'FREE' && weeklyReportRemaining === 0 ? '2px dashed rgba(232, 255, 71, 0.4)' : 'none',
               borderRadius: '16px',
-              cursor: isGenerating || !organizationSaved ? 'not-allowed' : 'pointer',
+              cursor: isGenerating || !organizationSaved || (userPlan === 'FREE' && weeklyReportRemaining === 0) ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
               boxShadow: isGenerating || !organizationSaved
                 ? 'none'
@@ -811,10 +835,14 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
             }}
           >
             <span style={{ fontSize: '20px' }}>
-              {isGenerating ? '⚡' : '✨'}
+              {userPlan === 'FREE' && weeklyReportRemaining === 0 ? '🔒' : isGenerating ? '⚡' : '✨'}
             </span>
             <span>
-              {isGenerating ? 'JOBIZIC이 정리하는 중...' : '전문적으로 정리하기'}
+              {userPlan === 'FREE' && weeklyReportRemaining === 0
+                ? '전문적으로 정리하기 (PRO 플랜 전용)'
+                : isGenerating
+                  ? 'JOBIZIC이 정리하는 중...'
+                  : '전문적으로 정리하기'}
             </span>
           </button>
         </div>
