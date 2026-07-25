@@ -25,7 +25,7 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
     }
   }, [editing, resume.html_content])
 
-  // FREE 플랜 워터마크 추가
+  // FREE 플랜 워터마크 추가 (경력 섹션 블러 처리)
   useEffect(() => {
     if (userPlan === 'FREE' && !editing && displayRef.current) {
       const container = displayRef.current
@@ -33,59 +33,70 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
       // 경력 섹션 찾기 (h2, h3 태그 중에서)
       const headings = container.querySelectorAll('h1, h2, h3, h4')
       let careerSection: Element | null = null
+      let careerHeading: Element | null = null
 
       headings.forEach((heading) => {
         const text = heading.textContent?.trim() || ''
         if (text.includes('경력') || text.includes('Experience') || text.includes('Work')) {
+          careerHeading = heading
           careerSection = heading.parentElement || heading.nextElementSibling
         }
       })
 
-      if (careerSection) {
-        // 워터마크가 이미 있으면 제거
-        const existing = careerSection.querySelector('.free-watermark')
+      if (careerSection && careerHeading) {
+        // 기존 워터마크 제거
+        const existing = container.querySelector('.free-watermark-wrapper')
         if (existing) {
           existing.remove()
         }
 
-        // 워터마크 추가
+        // 경력 섹션을 감싸는 wrapper 생성
+        const wrapper = document.createElement('div')
+        wrapper.className = 'free-watermark-wrapper'
+        wrapper.style.cssText = `
+          position: relative;
+          margin: 20px 0;
+        `
+
+        // 경력 섹션 복제 및 블러 처리
+        const blurredSection = careerSection.cloneNode(true) as HTMLElement
+        blurredSection.style.cssText = `
+          filter: blur(4px);
+          pointer-events: none;
+          user-select: none;
+        `
+
+        // 워터마크 생성 (작고 간결하게)
         const watermark = document.createElement('div')
-        watermark.className = 'free-watermark'
+        watermark.style.cssText = `
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(255, 255, 255, 0.95);
+          border: 2px solid #ff9800;
+          border-radius: 8px;
+          padding: 16px 24px;
+          text-align: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 10;
+        `
         watermark.innerHTML = `
-          <div style="
-            position: relative;
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%);
-            border: 2px dashed rgba(255, 152, 0, 0.4);
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-            text-align: center;
-          ">
-            <div style="
-              font-size: 18px;
-              font-weight: 700;
-              color: #f57c00;
-              margin-bottom: 8px;
-            ">
-              🔒 JOBIZIC FREE PLAN
-            </div>
-            <div style="
-              font-size: 14px;
-              color: #e65100;
-              line-height: 1.6;
-            ">
-              PRO 플랜으로 업그레이드하면<br/>
-              전체 경력사항 & 다운로드가 가능합니다
-            </div>
+          <div style="font-size: 16px; font-weight: 700; color: #f57c00; margin-bottom: 6px;">
+            🔒 PRO 플랜 전용
+          </div>
+          <div style="font-size: 12px; color: #e65100;">
+            업그레이드하고 전체 경력사항을 확인하세요
           </div>
         `
 
-        // 경력 섹션의 첫 번째 경력 항목 뒤에 삽입
-        const firstCareer = careerSection.querySelector('div, section, article')
-        if (firstCareer && firstCareer.nextSibling) {
-          careerSection.insertBefore(watermark, firstCareer.nextSibling)
-        } else {
-          careerSection.appendChild(watermark)
+        // wrapper에 블러된 경력 + 워터마크 추가
+        wrapper.appendChild(blurredSection)
+        wrapper.appendChild(watermark)
+
+        // 원래 경력 섹션을 wrapper로 교체
+        if (careerSection.parentNode) {
+          careerSection.parentNode.replaceChild(wrapper, careerSection)
         }
       }
     }
