@@ -4,34 +4,10 @@ import { auth } from '@/auth'
 import DashboardClient from './DashboardClient'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import DashboardLoading from '@/components/DashboardLoading'
 
 export const metadata = {
   title: 'PRO 대시보드 — Jobizic',
-}
-
-// 대시보드 Skeleton (Option 3)
-function DashboardSkeleton() {
-  return (
-    <main style={{ padding: '60px 20px', textAlign: 'center', minHeight: '60vh' }}>
-      <div style={{
-        width: '48px',
-        height: '48px',
-        border: '3px solid rgba(167,139,250,0.3)',
-        borderTopColor: '#a78bfa',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-        margin: '0 auto 20px'
-      }} />
-      <p style={{ color: 'var(--muted)', fontSize: '14px' }}>
-        대시보드 로딩 중...
-      </p>
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </main>
-  )
 }
 
 export default async function DashboardPage() {
@@ -62,7 +38,7 @@ export default async function DashboardPage() {
   return (
     <>
       <Nav />
-      <Suspense fallback={<DashboardSkeleton />}>
+      <Suspense fallback={<DashboardLoading />}>
         <DashboardClient
           userEmail={email}
           userPlan={plan}
