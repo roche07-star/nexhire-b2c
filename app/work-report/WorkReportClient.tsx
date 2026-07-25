@@ -27,66 +27,6 @@ interface MonthlyReport {
 export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Props) {
   const router = useRouter()
 
-  // FREE 플랜 업그레이드 안내
-  if (!isPro) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
-        padding: '140px 20px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <div style={{
-          maxWidth: '600px',
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '20px',
-          padding: '60px 40px',
-          textAlign: 'center',
-          border: '1px solid rgba(232, 255, 71, 0.2)',
-        }}>
-          <div style={{ fontSize: '72px', marginBottom: '24px' }}>🔒</div>
-          <h1 style={{
-            fontSize: '36px',
-            fontWeight: 700,
-            color: '#e8ff47',
-            marginBottom: '16px',
-          }}>
-            업무 Report
-          </h1>
-          <p style={{
-            fontSize: '18px',
-            color: '#ccc',
-            marginBottom: '32px',
-            lineHeight: '1.8',
-          }}>
-            이 기능은 <strong style={{ color: '#e8ff47' }}>PRO 플랜</strong> 이상에서 사용할 수 있습니다.
-          </p>
-          <button
-            onClick={() => router.push('/plans')}
-            style={{
-              padding: '18px 36px',
-              fontSize: '18px',
-              fontWeight: 600,
-              background: 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
-              color: '#000',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'transform 0.2s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            플랜 업그레이드
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   // 상태 관리
   const [organization, setOrganization] = useState('')
   const [organizationType, setOrganizationType] = useState<'company' | 'school'>('company')
@@ -663,18 +603,63 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter }: Pro
               ⭐ 월간 Report
             </h2>
 
-            <div
-              dangerouslySetInnerHTML={{ __html: monthlyReport.aggregated_html }}
-              style={{
-                fontSize: '15px',
-                color: '#ddd',
-                lineHeight: '1.8',
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderRadius: '12px',
-                padding: '20px',
-                marginBottom: '18px',
-              }}
-            />
+            <div style={{
+              position: 'relative',
+              marginBottom: '18px',
+            }}>
+              <div
+                dangerouslySetInnerHTML={{ __html: monthlyReport.aggregated_html }}
+                style={{
+                  fontSize: '15px',
+                  color: '#ddd',
+                  lineHeight: '1.8',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  filter: isPro ? 'none' : 'blur(4px)',
+                  pointerEvents: isPro ? 'auto' : 'none',
+                  userSelect: isPro ? 'auto' : 'none',
+                }}
+              />
+
+              {!isPro && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: 'rgba(10, 10, 15, 0.95)',
+                  border: '2px solid #e8ff47',
+                  borderRadius: '12px',
+                  padding: '20px 32px',
+                  textAlign: 'center',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+                  zIndex: 10,
+                }}>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#e8ff47', marginBottom: '8px' }}>
+                    🔒 PRO 플랜 전용
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#ccc', marginBottom: '16px' }}>
+                    업그레이드하고 월간 Report를 확인하세요
+                  </div>
+                  <button
+                    onClick={() => router.push('/plans')}
+                    style={{
+                      padding: '12px 24px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      background: 'linear-gradient(135deg, #e8ff47 0%, #f0ff6b 100%)',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    플랜 업그레이드
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div style={{
               background: 'rgba(76, 175, 80, 0.1)',
