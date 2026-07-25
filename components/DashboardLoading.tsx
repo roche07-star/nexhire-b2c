@@ -26,7 +26,7 @@ export default function DashboardLoading() {
       <div style={{
         position: 'relative',
         zIndex: 10,
-        animation: 'scaleFloat 0.5s ease-in-out infinite'
+        animation: 'scaleFloat 2s ease-in-out infinite'
       }}>
         <svg
           width="120"
