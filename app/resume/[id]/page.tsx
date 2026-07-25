@@ -42,14 +42,44 @@ export default async function ResumePage({ params }: { params: Promise<{ id: str
     )
   }
 
-  // 사용자 플랜 조회
+  // 사용자 플랜 및 사용량 조회
   const { data: userData } = await supabase
     .from('users')
-    .select('plan')
+    .select('plan, user_type, rewrite_count, monthly_reset_at')
     .eq('email', session.user.email)
     .single()
 
   const userPlan = userData?.plan || 'FREE'
+  const userType = userData?.user_type || 'JOBSEEKER'
 
-  return <ResumeViewer resume={resume} userPlan={userPlan} />
+  // rewrite 사용 가능 여부 확인
+  let canDownload = userPlan !== 'FREE' // PRO/EXPERT는 기본 가능
+
+  if (!canDownload) {
+    // FREE 플랜: 플랜 한도 또는 쿠폰 확인
+    const { PLAN_LIMITS } = await import('@/lib/constants/planLimits')
+    const limit = PLAN_LIMITS[userType as keyof typeof PLAN_LIMITS]?.[userPlan]?.rewrite || 0
+    const current = userData?.rewrite_count || 0
+
+    // 플랜 한도 내
+    if (current < limit) {
+      canDownload = true
+    } else {
+      // 쿠폰 확인
+      const { data: coupons } = await supabase
+        .from('coupons')
+        .select('id, credits, used')
+        .eq('claimed_by', session.user.email)
+        .eq('feature', 'rewrite')
+        .gt('expires_at', new Date().toISOString())
+        .is('deleted_at', null)
+
+      const hasAvailableCoupon = coupons?.some(c => c.used < c.credits)
+      if (hasAvailableCoupon) {
+        canDownload = true
+      }
+    }
+  }
+
+  return <ResumeViewer resume={resume} userPlan={userPlan} canDownload={canDownload} />
 }

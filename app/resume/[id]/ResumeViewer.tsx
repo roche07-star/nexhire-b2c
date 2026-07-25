@@ -11,7 +11,7 @@ interface Resume {
   updated_at: string
 }
 
-export default function ResumeViewer({ resume, userPlan }: { resume: Resume; userPlan: string }) {
+export default function ResumeViewer({ resume, userPlan, canDownload }: { resume: Resume; userPlan: string; canDownload: boolean }) {
   const [regenerating, setRegenerating] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -135,9 +135,9 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
   }
 
   const handleDownload = () => {
-    // FREE 플랜 제한
-    if (userPlan === 'FREE') {
-      alert('🔒 다운로드는 PRO 플랜 이상에서 사용 가능합니다.\n\n화면에서 이력서를 확인하시거나, 플랜을 업그레이드해주세요.')
+    // 다운로드 권한 확인
+    if (!canDownload) {
+      alert('🔒 다운로드 권한이 없습니다.\n\nStore에서 "이력서 생성" 상품을 구매하거나\nPRO 플랜으로 업그레이드해주세요.')
       return
     }
 
@@ -211,7 +211,7 @@ export default function ResumeViewer({ resume, userPlan }: { resume: Resume; use
           onClick={handleDownload}
           style={{ minWidth: '120px' }}
         >
-          {userPlan === 'FREE' ? '🔒 다운로드' : '📥 다운로드'}
+          {canDownload ? '📥 다운로드' : '🔒 다운로드'}
         </button>
         <button
           className="btn btn-accent"
