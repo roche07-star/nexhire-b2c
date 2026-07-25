@@ -30,7 +30,7 @@ export default function DashboardLoading() {
         {/* Jobizic 로고 */}
         <div style={{
           marginBottom: '32px',
-          animation: 'float 3s ease-in-out infinite'
+          animation: 'scaleFloat 2s ease-in-out infinite'
         }}>
           <svg
             width="120"
@@ -105,12 +105,12 @@ export default function DashboardLoading() {
           }
         }
 
-        @keyframes float {
+        @keyframes scaleFloat {
           0%, 100% {
-            transform: translateY(0px);
+            transform: translateY(0px) scale(1);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translateY(-10px) scale(1.1);
           }
         }
 
