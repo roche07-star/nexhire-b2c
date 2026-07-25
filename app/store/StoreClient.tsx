@@ -30,6 +30,7 @@ const PRODUCTS: Product[] = [
     name: '이력서 분석',
     nameEn: 'Resume Analysis',
     price: 1900,
+    originalPrice: 2900,
     feature: 'analyze',  // 수정: 'resume' → 'analyze'
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
@@ -61,7 +62,7 @@ const PRODUCTS: Product[] = [
     id: '2',
     name: 'JD 적합도 분석',
     nameEn: 'Job Description Match',
-    price: 3900,
+    price: 2900,
     feature: 'jd',
     icon: '🎯',
     gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
