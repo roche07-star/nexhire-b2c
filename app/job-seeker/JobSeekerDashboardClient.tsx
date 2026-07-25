@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import DashboardLoading from '@/components/DashboardLoading'
 
 interface Application {
   id: string
@@ -302,11 +303,7 @@ export default function JobSeekerDashboardClient() {
   }
 
   if (loading) {
-    return (
-      <main className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <div className="spinner" />
-      </main>
-    )
+    return <DashboardLoading />
   }
 
   if (!data) return null

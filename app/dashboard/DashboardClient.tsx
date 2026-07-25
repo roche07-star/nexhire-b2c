@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
 import AnnouncementModal from '@/components/AnnouncementModal'
+import DashboardLoading from '@/components/DashboardLoading'
 import { PIPELINE_STAGE_LABELS, PIPELINE_STAGE_COLORS } from '@/types/pipeline'
 
 interface DashboardStats {
@@ -352,69 +353,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   }
 
   if (loading) {
-    return (
-      <main style={{
-        padding: '100px 20px 40px',
-        maxWidth: 1400,
-        margin: '0 auto',
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
-        minHeight: '100vh',
-        position: 'relative'
-      }}>
-        {/* Animated Background */}
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.1) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          zIndex: 0
-        }} />
-
-        {/* Loading Skeleton */}
-        <div style={{ position: 'relative', zIndex: 1, marginBottom: 48 }}>
-          <div style={{
-            height: 40,
-            width: 280,
-            background: 'rgba(255,255,255,0.05)',
-            borderRadius: 12,
-            marginBottom: 12,
-            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-          }} />
-          <div style={{
-            height: 20,
-            width: 180,
-            background: 'rgba(255,255,255,0.05)',
-            borderRadius: 8,
-            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            animationDelay: '0.2s'
-          }} />
-        </div>
-
-        <div style={{
-          position: 'relative',
-          zIndex: 1,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 16,
-          marginBottom: 32,
-        }}>
-          {[1, 2, 3].map(i => (
-            <div key={i} style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 24,
-              padding: 20,
-              height: 140,
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              animationDelay: `${i * 0.2}s`
-            }} />
-          ))}
-        </div>
-      </main>
-    )
+    return <DashboardLoading />
   }
 
   if (error) {
