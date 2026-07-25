@@ -30,7 +30,7 @@ export default function DashboardLoading() {
         {/* Jobizic 로고 */}
         <div style={{
           marginBottom: '32px',
-          animation: 'scaleFloat 2s ease-in-out infinite'
+          animation: 'scaleFloat 0.5s ease-in-out infinite'
         }}>
           <svg
             width="120"
