@@ -16,9 +16,9 @@ export const PLAN_LIMITS: Record<UserType, Record<Plan, Record<Feature, number>>
     EXPERT: { analyze: 30, jd: 30, rewrite: 20, interview: 20, proposal: 0, resume: 9999, weekly_report: 4, monthly_report: 1 },
   },
   HEADHUNTER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 1,  interview: 0, proposal: 3, resume: 0, weekly_report: 2, monthly_report: 0 },
-    PRO:    { analyze: 25, jd: 25, rewrite: 15, interview: 15, proposal: 20, resume: 0, weekly_report: 4, monthly_report: 1 },
-    EXPERT: { analyze: 50, jd: 50, rewrite: 25, interview: 25, proposal: 50, resume: 0, weekly_report: 4, monthly_report: 1 },
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 1,  interview: 0, proposal: 3, resume: 0, weekly_report: 0, monthly_report: 0 },
+    PRO:    { analyze: 25, jd: 25, rewrite: 15, interview: 15, proposal: 20, resume: 0, weekly_report: 0, monthly_report: 0 },
+    EXPERT: { analyze: 50, jd: 50, rewrite: 25, interview: 25, proposal: 50, resume: 0, weekly_report: 0, monthly_report: 0 },
   },
   MANAGER: {
     FREE:   { analyze: 9999, jd: 9999, rewrite: 9999, interview: 9999, proposal: 9999, resume: 9999, weekly_report: 9999, monthly_report: 9999 },
