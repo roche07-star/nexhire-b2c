@@ -1,25 +1,26 @@
 export default function DashboardLoading() {
   return (
     <main style={{
-      minHeight: '80vh',
+      padding: '100px 20px 40px',
+      maxWidth: 1400,
+      margin: '0 auto',
+      background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+      minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'var(--bg)',
-      position: 'relative',
-      overflow: 'hidden'
+      position: 'relative'
     }}>
       {/* 배경 그라디언트 효과 */}
       <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(34, 211, 238, 0.1) 0%, transparent 70%)',
-        borderRadius: '50%',
-        animation: 'pulse 3s ease-in-out infinite',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.1) 0%, transparent 50%)',
+        pointerEvents: 'none',
+        zIndex: 0
       }} />
 
       {/* Jobizic 로고 */}
@@ -56,17 +57,6 @@ export default function DashboardLoading() {
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.3;
-            transform: translate(-50%, -50%) scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: translate(-50%, -50%) scale(1.1);
-          }
-        }
-
         @keyframes scaleFloat {
           0%, 100% {
             transform: scale(1);
