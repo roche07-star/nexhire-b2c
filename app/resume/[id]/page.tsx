@@ -42,5 +42,14 @@ export default async function ResumePage({ params }: { params: Promise<{ id: str
     )
   }
 
-  return <ResumeViewer resume={resume} />
+  // 사용자 플랜 조회
+  const { data: userData } = await supabase
+    .from('users')
+    .select('plan')
+    .eq('email', session.user.email)
+    .single()
+
+  const userPlan = userData?.plan || 'FREE'
+
+  return <ResumeViewer resume={resume} userPlan={userPlan} />
 }
