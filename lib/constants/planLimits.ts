@@ -11,12 +11,12 @@ export type UserType = 'JOBSEEKER' | 'HEADHUNTER' | 'MANAGER' | 'SUPER_ADMIN'
 
 export const PLAN_LIMITS: Record<UserType, Record<Plan, Record<Feature, number>>> = {
   JOBSEEKER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0, proposal: 0, resume: 1 },
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 1,  interview: 0, proposal: 0, resume: 1 },
     PRO:    { analyze: 20, jd: 20, rewrite: 10, interview: 10, proposal: 0, resume: 10 },
     EXPERT: { analyze: 30, jd: 30, rewrite: 20, interview: 20, proposal: 0, resume: 9999 },
   },
   HEADHUNTER: {
-    FREE:   { analyze: 3,  jd: 3,  rewrite: 3,  interview: 0, proposal: 3, resume: 0 },
+    FREE:   { analyze: 3,  jd: 3,  rewrite: 1,  interview: 0, proposal: 3, resume: 0 },
     PRO:    { analyze: 25, jd: 25, rewrite: 15, interview: 15, proposal: 20, resume: 0 },
     EXPERT: { analyze: 50, jd: 50, rewrite: 25, interview: 25, proposal: 50, resume: 0 },
   },
