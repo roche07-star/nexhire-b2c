@@ -81,10 +81,10 @@ const PRODUCTS: Product[] = [
     icon: '✏️',
     gradient: 'linear-gradient(135deg, #34d399 0%, #10b981 100%)',
     description: [
-      '✅ JD 맞춤형 이력서 자동 생성',
+      '✅ AI 기반 이력서 자동 생성',
       '✅ 매칭 강점 부각 & 약점 보완',
-      '✅ 자기소개서 최적화',
-      '✅ DOCX 파일 다운로드',
+      '✅ 전문적인 레이아웃 디자인',
+      '✅ HTML/PDF 다운로드',
     ],
   },
   {
@@ -96,8 +96,8 @@ const PRODUCTS: Product[] = [
     icon: '💬',
     gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
     description: [
-      '✅ 예상 질문 10개 + 모범 답변',
-      '✅ 역질문 3가지 (역할/도전/기대)',
+      '✅ 예상 질문 15개 이상 + 모범 답변',
+      '✅ 역질문 3-5가지 제시',
       '✅ 회사/JD 분석 & 핵심 포인트',
       '✅ 면접 준비 체크리스트',
     ],
@@ -113,7 +113,7 @@ const PRODUCTS: Product[] = [
     description: [
       '✅ AI 자동 생성 후보자 제안서',
       '✅ 후보자 강점/JD 적합도 분석',
-      '✅ 예상 질문 & 답변 포함',
+      '✅ 채용 추천도 및 다음 단계 제안',
       '✅ HTML/PDF 다운로드',
     ],
     badge: '헤드헌터 전용',
