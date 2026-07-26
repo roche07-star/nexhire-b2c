@@ -522,6 +522,31 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }
 
+  // SavedTab에서 이름 수정 시 호출
+  function handleNameUpdate(analysisId: string, newName: string) {
+    // 1. analysisList 업데이트
+    setAnalysisList(prev =>
+      prev?.map(item =>
+        item.id === analysisId
+          ? { ...item, result: { ...item.result, candidate_name: newName } }
+          : item
+      ) ?? null
+    )
+
+    // 2. savedSelectedItem 업데이트 (현재 선택된 항목)
+    if (savedSelectedItem?.id === analysisId) {
+      setSavedSelectedItem({
+        ...savedSelectedItem,
+        result: { ...savedSelectedItem.result, candidate_name: newName }
+      })
+    }
+
+    // 3. result state 업데이트 (분석 Report)
+    if (result && (result as any)._id === analysisId) {
+      setResult({ ...result, candidate_name: newName })
+    }
+  }
+
   // 브라우저 알림 표시
   function showNotification(title: string, body: string) {
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -1483,6 +1508,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 onSetHiringProcessCreating={setHiringProcessCreating}
                 onSetHiringModalTop={setHiringModalTop}
                 onSetHiringJDInfo={setHiringJDInfo}
+                onNameUpdate={handleNameUpdate}
                 AnalysisResults={AnalysisResults}
               />
             )}

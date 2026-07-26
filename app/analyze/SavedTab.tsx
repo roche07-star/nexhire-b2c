@@ -34,6 +34,7 @@ interface SavedTabProps {
   onSetHiringProcessCreating: (creating: boolean) => void
   onSetHiringModalTop: (top: number) => void
   onSetHiringJDInfo: (info: any) => void
+  onNameUpdate: (analysisId: string, newName: string) => void
   AnalysisResults: any
 }
 
@@ -52,6 +53,7 @@ export default function SavedTab({
   showHiringModal,
   hiringProcessCreating,
   hiringModalTop,
+  onNameUpdate,
   hiringButtonRef,
   hiringJDInfo,
   onSetSavedSelectedItem,
@@ -315,7 +317,7 @@ export default function SavedTab({
                               body: JSON.stringify({ candidate_name: newName.trim() })
                             }).then(res => {
                               if (res.ok) {
-                                window.location.reload()
+                                onNameUpdate(item.id, newName.trim())
                               } else {
                                 alert('이름 저장에 실패했습니다.')
                               }
