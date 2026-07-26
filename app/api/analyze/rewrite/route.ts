@@ -542,6 +542,16 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.06);
       ">
+        <!-- 입사지원서 제목 -->
+        <h1 style="
+          text-align: center;
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 40px;
+          color: #1f2937;
+          letter-spacing: -0.5px;
+        ">입사지원서</h1>
+
         ${sectionsHTML}
 
         <!-- 푸터 -->
