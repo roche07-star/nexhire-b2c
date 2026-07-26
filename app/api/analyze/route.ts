@@ -11,6 +11,8 @@ import { invalidateCache } from '@/lib/cache'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
 import { callClaude } from '@/lib/claude-client'
 import { handleAnthropicError } from '@/lib/handle-anthropic-error'
+import { detectAllPatterns, sendSlackAlert } from '@/lib/security/usageMonitoring'
+import type { UserType, Plan } from '@/lib/constants/planLimits'
 
 export const maxDuration = 180 // PDF OCR + 분석 = 최대 3분
 
@@ -758,6 +760,23 @@ ${maskedText.slice(0, 3000)}
     // 사용량 증가 (MANAGER 제외)
     if (role !== 'MANAGER') {
       await incrementUsage(email, 'analyze')
+
+      // 🔒 이상 사용 패턴 감지 (비동기, 백그라운드)
+      detectAllPatterns(email, userType as UserType, plan as Plan)
+        .then(async (suspiciousPatterns) => {
+          if (suspiciousPatterns.length > 0) {
+            console.warn('[Security] Suspicious patterns detected:', email, suspiciousPatterns)
+            // 심각도 4 이상만 Slack 알림
+            for (const pattern of suspiciousPatterns) {
+              if (pattern.severity && pattern.severity >= 4) {
+                await sendSlackAlert(pattern, email)
+              }
+            }
+          }
+        })
+        .catch(err => {
+          console.error('[Security] Pattern detection failed:', err)
+        })
     }
 
     const resultToSave = JSON.parse(JSON.stringify(resultPayload)) as Record<string, unknown>

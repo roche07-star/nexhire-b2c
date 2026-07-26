@@ -148,6 +148,49 @@ export default function TermsPage() {
           </div>
 
           <div className="privacy-section">
+            <h2>제7조의3 (환불 및 청약철회)</h2>
+
+            <h3 style={{ marginTop: 16, fontSize: '16px', fontWeight: 600 }}>7.3.1 환불 가능 조건</h3>
+            <p>다음 조건을 <strong>모두 충족</strong>하는 경우 전액 환불이 가능합니다.</p>
+            <ul>
+              <li>구매 후 7일 이내</li>
+              <li>서비스 사용 5회 미만 (이력서 분석, JD 분석, 면접 가이드, 이력서 생성 합산)</li>
+              <li>환불 신청서 제출 (고객센터 또는 내 정보 메뉴)</li>
+            </ul>
+            <p style={{ marginTop: 12, fontSize: '14px', color: 'var(--muted)' }}>
+              환불 처리는 영업일 기준 3-5일 소요되며, 결제 수단으로 환불됩니다.
+            </p>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.3.2 환불 불가 조건</h3>
+            <p>다음 경우에는 환불이 불가능합니다.</p>
+            <ul>
+              <li>서비스 사용 5회 이상 (부분 환불 불가)</li>
+              <li>구매 후 7일 경과</li>
+              <li>3개월권의 경우 1개월 이용 후 환불 불가 (남은 기간 부분 환불 불가)</li>
+              <li>쿠폰 또는 할인 이벤트로 구매한 경우 (약관 별도 명시)</li>
+            </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.3.3 부정 환불 방지</h3>
+            <ul>
+              <li>카드사 Chargeback(결제 취소)을 통한 부정 환불 시도 시, 사용 내역이 확인될 경우 법적 조치를 취할 수 있습니다.</li>
+              <li>부정 환불 이력이 있는 사용자는 재가입이 영구적으로 제한됩니다.</li>
+              <li>정당한 환불 사유가 있는 경우 반드시 고객센터를 통해 정상 절차로 신청해주시기 바랍니다.</li>
+            </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.3.4 플랜 변경 시 환불</h3>
+            <ul>
+              <li>유료 플랜 구매 후 상위 플랜으로 변경 시: 차액만 결제 (환불 없음)</li>
+              <li>유료 플랜 구매 후 하위 플랜으로 변경 시: 환불 불가, 현재 플랜 종료일까지 이용 후 변경</li>
+            </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.3.5 쿠폰 환불</h3>
+            <ul>
+              <li>쿠폰으로 획득한 무료 크레딧은 환불 대상이 아닙니다.</li>
+              <li>쿠폰 유효기간 만료 시 자동 소멸되며, 연장 또는 환급되지 않습니다.</li>
+            </ul>
+          </div>
+
+          <div className="privacy-section">
             <h2>제8조 (약관 변경)</h2>
             <p>회사는 약관을 변경할 경우 시행일 7일 전 서비스 내 공지합니다. 변경 후 계속 서비스를 이용하면 변경 약관에 동의한 것으로 간주합니다.</p>
           </div>
