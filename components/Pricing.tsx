@@ -9,7 +9,7 @@ const individualPlans = [
     name: 'Free',
     price: '₩0',
     desc: '🎯 이직 방향이 궁금한 직장인을 위해',
-    features: ['이력서 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 3회/월', '기본 점수 리포트', '커리어 방향 1가지 제안', 'HTML 화면 보기 (다운로드 불가)'],
+    features: ['이력서 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월 (다운로드 X)', '기본 점수 리포트', '커리어 방향 1가지 제안', 'HTML 화면 보기 (다운로드 불가)'],
     disabled: ['면접 가이드', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
