@@ -921,24 +921,29 @@ ${maskedText.slice(0, 3000)}
         // 첫 번째 보존 — 무료
         canPreserve = true
       } else {
-        // 추가 보존 — storage 쿠폰 사용
-        const now = new Date().toISOString()
-        const { data: storageCoupons } = await supabase
-          .from('coupons')
-          .select('*')
-          .eq('claimed_by', email)
-          .eq('feature', 'storage')
-          .is('deleted_at', null)
-          .or('expires_at.is.null,expires_at.gt.' + now)  // 만료되지 않은 쿠폰
-
-        // 사용 가능한 쿠폰 찾기 (남은 횟수가 있는 것)
-        const availableCoupon = (storageCoupons ?? []).find(c =>
-          (c.credits - (c.used || 0)) > 0
-        )
-
-        if (availableCoupon) {
+        // 추가 보존 — PRO/EXPERT 플랜은 무제한, FREE는 storage 쿠폰 필요
+        if (userPlan === 'PRO' || userPlan === 'EXPERT') {
           canPreserve = true
-          storageCouponUsed = availableCoupon.id  // 사용할 쿠폰 ID 저장
+        } else {
+          // FREE 플랜 — storage 쿠폰 사용
+          const now = new Date().toISOString()
+          const { data: storageCoupons } = await supabase
+            .from('coupons')
+            .select('*')
+            .eq('claimed_by', email)
+            .eq('feature', 'storage')
+            .is('deleted_at', null)
+            .or('expires_at.is.null,expires_at.gt.' + now)  // 만료되지 않은 쿠폰
+
+          // 사용 가능한 쿠폰 찾기 (남은 횟수가 있는 것)
+          const availableCoupon = (storageCoupons ?? []).find(c =>
+            (c.credits - (c.used || 0)) > 0
+          )
+
+          if (availableCoupon) {
+            canPreserve = true
+            storageCouponUsed = availableCoupon.id  // 사용할 쿠폰 ID 저장
+          }
         }
       }
 
