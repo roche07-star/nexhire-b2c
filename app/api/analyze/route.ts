@@ -894,9 +894,37 @@ ${maskedText.slice(0, 3000)}
 
       const { data: prevAnalyses } = await prevQuery.limit(100)
 
-      const preserved = (prevAnalyses ?? []).filter(
-        (a) => a.result?._file_path && a.id !== insertData.id
+      // 실제 파일 존재 여부 확인 (유령 파일 제거)
+      const preservedChecks = await Promise.all(
+        (prevAnalyses ?? [])
+          .filter(a => a.result?._file_path && a.id !== insertData.id)
+          .map(async (a) => {
+            const filePath = a.result._file_path as string
+
+            // 스토리지에 실제 파일이 있는지 확인
+            const { data: files, error } = await supabase.storage
+              .from('resumes')
+              .list(email, {
+                limit: 1,
+                search: a.id
+              })
+
+            // 파일이 없으면 DB에서 _file_path 제거 (자동 정리)
+            if (error || !files || files.length === 0) {
+              console.log('[analyze] 유령 파일 감지 - DB 정리:', { analysisId: a.id, filePath })
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { _file_path: _fp, ...restResult } = a.result as Record<string, unknown>
+              await supabase.from('analyses')
+                .update({ result: restResult })
+                .eq('id', a.id)
+              return null
+            }
+
+            return a
+          })
       )
+
+      const preserved = preservedChecks.filter((a): a is NonNullable<typeof a> => a !== null)
       const hasPreserved = preserved.length > 0
 
       let canPreserve = false
