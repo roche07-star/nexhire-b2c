@@ -241,6 +241,14 @@ export async function POST(req: NextRequest) {
 
     const { email, role } = session.user
 
+    // 사용자 타입 조회 (보안 모니터링용)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('email', email)
+      .single()
+    const userType = userData?.user_type || 'JOBSEEKER'
+
     // Rate limiting (MANAGER 제외)
     if (role !== 'MANAGER') {
       const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'

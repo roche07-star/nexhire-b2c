@@ -20,6 +20,7 @@ function PreviewContent() {
   const [filename, setFilename] = useState<string | null>(null)
   const [showFullComparison, setShowFullComparison] = useState(false)
   const [resumeId, setResumeId] = useState<string | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<any>(null)
 
   useEffect(() => {
     try {
