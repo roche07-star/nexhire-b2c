@@ -61,7 +61,7 @@ const headhunterPlans = [
   {
     name: 'Expert',
     price: '₩49,900',
-    desc: '💼 대형 헤드헌팅펌 / 리크루팅 에이전시',
+    desc: '💼 전문 헤드헌터',
     features: ['후보자 분석 50회/월', 'JD 적합도 분석 50회/월', '정산 기능', '클라이언트 제안서 50회/월', '면접 가이드 25회/월', '심층 매칭 리포트', '분석 결과 영구 저장', 'HTML/PDF 리포트 다운로드', '후보자 관리 대시보드'],
     disabled: [],
     btnClass: 'btn-plan-outline',

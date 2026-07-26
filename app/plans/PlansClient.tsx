@@ -35,12 +35,10 @@ const freePlanData = {
       '후보자 분석 3회/월',
       'JD 적합도 분석 3회/월',
       '이력서 생성 1회/월',
-      '주간 Report 2회/월',
       '기본 매칭 리포트',
     ],
     limitations: [
       '클라이언트 제안서 생성 안 함',
-      '월간 Report 제공 안 함',
       '정산 기능 없음',
     ],
   }
@@ -521,7 +519,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                 }}>
                   {effectiveType === 'JOBSEEKER'
                     ? (planType === 'PRO' ? '본격적인 이직 준비 중인 재직자' : '최종 합격까지 끝내고 싶은 이직자')
-                    : (planType === 'PRO' ? '월 10-30건 매칭하는 헤드헌터' : '대형 헤드헌팅펌 / 리크루팅 에이전시')
+                    : (planType === 'PRO' ? '월 10-30건 매칭하는 헤드헌터' : '전문 헤드헌터')
                   }
                 </div>
 
