@@ -511,6 +511,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           result: { ...savedSelectedItem.result, candidate_name: name }
         })
       }
+      // analysisList도 업데이트 (SavedTab 목록에 반영)
+      setAnalysisList(prev =>
+        prev?.map(item =>
+          item.id === targetId
+            ? { ...item, result: { ...item.result, candidate_name: name } }
+            : item
+        ) ?? null
+      )
 
       setEditingCandidateName(false)
       alert('✅ 후보자 이름이 저장되었습니다.')
