@@ -770,7 +770,10 @@ ${maskedText.slice(0, 3000)}
       await incrementUsage(email, 'analyze')
 
       // 🔒 이상 사용 패턴 감지 (비동기, 백그라운드)
-      detectAllPatterns(email, userType as UserType, plan as Plan)
+      // SUPER_ADMIN, MANAGER는 JOBSEEKER로 매핑
+      const securityUserType: 'JOBSEEKER' | 'HEADHUNTER' =
+        userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER'
+      detectAllPatterns(email, securityUserType, plan as Plan)
         .then(async (suspiciousPatterns) => {
           if (suspiciousPatterns.length > 0) {
             console.warn('[Security] Suspicious patterns detected:', email, suspiciousPatterns)
