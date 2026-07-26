@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
 import { type Product } from '@/lib/products'
 
@@ -17,6 +18,7 @@ function PaymentPageContent({ product, userEmail }: TossPaymentClientProps) {
   const tossPaymentsRef = useRef<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [currentPlan, setCurrentPlan] = useState<string>('FREE')
+  const [termsAgreed, setTermsAgreed] = useState(false)
 
   const userType = session?.user?.userType
   const plan = product.id // 'PRO' 또는 'EXPERT'
@@ -199,24 +201,88 @@ function PaymentPageContent({ product, userEmail }: TossPaymentClientProps) {
           </div>
         )}
 
+        {/* 약관 동의 */}
+        <div style={{
+          marginBottom: 16,
+          padding: 16,
+          background: 'var(--surface2)',
+          borderRadius: 8,
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            cursor: 'pointer',
+            userSelect: 'none'
+          }}>
+            <input
+              type="checkbox"
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+              style={{
+                width: 18,
+                height: 18,
+                marginTop: 2,
+                cursor: 'pointer',
+                accentColor: '#ef4444'
+              }}
+            />
+            <div style={{
+              flex: 1,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: 'var(--text)'
+            }}>
+              <span style={{ fontWeight: 700 }}>
+                서비스 이용약관 및 환불 정책에 동의합니다
+              </span>
+              <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>
+              <div style={{
+                marginTop: 8,
+                fontSize: 13,
+                color: 'var(--muted2)',
+                lineHeight: 1.7
+              }}>
+                • 구매 후 7일 이내, 서비스 사용 5회 미만 시 전액 환불 가능합니다.
+                <br />
+                • 디지털 콘텐츠 특성상, 서비스를 5회 이상 사용하신 경우 전자상거래법 제17조 제2항에 따라 환불이 제한됩니다.
+                <br />
+                • 자세한 내용은{' '}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  style={{
+                    color: '#3b82f6',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  이용약관
+                </Link>
+                에서 확인하실 수 있습니다.
+              </div>
+            </div>
+          </label>
+        </div>
+
         {/* 결제 버튼 */}
         <button
           onClick={handlePayment}
-          disabled={isLoading || isDowngrade}
+          disabled={isLoading || isDowngrade || !termsAgreed}
           style={{
             width: '100%',
             padding: 16,
-            background: (isLoading || isDowngrade) ? '#ccc' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            background: (isLoading || isDowngrade || !termsAgreed) ? '#ccc' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
             color: '#fff',
             fontSize: 16,
             fontWeight: 700,
             borderRadius: 10,
             border: 'none',
-            cursor: (isLoading || isDowngrade) ? 'not-allowed' : 'pointer',
+            cursor: (isLoading || isDowngrade || !termsAgreed) ? 'not-allowed' : 'pointer',
           }}
         >
           {isLoading ? '로딩 중...' :
            isDowngrade ? '다운그레이드 불가' :
+           !termsAgreed ? '약관에 동의해주세요' :
            isSamePlan ? `${product.price.toLocaleString()}원 결제하기 (연장)` :
            `${product.price.toLocaleString()}원 결제하기`}
         </button>
@@ -234,11 +300,10 @@ function PaymentPageContent({ product, userEmail }: TossPaymentClientProps) {
           <div style={{ marginBottom: 8, fontWeight: 600, color: 'var(--text)' }}>
             📌 안내사항
           </div>
-          • 결제 후 즉시 PRO 플랜이 활성화됩니다<br />
-          • 환불은 결제 후 7일 이내 전액 가능합니다 (이유 불문)<br />
-          • 환불 요청: <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline' }}>고객센터</a> (주문번호, 결제 이메일 필수)<br />
+          • 결제 후 즉시 {product.plan} 플랜이 활성화됩니다<br />
+          • 환불은 결제 후 7일 이내, 서비스 사용 5회 미만 시 전액 가능합니다<br />
           • 처리 기간: 접수 후 1-2 영업일, 환불 완료까지 3-5 영업일<br />
-          • 문의사항은 <a href="/support" style={{ color: '#3b82f6', textDecoration: 'underline' }}>고객센터</a>
+          • 문의사항은 roche07he@gmail.com
         </div>
       </div>
     </div>

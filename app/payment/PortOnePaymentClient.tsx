@@ -20,6 +20,7 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [impLoaded, setImpLoaded] = useState(false)
+  const [termsAgreed, setTermsAgreed] = useState(false)
 
   // PortOne V1 스크립트 로드
   useEffect(() => {
@@ -351,14 +352,78 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
           </div>
         )}
 
+        {/* Terms Agreement */}
+        <div style={{
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 16,
+          padding: 24,
+          marginBottom: 24
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            cursor: 'pointer',
+            userSelect: 'none'
+          }}>
+            <input
+              type="checkbox"
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+              style={{
+                width: 20,
+                height: 20,
+                marginTop: 2,
+                cursor: 'pointer',
+                accentColor: '#22d3ee'
+              }}
+            />
+            <div style={{
+              flex: 1,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: 'rgba(255,255,255,0.9)'
+            }}>
+              <span style={{ fontWeight: 700, color: '#ffffff' }}>
+                서비스 이용약관 및 환불 정책에 동의합니다
+              </span>
+              <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>
+              <div style={{
+                marginTop: 8,
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.6)',
+                lineHeight: 1.7
+              }}>
+                • 구매 후 7일 이내, 서비스 사용 5회 미만 시 전액 환불 가능합니다.
+                <br />
+                • 디지털 콘텐츠 특성상, 서비스를 5회 이상 사용하신 경우 전자상거래법 제17조 제2항에 따라 환불이 제한됩니다.
+                <br />
+                • 자세한 내용은{' '}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  style={{
+                    color: '#22d3ee',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  이용약관
+                </Link>
+                에서 확인하실 수 있습니다.
+              </div>
+            </div>
+          </label>
+        </div>
+
         {/* Payment Button */}
         <button
           onClick={handlePayment}
-          disabled={isProcessing}
+          disabled={isProcessing || !termsAgreed}
           style={{
             width: '100%',
             padding: '18px 32px',
-            background: isProcessing
+            background: (isProcessing || !termsAgreed)
               ? 'rgba(255,255,255,0.1)'
               : 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
             color: '#ffffff',
@@ -366,13 +431,13 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
             borderRadius: 16,
             fontSize: 18,
             fontWeight: 700,
-            cursor: isProcessing ? 'not-allowed' : 'pointer',
+            cursor: (isProcessing || !termsAgreed) ? 'not-allowed' : 'pointer',
             transition: 'all 0.3s',
             marginBottom: 24,
-            opacity: isProcessing ? 0.6 : 1
+            opacity: (isProcessing || !termsAgreed) ? 0.6 : 1
           }}
         >
-          {isProcessing ? '결제 처리 중...' : '결제하기'}
+          {isProcessing ? '결제 처리 중...' : !termsAgreed ? '약관에 동의해주세요' : '결제하기'}
         </button>
 
         {/* Info */}
@@ -400,7 +465,8 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
             <li>결제는 NHN KCP를 통해 안전하게 처리됩니다</li>
             <li>결제 완료 후 즉시 이용권이 활성화됩니다</li>
             <li>이용권은 결제 시점부터 {product.duration}개월간 유효합니다</li>
-            <li>구매 후 7일 이내, 5회 미만 사용 시 전액 환불 가능합니다</li>
+            <li>환불은 결제 후 7일 이내, 서비스 사용 5회 미만 시 전액 가능합니다</li>
+            <li>문의사항은 roche07he@gmail.com</li>
           </ul>
         </div>
 
