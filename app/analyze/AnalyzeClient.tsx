@@ -686,6 +686,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           // PRO/EXPERT: DOCX 데이터도 저장 (다운로드 버튼용)
           docx: result.docx || null,
           filename: result.filename || null,
+          // HTML 미리보기용 resumeId 저장
+          resumeId: data.resumeId || null,
         }))
       } catch (e) {
         console.error('localStorage 저장 실패:', e)

@@ -19,6 +19,7 @@ function PreviewContent() {
   const [docx, setDocx] = useState<string | null>(null)
   const [filename, setFilename] = useState<string | null>(null)
   const [showFullComparison, setShowFullComparison] = useState(false)
+  const [resumeId, setResumeId] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -80,6 +81,7 @@ function PreviewContent() {
       setChanges(data.changes ?? [])
       setDocx(data.docx ?? null)
       setFilename(data.filename ?? null)
+      setResumeId(data.resumeId ?? null)
 
       // HTML을 섹션별로 파싱
       const parsedSections = parseHTMLToSections(data.preview ?? '')
@@ -320,23 +322,102 @@ function PreviewContent() {
           textAlign: 'center',
           marginBottom: '24px',
         }}>
-          <p style={{
-            fontSize: '15px',
-            color: '#e8ff47',
-            fontWeight: 600,
-            marginBottom: '12px',
-          }}>
-            📥 생성된 이력서는 DOCX 파일로 다운로드하여 확인하세요
-          </p>
-          <p style={{
-            fontSize: '13px',
-            color: '#999',
-            lineHeight: '1.7',
-          }}>
-            {plan === 'PRO' || plan === 'EXPERT'
-              ? '상단의 "DOCX 다운로드" 버튼을 클릭하여 완성된 이력서를 받으세요.'
-              : 'PRO 플랜 이상에서 DOCX 다운로드가 가능합니다.'}
-          </p>
+          {plan === 'FREE' ? (
+            <>
+              <p style={{
+                fontSize: '15px',
+                color: '#e8ff47',
+                fontWeight: 600,
+                marginBottom: '12px',
+              }}>
+                👀 생성된 이력서를 HTML 미리보기로 확인하세요
+              </p>
+              {resumeId ? (
+                <button
+                  onClick={() => window.open(`/resume/${resumeId}`, '_blank')}
+                  style={{
+                    background: 'linear-gradient(135deg, #e8ff47 0%, #d4eb33 100%)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '12px 24px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    marginTop: '8px',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
+                >
+                  📄 HTML 미리보기 열기
+                </button>
+              ) : (
+                <p style={{
+                  fontSize: '13px',
+                  color: '#999',
+                  marginTop: '8px',
+                }}>
+                  이력서를 생성하면 미리보기를 확인할 수 있습니다.
+                </p>
+              )}
+              <p style={{
+                fontSize: '12px',
+                color: '#666',
+                marginTop: '12px',
+              }}>
+                💡 DOCX 다운로드는 PRO 플랜 이상에서 가능합니다.
+              </p>
+            </>
+          ) : (
+            <>
+              <p style={{
+                fontSize: '15px',
+                color: '#e8ff47',
+                fontWeight: 600,
+                marginBottom: '12px',
+              }}>
+                📥 생성된 이력서는 DOCX 파일로 다운로드하여 확인하세요
+              </p>
+              <p style={{
+                fontSize: '13px',
+                color: '#999',
+                lineHeight: '1.7',
+              }}>
+                상단의 "DOCX 다운로드" 버튼을 클릭하여 완성된 이력서를 받으세요.
+              </p>
+              {resumeId && (
+                <button
+                  onClick={() => window.open(`/resume/${resumeId}`, '_blank')}
+                  style={{
+                    background: 'transparent',
+                    color: '#999',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 20px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    marginTop: '12px',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fff'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#999'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+                  }}
+                >
+                  📄 HTML 미리보기 (옵션)
+                </button>
+              )}
+            </>
+          )}
         </div>
 
         {/* 푸터 */}
