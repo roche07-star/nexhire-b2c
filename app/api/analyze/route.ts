@@ -528,9 +528,9 @@ ${maskedText.slice(0, 3000)}
           const validation = validationTU.input as ValidationResult
           if (!validation.validation_passed) {
             console.log('[analyze] ⚠️ 검증 실패 - 자동 수정:', {
-              career_level_issues: validation.career_level_issues.length,
-              hallucination_issues: validation.hallucination_issues.length,
-              generic_phrase_issues: validation.generic_phrase_issues.length,
+              career_level_issues: validation.career_level_issues?.length || 0,
+              hallucination_issues: validation.hallucination_issues?.length || 0,
+              generic_phrase_issues: validation.generic_phrase_issues?.length || 0,
             })
             // 문제 발견 시 자동 수정
             if (validation.corrected_improvements.length > 0) {
@@ -734,9 +734,9 @@ ${maskedText.slice(0, 3000)}
           const validation = validationTU.input as ValidationResult
           if (!validation.validation_passed) {
             console.log('[analyze] ⚠️ 검증 실패 - 자동 수정:', {
-              career_level_issues: validation.career_level_issues.length,
-              hallucination_issues: validation.hallucination_issues.length,
-              generic_phrase_issues: validation.generic_phrase_issues.length,
+              career_level_issues: validation.career_level_issues?.length || 0,
+              hallucination_issues: validation.hallucination_issues?.length || 0,
+              generic_phrase_issues: validation.generic_phrase_issues?.length || 0,
             })
             // 문제 발견 시 자동 수정
             if (validation.corrected_improvements.length > 0) {
