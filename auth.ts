@@ -4,6 +4,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { supabase } from '@/lib/supabase'
 import type { UserType } from '@/types/user'
 import bcrypt from 'bcryptjs'
+import { validateEmailSecurity } from '@/lib/security/emailValidation'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -82,12 +83,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user }) {
       if (!user.email) return true
 
-      // ✅ DB 기반 권한 검증: 사용자 레코드 조회 (status, user_type 포함)
+      // 🔒 보안 검증: 이메일 +태그 및 일회용 이메일 차단
+      const { valid, normalized, reason } = validateEmailSecurity(user.email)
+      if (!valid) {
+        console.error('[Security] Email validation failed:', user.email, reason)
+        return false // 로그인 차단
+      }
+
+      // 🔒 정규화된 이메일로 중복 체크
       const { data: existingUser } = await supabase
         .from('users')
         .select('plan, user_type, status')
-        .eq('email', user.email)
+        .eq('email', normalized)
         .maybeSingle()
+
+      // +태그 사용 시도 감지: 정규화된 이메일이 이미 존재하면 차단
+      if (user.email !== normalized && existingUser) {
+        console.error('[Security] Duplicate email detected (plus tag):', user.email, '→', normalized)
+        return false // 중복 계정 생성 차단
+      }
 
       // 탈퇴한 사용자 또는 신규 사용자: 완전 초기화
       // withdrawing은 탈퇴 예정이므로 정상 사용 가능 (초기화 안 함)

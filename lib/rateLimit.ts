@@ -151,6 +151,9 @@ export const RATE_LIMITS = {
   /** 분석 요청: 분당 5회 */
   ANALYZE: { limit: 5, window: 60 },
 
+  /** 🔒 FREE 플랜 남용 방지: 1일 10회 (코난 제안) */
+  FREE_DAILY: { limit: 10, window: 86400 },
+
   /** 로그인 시도: 5분당 5회 */
   AUTH: { limit: 5, window: 300 },
 

@@ -268,6 +268,30 @@ export async function POST(req: NextRequest) {
 
       console.log('[analyze] Usage check:', { email, allowed, limit, plan, remaining, couponDebug })
 
+      // 🔒 FREE 플랜 남용 방지: 1일 10회 추가 제한 (코난 제안)
+      if (plan === 'FREE') {
+        const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+        const dailyKey = `free-daily:${email}:${ip}`
+        const dailyLimited = await checkRateLimit(dailyKey, RATE_LIMITS.FREE_DAILY)
+
+        if (!dailyLimited.success) {
+          return NextResponse.json(
+            {
+              error: 'FREE 플랜은 1일 10회까지 사용 가능합니다. PRO 플랜으로 업그레이드하시면 월 20회 사용하실 수 있습니다.',
+              upgradeRequired: true
+            },
+            {
+              status: 429,
+              headers: {
+                'X-RateLimit-Limit': String(RATE_LIMITS.FREE_DAILY.limit),
+                'X-RateLimit-Remaining': String(dailyLimited.remaining),
+                'X-RateLimit-Reset': String(dailyLimited.reset),
+              }
+            }
+          )
+        }
+      }
+
       if (!allowed) {
         // 디버그 정보 포함 (클라이언트 콘솔에서 확인 가능)
         return NextResponse.json(
