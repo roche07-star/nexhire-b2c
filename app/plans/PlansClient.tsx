@@ -33,7 +33,7 @@ const freePlanData = {
     features: [
       '후보자 분석 3회/월',
       'JD 적합도 분석 3회/월',
-      '이력서 생성 1회/월',
+      '이력서 생성 1회/월 (다운로드 X)',
       '기본 매칭 리포트',
     ],
     limitations: [

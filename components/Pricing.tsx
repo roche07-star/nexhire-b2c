@@ -42,7 +42,7 @@ const headhunterPlans = [
     name: 'Free',
     price: '₩0',
     desc: '💼 후보자 분석이 처음인 헤드헌터',
-    features: ['후보자 분석 3회/월', 'JD 적합도 분석 3회/월', '기본 매칭 리포트', 'HTML 화면 보기 (다운로드 불가)'],
+    features: ['후보자 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월 (다운로드 X)', '기본 매칭 리포트', 'HTML 화면 보기 (다운로드 불가)'],
     disabled: ['클라이언트 제안서 생성', '정산 기능', 'HTML 리포트 다운로드'],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
