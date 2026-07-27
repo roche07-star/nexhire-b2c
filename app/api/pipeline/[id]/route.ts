@@ -54,7 +54,7 @@ export async function PATCH(
     // 알림 생성 (후보자 상태 변경)
     if (input.stage && session?.user?.email) {
       try {
-        const stageName = PIPELINE_STAGE_LABELS[input.stage] || input.stage
+        const stageName = (PIPELINE_STAGE_LABELS as any)[input.stage] || input.stage
         await supabase.from('notifications').insert({
           user_email: session.user.email,
           type: 'info',
