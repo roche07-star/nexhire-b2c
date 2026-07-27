@@ -60,7 +60,7 @@ export async function PATCH(
           type: 'info',
           icon: '📋',
           title: '후보자 상태 변경',
-          message: `${data.candidate_name || '후보자'} → ${stageName}`,
+          message: `${data.candidate_name || '후보자'} : ${stageName}`,
           link: '/pipeline',
           is_read: false,
         })
