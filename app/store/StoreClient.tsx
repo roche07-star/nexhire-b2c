@@ -1,15 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
+import * as PortOne from "@portone/browser-sdk/v2"
 import type { PaymentGateway } from '@/lib/payment-gateway'
-
-// PortOne V1 (아임포트) 타입 선언
-declare global {
-  interface Window {
-    IMP: any
-  }
-}
 
 interface Product {
   id: string
@@ -150,39 +144,8 @@ interface Props {
 export default function StoreClient({ isManager, userEmail, userName, paymentGateway }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [impLoaded, setImpLoaded] = useState(false)
 
   console.log('[StoreClient] Payment Gateway:', paymentGateway)
-
-  // PortOne V1 (아임포트) 스크립트 로드
-  useEffect(() => {
-    const impCode = process.env.NEXT_PUBLIC_PORTONE_V1_IMP_CODE || 'imp54224231'
-
-    // 이미 로드되었는지 확인
-    if (window.IMP) {
-      window.IMP.init(impCode)
-      setImpLoaded(true)
-      return
-    }
-
-    // 스크립트 로드
-    const script = document.createElement('script')
-    script.src = 'https://cdn.iamport.kr/v1/iamport.js'
-    script.async = true
-
-    script.onload = () => {
-      if (window.IMP) {
-        window.IMP.init(impCode)
-        setImpLoaded(true)
-      }
-    }
-
-    document.body.appendChild(script)
-
-    return () => {
-      // 클린업은 하지 않음 (다른 컴포넌트에서도 사용 가능)
-    }
-  }, [])
 
   async function handlePurchase(product: Product) {
     if (isProcessing) return
@@ -220,12 +183,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           customerName: userName || '고객',
         })
       } else {
-        // PortOne V1 결제 흐름
-        // Step 0: IMP 로드 확인
-        if (!window.IMP) {
-          throw new Error('결제 모듈이 로드되지 않았습니다. 페이지를 새로고침해주세요.')
-        }
-
+        // PortOne V2 결제 흐름
         // Step 1: 서버에 결제 준비 요청
         const prepareRes = await fetch('/api/store/prepare', {
           method: 'POST',
@@ -245,47 +203,38 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
 
         const { paymentId, orderId } = await prepareRes.json()
 
-        // Step 2: PortOne V1 결제창 호출 (Promise로 래핑)
-        const siteCode = process.env.NEXT_PUBLIC_PORTONE_V1_SITE_CODE || 'AO09C'
-        const response = await new Promise<any>((resolve, reject) => {
-          window.IMP.request_pay(
-            {
-              pg: `kcp.${siteCode}`,
-              pay_method: 'card',
-              merchant_uid: orderId,
-              name: product.name,
-              amount: product.price,
-              buyer_email: userEmail || '',
-              buyer_name: userName || '고객',
-              m_redirect_url: `${window.location.origin}/store/mobile-redirect`,
-            },
-            (response: any) => {
-              if (response.success || response.imp_success) {
-                resolve(response)
-              } else {
-                reject(new Error(response.error_msg || '결제가 취소되었습니다'))
-              }
-            }
-          )
+        // Step 2: PortOne V2 결제창 호출
+        const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!
+        const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!
+
+        console.log('[Store PortOne V2 Payment] 결제 요청:', {
+          storeId,
+          channelKey,
+          paymentId,
+          orderName: product.name,
+          totalAmount: product.price
         })
 
-        // Step 3: 서버에 결제 검증 요청
-        const verifyRes = await fetch('/api/store/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            paymentId: response.imp_uid || paymentId,
-            orderId: response.merchant_uid || orderId,
-          })
+        const response = await PortOne.requestPayment({
+          storeId,
+          channelKey,
+          paymentId: `payment-${orderId}`,
+          orderName: product.name,
+          totalAmount: product.price,
+          currency: "CURRENCY_KRW",
+          payMethod: "CARD",
+          customer: {
+            email: userEmail,
+          },
+          redirectUrl: `${window.location.origin}/store/success`,
         })
 
-        if (!verifyRes.ok) {
-          const errorData = await verifyRes.json()
-          throw new Error(errorData.error || '결제 검증 실패')
+        if (response?.code) {
+          // 결제 실패
+          throw new Error(response.message || '결제가 취소되었습니다')
         }
 
-        // 결제 성공 → 완료 페이지로 이동
-        window.location.href = `/store/success?orderId=${orderId}`
+        // 결제 성공 - redirectUrl로 자동 이동됨
       }
 
     } catch (err: any) {
