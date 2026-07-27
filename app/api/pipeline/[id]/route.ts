@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import type { UpdatePipelineCandidateInput } from '@/types/pipeline'
+import { PIPELINE_STAGE_LABELS } from '@/types/pipeline'
 
 /**
  * PATCH /api/pipeline/[id]
@@ -48,6 +49,26 @@ export async function PATCH(
 
     if (!data) {
       return NextResponse.json({ error: '후보자를 찾을 수 없습니다.' }, { status: 404 })
+    }
+
+    // 알림 생성 (후보자 상태 변경)
+    if (input.stage && session?.user?.email) {
+      try {
+        const stageName = PIPELINE_STAGE_LABELS[input.stage] || input.stage
+        await supabase.from('notifications').insert({
+          user_email: session.user.email,
+          type: 'info',
+          icon: '📋',
+          title: '후보자 상태 변경',
+          message: `${data.name} → ${stageName}`,
+          link: '/pipeline',
+          is_read: false,
+        })
+        console.log('[pipeline/PATCH] 알림 생성 완료:', session.user.email)
+      } catch (notifError) {
+        console.error('[pipeline/PATCH] 알림 생성 실패:', notifError)
+        // 알림 실패는 무시 (메인 기능에 영향 없음)
+      }
     }
 
     return NextResponse.json({ candidate: data })

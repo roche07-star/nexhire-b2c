@@ -137,6 +137,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
   const [showNotifications, setShowNotifications] = useState(false)
   const [showGoalSettings, setShowGoalSettings] = useState(false)
   const [notificationsCleared, setNotificationsCleared] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
   const [editingActivityId, setEditingActivityId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [goals, setGoals] = useState({
@@ -218,37 +219,23 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     }
   }
 
-  // 알림 생성 (실시간 시뮬레이션)
-  const notifications = notificationsCleared ? [] : [
-    ...(hiringStats.hired > 0 ? [{
-      id: 1,
-      type: 'success' as const,
-      icon: '🎉',
-      title: '새로운 입사자',
-      message: `${hiringStats.hired}명이 입사 절차를 완료했습니다`,
-      time: '방금 전'
-    }] : []),
-    ...(hiringStats.passed > 0 ? [{
-      id: 2,
-      type: 'info' as const,
-      icon: '✅',
-      title: '합격 처리',
-      message: `${hiringStats.passed}명이 최종 합격했습니다`,
-      time: '5분 전'
-    }] : []),
-    ...(hiringStats.active > 0 ? [{
-      id: 3,
-      type: 'warning' as const,
-      icon: '📋',
-      title: '진행 중',
-      message: `${hiringStats.active}명의 후보자가 프로세스 진행 중입니다`,
-      time: '30분 전'
-    }] : []),
-  ]
+  // 알림 불러오기
+  async function fetchNotifications() {
+    try {
+      const res = await fetch('/api/notifications')
+      if (res.ok) {
+        const data = await res.json()
+        setNotifications(data.notifications || [])
+      }
+    } catch (e) {
+      console.error('Failed to fetch notifications:', e)
+    }
+  }
 
   useEffect(() => {
     fetchStats()
     fetchHiringProcessStats()
+    fetchNotifications()
   }, [])
 
   // 후보자 이름 수정 함수
@@ -675,14 +662,20 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     textAlign: 'center'
                   }}>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         // 먼저 창 닫기
                         setShowNotifications(false)
-                        // 그 다음 알림 처리
-                        setNotificationsCleared(true)
-                        localStorage.setItem('notifications_cleared', JSON.stringify({
-                          date: new Date().toDateString()
-                        }))
+                        // API 호출 (모두 읽음 처리)
+                        try {
+                          await fetch('/api/notifications/mark-read', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({}) // id 없으면 전체 읽음 처리
+                          })
+                          setNotifications([])
+                        } catch (e) {
+                          console.error('Failed to mark notifications as read:', e)
+                        }
                       }}
                       style={{
                         padding: '8px 16px',

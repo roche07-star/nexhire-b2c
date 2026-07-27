@@ -220,6 +220,23 @@ export async function POST(req: NextRequest) {
       // 알림 실패해도 결제는 성공으로 처리
     }
 
+    // 알림 생성 (쿠폰 구매 완료)
+    try {
+      await supabase.from('notifications').insert({
+        user_email: session.user.email,
+        type: 'success',
+        icon: '✅',
+        title: '구매 완료',
+        message: `${productName} 쿠폰이 발급되었습니다.`,
+        link: '/my-info',
+        is_read: false,
+      })
+      console.log('[store/confirm] 알림 생성 완료:', session.user.email)
+    } catch (notifError) {
+      console.error('[store/confirm] 알림 생성 실패:', notifError)
+      // 알림 실패는 무시 (메인 기능에 영향 없음)
+    }
+
     return NextResponse.json({
       success: true,
       orderId,

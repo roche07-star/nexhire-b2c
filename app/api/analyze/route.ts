@@ -1033,6 +1033,25 @@ ${maskedText.slice(0, 3000)}
       })
     }
 
+    // 알림 생성 (이력서 분석 완료)
+    if (insertData?.id && session?.user?.email) {
+      try {
+        await supabase.from('notifications').insert({
+          user_email: session.user.email,
+          type: 'success',
+          icon: '✅',
+          title: '이력서 분석 완료',
+          message: `${resultPayload.job_title || '이력서'} 분석이 완료되었습니다. 직무 적합도 ${resultPayload.scores?.job_fit || '-'}%`,
+          link: '/analyze',
+          is_read: false,
+        })
+        console.log('[analyze] 알림 생성 완료:', session.user.email)
+      } catch (notifError) {
+        console.error('[analyze] 알림 생성 실패:', notifError)
+        // 알림 실패는 무시 (메인 기능에 영향 없음)
+      }
+    }
+
     return NextResponse.json({
       ...resultPayload,
       _id: insertData?.id ?? null,
