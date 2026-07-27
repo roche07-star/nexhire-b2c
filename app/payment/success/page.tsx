@@ -29,6 +29,13 @@ function PaymentSuccessContent() {
       return
     }
 
+    // PortOne V2: Query parameter 없음 - 결제 완료로 간주
+    if (!orderId && !paymentKey) {
+      console.log('[Payment Success] PortOne V2 결제 완료')
+      setIsProcessing(false)
+      return
+    }
+
     if (!orderId || !paymentKey || !amount) {
       setError('결제 정보가 올바르지 않습니다.')
       setIsProcessing(false)

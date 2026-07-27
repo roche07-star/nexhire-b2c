@@ -17,6 +17,13 @@ function SuccessPageContent() {
 
       console.log('[Store Success] 결제 확인 시작:', { orderId, paymentKey, amount })
 
+      // PortOne V2: Query parameter 없음 - 결제 완료로 간주
+      if (!orderId && !paymentKey) {
+        console.log('[Store Success] PortOne V2 결제 완료')
+        setIsProcessing(false)
+        return
+      }
+
       if (!orderId) {
         console.error('[Store Success] orderId 누락')
         setError('결제 정보가 올바르지 않습니다.')
@@ -24,7 +31,7 @@ function SuccessPageContent() {
         return
       }
 
-      // PortOne 결제 (이미 verify에서 쿠폰 발급 완료)
+      // PortOne V1 결제 (더 이상 사용 안 함)
       if (!paymentKey) {
         console.log('[Store Success] PortOne 결제 - 이미 처리 완료')
         setIsProcessing(false)
