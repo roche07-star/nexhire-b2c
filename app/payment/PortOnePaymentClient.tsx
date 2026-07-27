@@ -1,15 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { type Product } from '@/lib/products'
-
-// PortOne V1 (아임포트) 타입 선언
-declare global {
-  interface Window {
-    IMP: any
-  }
-}
+import * as PortOne from "@portone/browser-sdk/v2"
 
 interface PaymentClientProps {
   product: Product
@@ -19,32 +13,7 @@ interface PaymentClientProps {
 export default function PaymentClient({ product, userEmail }: PaymentClientProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [impLoaded, setImpLoaded] = useState(false)
   const [termsAgreed, setTermsAgreed] = useState(false)
-
-  // PortOne V1 스크립트 로드
-  useEffect(() => {
-    const impCode = process.env.NEXT_PUBLIC_PORTONE_V1_IMP_CODE || 'imp54224231'
-
-    if (window.IMP) {
-      window.IMP.init(impCode)
-      setImpLoaded(true)
-      return
-    }
-
-    const script = document.createElement('script')
-    script.src = 'https://cdn.iamport.kr/v1/iamport.js'
-    script.async = true
-
-    script.onload = () => {
-      if (window.IMP) {
-        window.IMP.init(impCode)
-        setImpLoaded(true)
-      }
-    }
-
-    document.body.appendChild(script)
-  }, [])
 
   const handlePayment = async () => {
     setIsProcessing(true)
@@ -68,62 +37,38 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
 
       const { paymentId, orderId } = await prepareRes.json()
 
-      // Step 2: IMP 로드 확인
-      if (!window.IMP) {
-        throw new Error('결제 모듈이 로드되지 않았습니다. 페이지를 새로고침해주세요.')
-      }
+      // Step 2: PortOne V2 결제창 호출
+      const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!
+      const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!
 
-      // Step 3: PortOne V1 결제창 호출
-      const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY
-
-      console.log('[PortOne Payment] IMP 결제 요청:', {
-        pg: 'kcp',
+      console.log('[PortOne V2 Payment] 결제 요청:', {
+        storeId,
         channelKey,
-        merchant_uid: orderId,
-        name: product.name,
-        amount: product.price,
-        buyer_email: userEmail
+        paymentId,
+        orderName: product.name,
+        totalAmount: product.price
       })
 
-      const response = await new Promise<any>((resolve, reject) => {
-        window.IMP.request_pay(
-          {
-            pg: 'kcp',
-            channelKey,
-            pay_method: 'card',
-            merchant_uid: orderId,
-            name: product.name,
-            amount: product.price,
-            buyer_email: userEmail,
-            m_redirect_url: `${window.location.origin}/payment/mobile-redirect`,
-          },
-          (response: any) => {
-            if (response.success || response.imp_success) {
-              resolve(response)
-            } else {
-              reject(new Error(response.error_msg || '결제가 취소되었습니다'))
-            }
-          }
-        )
+      const response = await PortOne.requestPayment({
+        storeId,
+        channelKey,
+        paymentId: `payment-${orderId}`,
+        orderName: product.name,
+        totalAmount: product.price,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD",
+        customer: {
+          email: userEmail,
+        },
+        redirectUrl: `${window.location.origin}/payment/success`,
       })
 
-      // Step 4: 서버에 결제 검증 요청
-      const verifyRes = await fetch('/api/payment/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentId: response.imp_uid || paymentId,
-          orderId: response.merchant_uid || orderId,
-        })
-      })
-
-      if (!verifyRes.ok) {
-        const errorData = await verifyRes.json()
-        throw new Error(errorData.error || '결제 검증 실패')
+      if (response?.code) {
+        // 결제 실패
+        throw new Error(response.message || '결제가 취소되었습니다')
       }
 
-      // 결제 성공 → 완료 페이지로 이동
-      window.location.href = `/payment/complete?orderId=${orderId}`
+      // 결제 성공 - redirectUrl로 자동 이동됨
 
     } catch (err: any) {
       console.error('Payment error:', err)
