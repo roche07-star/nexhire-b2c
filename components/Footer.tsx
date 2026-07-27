@@ -30,11 +30,9 @@ export default function Footer() {
     <footer className="footer-container">
       {/* 사업자 정보 - 가운데 배치 */}
       <div className="footer-info">
-        <div>상호: JOBIZIC | 대표: 박영철</div>
-        <div>사업자등록번호: 566-18-02615</div>
-        <div>통신판매업 신고: 제2026-수원장안-0527호</div>
-        <div>사업장주소: 경기도 수원시 장안구 화산로 87, 404호</div>
-        <div>전화: 070-8095-5546 | 이메일: roche@jobizic.com</div>
+        <div>JOBIZIC | 대표: 박영철 | ✉ roche@jobizic.com</div>
+        <div>경기도 수원시 장안구 화산로 87, 404호 | ☎ 070-8095-5546</div>
+        <div>사업자등록번호: 566-18-02615 | 통신판매업 신고: 제2026-수원장안-0527호</div>
         <div className="footer-copyright">© 2026 Jobizic. All rights reserved.</div>
       </div>
 
@@ -46,13 +44,11 @@ export default function Footer() {
         </div>
 
         <div className="footer-links">
-          <a href="/terms">이용약관</a>
+          <a href="/terms">약관</a>
           <span className="footer-divider">·</span>
-          <a href="/privacy">개인정보처리방침</a>
+          <a href="/privacy">개인정보</a>
           <span className="footer-divider">·</span>
-          <a href="/refund">환불정책</a>
-          <span className="footer-divider">·</span>
-          <a href="/licenses">오픈소스 라이선스</a>
+          <a href="/refund">환불</a>
           <span className="footer-divider">·</span>
           <a href="/support">고객센터</a>
         </div>
