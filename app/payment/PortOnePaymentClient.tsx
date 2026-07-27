@@ -74,10 +74,11 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       }
 
       // Step 3: PortOne V1 결제창 호출
-      const siteCode = process.env.NEXT_PUBLIC_PORTONE_V1_SITE_CODE || 'AO09C'
+      const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY
 
       console.log('[PortOne Payment] IMP 결제 요청:', {
-        pg: `kcp.${siteCode}`,
+        pg: 'kcp',
+        channelKey,
         merchant_uid: orderId,
         name: product.name,
         amount: product.price,
@@ -87,7 +88,8 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       const response = await new Promise<any>((resolve, reject) => {
         window.IMP.request_pay(
           {
-            pg: `kcp.${siteCode}`,
+            pg: 'kcp',
+            channelKey,
             pay_method: 'card',
             merchant_uid: orderId,
             name: product.name,
