@@ -1041,7 +1041,7 @@ ${maskedText.slice(0, 3000)}
           type: 'success',
           icon: '✅',
           title: '이력서 분석 완료',
-          message: `${resultPayload.job_title || '이력서'} 분석이 완료되었습니다. 직무 적합도 ${resultPayload.scores?.job_fit || '-'}%`,
+          message: `${resultPayload.job_title || '이력서'} 분석이 완료되었습니다. 직무 적합도 ${(resultPayload.scores as any)?.job_fit || '-'}%`,
           link: '/analyze',
           is_read: false,
         })
