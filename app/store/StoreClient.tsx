@@ -218,7 +218,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         const response = await PortOne.requestPayment({
           storeId,
           channelKey,
-          paymentId: `payment-${orderId}`,
+          paymentId,  // 서버에서 생성된 paymentId 사용 (28자)
           orderName: product.name,
           totalAmount: product.price,
           currency: "CURRENCY_KRW",
