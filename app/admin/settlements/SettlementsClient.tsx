@@ -154,11 +154,14 @@ export default function SettlementsClient() {
   useEffect(() => {
     const fetchPayments = async () => {
       setLoading(true)
+      const { start, end } = getDateRange()
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20',
         plan: planFilter,
         status: statusFilter,
+        start,
+        end,
       })
       if (searchQuery) params.set('search', searchQuery)
 
@@ -177,13 +180,14 @@ export default function SettlementsClient() {
     if (activeTab === 'payments') {
       fetchPayments()
     }
-  }, [activeTab, currentPage, planFilter, statusFilter, searchQuery])
+  }, [activeTab, currentPage, planFilter, statusFilter, searchQuery, dateRange, selectedMonth])
 
   // 환불 내역 로드
   useEffect(() => {
     const fetchRefunds = async () => {
       setLoading(true)
-      const res = await fetch(`/api/admin/settlements/refund?page=${refundPage}&limit=20`)
+      const { start, end } = getDateRange()
+      const res = await fetch(`/api/admin/settlements/refund?page=${refundPage}&limit=20&start=${start}&end=${end}`)
       if (res.ok) {
         const data = await res.json()
         setRefunds(data)
@@ -193,7 +197,7 @@ export default function SettlementsClient() {
     if (activeTab === 'refunds') {
       fetchRefunds()
     }
-  }, [activeTab, refundPage])
+  }, [activeTab, refundPage, dateRange, selectedMonth])
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString() + '원'

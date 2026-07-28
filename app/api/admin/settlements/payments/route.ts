@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
   const plan = searchParams.get('plan') // 'PRO', 'EXPERT', 'ALL'
   const status = searchParams.get('status') // 'success', 'failed', 'refunded', 'pending', 'ALL'
   const search = searchParams.get('search') // 이메일 검색
+  const start = searchParams.get('start') // 시작일 (YYYY-MM-DD)
+  const end = searchParams.get('end') // 종료일 (YYYY-MM-DD)
 
   try {
     let query = supabase
@@ -35,6 +37,12 @@ export async function GET(req: NextRequest) {
     }
     if (search) {
       query = query.ilike('user_email', `%${search}%`)
+    }
+    if (start) {
+      query = query.gte('paid_at', `${start}T00:00:00`)
+    }
+    if (end) {
+      query = query.lte('paid_at', `${end}T23:59:59`)
     }
 
     // 페이지네이션

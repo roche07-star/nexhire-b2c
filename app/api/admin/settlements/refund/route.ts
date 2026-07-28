@@ -99,6 +99,8 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '20')
+  const start = searchParams.get('start') // 시작일 (YYYY-MM-DD)
+  const end = searchParams.get('end') // 종료일 (YYYY-MM-DD)
 
   try {
     // 페이지네이션
@@ -106,14 +108,23 @@ export async function GET(req: NextRequest) {
     const to = from + limit - 1
 
     // refunds와 payments 테이블 JOIN
-    const { data, error, count } = await supabase
+    let query = supabase
       .from('refunds')
       .select(`
         *,
         payment:payments(plan, description)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
-      .range(from, to)
+
+    // 날짜 필터 적용
+    if (start) {
+      query = query.gte('created_at', `${start}T00:00:00`)
+    }
+    if (end) {
+      query = query.lte('created_at', `${end}T23:59:59`)
+    }
+
+    const { data, error, count } = await query.range(from, to)
 
     if (error) throw error
 
