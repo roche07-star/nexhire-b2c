@@ -9,7 +9,7 @@ export async function GET() {
 
   const email = session.user.email
 
-  const [{ data: user }, { data: coupons }, { data: consents }] = await Promise.all([
+  const [{ data: user }, { data: coupons }, { data: consents }, { data: payments }] = await Promise.all([
     supabase.from('users')
       .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
       .eq('email', email).single(),
@@ -23,6 +23,11 @@ export async function GET() {
       .eq('user_email', email)
       .eq('is_agreed', true)
       .is('withdrawn_at', null),
+    supabase.from('payments')
+      .select('id, plan, amount, currency, status, payment_method, payment_gateway, paid_at, description')
+      .eq('user_email', email)
+      .order('paid_at', { ascending: false })
+      .limit(20),
   ])
 
   const plan = (user?.plan ?? 'FREE') as Plan
@@ -108,6 +113,7 @@ export async function GET() {
     plan,
     usage,
     coupons: couponList,
+    payments: payments || [],
     resetAt,
     consents: consentInfo,
     userType: user?.user_type ?? null,
