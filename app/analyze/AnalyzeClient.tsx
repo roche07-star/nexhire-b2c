@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
 import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
 import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
-import { generateReportHTML, downloadReport } from '@/lib/reportHTMLTemplate'
+import { generateReportHTML, downloadReport, viewReport } from '@/lib/reportHTMLTemplate'
 import { generateJDReportHTML, downloadJDReport } from '@/lib/jdReportHTMLTemplate'
 
 // 탭별 동적 import (초기 로딩 최적화)
@@ -3891,12 +3891,22 @@ function AnalysisResults({
             </button>
           </>
         ) : (
-          <button
-            className="analyze-download-btn"
-            onClick={() => downloadReport(result)}
-          >
-            ↓ HTML 리포트 다운로드
-          </button>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <button
+              className="analyze-download-btn"
+              onClick={() => viewReport(result)}
+              style={{ flex: 1, maxWidth: '300px' }}
+            >
+              👁️ HTML 리포트 보기
+            </button>
+            <button
+              className="analyze-download-btn"
+              onClick={() => downloadReport(result)}
+              style={{ flex: 1, maxWidth: '300px', background: 'var(--bg3)' }}
+            >
+              ↓ 다운로드
+            </button>
+          </div>
         )}
       </div>
     </div>

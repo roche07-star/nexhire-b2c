@@ -167,3 +167,23 @@ export function downloadReport(result: AnalysisResult, date?: string) {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+/**
+ * HTML 리포트를 새 탭에서 열기 (미리보기)
+ */
+export function viewReport(result: AnalysisResult, date?: string) {
+  const html = generateReportHTML(result, date)
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const newWindow = window.open(url, '_blank')
+
+  // 새 창이 열리면 URL 정리
+  if (newWindow) {
+    newWindow.addEventListener('load', () => {
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    })
+  } else {
+    // 팝업 차단 시 정리
+    URL.revokeObjectURL(url)
+  }
+}
