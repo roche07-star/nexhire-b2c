@@ -2926,21 +2926,72 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               </div>
 
               {validJds.map(jd => (
-                <button key={jd.id} className="preserve-option-card" onClick={() => resolveJdSelect(jd.id)}>
-                  <div className="preserve-option-top">
-                    <span className="preserve-option-icon">🎯</span>
-                    <span className="preserve-option-label">{jd.result.company}{jd.result.position ? `, ${jd.result.position}` : ''}</span>
-                    <span className={`preserve-option-badge${(jd.result.fit_score ?? 0) >= 70 ? ' coupon' : ' none'}`}>
-                      적합도 {jd.result.fit_score ?? 0}%
-                    </span>
-                  </div>
-                  <div className="preserve-option-desc">
-                    {jd.result.verdict?.slice(0, 70)}{jd.result.verdict && jd.result.verdict.length > 70 ? '…' : ''}
-                  </div>
-                  <div className="preserve-option-existing">
-                    분석일: {new Date(jd.created_at).toLocaleDateString('ko-KR')}
-                  </div>
-                </button>
+                <div key={jd.id} style={{ position: 'relative' }}>
+                  <button className="preserve-option-card" onClick={() => resolveJdSelect(jd.id)}>
+                    <div className="preserve-option-top">
+                      <span className="preserve-option-icon">🎯</span>
+                      <span className="preserve-option-label">{jd.result.company}{jd.result.position ? `, ${jd.result.position}` : ''}</span>
+                      <span className={`preserve-option-badge${(jd.result.fit_score ?? 0) >= 70 ? ' coupon' : ' none'}`}>
+                        적합도 {jd.result.fit_score ?? 0}%
+                      </span>
+                    </div>
+                    <div className="preserve-option-desc">
+                      {jd.result.verdict?.slice(0, 70)}{jd.result.verdict && jd.result.verdict.length > 70 ? '…' : ''}
+                    </div>
+                    <div className="preserve-option-existing">
+                      분석일: {new Date(jd.created_at).toLocaleDateString('ko-KR')}
+                    </div>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (confirm(`${jd.result.company}${jd.result.position ? ` — ${jd.result.position}` : ''} JD 분석을 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.`)) {
+                        fetch(`/api/analyze/jd/${jd.id}`, { method: 'DELETE' })
+                          .then(r => {
+                            if (r.ok) {
+                              alert('삭제되었습니다.')
+                              resolveJdSelect('cancel')
+                              // JD 목록 새로고침
+                              fetch('/api/analyze/jd/list')
+                                .then(res => res.json())
+                                .then(({ analyses }) => setJdSavedList(analyses ?? []))
+                            } else {
+                              alert('삭제에 실패했습니다.')
+                            }
+                          })
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'rgba(255,0,0,0.1)',
+                      border: '1px solid rgba(255,0,0,0.3)',
+                      color: '#ff5555',
+                      fontSize: '18px',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s',
+                      zIndex: 10,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,0,0,0.2)'
+                      e.currentTarget.style.borderColor = 'rgba(255,0,0,0.5)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255,0,0,0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(255,0,0,0.3)'
+                    }}
+                    title="JD 삭제"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveJdSelect('cancel')}>
