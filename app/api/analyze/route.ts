@@ -966,8 +966,8 @@ ${maskedText.slice(0, 3000)}
         // 첫 번째 보존 — 무료
         canPreserve = true
       } else {
-        // 추가 보존 — PRO/EXPERT 플랜은 무제한, FREE는 storage 쿠폰 필요
-        if (userPlan === 'PRO' || userPlan === 'EXPERT') {
+        // 추가 보존 — PRO/EXPERT/MANAGER는 무제한, FREE는 storage 쿠폰 필요
+        if (role === 'MANAGER' || userPlan === 'PRO' || userPlan === 'EXPERT') {
           canPreserve = true
         } else {
           // FREE 플랜 — storage 쿠폰 사용
