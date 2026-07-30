@@ -1027,7 +1027,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     let preserveMode = 'skip'
     const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
     const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
-    const maxCount = 1 + storageCouponCount
+    // 관리자는 기본 3개, 일반 유저는 기본 1개 + 쿠폰
+    const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
 
     if (preserveChecked) {
       if (preservedCount === 0) {
@@ -2576,7 +2577,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             이력서 파일 저장
                             {(() => {
                               const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
-                              const maxCount = 1 + storageCouponCount
+                              const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
 
                               if (preserved.length === 0) {
                                 return <span className="preserve-option-badge free">무료</span>
@@ -2598,19 +2599,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             <br />
                             {(() => {
                               const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
-                              const maxCount = 1 + storageCouponCount
+                              const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
                               const currentCount = preserved.length
+                              const baseCountLabel = userRole === 'MANAGER' ? '관리자 기본 3개' : `기본 1개${storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''}`
 
                               if (currentCount === 0) {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> 0개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> 0개 / 최대 {maxCount}개 ({baseCountLabel})
                                   </>
                                 )
                               } else if (currentCount < maxCount) {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 ({baseCountLabel})
                                     <br />
                                     {preserved.map((p, idx) => (
                                       <span key={p.id}>
@@ -2625,7 +2627,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               } else {
                                 return (
                                   <>
-                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 (기본 1개{storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''})
+                                    📊 <strong>저장 현황:</strong> {currentCount}개 / 최대 {maxCount}개 ({baseCountLabel})
                                     <br />
                                     {preserved.map((p, idx) => (
                                       <span key={p.id}>

@@ -328,9 +328,9 @@ export async function POST(req: NextRequest) {
     const preserveMode = (formData.get('preserveMode') as string | null) ?? 'auto'
     const replaceTargetId = (formData.get('replaceTargetId') as string | null) ?? null
 
-    // 이력서 저장 개수 체크 (MANAGER 제외, 저장하는 경우만)
+    // 이력서 저장 개수 체크 (저장하는 경우만)
     // preserveMode가 'skip' 또는 'none' 또는 'replace'인 경우는 체크 안 함
-    if (role !== 'MANAGER' && preserveMode !== 'replace' && preserveMode !== 'skip' && preserveMode !== 'none') {
+    if (preserveMode !== 'replace' && preserveMode !== 'skip' && preserveMode !== 'none') {
       // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
       const { data: userData } = await supabase
         .from('users')
@@ -365,13 +365,16 @@ export async function POST(req: NextRequest) {
         FREE: 1,
         PRO: 5,
         EXPERT: 10,
+        MANAGER: 3, // ✅ 관리자는 최대 3개
       }
-      const baseLimitForPlan = planStorageLimits[userPlan] || 1
-      const allowedCount = baseLimitForPlan + (resumeCouponCount ?? 0) // 플랜 기본 + 쿠폰 개수
+      const baseLimitForPlan = planStorageLimits[role === 'MANAGER' ? 'MANAGER' : userPlan] || 1
+      const allowedCount = role === 'MANAGER'
+        ? baseLimitForPlan // 관리자는 쿠폰 없이 3개 고정
+        : baseLimitForPlan + (resumeCouponCount ?? 0) // 일반 유저는 플랜 기본 + 쿠폰 개수
 
       if ((savedCount ?? 0) >= allowedCount) {
         return NextResponse.json(
-          { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다 (현재 ${savedCount}개 저장됨). 추가 저장을 원하시면 "이력서 추가 저장 쿠폰"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
+          { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다 (현재 ${savedCount}개 저장됨). 추가 저장을 원하시면 "추가 저장 Slot"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
           { status: 403 }
         )
       }
