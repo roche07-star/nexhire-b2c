@@ -1108,6 +1108,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
           // 대신 분석 결과 객체에서 직접 사용
         }
 
+        // ✅ 결과 화면으로 강제 전환 (백그라운드 분석 완료 시에도 결과 표시)
+        setActiveMenu('upload')
+
+        // 교체 상태 초기화
+        setReplaceTargetId(null)
+
         // 파일 초기화 (큐 처리는 useEffect에서)
         setFile(null)
         setResumeText('')
@@ -1549,22 +1555,35 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 <button
                   className="rewrite-dl-btn"
                   onClick={() => {
-                    const html = generateInterviewHTML(g)
-                    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
+                    try {
+                      console.log('[Interview DL] 다운로드 시작:', g)
+                      const html = generateInterviewHTML(g)
+                      console.log('[Interview DL] HTML 생성 완료, 길이:', html.length)
 
-                    // 파일명: {이름}_{회사}_{포지션}_면접가이드.html
-                    const parts = [
-                      g.candidate_name ?? '후보자',
-                      g.company,
-                      g.position,
-                    ].filter(Boolean)
+                      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+                      console.log('[Interview DL] Blob 생성:', blob.size, 'bytes')
 
-                    a.href = url
-                    a.download = `${parts.join('_')}_면접가이드.html`
-                    a.click()
-                    URL.revokeObjectURL(url)
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+
+                      // 파일명: {이름}_{회사}_{포지션}_면접가이드.html
+                      const parts = [
+                        g.candidate_name ?? '후보자',
+                        g.company,
+                        g.position,
+                      ].filter(Boolean)
+
+                      a.href = url
+                      a.download = `${parts.join('_')}_면접가이드.html`
+                      console.log('[Interview DL] 다운로드 트리거:', a.download)
+                      a.click()
+
+                      setTimeout(() => URL.revokeObjectURL(url), 100)
+                      console.log('[Interview DL] 완료')
+                    } catch (error) {
+                      console.error('[Interview DL] 다운로드 실패:', error)
+                      alert('다운로드 중 오류가 발생했습니다: ' + (error as Error).message)
+                    }
                   }}
                 >
                   ⬇ HTML 다운로드
@@ -2720,7 +2739,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       <span className="free-saved-date">분석일: {new Date(savedAnalysis.created_at).toLocaleDateString('ko-KR')}</span>
                     </>
                   )}
-                  <button className="free-reanalyze-btn" onClick={() => { setResult(null); setSavedAnalysis(null) }}>
+                  <button className="free-reanalyze-btn" onClick={() => {
+                    setResult(null)
+                    setSavedAnalysis(null)
+                    setReplaceTargetId(null) // ✅ 교체 상태 초기화
+                  }}>
                     {!isPro && savedAnalysis ? '새로 분석하기' : '← 돌아가기'}
                   </button>
                 </div>

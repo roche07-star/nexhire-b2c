@@ -24,7 +24,8 @@ interface InterviewGuideResult {
 }
 
 const toArr = (v: unknown): string[] => {
-  if (Array.isArray(v)) return v
+  if (!v) return []
+  if (Array.isArray(v)) return v.filter(Boolean)
   if (typeof v === 'string') return v.split('\n').filter(Boolean)
   return []
 }
@@ -33,7 +34,9 @@ export function generateInterviewHTML(guide: InterviewGuideResult): string {
   const dateStr = new Date().toLocaleDateString('ko-KR')
 
   // 마크다운 제거 후 HTML 이스케이프
-  const esc = (s: string) => {
+  const esc = (s: string | null | undefined) => {
+    if (!s) return ''
+
     let clean = s
       .replace(/\*\*/g, '')
       .replace(/\*/g, '')
@@ -46,7 +49,9 @@ export function generateInterviewHTML(guide: InterviewGuideResult): string {
       .replace(/>/g, '&gt;')
   }
 
-  const lines = (s: string) => {
+  const lines = (s: string | null | undefined) => {
+    if (!s) return ''
+
     // Q:, A: 앞에서 강제 줄바꿈 (Claude가 줄바꿈 안 넣는 경우 대비)
     const normalized = s
       .replace(/([^\n])(Q\d+:|Q:|Q\.)/g, '$1\n$2')  // Q: 앞에 줄바꿈
