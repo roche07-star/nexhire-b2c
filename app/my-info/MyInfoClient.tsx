@@ -32,7 +32,7 @@ const FEATURE_NAMES: Record<string, string> = {
   rewrite: '이력서 생성',
   interview: '면접 가이드',
   proposal: '클라이언트 제안서',
-  storage: '이력서 추가 저장',
+  storage: '추가 저장 Slot',
 }
 
 const FEATURE_LINKS: Record<string, string> = {

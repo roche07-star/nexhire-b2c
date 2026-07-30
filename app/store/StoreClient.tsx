@@ -38,14 +38,14 @@ const PRODUCTS: Product[] = [
   },
   {
     id: '1-1',
-    name: '📁 이력서 추가 저장',
+    name: '📁 추가 저장 Slot',
     nameEn: 'Extra Resume Storage',
     price: 12900,
     feature: 'storage',
     icon: '📁',
     gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
     description: [
-      '✅ 이력서 1개 추가 저장 슬롯',
+      '✅ 이력서 1개 추가 저장 Slot',
       '✅ 여러 버전 관리로 전략적 지원',
       '✅ JD별 맞춤 이력서 생성 활용',
       '✅ 영구 사용 (1회 구매로 계속)',

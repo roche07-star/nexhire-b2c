@@ -8,6 +8,10 @@ const FEATURE_PREFIX: Record<string, string> = {
   direction: 'DR',
   jd: 'JD',
   rewrite: 'RW',
+  storage: 'ST',     // 추가 저장 Slot
+  proposal: 'PR',    // 클라이언트 제안서
+  interview: 'IV',   // 면접 가이드
+  package: 'PK',     // 올인원 패키지
 }
 
 function genCode(feature: string): string {

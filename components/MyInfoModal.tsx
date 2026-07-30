@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import type { CouponWithStatus } from '@/lib/types/coupon'
 
 const FEATURE_LABEL: Record<string, string> = {
-  storage: '이력서 추가 저장', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
+  storage: '추가 저장 Slot', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
 }
 const USAGE_LABEL: Record<string, string> = {
   analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서', resume: '이력서 재생성', weekly_report: '주간 Report', monthly_report: '월간 Report',

@@ -34,7 +34,7 @@ const PLAN_LIMITS = CENTRAL_PLAN_LIMITS
 type UserTypeKey = CentralUserType
 
 const FEATURE_LABELS: Record<string, string> = {
-  storage: '이력서 추가 저장',
+  storage: '추가 저장 Slot',
   resume: '이력서 분석',
   jd: 'JD 분석',
   rewrite: '이력서 생성',
