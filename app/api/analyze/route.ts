@@ -372,12 +372,23 @@ export async function POST(req: NextRequest) {
         ? baseLimitForPlan // 관리자는 쿠폰 없이 3개 고정
         : baseLimitForPlan + (resumeCouponCount ?? 0) // 일반 유저는 플랜 기본 + 쿠폰 개수
 
+      console.log('[DEBUG] 저장 개수 체크:', {
+        role,
+        userPlan,
+        preserveMode,
+        savedCount,
+        allowedCount,
+        baseLimitForPlan
+      })
+
       if ((savedCount ?? 0) >= allowedCount) {
+        console.log('[DEBUG] 저장 개수 초과!')
         return NextResponse.json(
           { error: `이력서는 최대 ${allowedCount}개까지 저장됩니다 (현재 ${savedCount}개 저장됨). 추가 저장을 원하시면 "추가 저장 Slot"을 구매하세요. 사용 방법: 쿠폰 구매 후 내정보에서 등록!` },
           { status: 403 }
         )
       }
+      console.log('[DEBUG] 저장 가능!')
     }
 
     let resumeText: string

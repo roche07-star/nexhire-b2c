@@ -1030,6 +1030,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     // 관리자는 기본 3개, 일반 유저는 기본 1개 + 쿠폰
     const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
 
+    console.log('[DEBUG] 저장 모드 결정:', {
+      userRole,
+      preservedCount,
+      maxCount,
+      preserveChecked,
+      analysisList: analysisList?.length ?? 'null'
+    })
+
     if (preserveChecked) {
       if (preservedCount === 0) {
         preserveMode = 'auto'  // 첫 저장
@@ -1039,6 +1047,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         preserveMode = 'replace'  // 교체 (공간 가득)
       }
     }
+
+    console.log('[DEBUG] preserveMode:', preserveMode)
 
     // 예상 시간 설정 (PDF는 더 오래 걸림)
     const isPdf = file?.type === 'application/pdf'
