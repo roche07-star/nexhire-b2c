@@ -166,8 +166,13 @@ ${companyAnalysisSection ? companyAnalysisSection + '\n' : ''}
     const systemPrompt = `🎯 역할
 당신은 10년 경력의 한국 시니어 헤드헌터입니다. JD와 후보자 프로파일을 기반으로 맞춤형 면접 가이드를 작성합니다.
 
+🚨 중요: 반드시 끝까지 완료하세요!
+- SECTION 1-6 모두 반드시 작성 (Section 5 역질문, Section 6 체크리스트 절대 누락 금지!)
+- reverse_questions 3-5개, checklist 5-7개 반드시 포함
+- 토큰 부족 시에도 앞 섹션을 간결하게 유지하고 끝까지 완성
+
 ⚠️ 필수 규칙
-1. 간결하게: 각 섹션은 핵심만 2-4문장으로 작성
+1. 간결하게: 각 섹션은 핵심만 2-4문장으로 작성 (앞부분 과도하게 길게 쓰지 말 것!)
 2. 모든 섹션 필수: SECTION 1-6 모두 반드시 작성 (빠뜨리지 말 것!)
 3. 균형 있게: 앞 섹션을 너무 길게 쓰지 말고 모든 섹션 균등하게
 4. 마크다운 금지: ** * ~~ 등 마크다운 문법 절대 사용 금지
@@ -225,7 +230,9 @@ STAR는 행동 기반 면접 기법으로, 후보자의 과거 경험을 구체�
   2) 이직 시 기대 연봉: 현재 대비 10% 상향선
   3) 협의 가능 여지: "회사 내규와 제시 조건에 따라 유연하게 협의 가능"
 - 예시: "현재 연봉은 [X]만원이며, 이직을 고려한다면 10% 정도 상향된 [Y]만원 선에서 검토하고 있습니다. 다만 회사 제시 조건과 복리후생을 종합적으로 고려하여 유연하게 협의 가능합니다."
-- 주의사항: 구체적 금액보다 범위로 제시, 과도한 요구 금지`
+- 주의사항: 구체적 금액보다 범위로 제시, 과도한 요구 금지
+
+🚨🚨🚨 다시 한번 강조: SECTION 5 역질문(reverse_questions 3-5개), SECTION 6 체크리스트(checklist 5-7개) 반드시 포함! 절대 누락하지 마세요! 🚨🚨🚨`
 
     const userContent = `[후보자 이력서 분석 결과]
 ${candidateProfile}
@@ -238,7 +245,7 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
     await updateJobProgress(jobId, 4, '면접 가이드를 생성하는 중... (60-90초 소요)')
 
     const message = await callClaude({
-      max_tokens: 8192,
+      max_tokens: 16384, // ✅ 증가: 8192 → 16384 (Section 5-6 누락 방지)
       system: [{
         type: 'text',
         text: systemPrompt,
@@ -249,10 +256,28 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
       messages: [{ role: 'user', content: userContent }],
     })
 
+    // 디버깅: stop_reason 확인
+    console.log('[Interview] Claude stop_reason:', message.stop_reason)
+    console.log('[Interview] Usage:', message.usage)
+
     const toolUse = message.content.find(c => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
       await failJob(jobId, '면접 가이드를 생성하지 못했습니다.')
       return
+    }
+
+    // 필수 필드 누락 체크
+    const input = toolUse.input as any
+    const missingFields = []
+    if (!input.reverse_questions || (Array.isArray(input.reverse_questions) && input.reverse_questions.length === 0)) {
+      missingFields.push('reverse_questions')
+    }
+    if (!input.checklist || (Array.isArray(input.checklist) && input.checklist.length === 0)) {
+      missingFields.push('checklist')
+    }
+    if (missingFields.length > 0) {
+      console.warn('[Interview] 누락된 필드:', missingFields)
+      console.warn('[Interview] stop_reason:', message.stop_reason)
     }
 
     // Step 5: 결과 저장

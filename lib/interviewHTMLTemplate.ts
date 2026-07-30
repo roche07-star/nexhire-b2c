@@ -33,6 +33,16 @@ const toArr = (v: unknown): string[] => {
 export function generateInterviewHTML(guide: InterviewGuideResult): string {
   const dateStr = new Date().toLocaleDateString('ko-KR')
 
+  // 디버깅: 필드 확인
+  console.log('[Interview HTML] guide fields:', {
+    qa_post_join: guide.qa_post_join?.substring(0, 50) || 'EMPTY',
+    qa_salary: guide.qa_salary?.substring(0, 50) || 'EMPTY',
+    reverse_questions: guide.reverse_questions ? (Array.isArray(guide.reverse_questions) ? guide.reverse_questions.length : 'string') : 'EMPTY',
+    checklist: guide.checklist ? (Array.isArray(guide.checklist) ? guide.checklist.length : 'string') : 'EMPTY',
+    risks: guide.risks?.length || 0,
+    strengths: Array.isArray(guide.strengths) ? guide.strengths.length : 'string'
+  })
+
   // 마크다운 제거 후 HTML 이스케이프
   const esc = (s: string | null | undefined) => {
     if (!s) return ''
@@ -517,6 +527,7 @@ p.body.answer { color: rgba(255,255,255,0.9); margin-left: 16px; margin-top: 8px
       ` : ''}
     </div>
 
+    ${reverseQCards ? `
     <!-- ── SECTION 5 역질문 -->
     <div class="section section-panel" id="s5">
       <div class="sec-header">
@@ -530,7 +541,9 @@ p.body.answer { color: rgba(255,255,255,0.9); margin-left: 16px; margin-top: 8px
         ${reverseQCards}
       </div>
     </div>
+    ` : ''}
 
+    ${checklistItems ? `
     <!-- ── SECTION 6 체크리스트 -->
     <div class="section section-panel" id="s6">
       <div class="sec-header">
@@ -549,6 +562,7 @@ p.body.answer { color: rgba(255,255,255,0.9); margin-left: 16px; margin-top: 8px
         &nbsp;&nbsp;<em style="color:#93c5fd">"채용은 사람이고, 사람은 맥락입니다. 끝까지 책임집니다."</em>
       </div>
     </div>
+    ` : ''}
 
   </div><!-- /main -->
 </div><!-- /layout -->
