@@ -1023,6 +1023,22 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     setError(null)
     setResult(null)
 
+    // 분석 목록이 로드되지 않았으면 먼저 로드
+    if (analysisList === null && preserveChecked) {
+      console.log('[DEBUG] analysisList가 null이므로 먼저 로드합니다.')
+      setAnalysisListLoading(true)
+      fetch('/api/analyze/list')
+        .then(r => r.json())
+        .then(({ analyses }) => {
+          setAnalysisList(analyses ?? [])
+          console.log('[DEBUG] 분석 목록 로드 완료. 다시 분석 버튼을 클릭해주세요.')
+          alert('이력서 목록을 로드했습니다. 다시 분석 버튼을 클릭해주세요.')
+        })
+        .catch(() => setAnalysisList([]))
+        .finally(() => setAnalysisListLoading(false))
+      return
+    }
+
     // 파일 보존 모드 결정 (모든 플랜)
     let preserveMode = 'skip'
     const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
