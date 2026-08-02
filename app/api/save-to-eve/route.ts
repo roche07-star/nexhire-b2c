@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
       current_position: result.job_title || result.current_position || null,
       total_experience_years: result.total_experience_years || null,
       career_summary: result.summary || null,
+      raw_resume: result.raw_text || result.original_text || result.summary || `${candidateName} 이력서 (Adam 분석)`,
       education: Array.isArray(result.education)
         ? result.education.map((e: any) => typeof e === 'string' ? e : `${e.degree || ''} ${e.major || ''} (${e.school || ''})`.trim())
         : (typeof result.education === 'string' ? [result.education] : []),
