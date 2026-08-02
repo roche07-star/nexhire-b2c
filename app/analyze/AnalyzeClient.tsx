@@ -3299,6 +3299,47 @@ function AnalysisResults({
   const [expanding, setExpanding] = useState(false)
   const [expandError, setExpandError] = useState<string | null>(null)
   const [refined, setRefined] = useState(!!result.refined)
+  const [savingToEve, setSavingToEve] = useState(false)
+  const [saveToEveError, setSaveToEveError] = useState<string | null>(null)
+  const [saveToEveSuccess, setSaveToEveSuccess] = useState(false)
+
+  // Eve 후보자 저장 함수
+  async function handleSaveToEve() {
+    if (!result.candidate_name || !analysisId) {
+      setSaveToEveError('후보자 이름이 필요합니다.')
+      return
+    }
+
+    setSavingToEve(true)
+    setSaveToEveError(null)
+    setSaveToEveSuccess(false)
+
+    try {
+      const response = await fetch('/api/save-to-eve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          analysisId,
+          candidateName: result.candidate_name,
+          userEmail
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Eve 저장 실패')
+      }
+
+      setSaveToEveSuccess(true)
+      alert(`✅ ${result.candidate_name} 후보자가 Eve에 저장되었습니다!`)
+    } catch (err: any) {
+      console.error('Eve 저장 오류:', err)
+      setSaveToEveError(err.message || 'Eve 저장 중 오류가 발생했습니다.')
+    } finally {
+      setSavingToEve(false)
+    }
+  }
 
   // PRO 분석 후 커리어 경로가 없으면 자동으로 expand 호출 (504 방지용 분리 설계)
   useEffect(() => {
@@ -3411,20 +3452,83 @@ function AnalysisResults({
       <div className="results-section">
         <div className="results-label">MATCH SCORE</div>
         {result.candidate_name && (
-          <div style={{
-            fontSize: 16,
-            color: '#a78bfa',
-            marginBottom: 8,
-            fontWeight: 700,
-            padding: '8px 12px',
-            background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)',
-            borderRadius: '8px',
-            border: '1px solid rgba(167, 139, 250, 0.3)',
-            display: 'inline-block',
-          }}>
-            👤 {result.candidate_name}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 8, flexWrap: 'wrap' }}>
+            <div style={{
+              fontSize: 16,
+              color: '#a78bfa',
+              fontWeight: 700,
+              padding: '8px 12px',
+              background: 'linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)',
+              borderRadius: '8px',
+              border: '1px solid rgba(167, 139, 250, 0.3)',
+              display: 'inline-block',
+            }}>
+              👤 {result.candidate_name}
+            </div>
+
+            {/* 관리자 전용: Eve 후보자 저장 버튼 */}
+            {userType === 'MANAGER' && !saveToEveSuccess && (
+              <button
+                onClick={handleSaveToEve}
+                disabled={savingToEve}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#fff',
+                  background: savingToEve ? '#888' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: savingToEve ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!savingToEve) {
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+              >
+                {savingToEve ? '⏳ 저장 중...' : '📤 Eve 후보자 저장'}
+              </button>
+            )}
+
+            {/* 저장 성공 뱃지 */}
+            {saveToEveSuccess && (
+              <div style={{
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#10b981',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+              }}>
+                ✅ Eve 저장 완료
+              </div>
+            )}
           </div>
         )}
+
+        {/* Eve 저장 에러 */}
+        {saveToEveError && (
+          <div style={{
+            padding: '12px',
+            marginBottom: '12px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '8px',
+            color: '#ef4444',
+            fontSize: '13px',
+          }}>
+            ⚠️ {saveToEveError}
+          </div>
+        )}
+
         {result.job_title && (
           <div style={{
             fontSize: 14,
