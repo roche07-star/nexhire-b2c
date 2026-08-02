@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
       total_experience_years: result.total_experience_years || null,
       career_summary: result.summary || null,
       education: Array.isArray(result.education)
-        ? result.education.map((e: any) => typeof e === 'string' ? e : `${e.degree || ''} ${e.major || ''} (${e.school || ''})`.trim()).join(', ')
-        : (typeof result.education === 'string' ? result.education : null),
+        ? result.education.map((e: any) => typeof e === 'string' ? e : `${e.degree || ''} ${e.major || ''} (${e.school || ''})`.trim())
+        : (typeof result.education === 'string' ? [result.education] : []),
       skills: Array.isArray(result.keywords) ? result.keywords : (result.keywords ? [result.keywords] : []),
       tech_stack: Array.isArray(result.tech_stack) ? result.tech_stack : [],
       ideal_roles: Array.isArray(result.career_paths)
