@@ -45,6 +45,26 @@ export async function POST(req: NextRequest) {
     const result = analysis.result as any
 
     // 5. Eve candidates 형식으로 데이터 변환
+
+    // work_history 생성: Adam result에 work_experience가 있으면 사용, 없으면 기본값
+    const workHistory = result.work_experience && Array.isArray(result.work_experience)
+      ? result.work_experience.map((exp: any) => ({
+          company: exp.company || exp.title || '정보 없음',
+          position: exp.position || exp.role || exp.title || '직무 정보 없음',
+          start_date: exp.start_date || exp.from || null,
+          end_date: exp.end_date || exp.to || null,
+          duration_years: exp.duration_years || exp.years || 0
+        }))
+      : (result.current_company && result.total_experience_years
+          ? [{
+              company: result.current_company,
+              position: result.job_title || result.current_position || '직무 정보 없음',
+              start_date: null,
+              end_date: null,
+              duration_years: result.total_experience_years || 0
+            }]
+          : [])
+
     const candidateData = {
       name: candidateName,
       email: result.email || null,
@@ -54,6 +74,7 @@ export async function POST(req: NextRequest) {
       current_position: result.job_title || result.current_position || null,
       total_experience_years: result.total_experience_years || null,
       career_summary: result.summary || null,
+      work_history: workHistory,
       raw_resume: result.raw_text || result.original_text || result.summary || `${candidateName} 이력서 (Adam 분석)`,
       education: Array.isArray(result.education)
         ? result.education.map((e: any) => typeof e === 'string' ? e : `${e.degree || ''} ${e.major || ''} (${e.school || ''})`.trim())
