@@ -201,6 +201,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
                   setSelectedCandidate(c)
                   setShowDetailModal(true)
                 }}
+                onDelete={deleteCandidate}
                 onAddClick={isPassedStage ? () => setShowAddModal(true) : undefined}
               />
             )
@@ -256,17 +257,25 @@ function StageColumn({
   candidates,
   onMove,
   onSelect,
+  onDelete,
   onAddClick
 }: {
   stage: PipelineStage
   candidates: PipelineCandidate[]
   onMove: (id: string, stage: PipelineStage) => void
   onSelect: (candidate: PipelineCandidate) => void
+  onDelete: (id: string) => void
   onAddClick?: () => void
 }) {
   const color = PIPELINE_STAGE_COLORS[stage]
+  const [expanded, setExpanded] = React.useState(false)
+  const INITIAL_DISPLAY_COUNT = 4
 
   console.log('StageColumn:', stage, 'onAddClick:', !!onAddClick)
+
+  // 표시할 후보자 목록
+  const displayedCandidates = expanded ? candidates : candidates.slice(0, INITIAL_DISPLAY_COUNT)
+  const hasMore = candidates.length > INITIAL_DISPLAY_COUNT
 
   return (
     <div style={{
@@ -326,11 +335,15 @@ function StageColumn({
 
       {/* 후보자 카드들 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {candidates.map(candidate => (
+        {displayedCandidates.map(candidate => (
           <CandidateCard
             key={candidate.id}
             candidate={candidate}
             onClick={() => onSelect(candidate)}
+            onDelete={(e) => {
+              e.stopPropagation()
+              onDelete(candidate.id)
+            }}
           />
         ))}
         {candidates.length === 0 && (
@@ -343,13 +356,61 @@ function StageColumn({
             후보자 없음
           </div>
         )}
+
+        {/* 더보기 버튼 */}
+        {hasMore && !expanded && (
+          <button
+            onClick={() => setExpanded(true)}
+            style={{
+              background: 'var(--surface-secondary)',
+              border: `1px dashed ${color}`,
+              borderRadius: 8,
+              padding: '12px',
+              color: 'var(--text-secondary)',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = color
+              e.currentTarget.style.color = '#000'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--surface-secondary)'
+              e.currentTarget.style.color = 'var(--text-secondary)'
+            }}
+          >
+            + {candidates.length - INITIAL_DISPLAY_COUNT}명 더보기
+          </button>
+        )}
+
+        {/* 접기 버튼 */}
+        {hasMore && expanded && (
+          <button
+            onClick={() => setExpanded(false)}
+            style={{
+              background: 'var(--surface-secondary)',
+              border: `1px solid ${color}`,
+              borderRadius: 8,
+              padding: '8px',
+              color: 'var(--text-secondary)',
+              fontSize: 12,
+              cursor: 'pointer',
+              textAlign: 'center'
+            }}
+          >
+            접기
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
 // 후보자 카드
-function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; onClick: () => void }) {
+function CandidateCard({ candidate, onClick, onDelete }: { candidate: PipelineCandidate; onClick: () => void; onDelete: (e: React.MouseEvent) => void }) {
   // 합격 단계는 간소화 (이름+입사일, 회사+포지션)
   if (candidate.stage === 'PASSED') {
     return (
@@ -361,7 +422,8 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           borderRadius: 8,
           padding: 12,
           cursor: 'pointer',
-          transition: 'all 0.2s'
+          transition: 'all 0.2s',
+          position: 'relative'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)'
@@ -372,6 +434,40 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
+        <button
+          onClick={onDelete}
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            width: 20,
+            height: 20,
+            borderRadius: 10,
+            border: 'none',
+            background: 'var(--surface-secondary)',
+            color: 'var(--text-secondary)',
+            fontSize: 12,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.6,
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#ef4444'
+            e.currentTarget.style.color = '#fff'
+            e.currentTarget.style.opacity = '1'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--surface-secondary)'
+            e.currentTarget.style.color = 'var(--text-secondary)'
+            e.currentTarget.style.opacity = '0.6'
+          }}
+          title="삭제"
+        >
+          ×
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
             {candidate.candidate_name}
@@ -399,7 +495,8 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
         borderRadius: 8,
         padding: 12,
         cursor: 'pointer',
-        transition: 'all 0.2s'
+        transition: 'all 0.2s',
+        position: 'relative'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)'
@@ -410,6 +507,40 @@ function CandidateCard({ candidate, onClick }: { candidate: PipelineCandidate; o
         e.currentTarget.style.boxShadow = 'none'
       }}
     >
+      <button
+        onClick={onDelete}
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          width: 20,
+          height: 20,
+          borderRadius: 10,
+          border: 'none',
+          background: 'var(--surface-secondary)',
+          color: 'var(--text-secondary)',
+          fontSize: 12,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0.6,
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#ef4444'
+          e.currentTarget.style.color = '#fff'
+          e.currentTarget.style.opacity = '1'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--surface-secondary)'
+          e.currentTarget.style.color = 'var(--text-secondary)'
+          e.currentTarget.style.opacity = '0.6'
+        }}
+        title="삭제"
+      >
+        ×
+      </button>
       <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>
         {candidate.candidate_name}
       </div>
