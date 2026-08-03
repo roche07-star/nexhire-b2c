@@ -3322,7 +3322,30 @@ footer.footer-container {
 
 /* ─── JD 저장 목록 ─── */
 .jd-saved-section { display: flex; flex-direction: column; gap: 12px; }
-.jd-saved-list { display: flex; flex-direction: column; gap: 8px; }
+.jd-saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* JD 리스트 스크롤바 */
+.jd-saved-list::-webkit-scrollbar {
+  width: 6px;
+}
+.jd-saved-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+}
+.jd-saved-list::-webkit-scrollbar-thumb {
+  background: rgba(123,97,255,0.3);
+  border-radius: 3px;
+}
+.jd-saved-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(123,97,255,0.5);
+}
 .jd-saved-card {
   display: flex;
   align-items: center;
