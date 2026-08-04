@@ -129,11 +129,126 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
             color: 'var(--text)',
             marginBottom: 8,
           }}>
-            구매 내역
+            내 정보
           </h1>
           <p style={{ color: 'var(--muted2)', fontSize: 16 }}>
-            STORE 구매 내역 및 영수증을 확인하세요
+            보유 쿠폰 및 구매 내역을 확인하세요
           </p>
+        </div>
+
+        {/* 🎫 보유 쿠폰 */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: 16,
+          padding: 32,
+          marginBottom: 24,
+        }}>
+          <h2 style={{
+            fontSize: 20,
+            fontWeight: 700,
+            marginBottom: 24,
+          }}>
+            🎫 보유 쿠폰
+          </h2>
+
+          {coupons.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: 40,
+              color: 'var(--muted2)',
+            }}>
+              <p style={{ fontSize: 16 }}>
+                보유 쿠폰이 없습니다
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {coupons.map((coupon) => {
+                const expired = isExpired(coupon.expires_at)
+                const remaining = remainingCredits(coupon)
+                const status = expired ? 'expired' : remaining <= 0 ? 'used' : 'active'
+
+                return (
+                  <div
+                    key={coupon.id}
+                    style={{
+                      background: status === 'active'
+                        ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)'
+                        : 'linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(100, 116, 139, 0.05) 100%)',
+                      border: status === 'active'
+                        ? '1px solid rgba(34, 197, 94, 0.3)'
+                        : '1px solid rgba(148, 163, 184, 0.2)',
+                      borderRadius: 12,
+                      padding: 20,
+                      opacity: status === 'active' ? 1 : 0.6,
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 8,
+                    }}>
+                      <div style={{
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: 'var(--text)',
+                      }}>
+                        {FEATURE_NAMES[coupon.feature] || coupon.feature}
+                      </div>
+
+                      <div style={{
+                        padding: '4px 12px',
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: status === 'active'
+                          ? 'rgba(34, 197, 94, 0.2)'
+                          : status === 'expired'
+                          ? 'rgba(239, 68, 68, 0.2)'
+                          : 'rgba(148, 163, 184, 0.2)',
+                        color: status === 'active'
+                          ? '#15803d'
+                          : status === 'expired'
+                          ? '#991b1b'
+                          : '#475569',
+                      }}>
+                        {status === 'active' ? '사용 가능' : status === 'expired' ? '만료됨' : '사용 완료'}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                      <div style={{
+                        fontSize: 14,
+                        color: 'var(--muted2)',
+                      }}>
+                        남은 횟수: <span style={{
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: status === 'active' ? '#22c55e' : 'var(--muted2)',
+                        }}>
+                          {remaining}/{coupon.credits}회
+                        </span>
+                      </div>
+
+                      {coupon.expires_at && (
+                        <div style={{
+                          fontSize: 13,
+                          color: 'var(--muted2)',
+                        }}>
+                          만료일: {formatDate(coupon.expires_at)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* 구매 내역 (결제 + 쿠폰 통합) */}
