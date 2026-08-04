@@ -268,7 +268,7 @@ function StageColumn({
   onAddClick?: () => void
 }) {
   const color = PIPELINE_STAGE_COLORS[stage]
-  const [expanded, setExpanded] = React.useState(false)
+  const [expanded, setExpanded] = useState(false)
   const INITIAL_DISPLAY_COUNT = 4
 
   console.log('StageColumn:', stage, 'onAddClick:', !!onAddClick)
