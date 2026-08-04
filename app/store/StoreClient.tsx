@@ -226,7 +226,6 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           customer: {
             email: userEmail,
           },
-          redirectUrl: `${window.location.origin}/store/success`,
         })
 
         if (response?.code) {
@@ -234,7 +233,26 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           throw new Error(response.message || '결제가 취소되었습니다')
         }
 
-        // 결제 성공 - redirectUrl로 자동 이동됨
+        console.log('[Store PortOne V2] 결제 성공, verify 호출 시작')
+
+        // ✅ Step 3: 결제 성공 - 서버에 verify 요청
+        const verifyRes = await fetch('/api/store/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId, orderId }),
+        })
+
+        if (!verifyRes.ok) {
+          const errorData = await verifyRes.json()
+          throw new Error(errorData.error || '쿠폰 발급 실패')
+        }
+
+        const verifyData = await verifyRes.json()
+        console.log('[Store PortOne V2] verify 성공:', verifyData)
+
+        // ✅ Step 4: 성공 - /my-info로 리다이렉트
+        alert('✅ 구매가 완료되었습니다!\n쿠폰이 발급되었습니다.')
+        window.location.href = '/my-info'
       }
 
     } catch (err: any) {
