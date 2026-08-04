@@ -219,10 +219,11 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         localStorage.setItem('portone_payment_id', paymentId)
         localStorage.setItem('portone_order_id', orderId)
 
-        const response = await PortOne.requestPayment({
+        // Step 3: PortOne 결제창 호출 (redirectUrl로 /store/success 이동)
+        await PortOne.requestPayment({
           storeId,
           channelKey,
-          paymentId,  // 서버에서 생성된 paymentId 사용 (28자)
+          paymentId,
           orderName: product.name,
           totalAmount: product.price,
           currency: "CURRENCY_KRW",
@@ -233,38 +234,8 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           redirectUrl: `${window.location.origin}/store/success`,
         })
 
-        if (response?.code) {
-          // 결제 실패 - localStorage 클리어
-          localStorage.removeItem('portone_payment_id')
-          localStorage.removeItem('portone_order_id')
-          throw new Error(response.message || '결제가 취소되었습니다')
-        }
-
-        // ✅ 팝업 모드에서 결제 성공 시 여기로 옴
-        console.log('[Store PortOne V2] 결제 성공, verify 호출 시작')
-
-        // Step 3: 서버에 verify 요청
-        const verifyRes = await fetch('/api/store/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentId, orderId }),
-        })
-
-        // localStorage 클리어
-        localStorage.removeItem('portone_payment_id')
-        localStorage.removeItem('portone_order_id')
-
-        if (!verifyRes.ok) {
-          const errorData = await verifyRes.json()
-          throw new Error(errorData.error || '쿠폰 발급 실패')
-        }
-
-        const verifyData = await verifyRes.json()
-        console.log('[Store PortOne V2] verify 성공:', verifyData)
-
-        // Step 4: 성공 - /my-info로 리다이렉트
-        alert('✅ 구매가 완료되었습니다!\n쿠폰이 발급되었습니다.')
-        window.location.href = '/my-info'
+        // ✅ redirectUrl이 있으면 결제 완료 후 자동으로 /store/success로 이동
+        // ✅ success 페이지에서 localStorage를 확인하여 verify 호출
       }
 
     } catch (err: any) {
