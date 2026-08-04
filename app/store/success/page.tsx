@@ -52,12 +52,9 @@ function SuccessPageContent() {
             }
 
             console.log('[Store Success] PortOne verify 성공')
-            setIsProcessing(false)
 
-            // 3초 후 자동으로 내정보 페이지로 이동
-            setTimeout(() => {
-              window.location.href = '/my-info'
-            }, 3000)
+            // ✅ 즉시 /my-info로 이동
+            window.location.href = '/my-info'
             return
           } catch (err) {
             console.error('[Store Success] PortOne verify 오류:', err)
@@ -273,11 +270,8 @@ function SuccessPageContent() {
         <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>
           구매가 완료되었습니다!
         </h1>
-        <p style={{ color: 'var(--muted2)', marginBottom: 8 }}>
-          쿠폰이 발급되었습니다. 내 정보 페이지에서 확인하세요.
-        </p>
-        <p style={{ color: 'var(--muted2)', fontSize: 14, marginBottom: 32 }}>
-          3초 후 자동으로 이동합니다...
+        <p style={{ color: 'var(--muted2)', marginBottom: 32 }}>
+          쿠폰이 발급되었습니다. 잠시 후 자동으로 이동합니다...
         </p>
         <div style={{ display: 'flex', gap: 12 }}>
           <button
