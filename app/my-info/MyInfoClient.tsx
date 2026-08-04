@@ -44,10 +44,38 @@ const FEATURE_LINKS: Record<string, string> = {
   storage: '/analyze',
 }
 
-export default function MyInfoClient({ coupons: initialCoupons, payments }: Props) {
-  const [coupons] = useState<CouponWithDetails[]>(initialCoupons)
+export default function MyInfoClient({ coupons: initialCoupons, payments: initialPayments }: Props) {
+  const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
+  const [payments, setPayments] = useState<Payment[]>(initialPayments)
+  const [loading, setLoading] = useState(false)
 
-  // useEffect 제거: 서버에서 이미 최신 데이터를 가져옴
+  // ✅ 구매 후 최신 데이터 가져오기
+  useEffect(() => {
+    const refreshData = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/my-info')
+        if (res.ok) {
+          const data = await res.json()
+          setCoupons(data.coupons || [])
+          setPayments(data.payments || [])
+        }
+      } catch (err) {
+        console.error('[MyInfo] 데이터 새로고침 실패:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    // 페이지 포커스 시 새로고침 (다른 탭에서 구매 후 돌아올 때)
+    const handleFocus = () => refreshData()
+    window.addEventListener('focus', handleFocus)
+
+    // 최초 로딩 시 새로고침 (구매 완료 직후)
+    refreshData()
+
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
 
   const isExpired = (expiresAt: string | null) => {
     if (!expiresAt) return false
