@@ -108,7 +108,73 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '사용자를 찾을 수 없습니다' }, { status: 404 })
     }
 
-    // Step 8: 주문 상태 업데이트
+    // Step 8: subscriptions 테이블에 구독 생성 (정산용)
+    let subscriptionId: string | null = null
+    try {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('user_type')
+        .eq('email', session.user.email)
+        .single()
+
+      const userType = userData?.user_type || 'JOBSEEKER'
+
+      const { data: subscription, error: subError } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_email: session.user.email,
+          plan: product.plan,
+          user_type: userType,
+          status: 'active',
+          amount: product.price,
+          currency: 'KRW',
+          billing_cycle: 'monthly',
+          started_at: now.toISOString(),
+          expires_at: expiresAt.toISOString(),
+        })
+        .select('id')
+        .single()
+
+      if (subError) {
+        console.error('구독 생성 실패:', subError)
+      } else {
+        subscriptionId = subscription?.id
+      }
+    } catch (err) {
+      console.error('구독 생성 오류:', err)
+    }
+
+    // Step 9: payments 테이블에 결제 내역 저장 (정산용)
+    try {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('user_type')
+        .eq('email', session.user.email)
+        .single()
+
+      const userType = userData?.user_type || 'JOBSEEKER'
+      const userTypeLabel = userType === 'HEADHUNTER' ? '헤드헌터' : '개인'
+
+      await supabase.from('payments').insert({
+        subscription_id: subscriptionId,
+        user_email: session.user.email,
+        plan: product.plan,
+        amount: product.price,
+        currency: 'KRW',
+        status: 'success',
+        payment_method: paymentData.method || 'card',
+        payment_gateway: 'portone',
+        transaction_id: paymentData.id,
+        paid_at: now.toISOString(),
+        description: `JOBIZIC ${product.plan} 플랜 (${userTypeLabel})`,
+      })
+      console.log('[PortOne verify] payments 테이블 저장 완료')
+    } catch (err) {
+      console.error('결제 내역 저장 실패:', err)
+      // 실패해도 계속 진행
+    }
+
+    // Step 10: 주문 상태 업데이트
     const { error: orderUpdateError } = await supabase
       .from('orders')
       .update({
