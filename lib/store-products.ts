@@ -1,6 +1,6 @@
 // STORE 상품 정보 (서버용 - 가격 검증)
 export const STORE_PRODUCTS = {
-  '1': { name: '이력서 분석', price: 1900, feature: 'analyze' },
+  '1': { name: '이력서 분석', price: 1900, feature: 'resume' },  // ✅ verify API와 일치
   '1-1': { name: '📁 추가 저장 Slot', price: 12900, feature: 'storage' },
   '2': { name: 'JD 적합도 분석', price: 2900, feature: 'jd' },
   '3': { name: '이력서 생성', price: 4900, feature: 'rewrite' },
