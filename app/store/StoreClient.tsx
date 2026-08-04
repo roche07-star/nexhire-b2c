@@ -215,12 +215,8 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           totalAmount: product.price
         })
 
-        // ✅ paymentId와 orderId를 localStorage에 저장 (success 페이지에서 사용)
-        localStorage.setItem('portone_payment_id', paymentId)
-        localStorage.setItem('portone_order_id', orderId)
-
-        // Step 3: PortOne 결제창 호출 (redirectUrl로 /store/success 이동)
-        await PortOne.requestPayment({
+        // Step 3: PortOne 결제창 호출 (팝업 모드)
+        const response = await PortOne.requestPayment({
           storeId,
           channelKey,
           paymentId,
@@ -231,11 +227,35 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           customer: {
             email: userEmail,
           },
-          redirectUrl: `${window.location.origin}/store/success`,
         })
 
-        // ✅ redirectUrl이 있으면 결제 완료 후 자동으로 /store/success로 이동
-        // ✅ success 페이지에서 localStorage를 확인하여 verify 호출
+        console.log('[Store PortOne] 결제 응답:', response)
+
+        // 결제 취소/실패
+        if (response?.code) {
+          throw new Error(response.message || '결제가 취소되었습니다')
+        }
+
+        // ✅ Step 4: 결제 성공 - 즉시 verify 호출
+        console.log('[Store PortOne] 결제 성공, verify 호출')
+
+        const verifyRes = await fetch('/api/store/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId, orderId }),
+        })
+
+        if (!verifyRes.ok) {
+          const errorData = await verifyRes.json()
+          throw new Error(errorData.error || '쿠폰 발급 실패')
+        }
+
+        const verifyData = await verifyRes.json()
+        console.log('[Store PortOne] verify 성공:', verifyData)
+
+        // ✅ Step 5: 성공 - /my-info로 즉시 이동
+        alert('✅ 구매가 완료되었습니다!\n쿠폰이 발급되었습니다.')
+        window.location.href = '/my-info'
       }
 
     } catch (err: any) {
