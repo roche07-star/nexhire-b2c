@@ -341,8 +341,8 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                       거래 ID: {payment.transaction_id || '-'}
                     </div>
 
-                    {/* REAL 모드 결제만 영수증 보기 */}
-                    {payment.payment_gateway === 'portone' && (
+                    {/* Toss Payments만 영수증 보기 (PortOne은 미지원) */}
+                    {payment.payment_gateway !== 'portone' && payment.transaction_id && (
                       <button
                         onClick={() => window.open(`/api/receipt/${payment.id}`, '_blank')}
                         style={{
