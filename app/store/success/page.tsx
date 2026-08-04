@@ -67,6 +67,11 @@ function SuccessPageContent() {
 
         console.log('[Store Success] 결제 확인 완료')
         setIsProcessing(false)
+
+        // ✅ 3초 후 자동으로 내정보 페이지로 이동 (전체 새로고침)
+        setTimeout(() => {
+          window.location.href = '/my-info'
+        }, 3000)
       } catch (err) {
         console.error('[Store Success] 결제 확인 오류:', err)
         setError('결제 처리 중 오류가 발생했습니다.')
@@ -217,13 +222,17 @@ function SuccessPageContent() {
         <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>
           구매가 완료되었습니다!
         </h1>
-        <p style={{ color: 'var(--muted2)', marginBottom: 32 }}>
+        <p style={{ color: 'var(--muted2)', marginBottom: 8 }}>
           쿠폰이 발급되었습니다. 내 정보 페이지에서 확인하세요.
         </p>
+        <p style={{ color: 'var(--muted2)', fontSize: 14, marginBottom: 32 }}>
+          3초 후 자동으로 이동합니다...
+        </p>
         <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/my-info" style={{ flex: 1 }}>
-            <button style={{
-              width: '100%',
+          <button
+            onClick={() => window.location.href = '/my-info'}
+            style={{
+              flex: 1,
               padding: 14,
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               color: '#fff',
@@ -232,10 +241,10 @@ function SuccessPageContent() {
               fontSize: 15,
               fontWeight: 600,
               cursor: 'pointer',
-            }}>
-              내 정보 보기
-            </button>
-          </Link>
+            }}
+          >
+            내 정보 보기
+          </button>
           <Link href="/analyze" style={{ flex: 1 }}>
             <button style={{
               width: '100%',
