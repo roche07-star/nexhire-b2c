@@ -96,11 +96,17 @@ export async function POST(
       ],
     })
 
-    const htmlContent = message.content
+    let htmlContent = message.content
       .filter((block) => block.type === 'text')
       .map((block) => (block as { type: 'text'; text: string }).text)
       .join('\n')
       .trim()
+
+    // ✅ 마크다운 문법 강제 제거 (후처리)
+    htmlContent = htmlContent
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>') // **텍스트** → <strong>텍스트</strong>
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')             // *텍스트* → <em>텍스트</em>
+      .replace(/^#{1,6}\s+(.+)$/gm, '<h3>$1</h3>')        // # 제목 → <h3>제목</h3>
 
     let resumeId: string
 
