@@ -17,9 +17,60 @@ function SuccessPageContent() {
 
       console.log('[Store Success] 결제 확인 시작:', { orderId, paymentKey, amount })
 
-      // PortOne V2: Query parameter 없음 - 결제 완료로 간주
+      // ✅ PortOne V2: localStorage에서 paymentId/orderId 가져오기
       if (!orderId && !paymentKey) {
-        console.log('[Store Success] PortOne V2 결제 완료')
+        const storedPaymentId = localStorage.getItem('portone_payment_id')
+        const storedOrderId = localStorage.getItem('portone_order_id')
+
+        console.log('[Store Success] PortOne V2 결제 - localStorage:', { storedPaymentId, storedOrderId })
+
+        if (storedPaymentId && storedOrderId) {
+          // PortOne verify 호출
+          try {
+            console.log('[Store Success] PortOne verify API 호출')
+            const res = await fetch('/api/store/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                paymentId: storedPaymentId,
+                orderId: storedOrderId
+              }),
+            })
+
+            // localStorage 클리어
+            localStorage.removeItem('portone_payment_id')
+            localStorage.removeItem('portone_order_id')
+
+            const data = await res.json()
+            console.log('[Store Success] PortOne verify 응답:', data)
+
+            if (!res.ok) {
+              console.error('[Store Success] PortOne verify 오류:', data)
+              setError(data.error || '쿠폰 발급 실패')
+              setIsProcessing(false)
+              return
+            }
+
+            console.log('[Store Success] PortOne verify 성공')
+            setIsProcessing(false)
+
+            // 3초 후 자동으로 내정보 페이지로 이동
+            setTimeout(() => {
+              window.location.href = '/my-info'
+            }, 3000)
+            return
+          } catch (err) {
+            console.error('[Store Success] PortOne verify 오류:', err)
+            localStorage.removeItem('portone_payment_id')
+            localStorage.removeItem('portone_order_id')
+            setError('쿠폰 발급 중 오류가 발생했습니다.')
+            setIsProcessing(false)
+            return
+          }
+        }
+
+        // localStorage에도 없으면 그냥 완료
+        console.log('[Store Success] PortOne V2 결제 완료 (localStorage 없음)')
         setIsProcessing(false)
         return
       }
