@@ -47,9 +47,6 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!
       const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!
 
-      // 모바일 감지
-      const isMobile = window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
       console.log('[PortOne V2 Payment] 결제 요청:', {
         storeId,
         channelKey,
@@ -79,11 +76,6 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       }
 
       console.log('[Payment] 결제 옵션:', { isMobile, hasRedirectUrl: !!paymentOptions.redirectUrl })
-
-      // 모바일 디버깅용 (테스트 후 제거)
-      if (isMobile) {
-        alert(`모바일 감지됨\nredirectUrl: ${paymentOptions.redirectUrl ? 'O' : 'X'}`)
-      }
 
       const response = await PortOne.requestPayment(paymentOptions)
 
@@ -136,23 +128,6 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* 디버그 정보 (모바일 감지 확인용 - 테스트 후 제거) */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: '#ff0000',
-        color: '#fff',
-        padding: '10px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        zIndex: 9999,
-        textAlign: 'center'
-      }}>
-        🔍 디버그: 모바일={isMobile ? 'YES' : 'NO'} | 화면너비={typeof window !== 'undefined' ? window.innerWidth : 0}px
-      </div>
-
       {/* Animated Background */}
       <div style={{
         position: 'fixed',
@@ -457,7 +432,7 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
             ? '결제 처리 중...'
             : !termsAgreed
             ? '약관에 동의해주세요'
-            : `결제하기 [${isMobile ? 'MOBILE📱' : 'DESKTOP💻'}]`}
+            : '결제하기'}
         </button>
 
         {/* Info */}
