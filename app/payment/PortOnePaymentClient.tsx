@@ -413,7 +413,7 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
             <li>결제 완료 후 즉시 이용권이 활성화됩니다</li>
             <li>이용권은 결제 시점부터 {product.duration}개월간 유효합니다</li>
             <li>환불은 결제 후 7일 이내, 서비스 사용 5회 미만 시 전액 가능합니다</li>
-            <li>문의사항은 roche07he@gmail.com</li>
+            <li>문의사항은 roche@jobizic.com</li>
           </ul>
         </div>
 
