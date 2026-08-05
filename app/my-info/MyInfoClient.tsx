@@ -277,14 +277,22 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {payments.map((payment) => (
+              {payments.map((payment) => {
+                const isRefunded = payment.status === 'refunded'
+
+                return (
                 <div
                   key={payment.id}
                   style={{
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%)',
-                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                    background: isRefunded
+                      ? 'linear-gradient(135deg, rgba(148, 163, 184, 0.05) 0%, rgba(100, 116, 139, 0.05) 100%)'
+                      : 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%)',
+                    border: isRefunded
+                      ? '1px solid rgba(148, 163, 184, 0.3)'
+                      : '1px solid rgba(59, 130, 246, 0.2)',
                     borderRadius: 12,
                     padding: 20,
+                    opacity: isRefunded ? 0.7 : 1,
                   }}
                 >
                   <div style={{
@@ -299,14 +307,36 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                         fontWeight: 700,
                         color: 'var(--text)',
                         marginBottom: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
                       }}>
-                        {payment.description || '상품'}
+                        <span style={{ textDecoration: isRefunded ? 'line-through' : 'none' }}>
+                          {payment.description || '상품'}
+                        </span>
+                        {isRefunded && (
+                          <span style={{
+                            padding: '2px 8px',
+                            background: '#ef4444',
+                            color: '#fff',
+                            borderRadius: 4,
+                            fontSize: 12,
+                            fontWeight: 600,
+                          }}>
+                            환불 완료
+                          </span>
+                        )}
                       </div>
                       <div style={{
                         fontSize: 13,
                         color: 'var(--muted2)',
                       }}>
                         {payment.paid_at ? formatDate(payment.paid_at, true) : '-'}
+                        {isRefunded && payment.refunded_at && (
+                          <span style={{ marginLeft: 8, color: '#ef4444' }}>
+                            • 환불: {formatDate(payment.refunded_at, true)}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -316,7 +346,8 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                       <div style={{
                         fontSize: 24,
                         fontWeight: 800,
-                        color: '#3b82f6',
+                        color: isRefunded ? '#94a3b8' : '#3b82f6',
+                        textDecoration: isRefunded ? 'line-through' : 'none',
                       }}>
                         {payment.amount.toLocaleString()}원
                       </div>
@@ -361,7 +392,8 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                     )}
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
