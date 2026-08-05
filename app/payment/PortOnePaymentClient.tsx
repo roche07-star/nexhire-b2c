@@ -60,7 +60,7 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
         customer: {
           email: userEmail,
         },
-        redirectUrl: `${window.location.origin}/payment/success`,
+        redirectUrl: `${window.location.origin}/payment/success?paymentId=${encodeURIComponent(paymentId)}&orderId=${encodeURIComponent(orderId)}`,
       })
 
       if (response?.code) {

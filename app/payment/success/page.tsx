@@ -16,6 +16,7 @@ function PaymentSuccessContent() {
   const orderId = searchParams.get('orderId')
   const paymentKey = searchParams.get('paymentKey')
   const amount = searchParams.get('amount')
+  const paymentId = searchParams.get('paymentId')
 
   useEffect(() => {
     // 세션 로딩 중이면 대기
@@ -29,51 +30,84 @@ function PaymentSuccessContent() {
       return
     }
 
-    // PortOne V2: Query parameter 없음 - 결제 완료로 간주
-    if (!orderId && !paymentKey) {
-      console.log('[Payment Success] PortOne V2 결제 완료')
-      setIsProcessing(false)
-      return
-    }
+    // PortOne V2: paymentId + orderId
+    if (paymentId && orderId && !paymentKey) {
+      const verifyPayment = async () => {
+        try {
+          console.log('[Payment Success] PortOne V2 결제 검증 시작:', { paymentId, orderId })
 
-    if (!orderId || !paymentKey || !amount) {
-      setError('결제 정보가 올바르지 않습니다.')
-      setIsProcessing(false)
-      return
-    }
+          const res = await fetch('/api/payment/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, orderId }),
+          })
 
-    const confirmPayment = async () => {
-      try {
-        const res = await fetch('/api/payment/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId, paymentKey, amount }),
-        })
+          const data = await res.json()
 
-        const data = await res.json()
+          if (!res.ok) {
+            console.error('[PortOne 결제 검증 오류] 응답:', { status: res.status, data })
+            throw new Error(data.error || '결제 검증 실패')
+          }
 
-        if (!res.ok) {
-          console.error('[결제 승인 오류] 응답:', { status: res.status, data })
-          throw new Error(data.error || '결제 승인 실패')
+          console.log('[PortOne 결제 검증 성공] 응답:', data)
+
+          if (data.plan) {
+            setPlan(data.plan)
+            // 세션 갱신 (UI에 즉시 반영)
+            await update()
+          }
+          setIsProcessing(false)
+        } catch (err: any) {
+          console.error('PortOne 결제 검증 오류:', err)
+          setError(err.message || '결제 검증 중 오류가 발생했습니다.')
+          setIsProcessing(false)
         }
-
-        console.log('[결제 승인 성공] 응답:', data)
-
-        if (data.plan) {
-          setPlan(data.plan)
-          // 세션 갱신 (UI에 즉시 반영)
-          await update()
-        }
-        setIsProcessing(false)
-      } catch (err: any) {
-        console.error('결제 승인 오류:', err)
-        setError(err.message || '결제 승인 중 오류가 발생했습니다.')
-        setIsProcessing(false)
       }
+
+      verifyPayment()
+      return
     }
 
-    confirmPayment()
-  }, [session, status, orderId, paymentKey, amount, router])
+    // Toss Payments: orderId + paymentKey + amount
+    if (orderId && paymentKey && amount) {
+      const confirmPayment = async () => {
+        try {
+          const res = await fetch('/api/payment/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, paymentKey, amount }),
+          })
+
+          const data = await res.json()
+
+          if (!res.ok) {
+            console.error('[Toss 결제 승인 오류] 응답:', { status: res.status, data })
+            throw new Error(data.error || '결제 승인 실패')
+          }
+
+          console.log('[Toss 결제 승인 성공] 응답:', data)
+
+          if (data.plan) {
+            setPlan(data.plan)
+            // 세션 갱신 (UI에 즉시 반영)
+            await update()
+          }
+          setIsProcessing(false)
+        } catch (err: any) {
+          console.error('Toss 결제 승인 오류:', err)
+          setError(err.message || '결제 승인 중 오류가 발생했습니다.')
+          setIsProcessing(false)
+        }
+      }
+
+      confirmPayment()
+      return
+    }
+
+    // 필수 파라미터 없음
+    setError('결제 정보가 올바르지 않습니다.')
+    setIsProcessing(false)
+  }, [session, status, orderId, paymentKey, amount, paymentId, router, update])
 
   if (isProcessing) {
     return (

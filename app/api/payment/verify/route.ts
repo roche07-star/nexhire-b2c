@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
     let updateData
     let updateError
     let isReserved = false
+    let expiresAt: Date
 
     if (hasActivePlan) {
       // 예약 구매: 현재 플랜 만료 후 활성화
@@ -116,11 +117,12 @@ export async function POST(req: NextRequest) {
       updateData = result.data
       updateError = result.error
       isReserved = true
+      expiresAt = nextPlanEndsAt
 
       console.log(`[Payment] 예약 구매: ${currentUser.plan} → ${product.plan} (시작: ${nextPlanStartsAt.toISOString().split('T')[0]})`)
     } else {
       // 즉시 활성화
-      const expiresAt = new Date(now)
+      expiresAt = new Date(now)
       expiresAt.setMonth(expiresAt.getMonth() + product.duration)
 
       const result = await supabase
