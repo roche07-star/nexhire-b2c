@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
         amount: order.amount,
         currency: 'KRW',
         status: 'success',
-        payment_method: 'CARD',
+        payment_method: paymentData.method ? JSON.stringify(paymentData.method) : 'card',
         payment_gateway: 'portone',
         transaction_id: paymentData.id,
         paid_at: paymentData.paidAt || now.toISOString(),
