@@ -734,6 +734,12 @@ footer.footer-container {
   margin-bottom: 4px;
 }
 
+.footer-info a,
+.footer-info u {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
 .footer-copyright {
   margin-top: 12px;
   font-size: 11px;
@@ -4559,6 +4565,12 @@ footer.footer-container {
 
   .footer-info > div {
     margin-bottom: 3px;
+  }
+
+  .footer-info a,
+  .footer-info u {
+    text-decoration: none !important;
+    border-bottom: none !important;
   }
 
   .footer-copyright {
