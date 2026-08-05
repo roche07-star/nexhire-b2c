@@ -114,7 +114,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 25회',
       '이력서 생성 15회',
       '면접 가이드 15회',
-      '제안서 20회'
+      '제안서 20회',
+      '정산 기능 가능',
+      '채용 프로세스 제공',
+      '모든 다운로드 가능'
     ]
   },
   'headhunter-pro-3m': {
@@ -131,7 +134,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 25회/월',
       '이력서 생성 15회/월',
       '면접 가이드 15회/월',
-      '제안서 20회/월'
+      '제안서 20회/월',
+      '정산 기능 가능',
+      '채용 프로세스 제공',
+      '모든 다운로드 가능'
     ]
   },
 
@@ -148,7 +154,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 50회',
       '이력서 생성 25회',
       '면접 가이드 25회',
-      '제안서 50회'
+      '제안서 50회',
+      '정산 기능 가능',
+      '채용 프로세스 제공',
+      '모든 다운로드 가능'
     ]
   },
   'headhunter-expert-3m': {
@@ -165,7 +174,10 @@ export const PRODUCTS: Record<ProductId, Product> = {
       'JD 분석 50회/월',
       '이력서 생성 25회/월',
       '면접 가이드 25회/월',
-      '제안서 50회/월'
+      '제안서 50회/월',
+      '정산 기능 가능',
+      '채용 프로세스 제공',
+      '모든 다운로드 가능'
     ]
   }
 }
