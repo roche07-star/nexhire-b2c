@@ -19,6 +19,7 @@ interface User {
   monthly_report_count: number
   monthly_reset_at: string | null
   created_at: string
+  updated_at?: string | null
   headhunter_sharing_enabled: boolean | null
   headhunter_sharing_consented_at: string | null
   downgrade_to: string | null
@@ -27,6 +28,9 @@ interface User {
   status: 'active' | 'withdrawing' | 'withdrawn'
   withdraw_requested_at: string | null
   extra_credits?: Record<string, number> | null
+  next_plan?: string | null
+  next_plan_starts_at?: string | null
+  next_plan_end_date?: string | null
 }
 
 // ✅ 중앙 PLAN_LIMITS 사용 (lib/usageLimits.ts에서 import)

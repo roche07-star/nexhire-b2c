@@ -3249,6 +3249,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         </div>
       )}
 
+      {/* 조기 플랜 업그레이드 팝업 */}
+      {showUpgradeModal && upgradeInfo && (
+        <UpgradeEarlyModal
+          feature={upgradeInfo.feature}
+          currentPlan={upgradeInfo.currentPlan}
+          nextPlan={upgradeInfo.nextPlan}
+          onConfirm={handleUpgradeEarly}
+          onCancel={() => {
+            setShowUpgradeModal(false)
+            setUpgradeInfo(null)
+          }}
+        />
+      )}
+
     </main>
   )
 }
@@ -4661,20 +4675,6 @@ function JDResults({
           </>
         )}
       </div>
-
-      {/* 조기 플랜 업그레이드 팝업 */}
-      {showUpgradeModal && upgradeInfo && (
-        <UpgradeEarlyModal
-          feature={upgradeInfo.feature}
-          currentPlan={upgradeInfo.currentPlan}
-          nextPlan={upgradeInfo.nextPlan}
-          onConfirm={handleUpgradeEarly}
-          onCancel={() => {
-            setShowUpgradeModal(false)
-            setUpgradeInfo(null)
-          }}
-        />
-      )}
     </div>
   )
 }
