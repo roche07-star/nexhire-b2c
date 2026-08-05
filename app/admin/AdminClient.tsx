@@ -75,6 +75,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [msg, setMsg] = useState<string | null>(null)
   const [showOnlyHeadhunterSharing, setShowOnlyHeadhunterSharing] = useState(false)
 
+  // 플랜 변경 시 기간 선택 (각 유저별)
+  const [userDurations, setUserDurations] = useState<Record<string, number>>({}) // email -> duration (1, 3, 6, 12, 0=무제한)
+
   // Phase 1: 검색, 필터, 정렬, 페이지네이션
   const [search, setSearch] = useState('')
   const [planFilter, setPlanFilter] = useState('ALL')
@@ -206,18 +209,22 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   }
 
   async function changePlan(email: string, plan: 'FREE' | 'PRO' | 'EXPERT') {
+    const duration = userDurations[email] || 1 // 기본 1개월
+
     setLoading(email + plan)
     const res = await fetch('/api/admin/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, plan }),
+      body: JSON.stringify({ email, plan, duration }),
     })
     if (res.ok) {
+      const data = await res.json()
       setUsers((prev) => prev.map((u) => u.email === email
         ? { ...u, plan, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
         : u
       ))
-      showMsg(`${email} → ${plan} 변경 완료 (사용량 초기화됨)`)
+      const durationLabel = duration === 0 ? '무제한' : `${duration}개월`
+      showMsg(`${email} → ${plan} (${durationLabel}) 변경 완료`)
     }
     setLoading(null)
   }
@@ -949,25 +956,48 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         {u.user_type === 'SUPER_ADMIN' ? (
                           <span style={{ fontSize: 13, color: '#9ca3af' }}>-</span>
                         ) : isSuperAdmin ? (
-                          <select
-                            value={u.plan}
-                            onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
-                            disabled={loading === u.email + u.plan}
-                            style={{
-                              padding: '6px 10px',
-                              borderRadius: 6,
-                              border: '1px solid #e5e7eb',
-                              fontSize: 13,
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
-                              color: '#ffffff',
-                            }}
-                          >
-                            <option value="FREE">FREE</option>
-                            <option value="PRO">PRO</option>
-                            <option value="EXPERT">EXPERT</option>
-                          </select>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <select
+                              value={u.plan}
+                              onChange={(e) => changePlan(u.email, e.target.value as 'FREE' | 'PRO' | 'EXPERT')}
+                              disabled={loading === u.email + u.plan}
+                              style={{
+                                padding: '6px 10px',
+                                borderRadius: 6,
+                                border: '1px solid #e5e7eb',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                background: u.plan === 'EXPERT' ? '#1e40af' : u.plan === 'PRO' ? '#7c3aed' : '#71717a',
+                                color: '#ffffff',
+                              }}
+                            >
+                              <option value="FREE">FREE</option>
+                              <option value="PRO">PRO</option>
+                              <option value="EXPERT">EXPERT</option>
+                            </select>
+                            <select
+                              value={userDurations[u.email] ?? 1}
+                              onChange={(e) => setUserDurations(prev => ({ ...prev, [u.email]: Number(e.target.value) }))}
+                              disabled={u.plan === 'FREE' || loading === u.email + u.plan}
+                              style={{
+                                padding: '6px 10px',
+                                borderRadius: 6,
+                                border: '1px solid #e5e7eb',
+                                fontSize: 12,
+                                cursor: u.plan === 'FREE' ? 'not-allowed' : 'pointer',
+                                opacity: u.plan === 'FREE' ? 0.5 : 1,
+                                background: '#ffffff',
+                                color: '#374151',
+                              }}
+                            >
+                              <option value={1}>1개월</option>
+                              <option value={3}>3개월</option>
+                              <option value={6}>6개월</option>
+                              <option value={12}>12개월</option>
+                              <option value={0}>무제한</option>
+                            </select>
+                          </div>
                         ) : (
                           <span style={{
                             padding: '6px 10px',

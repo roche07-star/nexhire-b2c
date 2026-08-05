@@ -11,22 +11,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Super Admin 권한이 필요합니다.' }, { status: 403 })
   }
 
-  const { email, plan } = await req.json()
+  const { email, plan, duration } = await req.json()
   if (!email || !['FREE', 'PRO', 'EXPERT'].includes(plan)) {
     return NextResponse.json({ error: '잘못된 요청' }, { status: 400 })
   }
 
+  // duration 검증 (1, 3, 6, 12, 0=무제한)
+  if (duration !== undefined && ![0, 1, 3, 6, 12].includes(duration)) {
+    return NextResponse.json({ error: '잘못된 기간' }, { status: 400 })
+  }
+
   // 관리자 강제 플랜 변경: 무조건 즉시 적용
+  const now = new Date()
   const updateData: Record<string, unknown> = {
     plan,
-    plan_end_date: null,
-    plan_expires_at: null,
-    monthly_reset_at: new Date().toISOString(),
+    monthly_reset_at: now.toISOString(),
     downgrade_to: null,
     downgrade_requested_at: null,
     next_plan: null,
     next_plan_starts_at: null,
     next_plan_end_date: null,
+  }
+
+  // 기간 설정 (FREE는 무제한, PRO/EXPERT는 선택된 기간)
+  if (plan === 'FREE' || duration === 0) {
+    // 무제한
+    updateData.plan_end_date = null
+    updateData.plan_expires_at = null
+  } else if (duration && duration > 0) {
+    // 지정된 기간
+    const expires = new Date(now)
+    expires.setMonth(expires.getMonth() + duration)
+    updateData.plan_end_date = expires.toISOString().split('T')[0]
+    updateData.plan_expires_at = expires.toISOString()
+  } else {
+    // duration 없으면 기본 1개월
+    const expires = new Date(now)
+    expires.setMonth(expires.getMonth() + 1)
+    updateData.plan_end_date = expires.toISOString().split('T')[0]
+    updateData.plan_expires_at = expires.toISOString()
   }
 
   // FREE 플랜: 사용량 Max (이미 소진)
