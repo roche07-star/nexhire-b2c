@@ -130,6 +130,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 플랜 구매 환불: 플랜을 FREE로 되돌림
+    if (payment.plan === 'PRO' || payment.plan === 'EXPERT') {
+      const { error: planRollbackError } = await supabase
+        .from('users')
+        .update({
+          plan: 'FREE',
+          plan_end_date: null,
+          plan_expires_at: null,
+          downgrade_to: null,
+          next_plan: null,
+          next_plan_starts_at: null,
+          next_plan_end_date: null,
+          monthly_reset_at: null,
+        })
+        .eq('email', payment.user_email)
+
+      if (planRollbackError) {
+        console.error('플랜 롤백 오류:', planRollbackError)
+      } else {
+        console.log(`[Refund] ${payment.user_email} 플랜 롤백: ${payment.plan} → FREE`)
+      }
+    }
+
     // 실제 PG사 환불 API 호출은 여기에 추가
     // TODO: 토스페이먼츠/포트원 환불 API 연동
 
