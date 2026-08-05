@@ -452,7 +452,11 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
             opacity: (isProcessing || !termsAgreed) ? 0.6 : 1
           }}
         >
-          {isProcessing ? '결제 처리 중...' : !termsAgreed ? '약관에 동의해주세요' : `결제하기 ${isMobile ? '📱' : '💻'}`}
+          {isProcessing
+            ? '결제 처리 중...'
+            : !termsAgreed
+            ? '약관에 동의해주세요'
+            : `결제하기 [${isMobile ? 'MOBILE📱' : 'DESKTOP💻'}]`}
         </button>
 
         {/* Info */}
