@@ -326,7 +326,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
                       color: isStrikethrough ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.9)'
                     }}
                   >
-                    <span style={{ color: isStrikethrough ? 'rgba(34, 211, 238, 0.4)' : '#22d3ee', fontSize: 16 }}>✓</span>
+                    <span style={{ color: '#22d3ee', fontSize: 16 }}>✓</span>
                     <span style={{ textDecoration: isStrikethrough ? 'line-through' : 'none' }}>{displayText}</span>
                   </div>
                 )
