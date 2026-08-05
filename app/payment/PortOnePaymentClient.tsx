@@ -64,6 +64,15 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
         customer: {
           email: userEmail,
         },
+        // 모바일에서도 카드 직접 입력 방식 사용 (QR 코드 방식 비활성화)
+        windowType: isMobile ? "REDIRECTION" : undefined,
+        // 앱카드 결제 방식 비활성화 시도
+        bypass: isMobile ? {
+          nhn_kcp: {
+            site_logo: "",
+            app_scheme: "disabled" // 앱카드 방식 비활성화
+          }
+        } : undefined,
       }
 
       // 모바일: 리다이렉트 모드 (전체 화면)
