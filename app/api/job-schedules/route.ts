@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { application_id, title, schedule_at, type } = body
+    const { application_id, hiring_process_id, title, schedule_at, type } = body
 
     if (!title || !schedule_at || !type) {
       return NextResponse.json(
@@ -36,12 +36,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 채용 프로세스 확인 (헤드헌터용)
+    if (hiring_process_id) {
+      const { data: process } = await supabase
+        .from('hiring_processes')
+        .select('id')
+        .eq('id', hiring_process_id)
+        .eq('recruiter_email', session.user.email)
+        .single()
+
+      if (!process) {
+        return NextResponse.json(
+          { error: '채용 프로세스를 찾을 수 없습니다.' },
+          { status: 404 }
+        )
+      }
+    }
+
     // 일정 추가
     const { data: schedule, error } = await supabase
       .from('job_schedules')
       .insert({
         user_email: session.user.email,
         application_id: application_id || null,
+        hiring_process_id: hiring_process_id || null,
         title,
         schedule_at,
         type,

@@ -15,6 +15,17 @@ export default function HiringProcessClient() {
   const plan = session?.user?.plan || 'FREE'
   const isPro = plan === 'PRO' || plan === 'EXPERT'
 
+  // 일정 추가 모달
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [selectedProcessForSchedule, setSelectedProcessForSchedule] = useState<HiringProcess | null>(null)
+  const [newSchedule, setNewSchedule] = useState({
+    date: '',
+    time: '',
+    type: 'interview' as 'interview' | 'deadline' | 'other',
+    title: ''
+  })
+  const [creatingSchedule, setCreatingSchedule] = useState(false)
+
   useEffect(() => {
     fetchProcesses()
   }, [])
@@ -30,6 +41,47 @@ export default function HiringProcessClient() {
       console.error('Failed to fetch processes:', e)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleCreateSchedule() {
+    if (!selectedProcessForSchedule || !newSchedule.date || !newSchedule.time) {
+      alert('날짜와 시간을 모두 입력해주세요.')
+      return
+    }
+
+    setCreatingSchedule(true)
+    try {
+      const scheduleAt = new Date(`${newSchedule.date}T${newSchedule.time}`)
+      const title = newSchedule.title.trim() ||
+        `${selectedProcessForSchedule.candidate_name} - ${newSchedule.type === 'interview' ? '면접' : newSchedule.type === 'deadline' ? '마감' : '일정'}`
+
+      const res = await fetch('/api/job-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hiring_process_id: selectedProcessForSchedule.id,
+          title,
+          schedule_at: scheduleAt.toISOString(),
+          type: newSchedule.type
+        })
+      })
+
+      if (res.ok) {
+        alert('일정이 추가되었습니다! 📅')
+        setShowScheduleModal(false)
+        setNewSchedule({ date: '', time: '', type: 'interview', title: '' })
+        setSelectedProcessForSchedule(null)
+        fetchProcesses()
+      } else {
+        const error = await res.json()
+        alert(error.error || '추가 실패')
+      }
+    } catch (error) {
+      console.error('일정 추가 실패:', error)
+      alert('오류가 발생했습니다.')
+    } finally {
+      setCreatingSchedule(false)
     }
   }
 
@@ -160,8 +212,117 @@ export default function HiringProcessClient() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {filteredProcesses.map((process) => (
-            <ProcessCard key={process.id} process={process} onUpdate={fetchProcesses} />
+            <ProcessCard
+              key={process.id}
+              process={process}
+              onUpdate={fetchProcesses}
+              onAddSchedule={(p) => {
+                setSelectedProcessForSchedule(p)
+                setShowScheduleModal(true)
+              }}
+            />
           ))}
+        </div>
+      )}
+
+      {/* 일정 추가 모달 */}
+      {showScheduleModal && selectedProcessForSchedule && (
+        <div className="overlay" onClick={() => !creatingSchedule && setShowScheduleModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400, width: '90%' }}>
+            <div className="modal-header">
+              <div className="modal-title">📅 일정 추가</div>
+              <button className="modal-close" onClick={() => setShowScheduleModal(false)} disabled={creatingSchedule}>✕</button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                {selectedProcessForSchedule.candidate_name} · {selectedProcessForSchedule.company_name}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                일정 유형 *
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[
+                  { value: 'interview', label: '🎤 면접', color: '#3b82f6' },
+                  { value: 'deadline', label: '⏰ 마감', color: '#ef4444' },
+                  { value: 'other', label: '📌 기타', color: '#8b5cf6' }
+                ].map(type => (
+                  <button
+                    key={type.value}
+                    className="btn btn-ghost"
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      padding: '8px',
+                      border: newSchedule.type === type.value ? `2px solid ${type.color}` : '1px solid var(--border)',
+                      background: newSchedule.type === type.value ? `${type.color}15` : 'transparent'
+                    }}
+                    onClick={() => setNewSchedule({ ...newSchedule, type: type.value as any })}
+                    disabled={creatingSchedule}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                날짜 *
+              </label>
+              <input
+                type="date"
+                className="input"
+                value={newSchedule.date}
+                onChange={(e) => setNewSchedule({ ...newSchedule, date: e.target.value })}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                시간 *
+              </label>
+              <input
+                type="time"
+                className="input"
+                value={newSchedule.time}
+                onChange={(e) => setNewSchedule({ ...newSchedule, time: e.target.value })}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                제목 (선택)
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="미입력 시 자동 생성"
+                value={newSchedule.title}
+                onChange={(e) => setNewSchedule({ ...newSchedule, title: e.target.value })}
+                disabled={creatingSchedule}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-ghost" onClick={() => setShowScheduleModal(false)} disabled={creatingSchedule} style={{ flex: 1 }}>
+                취소
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleCreateSchedule}
+                disabled={creatingSchedule || !newSchedule.date || !newSchedule.time}
+                style={{ flex: 1 }}
+              >
+                {creatingSchedule ? '추가 중...' : '추가하기'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -200,7 +361,7 @@ function StatCard({
   )
 }
 
-function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: () => void }) {
+function ProcessCard({ process, onUpdate, onAddSchedule }: { process: HiringProcess; onUpdate: () => void; onAddSchedule: (process: HiringProcess) => void }) {
   const [expanded, setExpanded] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -318,6 +479,31 @@ function ProcessCard({ process, onUpdate }: { process: HiringProcess; onUpdate: 
             🏢 {process.company_name} • {process.position_title}
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => onAddSchedule(process)}
+            title="일정 추가"
+            style={{
+              padding: '8px 12px',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#fbbf24',
+              fontWeight: 600,
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#fbbf2410'
+              e.currentTarget.style.borderColor = '#fbbf24'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.borderColor = 'var(--border)'
+            }}
+          >
+            📅
+          </button>
           <button
             onClick={deleteProcess}
             disabled={deleting}
