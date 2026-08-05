@@ -54,8 +54,56 @@ export async function GET(req: NextRequest) {
 
     if (error) throw error
 
+    // 각 결제에 대한 쿠폰 사용 현황 조회
+    const paymentsWithCouponStatus = await Promise.all(
+      (data || []).map(async (payment) => {
+        // STORE 결제만 쿠폰 조회
+        if (payment.plan !== 'STORE' || !payment.paid_at) {
+          return { ...payment, coupon_status: null }
+        }
+
+        // 결제 시간 전후 2분 이내에 발급된 쿠폰 찾기
+        const paidAt = new Date(payment.paid_at)
+        const couponSearchStart = new Date(paidAt.getTime() - 120000)
+        const couponSearchEnd = new Date(paidAt.getTime() + 120000)
+
+        const { data: coupons } = await supabase
+          .from('coupons')
+          .select('*')
+          .eq('issued_to', payment.user_email)
+          .eq('issued_by', 'STORE')
+          .gte('claimed_at', couponSearchStart.toISOString())
+          .lte('claimed_at', couponSearchEnd.toISOString())
+
+        if (!coupons || coupons.length === 0) {
+          return { ...payment, coupon_status: null }
+        }
+
+        // 쿠폰 사용 현황 계산
+        const totalCredits = coupons.reduce((sum, c) => sum + c.credits, 0)
+        const usedCredits = coupons.reduce((sum, c) => sum + (c.used || 0), 0)
+        const hasUsed = usedCredits > 0
+
+        return {
+          ...payment,
+          coupon_status: {
+            total_credits: totalCredits,
+            used_credits: usedCredits,
+            has_used: hasUsed,
+            coupons: coupons.map(c => ({
+              id: c.id,
+              feature: c.feature,
+              credits: c.credits,
+              used: c.used || 0,
+              claimed_at: c.claimed_at,
+            })),
+          },
+        }
+      })
+    )
+
     return NextResponse.json({
-      payments: data || [],
+      payments: paymentsWithCouponStatus,
       pagination: {
         page,
         limit,

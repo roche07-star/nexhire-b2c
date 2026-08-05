@@ -25,6 +25,18 @@ interface Payment {
   paid_at: string
   transaction_id: string | null
   description: string | null
+  coupon_status?: {
+    total_credits: number
+    used_credits: number
+    has_used: boolean
+    coupons: Array<{
+      id: string
+      feature: string
+      credits: number
+      used: number
+      claimed_at: string
+    }>
+  } | null
 }
 
 interface PaymentsData {
@@ -470,12 +482,17 @@ export default function SettlementsClient() {
                         <th>플랜</th>
                         <th className="text-right">금액</th>
                         <th className="text-center">결제방법</th>
+                        <th className="text-center">쿠폰 사용</th>
                         <th className="text-center">상태</th>
                         <th className="text-center">액션</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {payments.payments.map((payment) => (
+                      {payments.payments.map((payment) => {
+                        const couponUsed = payment.coupon_status?.has_used || false
+                        const canRefund = payment.status === 'success' && !couponUsed
+
+                        return (
                         <tr key={payment.id}>
                           <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                           <td className="email">{payment.user_email}</td>
@@ -486,29 +503,62 @@ export default function SettlementsClient() {
                           </td>
                           <td className="text-right amount" style={{ minWidth: '100px', fontWeight: 700 }}>{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
                           <td className="text-center method">{payment.payment_method || '-'}</td>
+                          <td className="text-center">
+                            {payment.coupon_status ? (
+                              <div style={{ fontSize: 12 }}>
+                                {couponUsed ? (
+                                  <span style={{ color: '#ef4444', fontWeight: 600 }}>
+                                    ✅ {payment.coupon_status.used_credits}/{payment.coupon_status.total_credits}회 사용
+                                  </span>
+                                ) : (
+                                  <span style={{ color: '#10b981', fontWeight: 600 }}>
+                                    미사용 ({payment.coupon_status.total_credits}회)
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span>
+                            )}
+                          </td>
                           <td className="text-center">{getStatusBadge(payment.status)}</td>
                           <td className="text-center">
                             {payment.status === 'success' && (
-                              <button
-                                onClick={() => {
-                                  setSelectedPayment(payment)
-                                  setShowRefundModal(true)
-                                }}
-                                className="refund-btn"
-                              >
-                                환불
-                              </button>
+                              canRefund ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedPayment(payment)
+                                    setShowRefundModal(true)
+                                  }}
+                                  className="refund-btn"
+                                >
+                                  환불
+                                </button>
+                              ) : couponUsed ? (
+                                <button
+                                  disabled
+                                  className="refund-btn"
+                                  style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                                  title="쿠폰을 사용하여 환불할 수 없습니다"
+                                >
+                                  환불 불가
+                                </button>
+                              ) : null
                             )}
                           </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
 
                 {/* 모바일 카드 */}
                 <div className="mobile-cards">
-                  {payments.payments.map((payment) => (
+                  {payments.payments.map((payment) => {
+                    const couponUsed = payment.coupon_status?.has_used || false
+                    const canRefund = payment.status === 'success' && !couponUsed
+
+                    return (
                     <div key={payment.id} className="payment-card">
                       <div className="card-header">
                         <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
@@ -530,20 +580,47 @@ export default function SettlementsClient() {
                           <span className="label">결제방법</span>
                           <span className="value">{payment.payment_method || '-'}</span>
                         </div>
+                        {payment.coupon_status && (
+                          <div className="detail-row">
+                            <span className="label">쿠폰 사용</span>
+                            <span className="value">
+                              {couponUsed ? (
+                                <span style={{ color: '#ef4444', fontWeight: 600 }}>
+                                  ✅ {payment.coupon_status.used_credits}/{payment.coupon_status.total_credits}회
+                                </span>
+                              ) : (
+                                <span style={{ color: '#10b981', fontWeight: 600 }}>
+                                  미사용 ({payment.coupon_status.total_credits}회)
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       {payment.status === 'success' && (
-                        <button
-                          onClick={() => {
-                            setSelectedPayment(payment)
-                            setShowRefundModal(true)
-                          }}
-                          className="card-refund-btn"
-                        >
-                          환불 처리
-                        </button>
+                        canRefund ? (
+                          <button
+                            onClick={() => {
+                              setSelectedPayment(payment)
+                              setShowRefundModal(true)
+                            }}
+                            className="card-refund-btn"
+                          >
+                            환불 처리
+                          </button>
+                        ) : couponUsed ? (
+                          <button
+                            disabled
+                            className="card-refund-btn"
+                            style={{ opacity: 0.5, cursor: 'not-allowed', background: '#94a3b8' }}
+                          >
+                            환불 불가 (쿠폰 사용됨)
+                          </button>
+                        ) : null
                       )}
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
                 {/* 페이지네이션 */}
