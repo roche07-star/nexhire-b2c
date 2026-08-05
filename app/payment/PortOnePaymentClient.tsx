@@ -15,9 +15,9 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
   const [error, setError] = useState<string | null>(null)
   const [termsAgreed, setTermsAgreed] = useState(false)
 
-  // 디버깅: 모바일 감지
+  // 디버깅: 모바일 감지 (userAgent 우선 - 가로 모드 대응)
   const isMobile = typeof window !== 'undefined'
-    ? (window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+    ? /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     : false
 
   const handlePayment = async () => {
