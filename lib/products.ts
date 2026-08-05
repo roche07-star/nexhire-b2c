@@ -39,7 +39,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 생성 10회',
       '면접 가이드 10회',
       '주간 Report 4회',
-      '월간 Report 1회'
+      '월간 Report 1회',
+      '이력서/면접가이드 다운로드 가능'
     ]
   },
   'jobseeker-pro-3m': {
@@ -57,7 +58,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 생성 10회/월',
       '면접 가이드 10회/월',
       '주간 Report 4회/월',
-      '월간 Report 1회/월'
+      '월간 Report 1회/월',
+      '이력서/면접가이드 다운로드 가능'
     ]
   },
 
@@ -75,7 +77,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 생성 20회',
       '면접 가이드 20회',
       '주간 Report 4회',
-      '월간 Report 1회'
+      '월간 Report 1회',
+      '이력서/면접가이드 다운로드 가능'
     ]
   },
   'jobseeker-expert-3m': {
@@ -93,7 +96,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
       '이력서 생성 20회/월',
       '면접 가이드 20회/월',
       '주간 Report 4회/월',
-      '월간 Report 1회/월'
+      '월간 Report 1회/월',
+      '이력서/면접가이드 다운로드 가능'
     ]
   },
 

@@ -18,14 +18,14 @@ const freePlanData = {
     features: [
       '이력서 분석 3회/월',
       'JD 적합도 분석 3회/월',
-      '이력서 생성 1회/월 (다운로드 X)',
+      '이력서 생성 1회/월',
       '주간 Report 2회/월',
       '기본 점수 리포트',
       '커리어 방향 1가지 제안',
+      '~~이력서 다운로드 불가~~',
     ],
     limitations: [
       '면접 가이드 제공 안 함',
-      '월간 Report 제공 안 함',
     ],
   },
   HEADHUNTER: {
@@ -33,8 +33,9 @@ const freePlanData = {
     features: [
       '후보자 분석 3회/월',
       'JD 적합도 분석 3회/월',
-      '이력서 생성 1회/월 (다운로드 X)',
+      '이력서 생성 1회/월',
       '기본 매칭 리포트',
+      '~~이력서 다운로드 불가~~',
     ],
     limitations: [
       '클라이언트 제안서 생성 안 함',
@@ -309,22 +310,27 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
             </div>
 
             <div style={{ marginBottom: 32 }}>
-              {freePlan.features.map((feature, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 12,
-                    marginBottom: 12,
-                    fontSize: 14,
-                    color: 'rgba(255,255,255,0.9)'
-                  }}
-                >
-                  <span style={{ color: '#22d3ee', fontSize: 16 }}>✓</span>
-                  <span>{feature}</span>
-                </div>
-              ))}
+              {freePlan.features.map((feature, idx) => {
+                const isStrikethrough = feature.startsWith('~~') && feature.endsWith('~~')
+                const displayText = isStrikethrough ? feature.slice(2, -2) : feature
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      marginBottom: 12,
+                      fontSize: 14,
+                      color: isStrikethrough ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.9)'
+                    }}
+                  >
+                    <span style={{ color: isStrikethrough ? 'rgba(34, 211, 238, 0.4)' : '#22d3ee', fontSize: 16 }}>✓</span>
+                    <span style={{ textDecoration: isStrikethrough ? 'line-through' : 'none' }}>{displayText}</span>
+                  </div>
+                )
+              })}
               {freePlan.limitations.map((limitation, idx) => (
                 <div
                   key={idx}
