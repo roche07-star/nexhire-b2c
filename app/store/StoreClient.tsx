@@ -291,11 +291,11 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
             <p className="store-subtitle">
-              JOBIZIC 커리어 부스터 팩<br />
+              JOBIZIC 커리어 부스터 팩 <br className="mobile-only" />
               (쿠폰 유효기간: 3개월)
             </p>
             <p className="store-description">
-              당신의 커리어를 한 단계 업그레이드할<br />
+              당신의 커리어를 한 단계 업그레이드할 <br className="mobile-only" />
               프리미엄 JOBIZIC 분석 서비스
             </p>
           </div>

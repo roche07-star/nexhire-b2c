@@ -2931,8 +2931,8 @@ footer.footer-container {
 }
 .store-header {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
 }
 .store-title {
@@ -5495,6 +5495,17 @@ footer.footer-container {
   color: var(--muted);
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* 모바일에서만 줄바꿈 */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: inline;
+  }
 }
 
 /* 상품 그리드 */
