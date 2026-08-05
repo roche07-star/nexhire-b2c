@@ -14,10 +14,42 @@ function SuccessPageContent() {
       const orderId = searchParams.get('orderId')
       const paymentKey = searchParams.get('paymentKey')
       const amount = searchParams.get('amount')
+      const paymentId = searchParams.get('paymentId')
 
-      console.log('[Store Success] 결제 확인 시작:', { orderId, paymentKey, amount })
+      console.log('[Store Success] 결제 확인 시작:', { orderId, paymentKey, amount, paymentId })
 
-      // ✅ PortOne V2: localStorage에서 paymentId/orderId 가져오기
+      // PortOne V2: query parameter에서 paymentId/orderId 확인 (모바일 리다이렉트)
+      if (paymentId && orderId && !paymentKey) {
+        try {
+          console.log('[Store Success] PortOne V2 (모바일) verify API 호출')
+          const res = await fetch('/api/store/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, orderId }),
+          })
+
+          const data = await res.json()
+          console.log('[Store Success] PortOne verify 응답:', data)
+
+          if (!res.ok) {
+            console.error('[Store Success] PortOne verify 오류:', data)
+            setError(data.error || '쿠폰 발급 실패')
+            setIsProcessing(false)
+            return
+          }
+
+          console.log('[Store Success] PortOne verify 성공')
+          window.location.href = '/my-info'
+          return
+        } catch (err) {
+          console.error('[Store Success] PortOne verify 오류:', err)
+          setError('쿠폰 발급 중 오류가 발생했습니다.')
+          setIsProcessing(false)
+          return
+        }
+      }
+
+      // PortOne V2: localStorage에서 paymentId/orderId 가져오기 (레거시)
       if (!orderId && !paymentKey) {
         const storedPaymentId = localStorage.getItem('portone_payment_id')
         const storedOrderId = localStorage.getItem('portone_order_id')

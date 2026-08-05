@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadTossPayments } from '@tosspayments/payment-sdk'
 import * as PortOne from "@portone/browser-sdk/v2"
 import type { PaymentGateway } from '@/lib/payment-gateway'
@@ -144,6 +144,12 @@ interface Props {
 export default function StoreClient({ isManager, userEmail, userName, paymentGateway }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // 클라이언트에서만 모바일 감지
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+  }, [])
 
   console.log('[StoreClient] Payment Gateway:', paymentGateway)
 
@@ -215,8 +221,8 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           totalAmount: product.price
         })
 
-        // Step 3: PortOne 결제창 호출 (팝업 모드)
-        const response = await PortOne.requestPayment({
+        // Step 3: PortOne 결제창 호출
+        const paymentOptions: any = {
           storeId,
           channelKey,
           paymentId,
@@ -227,8 +233,21 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           customer: {
             email: userEmail,
           },
-        })
+        }
 
+        // 모바일: 리다이렉트 모드
+        if (isMobile) {
+          paymentOptions.redirectUrl = `${window.location.origin}/store/success?paymentId=${encodeURIComponent(paymentId)}&orderId=${encodeURIComponent(orderId)}`
+        }
+
+        const response = await PortOne.requestPayment(paymentOptions)
+
+        // 모바일 리다이렉트 모드: response 없음
+        if (isMobile) {
+          return
+        }
+
+        // 데스크톱 팝업 모드: response 처리
         console.log('[Store PortOne] 결제 응답:', response)
 
         // 결제 취소/실패
@@ -236,7 +255,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           throw new Error(response.message || '결제가 취소되었습니다')
         }
 
-        // ✅ Step 4: 결제 성공 - 즉시 verify 호출
+        // Step 4: 결제 성공 - 즉시 verify 호출
         console.log('[Store PortOne] 결제 성공, verify 호출')
 
         const verifyRes = await fetch('/api/store/verify', {
@@ -253,7 +272,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
         const verifyData = await verifyRes.json()
         console.log('[Store PortOne] verify 성공:', verifyData)
 
-        // ✅ Step 5: 성공 - /my-info로 즉시 이동
+        // Step 5: 성공 - /my-info로 이동
         alert('✅ 구매가 완료되었습니다!\n쿠폰이 발급되었습니다.')
         window.location.href = '/my-info'
       }
