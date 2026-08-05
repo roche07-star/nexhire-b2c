@@ -15,6 +15,11 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
   const [error, setError] = useState<string | null>(null)
   const [termsAgreed, setTermsAgreed] = useState(false)
 
+  // 디버깅: 모바일 감지
+  const isMobile = typeof window !== 'undefined'
+    ? (window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+    : false
+
   const handlePayment = async () => {
     setIsProcessing(true)
     setError(null)
@@ -130,6 +135,23 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
       position: 'relative',
       overflow: 'hidden'
     }}>
+      {/* 디버그 정보 (모바일 감지 확인용 - 테스트 후 제거) */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        background: '#ff0000',
+        color: '#fff',
+        padding: '10px',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        zIndex: 9999,
+        textAlign: 'center'
+      }}>
+        🔍 디버그: 모바일={isMobile ? 'YES' : 'NO'} | 화면너비={typeof window !== 'undefined' ? window.innerWidth : 0}px
+      </div>
+
       {/* Animated Background */}
       <div style={{
         position: 'fixed',
