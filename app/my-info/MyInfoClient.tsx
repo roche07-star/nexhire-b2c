@@ -28,6 +28,32 @@ interface Props {
   payments: Payment[]
 }
 
+// 결제 방법을 사람이 읽기 쉽게 포맷
+function formatPaymentMethod(paymentMethod: string | null): string {
+  if (!paymentMethod) return '-'
+
+  try {
+    // JSON 파싱 시도
+    const parsed = JSON.parse(paymentMethod)
+
+    // PortOne V2 카드 결제
+    if (parsed.type === 'PaymentMethodCard' && parsed.card) {
+      const card = parsed.card
+      const cardName = card.name || '카드'
+      const last4 = card.number?.slice(-4) || ''
+      const cardType = card.type === 'DEBIT' ? '체크' : card.type === 'CREDIT' ? '신용' : ''
+
+      return `${cardName}${cardType ? ` (${cardType})` : ''} *${last4}`
+    }
+
+    // 기타 JSON 형태
+    return paymentMethod
+  } catch {
+    // JSON이 아니면 그대로 반환
+    return paymentMethod
+  }
+}
+
 const FEATURE_NAMES: Record<string, string> = {
   resume: '이력서 분석',
   jd: 'JD 적합도 분석',
@@ -357,7 +383,7 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                         fontSize: 12,
                         color: 'var(--muted2)',
                       }}>
-                        {payment.payment_method || '-'}
+                        {formatPaymentMethod(payment.payment_method)}
                       </div>
                     </div>
                   </div>
