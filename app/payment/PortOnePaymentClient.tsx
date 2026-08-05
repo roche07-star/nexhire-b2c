@@ -64,22 +64,15 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
         customer: {
           email: userEmail,
         },
-        // 모바일에서도 카드 직접 입력 방식 사용 (QR 코드 방식 비활성화)
-        windowType: isMobile ? "REDIRECTION" : undefined,
-        // 앱카드 결제 방식 비활성화 시도
-        bypass: isMobile ? {
-          nhn_kcp: {
-            site_logo: "",
-            app_scheme: "disabled" // 앱카드 방식 비활성화
-          }
-        } : undefined,
       }
 
-      // 모바일: 리다이렉트 모드 (전체 화면)
+      // 모바일: 리다이렉트 모드 (전체 페이지 이동, 팝업 없음)
       // 데스크톱: 팝업 모드 (작은 팝업)
       if (isMobile) {
         paymentOptions.redirectUrl = `${window.location.origin}/payment/success?paymentId=${encodeURIComponent(paymentId)}&orderId=${encodeURIComponent(orderId)}`
       }
+
+      console.log('[Payment] 결제 옵션:', { isMobile, hasRedirectUrl: !!paymentOptions.redirectUrl })
 
       const response = await PortOne.requestPayment(paymentOptions)
 
