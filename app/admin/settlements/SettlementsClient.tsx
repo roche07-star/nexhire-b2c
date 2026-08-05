@@ -78,6 +78,32 @@ interface RefundsData {
   }
 }
 
+// 결제 방법을 사람이 읽기 쉽게 포맷
+function formatPaymentMethod(paymentMethod: string | null): string {
+  if (!paymentMethod) return '-'
+
+  try {
+    // JSON 파싱 시도
+    const parsed = JSON.parse(paymentMethod)
+
+    // PortOne V2 카드 결제
+    if (parsed.type === 'PaymentMethodCard' && parsed.card) {
+      const card = parsed.card
+      const cardName = card.name || '카드'
+      const last4 = card.number?.slice(-4) || ''
+      const cardType = card.type === 'DEBIT' ? '체크' : card.type === 'CREDIT' ? '신용' : ''
+
+      return `${cardName}${cardType ? ` (${cardType})` : ''} *${last4}`
+    }
+
+    // 기타 JSON 형태
+    return paymentMethod
+  } catch {
+    // JSON이 아니면 그대로 반환
+    return paymentMethod
+  }
+}
+
 export default function SettlementsClient() {
   const [activeTab, setActiveTab] = useState<'summary' | 'payments' | 'refunds'>('summary')
   const [summary, setSummary] = useState<SummaryData | null>(null)
@@ -296,7 +322,7 @@ export default function SettlementsClient() {
       사용자: p.user_email,
       플랜: p.description || p.plan,
       금액: p.amount,
-      결제방법: p.payment_method || '-',
+      결제방법: formatPaymentMethod(p.payment_method),
       상태: p.status,
       거래ID: p.transaction_id || '-',
     }))
@@ -502,7 +528,7 @@ export default function SettlementsClient() {
                             </span>
                           </td>
                           <td className="text-right amount" style={{ minWidth: '100px', fontWeight: 700 }}>{payment.amount ? formatCurrency(payment.amount) : '0원'}</td>
-                          <td className="text-center method">{payment.payment_method || '-'}</td>
+                          <td className="text-center method">{formatPaymentMethod(payment.payment_method)}</td>
                           <td className="text-center">
                             {payment.coupon_status ? (
                               <div style={{ fontSize: 12 }}>
@@ -578,7 +604,7 @@ export default function SettlementsClient() {
                         </div>
                         <div className="detail-row">
                           <span className="label">결제방법</span>
-                          <span className="value">{payment.payment_method || '-'}</span>
+                          <span className="value">{formatPaymentMethod(payment.payment_method)}</span>
                         </div>
                         {payment.coupon_status && (
                           <div className="detail-row">
