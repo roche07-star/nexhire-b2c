@@ -47,7 +47,7 @@ export async function GET() {
   })
 
   const usage: Record<string, { used: number; limit: number }> = {
-    analyze:   { used: (user?.analyze_count ?? 0) + (couponUsed.analyze || 0),   limit: limits.analyze + (extraCredits.analyze || 0) },
+    analyze:   { used: (user?.analyze_count ?? 0) + (couponUsed.analyze || 0),   limit: limits.analyze + (extraCredits.analyze || 0) + (extraCredits.resume || 0) },  // ✅ 기존 resume 쿠폰 하위호환
     jd:        { used: (user?.jd_count ?? 0) + (couponUsed.jd || 0),        limit: limits.jd + (extraCredits.jd || 0) },
     rewrite:   { used: (user?.rewrite_count ?? 0) + (couponUsed.rewrite || 0),   limit: limits.rewrite + (extraCredits.rewrite || 0) },
     interview: { used: (user?.interview_count ?? 0) + (couponUsed.interview || 0), limit: limits.interview + (extraCredits.interview || 0) },
