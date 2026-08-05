@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { type Product } from '@/lib/products'
 import * as PortOne from "@portone/browser-sdk/v2"
@@ -14,11 +14,12 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [termsAgreed, setTermsAgreed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // 디버깅: 모바일 감지 (userAgent 우선 - 가로 모드 대응)
-  const isMobile = typeof window !== 'undefined'
-    ? /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    : false
+  // 클라이언트에서만 모바일 감지
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+  }, [])
 
   const handlePayment = async () => {
     setIsProcessing(true)
