@@ -37,19 +37,23 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
 
       const { paymentId, orderId } = await prepareRes.json()
 
-      // Step 2: PortOne V2 결제창 호출 (팝업 모드)
+      // Step 2: PortOne V2 결제창 호출
       const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!
       const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!
+
+      // 모바일 감지
+      const isMobile = window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
       console.log('[PortOne V2 Payment] 결제 요청:', {
         storeId,
         channelKey,
         paymentId,
         orderName: product.name,
-        totalAmount: product.price
+        totalAmount: product.price,
+        mode: isMobile ? 'redirect' : 'popup'
       })
 
-      const response = await PortOne.requestPayment({
+      const paymentOptions: any = {
         storeId,
         channelKey,
         paymentId,  // 서버에서 생성된 paymentId 사용 (28자)
@@ -60,9 +64,23 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
         customer: {
           email: userEmail,
         },
-        // redirectUrl 제거 → 팝업 모드로 작동
-      })
+      }
 
+      // 모바일: 리다이렉트 모드 (전체 화면)
+      // 데스크톱: 팝업 모드 (작은 팝업)
+      if (isMobile) {
+        paymentOptions.redirectUrl = `${window.location.origin}/payment/success?paymentId=${encodeURIComponent(paymentId)}&orderId=${encodeURIComponent(orderId)}`
+      }
+
+      const response = await PortOne.requestPayment(paymentOptions)
+
+      // 모바일 리다이렉트 모드: response 없음, success 페이지에서 처리
+      if (isMobile) {
+        // redirectUrl로 자동 이동됨
+        return
+      }
+
+      // 데스크톱 팝업 모드: response 처리
       console.log('[PortOne V2 Payment] 결제 응답:', response)
 
       // 결제 취소/실패
