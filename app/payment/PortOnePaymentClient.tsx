@@ -37,7 +37,7 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
 
       const { paymentId, orderId } = await prepareRes.json()
 
-      // Step 2: PortOne V2 결제창 호출
+      // Step 2: PortOne V2 결제창 호출 (팝업 모드)
       const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID!
       const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!
 
@@ -60,15 +60,36 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
         customer: {
           email: userEmail,
         },
-        redirectUrl: `${window.location.origin}/payment/success?paymentId=${encodeURIComponent(paymentId)}&orderId=${encodeURIComponent(orderId)}`,
+        // redirectUrl 제거 → 팝업 모드로 작동
       })
 
+      console.log('[PortOne V2 Payment] 결제 응답:', response)
+
+      // 결제 취소/실패
       if (response?.code) {
-        // 결제 실패
         throw new Error(response.message || '결제가 취소되었습니다')
       }
 
-      // 결제 성공 - redirectUrl로 자동 이동됨
+      // Step 3: 결제 성공 - verify API 호출
+      console.log('[PortOne V2 Payment] 결제 성공, verify 호출')
+
+      const verifyRes = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId, orderId }),
+      })
+
+      if (!verifyRes.ok) {
+        const errorData = await verifyRes.json()
+        throw new Error(errorData.error || '플랜 활성화 실패')
+      }
+
+      const verifyData = await verifyRes.json()
+      console.log('[PortOne V2 Payment] verify 성공:', verifyData)
+
+      // Step 4: 성공 - 대시보드로 이동
+      alert(`✅ ${product.plan} 플랜이 활성화되었습니다!`)
+      window.location.href = '/dashboard'
 
     } catch (err: any) {
       console.error('Payment error:', err)
