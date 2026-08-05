@@ -19,6 +19,8 @@ interface Payment {
   transaction_id: string | null
   description: string | null
   payment_gateway?: string | null
+  refunded_at?: string | null
+  refund_reason?: string | null
 }
 
 interface Props {
