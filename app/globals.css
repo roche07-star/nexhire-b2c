@@ -734,10 +734,15 @@ footer.footer-container {
   margin-bottom: 4px;
 }
 
+.footer-info *,
 .footer-info a,
-.footer-info u {
+.footer-info u,
+.footer-info span {
   text-decoration: none !important;
   border-bottom: none !important;
+  -webkit-text-decoration: none !important;
+  text-decoration-line: none !important;
+  text-decoration-style: none !important;
 }
 
 .footer-copyright {
@@ -4567,10 +4572,15 @@ footer.footer-container {
     margin-bottom: 3px;
   }
 
+  .footer-info *,
   .footer-info a,
-  .footer-info u {
+  .footer-info u,
+  .footer-info span {
     text-decoration: none !important;
     border-bottom: none !important;
+    -webkit-text-decoration: none !important;
+    text-decoration-line: none !important;
+    text-decoration-style: none !important;
   }
 
   .footer-copyright {
