@@ -697,7 +697,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
         <div className="admin-tab-bar desktop-only">
           <button className={`admin-tab-btn${tab === 'users' ? ' active' : ''}`} onClick={() => onTabChange('users')}>유저 관리</button>
           <button className={`admin-tab-btn${tab === 'plan-changes' ? ' active' : ''}`} onClick={() => onTabChange('plan-changes')}>
-            📅 플랜 변경 예정 {users.filter(u => u.downgrade_to || u.status === 'withdrawing').length > 0 && `(${users.filter(u => u.downgrade_to || u.status === 'withdrawing').length})`}
+            📅 플랜 변경 예정 {users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length > 0 && `(${users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length})`}
           </button>
           <button className={`admin-tab-btn${tab === 'support' ? ' active' : ''}`} onClick={() => onTabChange('support')}>💬 고객센터</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
@@ -730,7 +730,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
           >
             <option value="users">📊 유저 관리</option>
             <option value="plan-changes">
-              📅 플랜 변경 예정{users.filter(u => u.downgrade_to || u.status === 'withdrawing').length > 0 ? ` (${users.filter(u => u.downgrade_to || u.status === 'withdrawing').length})` : ''}
+              📅 플랜 변경 예정{users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length > 0 ? ` (${users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length})` : ''}
             </option>
             <option value="support">💬 고객센터</option>
             <option value="coupons">🎫 쿠폰 관리</option>
@@ -1268,8 +1268,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing').map((user) => {
+                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).map((user) => {
                     const isWithdrawing = user.status === 'withdrawing'
+                    const isUpgrade = !!(user.next_plan && !user.downgrade_to && user.status !== 'withdrawing')
                     return (
                       <tr key={user.email}>
                         <td style={{ fontSize: 12 }}>{user.email}</td>
@@ -1279,11 +1280,17 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                             {user.plan}
                           </span>
                         </td>
-                        <td style={{ textAlign: 'center', color: '#f59e0b' }}>→</td>
+                        <td style={{ textAlign: 'center', color: isUpgrade ? '#10b981' : '#f59e0b' }}>
+                          {isUpgrade ? '⬆️' : '→'}
+                        </td>
                         <td>
                           {isWithdrawing ? (
                             <span className="admin-badge" style={{ background: '#ef4444', color: '#fff' }}>
                               탈퇴 예정
+                            </span>
+                          ) : isUpgrade ? (
+                            <span className={`admin-badge admin-badge-${user.next_plan?.toLowerCase()}`}>
+                              {user.next_plan} (예약 구매)
                             </span>
                           ) : (
                             <span className={`admin-badge admin-badge-${user.downgrade_to?.toLowerCase()}`}>
@@ -1291,10 +1298,18 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                             </span>
                           )}
                         </td>
-                        <td>{user.plan_end_date ? new Date(user.plan_end_date).toLocaleDateString('ko-KR') : '-'}</td>
+                        <td>
+                          {isUpgrade && user.next_plan_starts_at
+                            ? new Date(user.next_plan_starts_at).toLocaleDateString('ko-KR')
+                            : user.plan_end_date
+                            ? new Date(user.plan_end_date).toLocaleDateString('ko-KR')
+                            : '-'}
+                        </td>
                         <td style={{ fontSize: 12 }}>
                           {isWithdrawing
                             ? (user.withdraw_requested_at ? new Date(user.withdraw_requested_at).toLocaleString('ko-KR') : '-')
+                            : isUpgrade
+                            ? (user.updated_at ? new Date(user.updated_at).toLocaleString('ko-KR') : '-')
                             : (user.downgrade_requested_at ? new Date(user.downgrade_requested_at).toLocaleString('ko-KR') : '-')
                           }
                         </td>
@@ -1311,7 +1326,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                       </tr>
                     )
                   })}
-                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing').length === 0 && (
+                  {users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length === 0 && (
                     <tr><td colSpan={8} className="admin-empty">플랜 변경 예정인 유저가 없습니다.</td></tr>
                   )}
                 </tbody>

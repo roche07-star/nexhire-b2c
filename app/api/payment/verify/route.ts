@@ -75,28 +75,85 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '상품 정보를 찾을 수 없습니다' }, { status: 404 })
     }
 
-    // Step 7: 사용자 플랜 업데이트
+    // Step 7: 사용자 플랜 업데이트 (예약 구매 또는 즉시 활성화)
     const now = new Date()
-    const expiresAt = new Date(now)
-    expiresAt.setMonth(expiresAt.getMonth() + product.duration)
 
-    const { data: updateData, error: updateError } = await supabase
+    // 현재 사용자 플랜 정보 조회
+    const { data: currentUser, error: fetchError } = await supabase
       .from('users')
-      .update({
-        plan: product.plan,
-        plan_expires_at: expiresAt.toISOString(),
-        updated_at: now.toISOString(),
-      })
+      .select('plan, plan_end_date')
       .eq('email', session.user.email)
-      .select()
+      .single()
+
+    if (fetchError || !currentUser) {
+      return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 })
+    }
+
+    const currentEndDate = currentUser.plan_end_date ? new Date(currentUser.plan_end_date) : null
+    const hasActivePlan = currentEndDate && currentEndDate > now && currentUser.plan !== 'FREE'
+
+    let updateData
+    let updateError
+    let isReserved = false
+
+    if (hasActivePlan) {
+      // 예약 구매: 현재 플랜 만료 후 활성화
+      const nextPlanStartsAt = currentEndDate!
+      const nextPlanEndsAt = new Date(nextPlanStartsAt)
+      nextPlanEndsAt.setMonth(nextPlanEndsAt.getMonth() + product.duration)
+
+      const result = await supabase
+        .from('users')
+        .update({
+          next_plan: product.plan,
+          next_plan_starts_at: nextPlanStartsAt.toISOString(),
+          next_plan_end_date: nextPlanEndsAt.toISOString().split('T')[0],
+          updated_at: now.toISOString(),
+        })
+        .eq('email', session.user.email)
+        .select()
+
+      updateData = result.data
+      updateError = result.error
+      isReserved = true
+
+      console.log(`[Payment] 예약 구매: ${currentUser.plan} → ${product.plan} (시작: ${nextPlanStartsAt.toISOString().split('T')[0]})`)
+    } else {
+      // 즉시 활성화
+      const expiresAt = new Date(now)
+      expiresAt.setMonth(expiresAt.getMonth() + product.duration)
+
+      const result = await supabase
+        .from('users')
+        .update({
+          plan: product.plan,
+          plan_expires_at: expiresAt.toISOString(),
+          plan_end_date: expiresAt.toISOString().split('T')[0],
+          downgrade_to: 'FREE',
+          monthly_reset_at: now.toISOString(),
+          // 사용량 리셋
+          analyze_count: 0,
+          jd_count: 0,
+          rewrite_count: 0,
+          interview_count: 0,
+          proposal_count: 0,
+          resume_count: 0,
+          weekly_report_count: 0,
+          monthly_report_count: 0,
+          updated_at: now.toISOString(),
+        })
+        .eq('email', session.user.email)
+        .select()
+
+      updateData = result.data
+      updateError = result.error
+      isReserved = false
+
+      console.log(`[Payment] 즉시 활성화: ${product.plan} (만료: ${expiresAt.toISOString().split('T')[0]})`)
+    }
 
     if (updateError) {
       console.error('User plan update error:', updateError)
-      console.error('Update details:', {
-        email: session.user.email,
-        plan: product.plan,
-        expiresAt: expiresAt.toISOString()
-      })
       return NextResponse.json({
         error: '플랜 업데이트 실패',
         details: updateError.message

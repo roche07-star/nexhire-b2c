@@ -9,6 +9,7 @@ import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
 import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
 import { generateReportHTML, downloadReport, viewReport } from '@/lib/reportHTMLTemplate'
 import { generateJDReportHTML, downloadJDReport } from '@/lib/jdReportHTMLTemplate'
+import UpgradeEarlyModal from '@/components/UpgradeEarlyModal'
 
 // 탭별 동적 import (초기 로딩 최적화)
 const RewriteTab = dynamic(() => import('./RewriteTab'), { ssr: false })
@@ -71,6 +72,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [rewriteResult, setRewriteResult] = useState<RewriteResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
+  // 조기 플랜 업그레이드 팝업
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeInfo, setUpgradeInfo] = useState<{ feature: string; currentPlan: string; nextPlan: string } | null>(null)
   const [inputMode, setInputMode] = useState<'file' | 'text'>('file')
   const [resumeText, setResumeText] = useState('')
   const [loadingMsg, setLoadingMsg] = useState('')
@@ -1018,6 +1022,34 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }
 
+  // 조기 플랜 활성화
+  async function handleUpgradeEarly() {
+    try {
+      const res = await fetch('/api/plan/activate-early', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feature: upgradeInfo?.feature }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        alert(`✅ ${data.newPlan} 플랜이 활성화되었습니다!\n\n모든 사용량이 리셋되었습니다. 다시 시도해주세요.`)
+        setShowUpgradeModal(false)
+        setUpgradeInfo(null)
+        // 페이지 새로고침으로 최신 플랜 정보 반영
+        window.location.reload()
+      } else {
+        alert(`❌ ${data.error || '플랜 활성화에 실패했습니다'}`)
+        setShowUpgradeModal(false)
+      }
+    } catch (error) {
+      console.error('[Upgrade Early] Error:', error)
+      alert('❌ 서버 오류가 발생했습니다')
+      setShowUpgradeModal(false)
+    }
+  }
+
   async function onAnalyze() {
     if (inputMode === 'file' ? !file : !resumeText.trim()) return
     setError(null)
@@ -1116,7 +1148,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         if (data.debug) {
           console.error('[analyze] Debug Info:', data.debug)
         }
-        setError(data.error || '알 수 없는 오류가 발생했습니다.')
+
+        // 예약 플랜 조기 활성화 제안
+        if (data.canUpgradeEarly && data.nextPlan) {
+          setUpgradeInfo({
+            feature: 'analyze',
+            currentPlan: data.plan || 'PRO',
+            nextPlan: data.nextPlan,
+          })
+          setShowUpgradeModal(true)
+        } else {
+          setError(data.error || '알 수 없는 오류가 발생했습니다.')
+        }
         clearAnalysis() // 에러 시 뱃지 제거
       } else {
         setProgress(100) // 완료!
@@ -4618,6 +4661,20 @@ function JDResults({
           </>
         )}
       </div>
+
+      {/* 조기 플랜 업그레이드 팝업 */}
+      {showUpgradeModal && upgradeInfo && (
+        <UpgradeEarlyModal
+          feature={upgradeInfo.feature}
+          currentPlan={upgradeInfo.currentPlan}
+          nextPlan={upgradeInfo.nextPlan}
+          onConfirm={handleUpgradeEarly}
+          onCancel={() => {
+            setShowUpgradeModal(false)
+            setUpgradeInfo(null)
+          }}
+        />
+      )}
     </div>
   )
 }

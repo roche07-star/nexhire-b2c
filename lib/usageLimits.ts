@@ -48,10 +48,10 @@ type UserRow = {
 export async function checkUsage(
   email: string,
   feature: Feature,
-): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number; couponDebug?: any }> {
+): Promise<{ allowed: boolean; remaining: number; plan: Plan; limit: number; couponDebug?: any; nextPlan?: string; canUpgradeEarly?: boolean }> {
   const { data } = await supabase
     .from('users')
-    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at')
+    .select('plan, user_type, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at, next_plan, next_plan_starts_at')
     .eq('email', email)
     .single()
 
@@ -146,21 +146,58 @@ export async function checkUsage(
     totalRemaining: hasAvailableCoupon ? availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0) : 0
   })
 
+  // 쿠폰이 있으면 허용
+  if (hasAvailableCoupon) {
+    return {
+      allowed: true,
+      remaining: availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0),
+      plan,
+      limit,
+      couponDebug: {
+        totalCoupons: allCoupons?.length ?? 0,
+        availableCoupons: availableCoupons.length,
+        coupons: allCoupons?.map(c => ({
+          id: c.id,
+          credits: c.credits,
+          used: c.used,
+          remaining: c.credits - c.used,
+          expires_at: c.expires_at
+        })),
+        couponError: couponError?.message
+      }
+    }
+  }
+
+  // 쿠폰도 없음: 예약 플랜 확인
+  const nextPlan = (row as any).next_plan
+  const nextPlanStartsAt = (row as any).next_plan_starts_at
+
+  if (nextPlan && nextPlanStartsAt) {
+    // 예약 플랜이 있으면 조기 활성화 제안
+    return {
+      allowed: false,
+      remaining: 0,
+      plan,
+      limit,
+      nextPlan,
+      canUpgradeEarly: true,
+      couponDebug: {
+        totalCoupons: allCoupons?.length ?? 0,
+        availableCoupons: 0,
+        couponError: couponError?.message
+      }
+    }
+  }
+
+  // 아무것도 없음: 차단
   return {
-    allowed: hasAvailableCoupon,
-    remaining: hasAvailableCoupon ? availableCoupons.reduce((sum, c) => sum + (c.credits - c.used), 0) : 0,
+    allowed: false,
+    remaining: 0,
     plan,
     limit,
     couponDebug: {
       totalCoupons: allCoupons?.length ?? 0,
-      availableCoupons: availableCoupons.length,
-      coupons: allCoupons?.map(c => ({
-        id: c.id,
-        credits: c.credits,
-        used: c.used,
-        remaining: c.credits - c.used,
-        expires_at: c.expires_at
-      })),
+      availableCoupons: 0,
       couponError: couponError?.message
     }
   }
