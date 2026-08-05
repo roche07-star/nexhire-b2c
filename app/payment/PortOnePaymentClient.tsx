@@ -74,6 +74,11 @@ export default function PaymentClient({ product, userEmail }: PaymentClientProps
 
       console.log('[Payment] 결제 옵션:', { isMobile, hasRedirectUrl: !!paymentOptions.redirectUrl })
 
+      // 모바일 디버깅용 (테스트 후 제거)
+      if (isMobile) {
+        alert(`모바일 감지됨\nredirectUrl: ${paymentOptions.redirectUrl ? 'O' : 'X'}`)
+      }
+
       const response = await PortOne.requestPayment(paymentOptions)
 
       // 모바일 리다이렉트 모드: response 없음, success 페이지에서 처리
