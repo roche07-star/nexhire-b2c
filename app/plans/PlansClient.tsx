@@ -22,11 +22,10 @@ const freePlanData = {
       '주간 Report 2회/월',
       '기본 점수 리포트',
       '커리어 방향 1가지 제안',
-      '~~이력서 다운로드 불가~~',
+      '~~이력서 다운로드~~',
+      '~~면접 가이드~~',
     ],
-    limitations: [
-      '면접 가이드 제공 안 함',
-    ],
+    limitations: [],
   },
   HEADHUNTER: {
     description: '후보자 분석이 처음인 헤드헌터',
