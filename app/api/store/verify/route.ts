@@ -39,6 +39,14 @@ export async function POST(req: NextRequest) {
 
     const paymentData = await paymentResponse.json()
 
+    // PortOne 응답 구조 확인 (거래 ID 디버깅용)
+    console.log('[PortOne Payment Data]', {
+      id: paymentData.id,
+      transactionId: paymentData.transactionId,
+      pgTxId: paymentData.pgTxId,
+      pgResponse: paymentData.pgResponse,
+    })
+
     // Step 2: 결제 상태 확인
     if (paymentData.status !== 'PAID') {
       return NextResponse.json({ error: '결제가 완료되지 않았습니다' }, { status: 400 })
