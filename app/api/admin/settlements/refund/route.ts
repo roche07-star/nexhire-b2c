@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     if (payment.plan === 'STORE' && payment.paid_at) {
       // payment description → feature 매핑
       const descriptionToFeature: Record<string, string> = {
-        '이력서 분석': 'resume',
+        '이력서 분석': 'analyze',
         'JD 적합도 분석': 'jd',
         '이력서 생성': 'rewrite',
         '면접 가이드': 'interview',
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
         if (feature === 'package') {
           // 패키지 상품: 여러 feature의 쿠폰 삭제
-          const packageFeatures = ['resume', 'jd', 'rewrite', 'interview', 'proposal']
+          const packageFeatures = ['analyze', 'jd', 'rewrite', 'interview', 'proposal']
 
           for (const pkgFeature of packageFeatures) {
             const { error: couponDeleteError } = await supabase

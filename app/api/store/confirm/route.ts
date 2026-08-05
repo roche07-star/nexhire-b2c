@@ -116,15 +116,15 @@ export async function POST(req: NextRequest) {
     }
 
     // 상품별 쿠폰 생성 개수
-    const couponCounts: Record<string, { resume?: number; jd?: number; rewrite?: number; interview?: number; proposal?: number }> = {
-      resume: { resume: 1 },
+    const couponCounts: Record<string, { analyze?: number; jd?: number; rewrite?: number; interview?: number; proposal?: number }> = {
+      analyze: { analyze: 1 },
       jd: { jd: 1 },
       rewrite: { rewrite: 1 },
       interview: { interview: 1 },
       proposal: { proposal: 1 },
       storage: {}, // 스토리지는 별도 처리 필요
       package: {
-        resume: 50,
+        analyze: 50,
         jd: 50,
         rewrite: 50,
         interview: userType === 'HEADHUNTER' ? 25 : 15,

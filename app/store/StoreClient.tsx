@@ -25,7 +25,7 @@ const PRODUCTS: Product[] = [
     nameEn: 'Resume Analysis',
     price: 1900,
     originalPrice: 2900,
-    feature: 'resume',  // ✅ verify API와 일치
+    feature: 'analyze',  // ✅ 플랜 사용량 키와 일치
     icon: '📄',
     gradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
     description: [
