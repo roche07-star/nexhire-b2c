@@ -9,8 +9,8 @@ const individualPlans = [
     name: 'Free',
     price: '₩0',
     desc: '🎯 이직 방향이 궁금한 직장인을 위해',
-    features: ['이력서 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월 (다운로드 X)', '기본 점수 리포트', '커리어 방향 1가지 제안', 'HTML 화면 보기 (다운로드 불가)'],
-    disabled: ['면접 가이드', 'HTML 리포트 다운로드'],
+    features: ['이력서 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월', '주간 Report 2회/월', '기본 점수 리포트', '커리어 방향 1가지 제안', '~~이력서 다운로드~~', '~~면접 가이드~~'],
+    disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
     featured: false,
@@ -19,7 +19,7 @@ const individualPlans = [
     name: 'Pro',
     price: '₩9,900',
     desc: '🎯 본격적으로 이직을 준비 중인 재직자',
-    features: ['이력서 분석 15회/월', 'JD 적합도 분석 15회/월', '이력서 생성 10회/월', '면접 가이드 5회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
+    features: ['이력서 분석 20회/월', 'JD 분석 20회/월', '이력서 생성 10회/월', '면접 가이드 10회/월', '주간 Report 4회/월', '월간 Report 1회/월', '이력서/면접가이드 다운로드 가능'],
     disabled: [],
     btnClass: 'btn-plan-fill',
     btnText: 'Pro 시작하기',
@@ -29,7 +29,7 @@ const individualPlans = [
     name: 'Expert',
     price: '₩29,900',
     desc: '🎯 최종 합격까지 끝내고 싶은 진지한 이직자',
-    features: ['이력서 분석 30회/월', 'JD 적합도 분석 30회/월', '이력서 생성 30회/월', '면접 가이드 15회/월', '심층 점수 리포트', '커리어 방향 3가지 제안', '분석 결과 영구 저장', 'HTML 리포트 다운로드'],
+    features: ['이력서 분석 30회/월', 'JD 분석 30회/월', '이력서 생성 20회/월', '면접 가이드 20회/월', '주간 Report 4회/월', '월간 Report 1회/월', '이력서/면접가이드 다운로드 가능'],
     disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: 'Expert 신청',
@@ -42,8 +42,8 @@ const headhunterPlans = [
     name: 'Free',
     price: '₩0',
     desc: '💼 후보자 분석이 처음인 헤드헌터',
-    features: ['후보자 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월 (다운로드 X)', '기본 매칭 리포트', 'HTML 화면 보기 (다운로드 불가)'],
-    disabled: ['클라이언트 제안서 생성', '정산 기능', 'HTML 리포트 다운로드'],
+    features: ['후보자 분석 3회/월', 'JD 적합도 분석 3회/월', '이력서 생성 1회/월', '기본 매칭 리포트', '~~클라이언트 제안서 생성~~', '~~정산 기능~~', '~~채용 프로세스 기능~~', '~~이력서 다운로드~~'],
+    disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: '무료로 시작',
     featured: false,
@@ -52,7 +52,7 @@ const headhunterPlans = [
     name: 'Pro',
     price: '₩19,900',
     desc: '💼 월 10-30건 매칭하는 헤드헌터',
-    features: ['후보자 분석 20회/월', 'JD 적합도 분석 20회/월', '클라이언트 제안서 20회/월', '면접 가이드 10회/월', '정산 기능', '심층 매칭 리포트', '분석 결과 영구 저장', 'HTML/PDF 리포트 다운로드', '후보자 관리 대시보드'],
+    features: ['이력서 분석 25회/월', 'JD 분석 25회/월', '이력서 생성 15회/월', '면접 가이드 15회/월', '제안서 20회/월', '정산 기능 가능', '채용 프로세스 제공', '모든 다운로드 가능'],
     disabled: [],
     btnClass: 'btn-plan-fill',
     btnText: 'Pro 시작하기',
@@ -62,7 +62,7 @@ const headhunterPlans = [
     name: 'Expert',
     price: '₩49,900',
     desc: '💼 전문 헤드헌터',
-    features: ['후보자 분석 50회/월', 'JD 적합도 분석 50회/월', '정산 기능', '클라이언트 제안서 50회/월', '면접 가이드 25회/월', '심층 매칭 리포트', '분석 결과 영구 저장', 'HTML/PDF 리포트 다운로드', '후보자 관리 대시보드'],
+    features: ['이력서 분석 50회/월', 'JD 분석 50회/월', '이력서 생성 25회/월', '면접 가이드 25회/월', '제안서 50회/월', '정산 기능 가능', '채용 프로세스 제공', '모든 다운로드 가능'],
     disabled: [],
     btnClass: 'btn-plan-outline',
     btnText: 'Expert 신청',
@@ -99,7 +99,7 @@ export default function Pricing({ userType }: { userType?: RegularUserType | nul
     },
     HEADHUNTER: {
       title: '후보자 분석 시간을\n1/10로 단축하세요',
-      sub: '월 정액제로 무제한 분석. 헤드헌터의 시간은 더 가치 있는 곳에.',
+      sub: '월 정액제로 매칭 효율 극대화. 헤드헌터의 시간은 더 가치 있는 곳에.',
     },
   }
 
@@ -120,7 +120,21 @@ export default function Pricing({ userType }: { userType?: RegularUserType | nul
             <div className="plan-price">{plan.price} <span>/ 월</span></div>
             <div className="plan-desc">{plan.desc}</div>
             <ul className="plan-features">
-              {plan.features.map((f) => <li key={f}>{f}</li>)}
+              {plan.features.map((f) => {
+                const isStrikethrough = f.startsWith('~~') && f.endsWith('~~')
+                const displayText = isStrikethrough ? f.slice(2, -2) : f
+                return (
+                  <li
+                    key={f}
+                    style={{
+                      textDecoration: isStrikethrough ? 'line-through' : 'none',
+                      opacity: isStrikethrough ? 0.5 : 1
+                    }}
+                  >
+                    {displayText}
+                  </li>
+                )
+              })}
               {plan.disabled.map((f) => <li key={f} className="disabled">{f}</li>)}
             </ul>
             <Link href={plan.name === 'Free' ? '/login?callbackUrl=/analyze' : '/plans'}>
