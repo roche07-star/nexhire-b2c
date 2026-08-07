@@ -724,10 +724,11 @@ export async function POST(req: NextRequest) {
     const email = session.user.email
     const role = (session.user as { role?: string }).role ?? 'USER'
 
-    const { data: userData } = await supabase.from('users').select('plan').eq('email', email).single()
-    const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
+    const { data: userData } = await supabase.from('users').select('plan, user_type').eq('email', email).single()
+    const isAdmin = userData?.user_type === 'SUPER_ADMIN' || userData?.user_type === 'MANAGER' || role === 'MANAGER'
+    const plan = isAdmin ? 'EXPERT' : (userData?.plan ?? 'FREE')
 
-    if (role !== 'MANAGER') {
+    if (!isAdmin) {
       const { allowed, limit } = await checkUsage(email, 'rewrite')
       if (!allowed) {
         return NextResponse.json(
