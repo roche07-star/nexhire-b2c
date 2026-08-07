@@ -518,7 +518,7 @@ ${element.innerHTML}
                 color: '#666',
                 marginTop: '12px',
               }}>
-                💡 DOCX 다운로드는 PRO 플랜 이상에서 가능합니다.
+                💡 파일 다운로드는 PRO 플랜 이상에서 가능합니다.
               </p>
             </>
           ) : (
