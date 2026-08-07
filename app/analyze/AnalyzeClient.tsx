@@ -194,15 +194,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [activeMenu, jdSavedList, jdSavedListLoading])
 
+  // 사용자 변경 시 생성 이력서 초기화
+  useEffect(() => {
+    setLastGeneratedResume(null)
+  }, [userEmail])
+
   // 최근 생성된 이력서 자동 로드 (재로그인 시에도 표시)
   useEffect(() => {
-    if (activeMenu === 'rewrite' && lastGeneratedResume === null) {
+    if (activeMenu === 'rewrite' && lastGeneratedResume === null && userEmail) {
       fetch('/api/analyze/rewrite/latest')
         .then((r) => r.json())
         .then(({ data }) => setLastGeneratedResume(data))
         .catch(() => setLastGeneratedResume(null))
     }
-  }, [activeMenu, lastGeneratedResume])
+  }, [activeMenu, lastGeneratedResume, userEmail])
 
   // 이력서 목록 자동 로드 (면접 가이드 생성용)
   useEffect(() => {
