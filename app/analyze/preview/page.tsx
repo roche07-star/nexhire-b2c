@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import html2pdf from 'html2pdf.js'
 
 interface Section {
   title: string
@@ -148,6 +147,9 @@ ${element.innerHTML}
         alert('이력서 내용을 찾을 수 없습니다.')
         return
       }
+
+      // 동적 import로 브라우저에서만 로드
+      const html2pdf = (await import('html2pdf.js')).default
 
       const opt = {
         margin: 15,
