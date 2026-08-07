@@ -50,7 +50,7 @@ export const REWRITE_LOADING_STEPS = [
   'JD 기반 전략을 수립하는 중...',
   '내용을 보완하고 있습니다...',
   '서식을 정리하는 중...',
-  'DOCX 파일을 생성하는 중...',
+  '이력서 파일 생성하는 중...',
 ]
 
 export const INTERVIEW_LOADING_STEPS = [
