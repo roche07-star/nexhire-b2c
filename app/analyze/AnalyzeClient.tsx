@@ -723,7 +723,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
       // DB에 저장 (재로그인 시에도 유지)
       try {
-        await fetch('/api/analyze/rewrite/save', {
+        const saveRes = await fetch('/api/analyze/rewrite/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -736,6 +736,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             resumeId: data.resumeId || null,
           }),
         })
+        const saveData = await saveRes.json()
+        if (!saveData.success) {
+          console.error('이력서 DB 저장 실패:', saveData.error)
+        } else {
+          console.log('이력서 DB 저장 성공:', saveData.data)
+        }
       } catch (e) {
         console.error('생성된 이력서 저장 실패:', e)
       }
