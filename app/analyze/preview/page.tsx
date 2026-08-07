@@ -421,6 +421,46 @@ ${element.innerHTML}
           </div>
         )}
 
+        {/* 이력서 HTML 미리보기 (모든 플랜) */}
+        {sections.length > 0 && (
+          <div
+            id="resume-content"
+            style={{
+              background: '#fff',
+              color: '#000',
+              borderRadius: '16px',
+              padding: '48px',
+              marginBottom: '32px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+          >
+            {sections.map((section, index) => (
+              <div key={index} style={{ marginBottom: '32px' }}>
+                {section.title && (
+                  <h3 style={{
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: '#000',
+                    marginBottom: '16px',
+                    paddingBottom: '8px',
+                    borderBottom: '2px solid #e8ff47',
+                  }}>
+                    {section.title}
+                  </h3>
+                )}
+                <div style={{
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  color: '#333',
+                  whiteSpace: 'pre-wrap',
+                }}>
+                  {section.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* 안내 메시지 */}
         <div style={{
           background: 'rgba(232,255,71,0.05)',
