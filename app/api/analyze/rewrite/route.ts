@@ -1172,7 +1172,7 @@ ${maskedText}
       // HTML 생성
       const htmlContent = generatePreviewHTML(restoredSections, undefined)
 
-      // DB에 저장 (changes 필드는 마이그레이션 후 추가 예정)
+      // DB에 저장
       const { data: resume, error: dbError } = await supabase
         .from('generated_resumes')
         .insert({
@@ -1180,6 +1180,7 @@ ${maskedText}
           preview: htmlContent || '<p>미리보기 생성 실패</p>',
           plan: plan || 'FREE',
           original_preview: originalPreview,
+          changes: changes ?? [],
         })
         .select('id')
         .single()
