@@ -124,6 +124,9 @@ export default function RewriteTab({
                     if (confirm('생성된 이력서를 삭제하시겠습니까?')) {
                       try {
                         await fetch(`/api/analyze/rewrite/delete?id=${data.id}`, { method: 'DELETE' })
+                        // 백그라운드 분석 중지
+                        localStorage.removeItem('backgroundAnalysis')
+                        sessionStorage.clear()
                         // 강제 리렌더링
                         window.location.reload()
                       } catch (error) {
