@@ -11,6 +11,7 @@ interface RewriteTabProps {
   rewritingId: string | null
   rewriteLoadingMsg: string
   lastGeneratedResume: any | null
+  userPlan: string
   onRewrite: (id: string, filePath: string | undefined) => void
 }
 
@@ -25,6 +26,7 @@ export default function RewriteTab({
   rewritingId,
   rewriteLoadingMsg,
   lastGeneratedResume,
+  userPlan,
   onRewrite
 }: RewriteTabProps) {
   const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
@@ -105,7 +107,7 @@ export default function RewriteTab({
                   📄 최근 생성된 이력서
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--muted2)' }}>
-                  {timeAgo}, {data.plan} 플랜
+                  {timeAgo}, {userPlan} 플랜
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

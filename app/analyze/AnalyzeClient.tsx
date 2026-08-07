@@ -1606,6 +1606,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 rewritingId={rewritingId}
                 rewriteLoadingMsg={rewriteLoadingMsg}
                 lastGeneratedResume={lastGeneratedResume}
+                userPlan={initialIsExpert ? 'EXPERT' : initialIsPro ? 'PRO' : 'FREE'}
                 onRewrite={handleRewrite}
               />
             )}
