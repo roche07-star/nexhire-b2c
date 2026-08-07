@@ -10,6 +10,7 @@ interface RewriteTabProps {
   jdSavedList: { id: string; expires_at?: string | null }[] | null
   rewritingId: string | null
   rewriteLoadingMsg: string
+  lastGeneratedResume: any | null
   onRewrite: (id: string, filePath: string | undefined) => void
 }
 
@@ -23,6 +24,7 @@ export default function RewriteTab({
   jdSavedList,
   rewritingId,
   rewriteLoadingMsg,
+  lastGeneratedResume,
   onRewrite
 }: RewriteTabProps) {
   const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
@@ -68,39 +70,11 @@ export default function RewriteTab({
       )}
 
       {/* 최근 생성된 이력서 다시 보기 */}
-      {(() => {
+      {lastGeneratedResume && (() => {
         try {
-          const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
-          let saved = localStorage.getItem(storageKey)
-
-          // 마이그레이션: 이전 키에서 데이터 가져오기
-          if (!saved) {
-            const oldKey = 'jobizic_last_rewrite'
-            const oldSaved = localStorage.getItem(oldKey)
-            if (oldSaved) {
-              try {
-                const oldData = JSON.parse(oldSaved)
-                // 새 키로 저장 (userEmail 추가)
-                localStorage.setItem(storageKey, JSON.stringify({
-                  ...oldData,
-                  userEmail: userEmail
-                }))
-                // 이전 키 삭제
-                localStorage.removeItem(oldKey)
-                saved = localStorage.getItem(storageKey)
-              } catch (e) {
-                console.error('마이그레이션 실패:', e)
-              }
-            }
-          }
-
-          if (!saved) return null
-          const data = JSON.parse(saved)
-          const ageMinutes = Math.floor((Date.now() - data.timestamp) / 60000)
-          if (ageMinutes > 60) return null // 1시간 이상 지나면 숨김
-
-          // 사용자 검증 (마이그레이션된 데이터는 userEmail이 없을 수 있음)
-          if (data.userEmail && data.userEmail !== userEmail) return null
+          const data = lastGeneratedResume
+          const createdAt = new Date(data.created_at)
+          const ageMinutes = Math.floor((Date.now() - createdAt.getTime()) / 60000)
 
           return (
             <div style={{
@@ -131,13 +105,17 @@ export default function RewriteTab({
                   다시 보기 →
                 </button>
                 <button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation()
                     if (confirm('생성된 이력서를 삭제하시겠습니까?')) {
-                      const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
-                      localStorage.removeItem(storageKey)
-                      // 강제 리렌더링
-                      window.location.reload()
+                      try {
+                        await fetch(`/api/analyze/rewrite/delete?id=${data.id}`, { method: 'DELETE' })
+                        // 강제 리렌더링
+                        window.location.reload()
+                      } catch (error) {
+                        console.error('삭제 실패:', error)
+                        alert('삭제 중 오류가 발생했습니다')
+                      }
                     }
                   }}
                   style={{

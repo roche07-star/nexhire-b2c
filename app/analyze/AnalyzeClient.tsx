@@ -70,6 +70,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [rewriteError, setRewriteError] = useState<string | null>(null)
   const [rewriteChanges, setRewriteChanges] = useState<string[]>([])
   const [rewriteResult, setRewriteResult] = useState<RewriteResult | null>(null)
+  const [lastGeneratedResume, setLastGeneratedResume] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
   // 조기 플랜 업그레이드 팝업
@@ -192,6 +193,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .finally(() => setJdSavedListLoading(false))
     }
   }, [activeMenu, jdSavedList, jdSavedListLoading])
+
+  // 최근 생성된 이력서 자동 로드 (재로그인 시에도 표시)
+  useEffect(() => {
+    if (activeMenu === 'rewrite' && lastGeneratedResume === null) {
+      fetch('/api/analyze/rewrite/latest')
+        .then((r) => r.json())
+        .then(({ data }) => setLastGeneratedResume(data))
+        .catch(() => setLastGeneratedResume(null))
+    }
+  }, [activeMenu, lastGeneratedResume])
 
   // 이력서 목록 자동 로드 (면접 가이드 생성용)
   useEffect(() => {
@@ -710,24 +721,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       // 백그라운드 분석 완료
       completeRewrite('rewrite-temp') // 이력서 생성은 별도 저장 없으므로 임시 ID
 
-      // localStorage에 저장 (재접속 시 표시용) - 사용자별로 구분
+      // DB에 저장 (재로그인 시에도 유지)
       try {
-        const storageKey = `jobizic_last_rewrite_${userEmail || 'guest'}`
-        localStorage.setItem(storageKey, JSON.stringify({
-          preview: result.preview,
-          plan: result.plan,
-          originalPreview: data.originalPreview ?? originalSummary ?? '',
-          changes: result.changes,
-          userEmail: userEmail,
-          timestamp: Date.now(),
-          // PRO/EXPERT: DOCX 데이터도 저장 (다운로드 버튼용)
-          docx: result.docx || null,
-          filename: result.filename || null,
-          // HTML 미리보기용 resumeId 저장
-          resumeId: data.resumeId || null,
-        }))
+        await fetch('/api/analyze/rewrite/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            preview: result.preview,
+            plan: result.plan,
+            originalPreview: data.originalPreview ?? originalSummary ?? '',
+            changes: result.changes,
+            docx: result.docx || null,
+            filename: result.filename || null,
+            resumeId: data.resumeId || null,
+          }),
+        })
       } catch (e) {
-        console.error('localStorage 저장 실패:', e)
+        console.error('생성된 이력서 저장 실패:', e)
       }
 
       if (Array.isArray(data.changes) && data.changes.length > 0) {
@@ -1609,6 +1619,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 jdSavedList={jdSavedList}
                 rewritingId={rewritingId}
                 rewriteLoadingMsg={rewriteLoadingMsg}
+                lastGeneratedResume={lastGeneratedResume}
                 onRewrite={handleRewrite}
               />
             )}
