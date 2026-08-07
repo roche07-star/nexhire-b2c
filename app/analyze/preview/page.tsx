@@ -37,11 +37,17 @@ function PreviewContent() {
         const res = await fetch('/api/analyze/rewrite/latest')
         const { success, data } = await res.json()
 
+        console.log('🔍 DB 조회 결과:', { success, data })
+
         if (!success || !data) {
+          console.error('❌ 데이터 없음')
           alert('미리보기 데이터가 없습니다.')
           router.push('/analyze')
           return
         }
+
+        console.log('📄 Preview 데이터:', data.preview?.substring(0, 200))
+        console.log('✏️ Changes:', data.changes)
 
         setPlan(data.plan ?? 'FREE')
         setOriginalPreview(data.original_preview ?? '')

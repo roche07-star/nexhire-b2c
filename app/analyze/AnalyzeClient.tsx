@@ -721,31 +721,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       // 백그라운드 분석 완료
       completeRewrite('rewrite-temp') // 이력서 생성은 별도 저장 없으므로 임시 ID
 
-      // DB에 저장 (재로그인 시에도 유지)
-      try {
-        const saveRes = await fetch('/api/analyze/rewrite/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            preview: result.preview,
-            plan: result.plan,
-            originalPreview: data.originalPreview ?? originalSummary ?? '',
-            changes: result.changes,
-            docx: result.docx || null,
-            filename: result.filename || null,
-            resumeId: data.resumeId || null,
-          }),
-        })
-        const saveData = await saveRes.json()
-        if (!saveData.success) {
-          console.error('이력서 DB 저장 실패:', saveData.error)
-        } else {
-          console.log('이력서 DB 저장 성공:', saveData.data)
-        }
-      } catch (e) {
-        console.error('생성된 이력서 저장 실패:', e)
-      }
-
       if (Array.isArray(data.changes) && data.changes.length > 0) {
         setRewriteChanges(data.changes)
       }

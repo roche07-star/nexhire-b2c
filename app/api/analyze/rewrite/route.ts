@@ -928,17 +928,6 @@ export async function POST(req: NextRequest) {
       // HTML 생성
       const htmlContent = generatePreviewHTML(undefined, allRewrites)
 
-      // DB에 저장 (영구 보관)
-      const { data: resume } = await supabase
-        .from('generated_resumes')
-        .insert({
-          analysis_id: analysisId,
-          user_email: email,
-          html_content: htmlContent,
-        })
-        .select('id')
-        .single()
-
       // FREE 플랜: HTML만 생성 (DOCX 생성 안함)
       if (plan === 'FREE') {
         return NextResponse.json({
@@ -946,7 +935,6 @@ export async function POST(req: NextRequest) {
           originalPreview,
           changes: tplChanges ?? [],
           plan: 'FREE',
-          resumeId: resume?.id || null,
         })
       }
 
@@ -1180,13 +1168,15 @@ ${maskedText}
       // HTML 생성
       const htmlContent = generatePreviewHTML(restoredSections, undefined)
 
-      // DB에 저장 (영구 보관)
+      // DB에 저장
       const { data: resume } = await supabase
         .from('generated_resumes')
         .insert({
-          analysis_id: analysisId,
           user_email: email,
-          html_content: htmlContent,
+          preview: htmlContent,
+          plan,
+          original_preview: originalPreview,
+          changes: changes ?? [],
         })
         .select('id')
         .single()
@@ -1206,6 +1196,15 @@ ${maskedText}
       const docxBuffer = await generateStandardDocx(restoredSections, candidateName)
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_standard_${candidateName}${suffix}_${dateStr}.docx`
+
+      // PRO+: DOCX 정보도 함께 저장
+      await supabase
+        .from('generated_resumes')
+        .update({
+          docx: (docxBuffer as Buffer).toString('base64'),
+          filename: downloadName,
+        })
+        .eq('id', resume!.id)
 
       return NextResponse.json({
         docx: (docxBuffer as Buffer).toString('base64'),
@@ -1381,17 +1380,6 @@ ${maskedText}
       // HTML 생성
       const htmlContent = generatePreviewHTML(undefined, allRewrites)
 
-      // DB에 저장 (영구 보관)
-      const { data: resume } = await supabase
-        .from('generated_resumes')
-        .insert({
-          analysis_id: analysisId,
-          user_email: email,
-          html_content: htmlContent,
-        })
-        .select('id')
-        .single()
-
       // FREE 플랜: HTML만 생성 (DOCX 생성 안함)
       if (plan === 'FREE') {
         return NextResponse.json({
@@ -1399,7 +1387,6 @@ ${maskedText}
           originalPreview,
           changes: allChanges,
           plan: 'FREE',
-          resumeId: resume?.id || null,
         })
       }
 
