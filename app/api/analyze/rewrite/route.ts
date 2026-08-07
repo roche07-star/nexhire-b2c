@@ -1177,7 +1177,7 @@ ${maskedText}
         .from('generated_resumes')
         .insert({
           user_email: email,
-          preview: htmlContent || '<p>미리보기 생성 실패</p>',
+          html_content: htmlContent || '<p>미리보기 생성 실패</p>',
           plan: plan || 'FREE',
         })
         .select('id')

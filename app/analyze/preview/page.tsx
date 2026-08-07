@@ -46,11 +46,11 @@ function PreviewContent() {
           return
         }
 
-        console.log('📄 Preview 데이터:', data.preview?.substring(0, 200))
+        console.log('📄 Preview 데이터:', data.html_content?.substring(0, 200))
         console.log('✏️ Changes:', data.changes)
 
         // 임시 디버깅
-        if (!data.preview) {
+        if (!data.html_content) {
           alert(`⚠️ Preview 데이터 없음!\nchanges: ${data.changes?.length || 0}개\nplan: ${data.plan}`)
         }
 
@@ -60,7 +60,7 @@ function PreviewContent() {
         setDocx(data.docx ?? null)
         setFilename(data.filename ?? null)
         setResumeId(data.resume_id ?? null)
-        setHtmlPreview(data.preview ?? '')
+        setHtmlPreview(data.html_content ?? '')
 
         // HTML을 섹션별로 파싱
         const parsedSections = parseHTMLToSections(data.preview ?? '')
