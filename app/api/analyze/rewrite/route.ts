@@ -1172,13 +1172,14 @@ ${maskedText}
       // HTML 생성
       const htmlContent = generatePreviewHTML(restoredSections, undefined)
 
-      // DB에 저장 (필수 필드만)
+      // DB에 저장
       const { data: resume, error: dbError } = await supabase
         .from('generated_resumes')
         .insert({
           user_email: email,
           html_content: htmlContent || '<p>미리보기 생성 실패</p>',
           plan: plan || 'FREE',
+          changes: changes ?? [],
         })
         .select('id')
         .single()
@@ -1188,7 +1189,7 @@ ${maskedText}
         return NextResponse.json({ error: 'DB 저장 실패: ' + dbError.message }, { status: 500 })
       }
 
-      console.log('[rewrite/standard] DB 저장 성공:', { resumeId: resume?.id, previewLength: htmlContent?.length, plan })
+      console.log('[rewrite/standard] DB 저장 성공:', { resumeId: resume?.id, previewLength: htmlContent?.length, plan, changesCount: changes?.length })
 
       // FREE: HTML만
       if (plan === 'FREE') {
@@ -1206,14 +1207,18 @@ ${maskedText}
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_standard_${candidateName}${suffix}_${dateStr}.docx`
 
-      // PRO+: DOCX 정보도 함께 저장
-      await supabase
-        .from('generated_resumes')
-        .update({
-          docx: (docxBuffer as Buffer).toString('base64'),
-          filename: downloadName,
-        })
-        .eq('id', resume!.id)
+      // PRO+: DOCX 정보도 함께 저장 (필드 없으면 skip)
+      try {
+        await supabase
+          .from('generated_resumes')
+          .update({
+            docx: (docxBuffer as Buffer).toString('base64'),
+            filename: downloadName,
+          })
+          .eq('id', resume!.id)
+      } catch (e) {
+        console.log('[rewrite/standard] DOCX DB 저장 skip (필드 없음)')
+      }
 
       return NextResponse.json({
         docx: (docxBuffer as Buffer).toString('base64'),
