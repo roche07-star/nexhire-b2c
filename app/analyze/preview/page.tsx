@@ -23,77 +23,45 @@ function PreviewContent() {
   const [analysisResult, setAnalysisResult] = useState<any>(null)
 
   useEffect(() => {
-    try {
-      const userEmail = searchParams.get('email')
-      if (!userEmail) {
-        alert('사용자 정보가 없습니다.')
-        router.push('/analyze')
-        return
-      }
-
-      const storageKey = `jobizic_last_rewrite_${userEmail}`
-      let saved = localStorage.getItem(storageKey)
-
-      // 마이그레이션: 이전 키에서 데이터 가져오기
-      if (!saved) {
-        const oldKey = 'jobizic_last_rewrite'
-        const oldSaved = localStorage.getItem(oldKey)
-        if (oldSaved) {
-          try {
-            const oldData = JSON.parse(oldSaved)
-            // 새 키로 저장 (userEmail 추가)
-            localStorage.setItem(storageKey, JSON.stringify({
-              ...oldData,
-              userEmail: userEmail
-            }))
-            // 이전 키 삭제
-            localStorage.removeItem(oldKey)
-            saved = localStorage.getItem(storageKey)
-          } catch (e) {
-            console.error('마이그레이션 실패:', e)
-          }
+    async function loadData() {
+      try {
+        const userEmail = searchParams.get('email')
+        if (!userEmail) {
+          alert('사용자 정보가 없습니다.')
+          router.push('/analyze')
+          return
         }
-      }
 
-      if (!saved) {
-        alert('미리보기 데이터가 없습니다.')
+        // DB에서 최근 생성된 이력서 조회
+        const res = await fetch('/api/analyze/rewrite/latest')
+        const { success, data } = await res.json()
+
+        if (!success || !data) {
+          alert('미리보기 데이터가 없습니다.')
+          router.push('/analyze')
+          return
+        }
+
+        setPlan(data.plan ?? 'FREE')
+        setOriginalPreview(data.original_preview ?? '')
+        setChanges(data.changes ?? [])
+        setDocx(data.docx ?? null)
+        setFilename(data.filename ?? null)
+        setResumeId(data.resume_id ?? null)
+
+        // HTML을 섹션별로 파싱
+        const parsedSections = parseHTMLToSections(data.preview ?? '')
+        setSections(parsedSections)
+
+        setLoading(false)
+      } catch (e) {
+        console.error('미리보기 로드 실패:', e)
+        alert('미리보기를 불러올 수 없습니다.')
         router.push('/analyze')
-        return
       }
-
-      const data = JSON.parse(saved)
-
-      // 사용자 검증 (마이그레이션된 데이터는 userEmail이 없을 수 있음)
-      if (data.userEmail && data.userEmail !== userEmail) {
-        alert('권한이 없습니다.')
-        router.push('/analyze')
-        return
-      }
-
-      const ageMinutes = Math.floor((Date.now() - data.timestamp) / 60000)
-      if (ageMinutes > 60) {
-        alert('미리보기 데이터가 만료되었습니다. (1시간 제한)')
-        router.push('/analyze')
-        return
-      }
-
-      setPlan(data.plan ?? 'FREE')
-      setOriginalPreview(data.originalPreview ?? '')
-      setChanges(data.changes ?? [])
-      setDocx(data.docx ?? null)
-      setFilename(data.filename ?? null)
-      setResumeId(data.resumeId ?? null)
-
-      // HTML을 섹션별로 파싱
-      const parsedSections = parseHTMLToSections(data.preview ?? '')
-      setSections(parsedSections)
-
-      setLoading(false)
-    } catch (e) {
-      console.error('미리보기 로드 실패:', e)
-      alert('미리보기를 불러올 수 없습니다.')
-      router.push('/analyze')
     }
+
+    loadData()
   }, [router, searchParams])
 
   function downloadDocx() {
