@@ -49,6 +49,11 @@ function PreviewContent() {
         console.log('📄 Preview 데이터:', data.preview?.substring(0, 200))
         console.log('✏️ Changes:', data.changes)
 
+        // 임시 디버깅
+        if (!data.preview) {
+          alert(`⚠️ Preview 데이터 없음!\nchanges: ${data.changes?.length || 0}개\nplan: ${data.plan}`)
+        }
+
         setPlan(data.plan ?? 'FREE')
         setOriginalPreview(data.original_preview ?? '')
         setChanges(data.changes ?? [])

@@ -1152,9 +1152,13 @@ ${maskedText}
         changes?: string[]
       }
 
-      if (!sections || !Array.isArray(sections)) {
+      if (!sections || !Array.isArray(sections) || sections.length === 0) {
         console.error('[rewrite/standard] Invalid sections:', toolUse.input)
-        return NextResponse.json({ error: '이력서 섹션 생성 실패' }, { status: 500 })
+        return NextResponse.json({
+          error: sections?.length === 0
+            ? '이력서 섹션이 비어있습니다. 원본 이력서 내용을 확인해주세요.'
+            : '이력서 섹션 생성 실패'
+        }, { status: 500 })
       }
 
       // PII 복원 + 단락 뒤 공백 제거
@@ -1169,7 +1173,7 @@ ${maskedText}
       const htmlContent = generatePreviewHTML(restoredSections, undefined)
 
       // DB에 저장
-      const { data: resume } = await supabase
+      const { data: resume, error: dbError } = await supabase
         .from('generated_resumes')
         .insert({
           user_email: email,
@@ -1180,6 +1184,10 @@ ${maskedText}
         })
         .select('id')
         .single()
+
+      if (dbError) {
+        console.error('[rewrite/standard] DB 저장 실패:', dbError)
+      }
 
       // FREE: HTML만
       if (plan === 'FREE') {

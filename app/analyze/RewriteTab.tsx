@@ -111,7 +111,7 @@ export default function RewriteTab({
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
                   className="btn-primary"
-                  onClick={() => window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')}
+                  onClick={() => window.location.href = `/analyze/preview?email=${encodeURIComponent(userEmail || '')}`}
                   style={{ fontSize: '13px', padding: '8px 16px' }}
                 >
                   다시 보기 →
