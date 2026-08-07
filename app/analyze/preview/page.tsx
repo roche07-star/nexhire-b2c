@@ -171,7 +171,7 @@ ${element.innerHTML}
         filename: `jobizic_resume_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+        jsPDF: { unit: 'mm' as const, format: 'b4' as const, orientation: 'portrait' as const }
       }
 
       await html2pdf().set(opt).from(element).save()
@@ -557,21 +557,6 @@ ${element.innerHTML}
             </>
           ) : (
             <>
-              <p style={{
-                fontSize: '15px',
-                color: '#e8ff47',
-                fontWeight: 600,
-                marginBottom: '12px',
-              }}>
-                📥 생성된 이력서는 DOCX 파일로 다운로드하여 확인하세요
-              </p>
-              <p style={{
-                fontSize: '13px',
-                color: '#999',
-                lineHeight: '1.7',
-              }}>
-                상단의 "DOCX 다운로드" 버튼을 클릭하여 완성된 이력서를 받으세요.
-              </p>
               {resumeId && (
                 <button
                   onClick={() => window.open(`/resume/${resumeId}`, '_blank')}

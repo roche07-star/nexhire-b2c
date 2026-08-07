@@ -533,19 +533,19 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
       font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       max-width: 850px;
       margin: 0 auto;
-      padding: 20px 24px;
+      padding: 5px 24px;
     ">
       <!-- 이력서 컨테이너 -->
       <div style="
         background: #ffffff;
-        padding: 32px 48px 48px 48px;
+        padding: 5px 48px 48px 48px;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.06);
       ">
         <!-- 입사지원서 제목 -->
         <h1 style="
           text-align: center;
-          font-size: 64px;
+          font-size: 96px;
           font-weight: 700;
           margin-bottom: 40px;
           color: #1f2937;
