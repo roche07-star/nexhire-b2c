@@ -306,29 +306,6 @@ ${element.innerHTML}
                 분석일: {new Date().toLocaleDateString('ko-KR')}
               </span>
 
-              {/* HTML 수정 버튼 */}
-              <button
-                onClick={() => {
-                  if (!isEditing) {
-                    setEditedHtml(htmlPreview)
-                  }
-                  setIsEditing(!isEditing)
-                }}
-                style={{
-                  background: isEditing ? '#ef4444' : 'rgba(255,255,255,0.1)',
-                  color: '#fff',
-                  border: `1px solid ${isEditing ? '#ef4444' : 'rgba(255,255,255,0.2)'}`,
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {isEditing ? '✓ 완료' : '✏️ HTML 수정'}
-              </button>
-
               {/* PRO/EXPERT: HTML 다운로드 버튼 */}
               {(plan === 'PRO' || plan === 'EXPERT') && (
                 <button
@@ -461,27 +438,48 @@ ${element.innerHTML}
 
         {/* 이력서 HTML 미리보기 (모든 플랜) */}
         {htmlPreview && (
-          isEditing ? (
-            <textarea
-              value={editedHtml}
-              onChange={(e) => setEditedHtml(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '800px',
-                background: '#fff',
-                color: '#000',
-                borderRadius: '16px',
-                padding: '24px',
-                marginBottom: '32px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-                fontFamily: 'monospace',
-                fontSize: '12px',
-                border: '2px solid #e8ff47',
-              }}
-            />
-          ) : (
+          <>
+            {/* HTML 수정 버튼 */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginBottom: '12px',
+              gap: '8px',
+            }}>
+              <button
+                onClick={() => {
+                  if (!isEditing) {
+                    setEditedHtml(htmlPreview)
+                  } else {
+                    // 편집 완료 시 contentEditable div의 innerHTML을 저장
+                    const element = document.getElementById('resume-content')
+                    if (element) {
+                      setEditedHtml(element.innerHTML)
+                    }
+                  }
+                  setIsEditing(!isEditing)
+                }}
+                style={{
+                  background: isEditing ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  border: `2px solid ${isEditing ? '#10b981' : 'rgba(255,255,255,0.2)'}`,
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: isEditing ? '0 4px 12px rgba(16,185,129,0.3)' : 'none',
+                }}
+              >
+                {isEditing ? '✓ 수정 완료' : '✏️ HTML 수정'}
+              </button>
+            </div>
+
             <div
               id="resume-content"
+              contentEditable={isEditing}
+              suppressContentEditableWarning
               style={{
                 background: '#fff',
                 color: '#000',
@@ -489,10 +487,12 @@ ${element.innerHTML}
                 padding: '48px',
                 marginBottom: '32px',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                outline: isEditing ? '3px solid #e8ff47' : 'none',
+                cursor: isEditing ? 'text' : 'default',
               }}
               dangerouslySetInnerHTML={{ __html: editedHtml || htmlPreview }}
             />
-          )
+          </>
         )}
 
         {/* 안내 메시지 */}
