@@ -1172,15 +1172,13 @@ ${maskedText}
       // HTML 생성
       const htmlContent = generatePreviewHTML(restoredSections, undefined)
 
-      // DB에 저장
+      // DB에 저장 (필수 필드만)
       const { data: resume, error: dbError } = await supabase
         .from('generated_resumes')
         .insert({
           user_email: email,
           preview: htmlContent || '<p>미리보기 생성 실패</p>',
           plan: plan || 'FREE',
-          original_preview: originalPreview,
-          changes: changes ?? [],
         })
         .select('id')
         .single()
