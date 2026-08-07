@@ -1177,8 +1177,8 @@ ${maskedText}
         .from('generated_resumes')
         .insert({
           user_email: email,
-          preview: htmlContent,
-          plan,
+          preview: htmlContent || '<p>미리보기 생성 실패</p>',
+          plan: plan || 'FREE',
           original_preview: originalPreview,
           changes: changes ?? [],
         })
@@ -1187,7 +1187,10 @@ ${maskedText}
 
       if (dbError) {
         console.error('[rewrite/standard] DB 저장 실패:', dbError)
+        return NextResponse.json({ error: 'DB 저장 실패: ' + dbError.message }, { status: 500 })
       }
+
+      console.log('[rewrite/standard] DB 저장 성공:', { resumeId: resume?.id, previewLength: htmlContent?.length, plan })
 
       // FREE: HTML만
       if (plan === 'FREE') {
