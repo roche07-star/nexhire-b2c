@@ -15,6 +15,7 @@ function PreviewContent() {
   const [originalPreview, setOriginalPreview] = useState<string>('')
   const [changes, setChanges] = useState<string[]>([])
   const [sections, setSections] = useState<Section[]>([])
+  const [htmlPreview, setHtmlPreview] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [docx, setDocx] = useState<string | null>(null)
   const [filename, setFilename] = useState<string | null>(null)
@@ -48,6 +49,7 @@ function PreviewContent() {
         setDocx(data.docx ?? null)
         setFilename(data.filename ?? null)
         setResumeId(data.resume_id ?? null)
+        setHtmlPreview(data.preview ?? '')
 
         // HTML을 섹션별로 파싱
         const parsedSections = parseHTMLToSections(data.preview ?? '')
@@ -422,7 +424,7 @@ ${element.innerHTML}
         )}
 
         {/* 이력서 HTML 미리보기 (모든 플랜) */}
-        {sections.length > 0 && (
+        {htmlPreview && (
           <div
             id="resume-content"
             style={{
@@ -433,32 +435,8 @@ ${element.innerHTML}
               marginBottom: '32px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
             }}
-          >
-            {sections.map((section, index) => (
-              <div key={index} style={{ marginBottom: '32px' }}>
-                {section.title && (
-                  <h3 style={{
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    color: '#000',
-                    marginBottom: '16px',
-                    paddingBottom: '8px',
-                    borderBottom: '2px solid #e8ff47',
-                  }}>
-                    {section.title}
-                  </h3>
-                )}
-                <div style={{
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  color: '#333',
-                  whiteSpace: 'pre-wrap',
-                }}>
-                  {section.content}
-                </div>
-              </div>
-            ))}
-          </div>
+            dangerouslySetInnerHTML={{ __html: htmlPreview }}
+          />
         )}
 
         {/* 안내 메시지 */}
