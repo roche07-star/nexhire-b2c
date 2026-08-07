@@ -76,6 +76,18 @@ export default function RewriteTab({
           const createdAt = new Date(data.created_at)
           const ageMinutes = Math.floor((Date.now() - createdAt.getTime()) / 60000)
 
+          // 시간 포맷팅
+          let timeAgo = '방금 전'
+          if (ageMinutes >= 1440) {
+            const days = Math.floor(ageMinutes / 1440)
+            timeAgo = `${days}일 전`
+          } else if (ageMinutes >= 60) {
+            const hours = Math.floor(ageMinutes / 60)
+            timeAgo = `${hours}시간 전`
+          } else if (ageMinutes >= 1) {
+            timeAgo = `${ageMinutes}분 전`
+          }
+
           return (
             <div style={{
               background: 'rgba(232,255,71,0.08)',
@@ -93,7 +105,7 @@ export default function RewriteTab({
                   📄 최근 생성된 이력서
                 </div>
                 <div style={{ fontSize: '13px', color: 'var(--muted2)' }}>
-                  {ageMinutes < 1 ? '방금 전' : `${ageMinutes}분 전`}, {data.plan} 플랜
+                  {timeAgo}, {data.plan} 플랜
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
