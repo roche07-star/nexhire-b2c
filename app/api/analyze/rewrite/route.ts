@@ -533,12 +533,12 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
       font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       max-width: 850px;
       margin: 0 auto;
-      padding: 5px 24px;
+      padding: 0;
     ">
       <!-- 이력서 컨테이너 -->
       <div style="
         background: #ffffff;
-        padding: 5px 48px 48px 48px;
+        padding: 0 48px 48px 48px;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.06);
       ">

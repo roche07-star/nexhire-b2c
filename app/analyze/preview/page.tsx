@@ -167,10 +167,17 @@ ${element.innerHTML}
       const html2pdf = (await import('html2pdf.js')).default
 
       const opt = {
-        margin: 15,
+        margin: [5, 10, 10, 10],
         filename: `jobizic_resume_${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        image: { type: 'jpeg' as const, quality: 1 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true,
+          letterRendering: true,
+          logging: false,
+          scrollY: 0,
+          scrollX: 0,
+        },
         jsPDF: { unit: 'mm' as const, format: 'b4' as const, orientation: 'portrait' as const }
       }
 
