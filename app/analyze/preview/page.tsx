@@ -22,6 +22,8 @@ function PreviewContent() {
   const [showFullComparison, setShowFullComparison] = useState(false)
   const [resumeId, setResumeId] = useState<string | null>(null)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedHtml, setEditedHtml] = useState('')
 
   useEffect(() => {
     async function loadData() {
@@ -304,6 +306,29 @@ ${element.innerHTML}
                 분석일: {new Date().toLocaleDateString('ko-KR')}
               </span>
 
+              {/* HTML 수정 버튼 */}
+              <button
+                onClick={() => {
+                  if (!isEditing) {
+                    setEditedHtml(htmlPreview)
+                  }
+                  setIsEditing(!isEditing)
+                }}
+                style={{
+                  background: isEditing ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  border: `1px solid ${isEditing ? '#ef4444' : 'rgba(255,255,255,0.2)'}`,
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {isEditing ? '✓ 완료' : '✏️ HTML 수정'}
+              </button>
+
               {/* PRO/EXPERT: HTML 다운로드 버튼 */}
               {(plan === 'PRO' || plan === 'EXPERT') && (
                 <button
@@ -436,18 +461,38 @@ ${element.innerHTML}
 
         {/* 이력서 HTML 미리보기 (모든 플랜) */}
         {htmlPreview && (
-          <div
-            id="resume-content"
-            style={{
-              background: '#fff',
-              color: '#000',
-              borderRadius: '16px',
-              padding: '48px',
-              marginBottom: '32px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            }}
-            dangerouslySetInnerHTML={{ __html: htmlPreview }}
-          />
+          isEditing ? (
+            <textarea
+              value={editedHtml}
+              onChange={(e) => setEditedHtml(e.target.value)}
+              style={{
+                width: '100%',
+                minHeight: '800px',
+                background: '#fff',
+                color: '#000',
+                borderRadius: '16px',
+                padding: '24px',
+                marginBottom: '32px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                border: '2px solid #e8ff47',
+              }}
+            />
+          ) : (
+            <div
+              id="resume-content"
+              style={{
+                background: '#fff',
+                color: '#000',
+                borderRadius: '16px',
+                padding: '48px',
+                marginBottom: '32px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              }}
+              dangerouslySetInnerHTML={{ __html: editedHtml || htmlPreview }}
+            />
+          )
         )}
 
         {/* 안내 메시지 */}
