@@ -21,6 +21,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '잘못된 기간' }, { status: 400 })
   }
 
+  // 대상 사용자 정보 조회 (관리자 여부 확인)
+  const { data: targetUser } = await supabase
+    .from('users')
+    .select('user_type')
+    .eq('email', email)
+    .single()
+
+  const isAdmin = targetUser?.user_type === 'MANAGER' || targetUser?.user_type === 'SUPER_ADMIN'
+
   // 관리자 강제 플랜 변경: 무조건 즉시 적용
   const now = new Date()
 
@@ -35,8 +44,8 @@ export async function POST(req: NextRequest) {
 
   const updateData: Record<string, unknown> = {
     plan,
-    monthly_reset_at: plan === 'FREE' || duration === 0 ? null : nextReset.toISOString(),
-    downgrade_to: plan === 'FREE' || duration === 0 ? null : 'FREE', // 유료 플랜은 만료 시 FREE로
+    monthly_reset_at: plan === 'FREE' || duration === 0 || isAdmin ? null : nextReset.toISOString(),
+    downgrade_to: plan === 'FREE' || duration === 0 || isAdmin ? null : 'FREE', // 관리자와 무제한은 다운그레이드 없음
     downgrade_requested_at: null,
     next_plan: null,
     next_plan_starts_at: null,
