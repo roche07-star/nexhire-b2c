@@ -2966,6 +2966,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 생성할 이력서에 반영할 JD 분석 결과를 선택해 주세요.
               </div>
 
+              <div style={{
+                maxHeight: '400px',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                marginTop: '16px',
+                paddingRight: '8px',
+              }}>
               {validJds.map(jd => (
                 <div key={jd.id} style={{ position: 'relative' }}>
                   <button className="preserve-option-card" onClick={() => resolveJdSelect(jd.id)}>
@@ -3034,6 +3041,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </button>
                 </div>
               ))}
+              </div>
 
               <button className="withdraw-modal-cancel" style={{marginTop: '8px', width: '100%'}} onClick={() => resolveJdSelect('cancel')}>
                 취소
