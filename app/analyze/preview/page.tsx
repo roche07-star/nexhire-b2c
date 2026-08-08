@@ -83,13 +83,28 @@ function PreviewContent() {
 
   async function downloadDocx() {
     try {
-      // 편집된 HTML이 있으면 HTML을 DOCX로 변환
+      // 편집된 HTML이 있으면 서버에서 DOCX 생성
       if (editedHtml) {
-        const htmlDocx = await import('html-docx-js-typescript')
-        const converted = await htmlDocx.asBlob(editedHtml)
-        const url = URL.createObjectURL(converted as Blob)
+        const res = await fetch('/api/analyze/rewrite/html-to-docx', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            html: editedHtml,
+            candidateName: '지원자'
+          })
+        })
+
+        if (!res.ok) {
+          alert('DOCX 변환에 실패했습니다.')
+          return
+        }
+
+        const data = await res.json()
+        const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
-        a.download = filename || 'jobizic_resume.docx'
+        a.download = data.filename
         a.href = url
         a.click()
         URL.revokeObjectURL(url)
