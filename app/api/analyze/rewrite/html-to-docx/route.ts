@@ -53,24 +53,39 @@ function parseHTMLToSections(html: string): Section[] {
 
     const sectionHtml = html.substring(startIndex, endIndex)
 
-    // HTML 태그 제거 및 텍스트 정리
+    // HTML 태그 제거 및 텍스트 정리 (가독성 고려)
     const content = sectionHtml
-      .replace(/<div[^>]*>/gi, '')
+      // 블록 요소는 줄바꿈으로
       .replace(/<\/div>/gi, '\n')
+      .replace(/<div[^>]*>/gi, '')
+      .replace(/<\/p>/gi, '\n\n')  // 문단 구분 명확히
       .replace(/<p[^>]*>/gi, '')
-      .replace(/<\/p>/gi, '\n')
       .replace(/<br\s*\/?>/gi, '\n')
+      // 인라인 요소는 유지
       .replace(/<strong[^>]*>/gi, '')
       .replace(/<\/strong>/gi, '')
+      .replace(/<span[^>]*>/gi, '')
+      .replace(/<\/span>/gi, '')
+      // 리스트 요소
+      .replace(/<li[^>]*>/gi, '• ')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<ul[^>]*>|<\/ul>/gi, '\n')
+      .replace(/<ol[^>]*>|<\/ol>/gi, '\n')
+      // 나머지 태그 제거
       .replace(/<[^>]+>/g, '')
+      // HTML 엔티티 디코딩
       .replace(/&nbsp;/g, ' ')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      // 줄 정리 (가독성 유지)
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0)
       .join('\n')
+      .replace(/\n{3,}/g, '\n\n')  // 3개 이상 연속 줄바꿈 → 2개로
       .trim()
 
     if (title && content) {
