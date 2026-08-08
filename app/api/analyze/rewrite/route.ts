@@ -1202,7 +1202,7 @@ ${maskedText}
         })
       }
 
-      // PRO+: DOCX 생성 (섹션 기반)
+      // PRO+: HTML 섹션 기반 DOCX 생성
       const docxBuffer = await generateStandardDocx(restoredSections, candidateName)
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_standard_${candidateName}${suffix}_${dateStr}.docx`
