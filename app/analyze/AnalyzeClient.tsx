@@ -1071,8 +1071,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     let preserveMode = 'skip'
     const preservedCount = (analysisList ?? []).filter(item => item.result?._file_path).length
     const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
-    // 관리자는 기본 3개, 일반 유저는 기본 1개 + 쿠폰
-    const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
+    // 관리자는 기본 10개, 일반 유저는 기본 1개 + 쿠폰
+    const maxCount = userRole === 'MANAGER' ? 10 : (1 + storageCouponCount)
 
     console.log('[DEBUG] 저장 모드 결정:', {
       userRole,
