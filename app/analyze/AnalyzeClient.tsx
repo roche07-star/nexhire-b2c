@@ -2666,9 +2666,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             <br />
                             {(() => {
                               const storageCouponCount = myCoupons.filter(c => c.feature === 'storage' && c.status === 'active').length
-                              const maxCount = userRole === 'MANAGER' ? 3 : (1 + storageCouponCount)
+                              const maxCount = userRole === 'MANAGER' ? 10 : (1 + storageCouponCount)
                               const currentCount = preserved.length
-                              const baseCountLabel = userRole === 'MANAGER' ? '관리자 기본 3개' : `기본 1개${storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''}`
+                              const baseCountLabel = userRole === 'MANAGER' ? '관리자 기본 10개' : `기본 1개${storageCouponCount > 0 ? ` + 쿠폰 ${storageCouponCount}개` : ''}`
 
                               if (currentCount === 0) {
                                 return (
