@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   const updateData: Record<string, unknown> = {
     plan,
     monthly_reset_at: plan === 'FREE' || duration === 0 ? null : nextReset.toISOString(),
-    downgrade_to: null,
+    downgrade_to: plan === 'FREE' || duration === 0 ? null : 'FREE', // 유료 플랜은 만료 시 FREE로
     downgrade_requested_at: null,
     next_plan: null,
     next_plan_starts_at: null,
