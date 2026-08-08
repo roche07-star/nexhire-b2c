@@ -245,8 +245,7 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
                     text: 'JOBIZIC',
                     bold: true,
                     size: 28,
-                    color: 'e8ff47',
-                    shading: { fill: '18181b', type: 'solid' }
+                    color: '2563eb',
                   }),
                 ],
                 alignment: AlignmentType.RIGHT,
@@ -356,8 +355,7 @@ export async function generateStandardDocx(
                     text: 'JOBIZIC',
                     bold: true,
                     size: 28,
-                    color: 'e8ff47',
-                    shading: { fill: '18181b', type: 'solid' }
+                    color: '2563eb',
                   }),
                 ],
                 alignment: AlignmentType.RIGHT,
