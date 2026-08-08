@@ -23,9 +23,19 @@ export async function POST(req: NextRequest) {
 
   // 관리자 강제 플랜 변경: 무조건 즉시 적용
   const now = new Date()
+
+  // 다음 초기화 날짜 계산 (기간에 따라)
+  let nextReset = new Date(now)
+  if (plan !== 'FREE' && duration && duration > 0) {
+    nextReset.setMonth(nextReset.getMonth() + duration)
+  } else if (plan !== 'FREE') {
+    // duration 없으면 기본 1개월
+    nextReset.setMonth(nextReset.getMonth() + 1)
+  }
+
   const updateData: Record<string, unknown> = {
     plan,
-    monthly_reset_at: now.toISOString(),
+    monthly_reset_at: plan === 'FREE' || duration === 0 ? null : nextReset.toISOString(),
     downgrade_to: null,
     downgrade_requested_at: null,
     next_plan: null,
