@@ -676,7 +676,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   function nextResetDate(u: User) {
     if (!u.monthly_reset_at) return '—'
     const d = new Date(u.monthly_reset_at)
-    d.setMonth(d.getMonth() + 1)
     return d.toLocaleDateString('ko-KR')
   }
 
