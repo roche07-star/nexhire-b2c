@@ -545,7 +545,7 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
         <!-- 입사지원서 제목 -->
         <h1 style="
           text-align: center;
-          font-size: 128px;
+          font-size: 52px;
           font-weight: 700;
           margin: 0 0 20px 0;
           color: #1f2937;
