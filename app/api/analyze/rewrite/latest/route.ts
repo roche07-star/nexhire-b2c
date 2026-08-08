@@ -9,8 +9,8 @@ export async function GET() {
   }
 
   try {
-    // 가장 최근 생성된 이력서 조회
-    const { data, error } = await supabase
+    // 가장 최근 생성된 이력서 조회 (analysis 정보 포함)
+    const { data: resume, error } = await supabase
       .from('generated_resumes')
       .select('*')
       .eq('user_email', session.user.email)
@@ -27,7 +27,25 @@ export async function GET() {
       return NextResponse.json({ error: '조회 실패' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, data })
+    // analysis 정보 조회 (파일 타입 확인용)
+    let filePath = null
+    if (resume?.resume_id) {
+      const { data: analysis } = await supabase
+        .from('analyses')
+        .select('file_path')
+        .eq('id', resume.resume_id)
+        .single()
+
+      filePath = analysis?.file_path || null
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...resume,
+        file_path: filePath
+      }
+    })
   } catch (error) {
     console.error('생성된 이력서 조회 오류:', error)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })

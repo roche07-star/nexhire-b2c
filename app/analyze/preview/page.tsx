@@ -25,6 +25,7 @@ function PreviewContent() {
   const [isEditing, setIsEditing] = useState(false)
   const [editedHtml, setEditedHtml] = useState('')
   const [userEmail, setUserEmail] = useState<string>('')
+  const [filePath, setFilePath] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -65,6 +66,7 @@ function PreviewContent() {
         setFilename(data.filename ?? null)
         setResumeId(data.resume_id ?? null)
         setHtmlPreview(data.html_content ?? '')
+        setFilePath(data.file_path ?? null)
 
         // HTML을 섹션별로 파싱
         const parsedSections = parseHTMLToSections(data.preview ?? '')
@@ -532,6 +534,29 @@ ${element.innerHTML}
                 {isEditing ? '✓ 수정 완료' : '✏️ HTML 수정'}
               </button>
             </div>
+
+            {/* PDF OCR 안내 메시지 */}
+            {filePath && filePath.toLowerCase().endsWith('.pdf') && (
+              <div style={{
+                background: 'rgba(234,179,8,0.1)',
+                border: '2px solid rgba(234,179,8,0.3)',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                marginBottom: '16px',
+                color: '#fbbf24',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}>
+                <span style={{ fontSize: '20px' }}>⚠️</span>
+                <div>
+                  <strong>PDF OCR 안내:</strong> 본 이력서는 PDF 파일에서 텍스트를 추출하여 생성되었습니다.
+                  OCR 인식 과정에서 일부 내용이 부정확할 수 있으니, 위의 "✏️ HTML 수정" 버튼을 클릭하여 내용을 확인하고 수정해 주시기 바랍니다.
+                </div>
+              </div>
+            )}
 
             <div
               id="resume-content"

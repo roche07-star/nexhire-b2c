@@ -732,18 +732,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
       // 새 창에서 미리보기 열기 (원본과 비교)
       window.open(`/analyze/preview?email=${encodeURIComponent(userEmail || '')}`, '_blank')
-
-      // PRO+ 자동 다운로드
-      if (data.plan === 'PRO' || data.plan === 'EXPERT') {
-        const bytes = Uint8Array.from(atob(data.docx), c => c.charCodeAt(0))
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.download = data.filename ?? 'rewrite.docx'
-        a.href = url
-        a.click()
-        URL.revokeObjectURL(url)
-      }
     } catch {
       setRewriteError('서버 오류가 발생했습니다.')
       clearRewrite() // 에러 시 백그라운드 분석 취소

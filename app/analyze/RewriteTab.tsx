@@ -59,7 +59,7 @@ export default function RewriteTab({
       <p className="rewrite-desc">
         JOBIZIC이 추천하는 <strong>깔끔하고 전문적인 포맷</strong>으로 이력서를 생성합니다.<br />
         가독성이 뛰어나고 채용 담당자가 선호하는 구조로 자동 구성되며, 최신 업무 활동 내역도 자동으로 반영됩니다.<br />
-        JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 최적화됩니다. 완료 시 <strong>.docx</strong> 파일로 다운로드됩니다.
+        JD 적합도 분석을 선택하여 해당 채용사에 맞게 전략적으로 최적화됩니다.
       </p>
       {rewriteError && <div className="analyze-error">{rewriteError}</div>}
       {rewriteChanges.length > 0 && (
