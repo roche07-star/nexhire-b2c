@@ -171,9 +171,20 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
           <p style={{ color: 'var(--muted)', fontSize: 14 }}>
             후보자를 단계별로 관리하고 진행 상황을 추적하세요.
           </p>
-          <p style={{ color: 'var(--muted2)', fontSize: 13, marginTop: 8 }}>
-            이용 방법 : 분석&생성 → 📋 JD기반 분석 → 📊 채용 프로세스 추가
-          </p>
+          <div style={{
+            marginTop: 12,
+            padding: '12px 16px',
+            background: 'rgba(232,255,71,0.05)',
+            borderLeft: '3px solid #e8ff47',
+            borderRadius: '4px'
+          }}>
+            <p style={{ color: 'var(--text)', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+              📌 이용 방법
+            </p>
+            <p style={{ color: 'var(--muted2)', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+              ① <strong>분석&생성</strong> 탭에서 이력서 분석 → ② <strong>📋 JD기반 분석</strong> 완료 → ③ <strong>📊 채용 프로세스 추가</strong> 버튼 클릭
+            </p>
+          </div>
         </div>
 
         {/* 통계 */}
