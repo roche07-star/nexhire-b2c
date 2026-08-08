@@ -81,12 +81,26 @@ function PreviewContent() {
     loadData()
   }, [router, searchParams])
 
-  function downloadDocx() {
-    if (!docx || !filename) {
-      alert('다운로드할 파일이 없습니다.')
-      return
-    }
+  async function downloadDocx() {
     try {
+      // 편집된 HTML이 있으면 HTML을 DOCX로 변환
+      if (editedHtml) {
+        const htmlDocx = await import('html-docx-js-typescript')
+        const converted = await htmlDocx.asBlob(editedHtml)
+        const url = URL.createObjectURL(converted as Blob)
+        const a = document.createElement('a')
+        a.download = filename || 'jobizic_resume.docx'
+        a.href = url
+        a.click()
+        URL.revokeObjectURL(url)
+        return
+      }
+
+      // 편집되지 않았으면 기존 DOCX 다운로드
+      if (!docx || !filename) {
+        alert('다운로드할 파일이 없습니다.')
+        return
+      }
       const bytes = Uint8Array.from(atob(docx), c => c.charCodeAt(0))
       const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
