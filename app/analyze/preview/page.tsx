@@ -454,14 +454,33 @@ ${element.innerHTML}
               gap: '8px',
             }}>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (!isEditing) {
                     setEditedHtml(htmlPreview)
                   } else {
-                    // 편집 완료 시 contentEditable div의 innerHTML을 저장
+                    // 편집 완료 시 contentEditable div의 innerHTML을 DB에 저장
                     const element = document.getElementById('resume-content')
                     if (element) {
-                      setEditedHtml(element.innerHTML)
+                      const updatedHtml = element.innerHTML
+                      setEditedHtml(updatedHtml)
+
+                      // DB에 저장
+                      try {
+                        const res = await fetch(`/api/analyze/rewrite/update-html?email=${encodeURIComponent(userEmail)}`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ html_content: updatedHtml })
+                        })
+
+                        if (res.ok) {
+                          alert('✅ HTML이 저장되었습니다.')
+                        } else {
+                          alert('❌ 저장 중 오류가 발생했습니다.')
+                        }
+                      } catch (error) {
+                        console.error('HTML 저장 실패:', error)
+                        alert('❌ 저장 중 오류가 발생했습니다.')
+                      }
                     }
                   }
                   setIsEditing(!isEditing)
