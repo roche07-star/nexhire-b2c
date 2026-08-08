@@ -168,18 +168,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 중복 방지: 동일한 회사/포지션 조합으로 최근 1시간 내 생성된 것이 있는지 확인
+    // 중복 방지: 동일한 후보자(analysisId) + 동일한 회사/포지션 조합으로 최근 1시간 내 생성된 것이 있는지 확인
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
     const normalizeStr = (s: string) => s.toLowerCase().replace(/\s+/g, '')
     const { data: recentAnalyses } = await supabase
       .from('jd_analyses')
-      .select('id, result, created_at')
+      .select('id, analysis_id, result, created_at')
       .eq('user_email', session.user.email)
+      .eq('analysis_id', analysisId)
       .gte('created_at', oneHourAgo)
       .order('created_at', { ascending: false })
       .limit(10)
 
-    // 동일한 회사/포지션 조합 찾기
+    // 동일한 후보자 + 동일한 회사/포지션 조합 찾기
     const normalizedCompany = normalizeStr(company.trim())
     const normalizedPosition = position?.trim() ? normalizeStr(position.trim()) : null
     const duplicate = (recentAnalyses ?? []).find(item => {
