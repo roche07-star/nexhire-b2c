@@ -24,12 +24,14 @@ function PreviewContent() {
   const [analysisResult, setAnalysisResult] = useState<any>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editedHtml, setEditedHtml] = useState('')
+  const [userEmail, setUserEmail] = useState<string>('')
 
   useEffect(() => {
     async function loadData() {
       try {
-        const userEmail = searchParams.get('email')
-        if (!userEmail) {
+        const email = searchParams.get('email')
+        setUserEmail(email || '')
+        if (!email) {
           alert('사용자 정보가 없습니다.')
           router.push('/analyze')
           return
