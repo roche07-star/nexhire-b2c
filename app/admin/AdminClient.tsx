@@ -208,8 +208,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     setTimeout(() => setMsg(null), 3000)
   }
 
-  async function changePlan(email: string, plan: 'FREE' | 'PRO' | 'EXPERT') {
-    const duration = userDurations[email] || 1 // 기본 1개월
+  async function changePlan(email: string, plan: 'FREE' | 'PRO' | 'EXPERT', customDuration?: number) {
+    const duration = customDuration ?? userDurations[email] ?? 1 // 기본 1개월
 
     setLoading(email + plan)
     const res = await fetch('/api/admin/plan', {
@@ -978,7 +978,12 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                             </select>
                             <select
                               value={userDurations[u.email] ?? 1}
-                              onChange={(e) => setUserDurations(prev => ({ ...prev, [u.email]: Number(e.target.value) }))}
+                              onChange={(e) => {
+                                const newDuration = Number(e.target.value)
+                                setUserDurations(prev => ({ ...prev, [u.email]: newDuration }))
+                                // 개월수 변경 시 즉시 저장 (현재 플랜 유지)
+                                changePlan(u.email, u.plan as 'FREE' | 'PRO' | 'EXPERT', newDuration)
+                              }}
                               disabled={u.plan === 'FREE' || loading === u.email + u.plan}
                               style={{
                                 padding: '6px 10px',
