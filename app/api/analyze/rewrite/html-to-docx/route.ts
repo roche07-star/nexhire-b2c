@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
 function parseHTMLToSections(html: string): Section[] {
   const sections: Section[] = []
 
-  // HTML을 파싱하여 h3 태그 기준으로 섹션 추출
-  const h3Regex = /<h3[^>]*>(.*?)<\/h3>/gi
-  const matches = Array.from(html.matchAll(h3Regex))
+  // HTML을 파싱하여 h2, h3 태그 기준으로 섹션 추출
+  const headerRegex = /<h[23][^>]*>(.*?)<\/h[23]>/gi
+  const matches = Array.from(html.matchAll(headerRegex))
 
   matches.forEach((match, index) => {
     const title = match[1].replace(/<[^>]+>/g, '').trim()
