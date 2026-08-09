@@ -365,11 +365,11 @@ export async function POST(req: NextRequest) {
         FREE: 1,
         PRO: 5,
         EXPERT: 10,
-        MANAGER: 3, // ✅ 관리자는 최대 3개
+        MANAGER: 10, // ✅ 관리자는 최대 10개
       }
       const baseLimitForPlan = planStorageLimits[role === 'MANAGER' ? 'MANAGER' : userPlan] || 1
       const allowedCount = role === 'MANAGER'
-        ? baseLimitForPlan // 관리자는 쿠폰 없이 3개 고정
+        ? baseLimitForPlan // 관리자는 쿠폰 없이 10개 고정
         : baseLimitForPlan + (resumeCouponCount ?? 0) // 일반 유저는 플랜 기본 + 쿠폰 개수
 
       console.log('[DEBUG] 저장 개수 체크:', {
