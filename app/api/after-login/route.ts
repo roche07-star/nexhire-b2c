@@ -16,6 +16,12 @@ export async function GET(request: NextRequest) {
 
       console.log('[after-login] DB user data:', data, 'Error:', error)
 
+      // SUPER_ADMIN이면 consent 체크 없이 바로 리다이렉트
+      if (data?.user_type === 'SUPER_ADMIN') {
+        console.log('[after-login] SUPER_ADMIN, redirecting to /admin')
+        return NextResponse.redirect(`${base}/admin`)
+      }
+
       // user_type이 없으면 동의 여부 확인
       if (!data?.user_type) {
         // 동의는 있는지 확인 (무한 루프 방지)
