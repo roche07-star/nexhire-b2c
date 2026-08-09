@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
 
       console.log('[after-login] DB user data:', data, 'Error:', error)
 
-      // SUPER_ADMIN이면 consent 체크 없이 바로 리다이렉트
-      if (data?.user_type === 'SUPER_ADMIN') {
-        console.log('[after-login] SUPER_ADMIN, redirecting to /admin')
+      // SUPER_ADMIN 또는 MANAGER면 consent 체크 없이 바로 리다이렉트
+      if (data?.user_type === 'SUPER_ADMIN' || data?.user_type === 'MANAGER') {
+        console.log('[after-login] Admin user detected:', data.user_type, 'redirecting to /admin')
         return NextResponse.redirect(`${base}/admin`)
       }
 
