@@ -194,6 +194,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [activeMenu, jdSavedList, jdSavedListLoading])
 
+  // 이력서 분석 목록 자동 로드 (저장 현황 표시용)
+  useEffect(() => {
+    if (activeMenu === 'upload' && analysisList === null && !analysisListLoading) {
+      setAnalysisListLoading(true)
+      fetch('/api/analyze/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setAnalysisList(analyses ?? []))
+        .catch(() => setAnalysisList([]))
+        .finally(() => setAnalysisListLoading(false))
+    }
+  }, [activeMenu, analysisList, analysisListLoading])
+
   // 사용자 변경 시 생성 이력서 초기화
   useEffect(() => {
     setLastGeneratedResume(null)
