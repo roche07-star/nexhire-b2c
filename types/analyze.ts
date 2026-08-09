@@ -12,6 +12,7 @@ export interface CareerPath {
 export interface AnalysisResult {
   candidate_name?: string
   job_title?: string
+  career_gap_warning?: string
   scores: {
     job_fit: number
     market_competitiveness: number

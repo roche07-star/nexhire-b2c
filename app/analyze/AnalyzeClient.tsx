@@ -3591,6 +3591,25 @@ function AnalysisResults({
             📌 분석 직무: {result.job_title}
           </div>
         )}
+        {result.career_gap_warning && (
+          <div style={{
+            background: 'rgba(239,68,68,0.1)',
+            border: '2px solid rgba(239,68,68,0.3)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: 16,
+            color: '#dc2626',
+            fontSize: 14,
+            fontWeight: 600,
+            lineHeight: 1.6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10
+          }}>
+            <span style={{ fontSize: 18 }}>⚠️</span>
+            <span>{result.career_gap_warning}</span>
+          </div>
+        )}
         {scores.map((s) => (
           <div key={s.label} className="result-score-row">
             <div className="score-meta">
