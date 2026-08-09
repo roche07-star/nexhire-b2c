@@ -50,7 +50,7 @@ const baseTool: Anthropic.Tool = {
     properties: {
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명' },
       total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
-      career_gap_warning: { type: 'string', description: '경력 공백 경고 메시지. 3개월 이상 공백이 있으면 "🔴 2020.07 ~ 2022.01 (1년 6개월 공백)" 형식으로 작성. 없으면 빈 문자열' },
+      career_gap_warning: { type: 'string', description: '**[필수 체크]** 경력 이력에서 각 회사 재직 기간 사이의 공백을 반드시 계산하십시오. 3개월 이상 공백 발견 시 "🔴 YYYY.MM ~ YYYY.MM (N년 N개월 공백)" 형식으로 작성 (여러 개면 줄바꿈으로 구분). 공백이 정말 없는 경우에만 빈 문자열. ⚠️ 경력이 나이 대비 현저히 적으면 반드시 공백이 있는 것입니다!' },
       education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
       current_salary: { type: 'string', description: '현재 연봉 또는 직전 연봉 (예: "연 6,500만원", 없으면 빈 문자열)' },
       address: { type: 'string', description: '거주지 주소 (이력서에 명시된 경우만, 예: "서울시 강남구", 없으면 빈 문자열)' },
@@ -107,7 +107,7 @@ const proBasicTool: Anthropic.Tool = {
     properties: {
       job_title: { type: 'string', description: '이력서에서 파악된 현재 또는 목표 직무명 (예: 백엔드 개발자, 마케팅 매니저)' },
       total_experience_years: { type: 'number', description: '총 경력 연수 (소수점 가능, 예: 8.5년 = 8년 6개월)' },
-      career_gap_warning: { type: 'string', description: '경력 공백 경고 메시지. 3개월 이상 공백이 있으면 "🔴 2020.07 ~ 2022.01 (1년 6개월 공백)" 형식으로 작성. 없으면 빈 문자열' },
+      career_gap_warning: { type: 'string', description: '**[필수 체크]** 경력 이력에서 각 회사 재직 기간 사이의 공백을 반드시 계산하십시오. 3개월 이상 공백 발견 시 "🔴 YYYY.MM ~ YYYY.MM (N년 N개월 공백)" 형식으로 작성 (여러 개면 줄바꿈으로 구분). 공백이 정말 없는 경우에만 빈 문자열. ⚠️ 경력이 나이 대비 현저히 적으면 반드시 공백이 있는 것입니다!' },
       education: { type: 'string', description: '최종 학력 (예: "서울대학교 석사 졸업", "연세대학교 학사 졸업", 없으면 빈 문자열)' },
       current_salary: { type: 'string', description: '현재 연봉 또는 직전 연봉 (예: "연 6,500만원", 없으면 빈 문자열)' },
       address: { type: 'string', description: '거주지 주소 (이력서에 명시된 경우만, 예: "서울시 강남구", 없으면 빈 문자열)' },
