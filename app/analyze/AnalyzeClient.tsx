@@ -2111,6 +2111,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         setJdSelectedAnalysis(null)
                       }}
                       userType={userType}
+                      isPro={isPro}
                     />
                     {/* 헤드헌터/매니저: 채용 프로세스 추가 버튼 */}
                     {(userType === 'HEADHUNTER' || userType === 'MANAGER') && isPro && (
@@ -2174,6 +2175,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       expiresAt={jdResult.expires_at}
                       onReset={() => { setJdResult(null); setJdSelectedAnalysis(null) }}
                       userType={userType}
+                      isPro={isPro}
                     />
                     {/* 헤드헌터/매니저: 채용 프로세스 추가 버튼 */}
                     {(userType === 'HEADHUNTER' || userType === 'MANAGER') && isPro && (
@@ -4184,12 +4186,14 @@ function JDResults({
   expiresAt,
   onReset,
   userType,
+  isPro,
 }: {
   result: JDResult
   analysisItem?: AnalysisListItem
   expiresAt?: string
   onReset: () => void
   userType?: string | null
+  isPro?: boolean
 }) {
   const color = REC_COLOR_HEX[result.recommendation] ?? '#888'
   const label = REC_LABEL_CONST[result.recommendation] ?? result.recommendation
@@ -4573,7 +4577,7 @@ function JDResults({
           {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
         </button>
         {analysisItem && (
-          analysisItem.result.plan === 'FREE' ? (
+          !isPro ? (
             <button
               className="analyze-download-btn"
               onClick={() => window.location.href = '/plans'}
