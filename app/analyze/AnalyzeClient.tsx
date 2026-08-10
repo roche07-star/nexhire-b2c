@@ -79,6 +79,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   // 초기화 임박 경고 팝업
   const [showResetWarningModal, setShowResetWarningModal] = useState(false)
   const [resetWarningDays, setResetWarningDays] = useState(0)
+  const [resetWarningPlan, setResetWarningPlan] = useState<'PRO' | 'EXPERT'>('PRO')
   const [inputMode, setInputMode] = useState<'file' | 'text'>('file')
   const [resumeText, setResumeText] = useState('')
   const [loadingMsg, setLoadingMsg] = useState('')
@@ -226,11 +227,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
   // 초기화 임박 경고 체크 (3일 이내)
   useEffect(() => {
-    if (!userEmail || (currentPlan !== 'PRO' && currentPlan !== 'EXPERT')) return
+    if (!userEmail) return
 
     fetch('/api/my-info')
       .then((r) => r.json())
       .then((data) => {
+        // PRO/EXPERT 플랜만 체크
+        if (data.plan !== 'PRO' && data.plan !== 'EXPERT') return
+
         const resetAt = data.resetAt // "2026. 9. 10." 형식
         if (!resetAt) return
 
@@ -244,11 +248,12 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
         if (diffDays >= 0 && diffDays <= 3) {
           setResetWarningDays(diffDays)
+          setResetWarningPlan(data.plan)
           setShowResetWarningModal(true)
         }
       })
       .catch(() => {})
-  }, [userEmail, currentPlan])
+  }, [userEmail])
 
   // 이력서 목록 자동 로드 (면접 가이드 생성용)
   useEffect(() => {
@@ -3334,7 +3339,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 플랜 초기화가 {resetWarningDays}일 남았습니다!
               </h2>
               <p style={{ fontSize: '16px', color: '#6b7280', lineHeight: '1.6' }}>
-                {currentPlan} 플랜의 사용 기간이 종료되면 FREE 플랜으로 자동 다운그레이드됩니다.<br />
+                {resetWarningPlan} 플랜의 사용 기간이 종료되면 FREE 플랜으로 자동 다운그레이드됩니다.<br />
                 계속 이용하시려면 플랜을 갱신해 주세요.
               </p>
             </div>
