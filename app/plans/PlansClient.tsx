@@ -160,8 +160,8 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
         zIndex: 1,
         textAlign: 'center'
       }}>
-        {/* 뷰 전환 버튼 (관리자만) */}
-        {canSwitchType && (
+        {/* 뷰 전환 버튼 (비로그인, 관리자) */}
+        {(!userEmail || canSwitchType) && (
           <div style={{
             display: 'flex',
             gap: 12,
