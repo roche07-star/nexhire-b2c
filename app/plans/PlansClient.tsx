@@ -86,8 +86,8 @@ const faqData = {
 export default function PlansClient({ userEmail, userType, currentPlan, isSuperAdminOrManager }: PlansClientProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null)
 
-  // KCP Test 계정 및 테스트 계정은 구직자/헤드헌터 플랜 모두 선택 가능
-  const isKcpTestAccount = userEmail === 'kcp-test@jobizic.com' || userEmail === 'roche07zn@gmail.com'
+  // KCP Test 계정은 구직자/헤드헌터 플랜 모두 선택 가능
+  const isKcpTestAccount = userEmail === 'kcp-test@jobizic.com'
   const canSwitchType = isSuperAdminOrManager || isKcpTestAccount
 
   const [viewType, setViewType] = useState<'JOBSEEKER' | 'HEADHUNTER'>(
