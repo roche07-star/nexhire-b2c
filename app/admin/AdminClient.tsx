@@ -74,6 +74,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [showOnlyHeadhunterSharing, setShowOnlyHeadhunterSharing] = useState(false)
+  const [showResetSoon, setShowResetSoon] = useState(false)
 
   // 플랜 변경 시 기간 선택 (각 유저별)
   const [userDurations, setUserDurations] = useState<Record<string, number>>({}) // email -> duration (1, 3, 6, 12, 0=무제한)
@@ -679,9 +680,20 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     return d.toLocaleDateString('ko-KR')
   }
 
-  const filteredUsers = showOnlyHeadhunterSharing
-    ? users.filter((u) => u.headhunter_sharing_enabled === true && u.user_type !== 'SUPER_ADMIN')
-    : users.filter((u) => u.user_type !== 'SUPER_ADMIN')
+  // 초기화 임박 체크 함수 (3일 이내)
+  const isResetSoon = (user: User) => {
+    if (!user.monthly_reset_at || (user.plan !== 'PRO' && user.plan !== 'EXPERT')) return false
+    const resetDate = new Date(user.monthly_reset_at)
+    resetDate.setMonth(resetDate.getMonth() + 1) // 다음 초기화일
+    const now = new Date()
+    const diffDays = Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return diffDays >= 0 && diffDays <= 3
+  }
+
+  const filteredUsers = users
+    .filter((u) => u.user_type !== 'SUPER_ADMIN')
+    .filter((u) => !showOnlyHeadhunterSharing || u.headhunter_sharing_enabled === true)
+    .filter((u) => !showResetSoon || isResetSoon(u))
 
   // 통계는 stats API에서 가져온 데이터 사용
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
@@ -913,7 +925,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             )}
 
             {/* 유저 목록 */}
-            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
                 <input
                   type="checkbox"
@@ -921,7 +933,16 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                   onChange={(e) => setShowOnlyHeadhunterSharing(e.target.checked)}
                   style={{ width: 18, height: 18, cursor: 'pointer' }}
                 />
-                🤝 헤드헌터 공유 동의한 후보자만 보기 ({filteredUsers.length}명)
+                🤝 헤드헌터 공유 동의한 후보자만 보기
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#dc2626' }}>
+                <input
+                  type="checkbox"
+                  checked={showResetSoon}
+                  onChange={(e) => setShowResetSoon(e.target.checked)}
+                  style={{ width: 18, height: 18, cursor: 'pointer' }}
+                />
+                ⏰ 초기화 임박 (3일 이내, PRO/EXPERT) ({filteredUsers.length}명)
               </label>
             </div>
             <div className="admin-table-wrap">
