@@ -37,15 +37,11 @@ export async function GET(req: NextRequest) {
       const nextPlan = user.next_plan
       const nextPlanEndDate = user.next_plan_end_date
 
-      const now = new Date()
-      const nextReset = new Date(now)
-      nextReset.setMonth(nextReset.getMonth() + 1) // 1개월 후
-
       const updateData = {
         plan: nextPlan,
         plan_end_date: nextPlanEndDate,
         downgrade_to: 'FREE',
-        monthly_reset_at: nextReset.toISOString(),
+        monthly_reset_at: nextPlanEndDate, // plan_end_date와 동일
         next_plan: null,
         next_plan_starts_at: null,
         next_plan_end_date: null,
@@ -79,15 +75,12 @@ export async function GET(req: NextRequest) {
 
     for (const user of downgradeUsers ?? []) {
       const newPlan = user.downgrade_to
-      const now = new Date()
-      const nextReset = new Date(now)
-      nextReset.setMonth(nextReset.getMonth() + 1) // 1개월 후
 
       let updateData: Record<string, unknown> = {
         plan: newPlan,
         downgrade_to: null,
         downgrade_requested_at: null,
-        monthly_reset_at: newPlan === 'FREE' ? null : nextReset.toISOString(),
+        monthly_reset_at: null, // FREE로 다운그레이드 시 초기화 없음
       }
 
       // 다운그레이드 to FREE: Max
