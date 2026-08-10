@@ -67,7 +67,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
   'jobseeker-expert-1m': {
     id: 'jobseeker-expert-1m',
     name: '[구직자] EXPERT 1개월 이용권',
-    price: 29900,
+    price: 19900,
     duration: 1,
     plan: 'EXPERT',
     userType: 'JOBSEEKER',
@@ -84,8 +84,8 @@ export const PRODUCTS: Record<ProductId, Product> = {
   'jobseeker-expert-3m': {
     id: 'jobseeker-expert-3m',
     name: '[구직자] EXPERT 3개월 이용권',
-    price: 80700,
-    originalPrice: 89700,
+    price: 53730,
+    originalPrice: 59700,
     discount: 10,
     duration: 3,
     plan: 'EXPERT',
