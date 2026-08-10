@@ -141,6 +141,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [telegramResult, setTelegramResult] = useState<any>(null)
   const [telegramError, setTelegramError] = useState('')
 
+  // 플랜 조정 실행 state
+  const [planAdjustLoading, setPlanAdjustLoading] = useState(false)
+  const [planAdjustResult, setPlanAdjustResult] = useState<any>(null)
+
   // Phase 1: 유저 목록 로드
   async function loadUsers() {
     setUsersLoading(true)
@@ -201,6 +205,31 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
       setDetailData(data)
     } finally {
       setDetailLoading(false)
+    }
+  }
+
+  // 플랜 조정 실행 (Cron job 수동 실행)
+  async function runPlanAdjustment() {
+    if (!confirm('만료된 플랜을 지금 조정하시겠습니까?\n\n- plan_end_date 지난 사용자 다운그레이드\n- 예약된 플랜 활성화')) return
+
+    setPlanAdjustLoading(true)
+    setPlanAdjustResult(null)
+    try {
+      const res = await fetch('/api/cron/process-plan-changes')
+      const data = await res.json()
+      setPlanAdjustResult(data)
+
+      if (data.success) {
+        setMsg(`✅ 플랜 조정 완료: 업그레이드 ${data.results.planUpgrades}명, 다운그레이드 ${data.results.planDowngrades}명`)
+        await loadUsers() // 유저 목록 새로고침
+      } else {
+        setMsg(`❌ 플랜 조정 실패: ${data.error}`)
+      }
+    } catch (err) {
+      console.error('Plan adjustment error:', err)
+      setMsg('❌ 플랜 조정 중 오류 발생')
+    } finally {
+      setPlanAdjustLoading(false)
     }
   }
 
@@ -944,7 +973,63 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 />
                 ⏰ 초기화 임박 (3일 이내, PRO/EXPERT) ({filteredUsers.length}명)
               </label>
+              <button
+                onClick={runPlanAdjustment}
+                disabled={planAdjustLoading}
+                style={{
+                  marginLeft: 'auto',
+                  padding: '10px 20px',
+                  background: planAdjustLoading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: planAdjustLoading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {planAdjustLoading ? '⏳ 실행 중...' : '🔄 플랜 조정 실행'}
+              </button>
             </div>
+            {planAdjustResult && (
+              <div style={{
+                marginBottom: 16,
+                padding: 16,
+                background: planAdjustResult.success ? '#f0fdf4' : '#fef2f2',
+                border: `2px solid ${planAdjustResult.success ? '#10b981' : '#ef4444'}`,
+                borderRadius: 12,
+                fontSize: 14,
+              }}>
+                <div style={{ fontWeight: 700, marginBottom: 8, color: planAdjustResult.success ? '#065f46' : '#991b1b' }}>
+                  {planAdjustResult.success ? '✅ 플랜 조정 완료' : '❌ 플랜 조정 실패'}
+                </div>
+                {planAdjustResult.results && (
+                  <div style={{ fontSize: 13, color: '#374151' }}>
+                    • 플랜 업그레이드: {planAdjustResult.results.planUpgrades}명<br />
+                    • 플랜 다운그레이드: {planAdjustResult.results.planDowngrades}명<br />
+                    • 탈퇴 처리: {planAdjustResult.results.withdrawals}명<br />
+                    • 데이터 삭제: {planAdjustResult.results.deletions}명
+                    {planAdjustResult.results.errors?.length > 0 && (
+                      <>
+                        <br />
+                        <br />
+                        <strong>오류:</strong><br />
+                        {planAdjustResult.results.errors.map((e: string, i: number) => (
+                          <span key={i}>• {e}<br /></span>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+                {planAdjustResult.error && (
+                  <div style={{ fontSize: 13, color: '#991b1b' }}>
+                    오류: {planAdjustResult.error}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="admin-table-wrap">
               <table className="admin-table">
                 <thead>
