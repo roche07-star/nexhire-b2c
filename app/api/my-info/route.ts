@@ -72,7 +72,7 @@ export async function GET() {
   }))
 
   const resetAt = user?.monthly_reset_at
-    ? (() => { const d = new Date(user.monthly_reset_at); d.setMonth(d.getMonth() + 1); return d.toLocaleDateString('ko-KR') })()
+    ? new Date(user.monthly_reset_at).toLocaleDateString('ko-KR')
     : null
 
   // 동의 정보 정리
