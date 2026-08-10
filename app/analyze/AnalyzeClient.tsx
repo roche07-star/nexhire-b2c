@@ -3347,7 +3347,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               <button
                 onClick={() => {
                   setShowResetWarningModal(false)
-                  window.location.href = '/store'
+                  window.location.href = '/plans'
                 }}
                 style={{
                   flex: 1,
