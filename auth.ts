@@ -90,15 +90,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return false // 로그인 차단
       }
 
-      // 🔒 정규화된 이메일로 중복 체크
+      // 🔒 기존 사용자 조회 (user.email 원본으로)
       const { data: existingUser } = await supabase
         .from('users')
         .select('plan, user_type, status')
-        .eq('email', normalized)
+        .eq('email', user.email)
         .maybeSingle()
 
+      // 🔒 정규화된 이메일로도 중복 체크 (+태그 감지용)
+      const { data: normalizedUser } = user.email !== normalized
+        ? await supabase
+            .from('users')
+            .select('email')
+            .eq('email', normalized)
+            .maybeSingle()
+        : { data: null }
+
       // +태그 사용 시도 감지: 정규화된 이메일이 이미 존재하면 차단
-      if (user.email !== normalized && existingUser) {
+      if (user.email !== normalized && normalizedUser) {
         console.error('[Security] Duplicate email detected (plus tag):', user.email, '→', normalized)
         return false // 중복 계정 생성 차단
       }
