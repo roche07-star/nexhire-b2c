@@ -106,9 +106,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // 탈퇴한 사용자 또는 신규 사용자: 완전 초기화
       // withdrawing은 탈퇴 예정이므로 정상 사용 가능 (초기화 안 함)
       const isWithdrawn = existingUser?.status === 'withdrawn'
+      const isAdmin = existingUser?.user_type === 'SUPER_ADMIN' || existingUser?.user_type === 'MANAGER'
       const shouldReset = !existingUser || isWithdrawn
 
-      if (shouldReset) {
+      // ⚠️ SUPER_ADMIN / MANAGER는 절대 초기화 금지
+      if (shouldReset && !isAdmin) {
         // 완전 초기화 (last_restored_at을 현재 시간으로 설정)
         // ⚠️ 신규 사용자는 FREE 플랜, user_type은 null (consent에서 설정)
         const resetTime = new Date().toISOString()

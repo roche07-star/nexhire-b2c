@@ -35,6 +35,15 @@ function ConsentPageContent() {
       const res = await fetch('/api/my-info')
       if (res.ok) {
         const data = await res.json()
+        console.log('[consent] My-info response:', data)
+
+        // SUPER_ADMIN 또는 MANAGER면 바로 리다이렉트
+        if (data.userType === 'SUPER_ADMIN' || data.userType === 'MANAGER') {
+          console.log('[consent] Admin user detected, redirecting to /admin')
+          window.location.href = '/admin'
+          return
+        }
+
         if (data.userType) {
           console.log('[consent] Existing user_type:', data.userType)
           setUserType(data.userType as 'JOBSEEKER' | 'HEADHUNTER')
