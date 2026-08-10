@@ -712,8 +712,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   // 초기화 임박 체크 함수 (3일 이내)
   const isResetSoon = (user: User) => {
     if (!user.monthly_reset_at || (user.plan !== 'PRO' && user.plan !== 'EXPERT')) return false
-    const resetDate = new Date(user.monthly_reset_at)
-    resetDate.setMonth(resetDate.getMonth() + 1) // 다음 초기화일
+    const resetDate = new Date(user.monthly_reset_at) // monthly_reset_at이 이미 다음 초기화일
     const now = new Date()
     const diffDays = Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     return diffDays >= 0 && diffDays <= 3

@@ -133,6 +133,10 @@ export async function POST(req: NextRequest) {
       expiresAt = new Date(now)
       expiresAt.setMonth(expiresAt.getMonth() + product.duration)
 
+      // 다음 초기화일 = 현재 + 1개월
+      const nextReset = new Date(now)
+      nextReset.setMonth(nextReset.getMonth() + 1)
+
       const result = await supabase
         .from('users')
         .update({
@@ -140,7 +144,7 @@ export async function POST(req: NextRequest) {
           plan_expires_at: expiresAt.toISOString(),
           plan_end_date: expiresAt.toISOString().split('T')[0],
           downgrade_to: 'FREE',
-          monthly_reset_at: now.toISOString(),
+          monthly_reset_at: nextReset.toISOString(),
           // 사용량 리셋
           analyze_count: 0,
           jd_count: 0,
