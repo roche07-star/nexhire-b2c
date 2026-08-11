@@ -1205,7 +1205,9 @@ ${maskedText}
       }
 
       // PRO+: HTML 섹션 기반 DOCX 생성
+      console.log('[rewrite/standard] DOCX 생성 시작')
       const docxBuffer = await generateStandardDocx(restoredSections, candidateName)
+      console.log('[rewrite/standard] DOCX 생성 완료, 크기:', docxBuffer.length)
       const suffix = jdContext ? `_${jdContext.company}` : ''
       const downloadName = `jobizic_standard_${candidateName}${suffix}_${dateStr}.docx`
 
@@ -1578,10 +1580,14 @@ ${maskedText}
     }
 
     // PRO+ 플랜: DOCX + HTML 생성
+    console.log('[rewrite] DOCX 생성 시작')
     const docxBuffer = await generateResumeDocx(rewriteData)
+    console.log('[rewrite] DOCX 생성 완료, 크기:', docxBuffer.length)
+
     const suffix = jdContext ? `_${jdContext.company}` : ''
     const downloadName = `jobizic_rewrite_${rewriteData.candidate_name}${suffix}_${dateStr}.docx`
 
+    console.log('[rewrite] 응답 반환 준비')
     return NextResponse.json({
       docx: (docxBuffer as Buffer).toString('base64'),
       filename: downloadName,
@@ -1592,7 +1598,10 @@ ${maskedText}
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[analyze/rewrite]', msg, e)
+    const stack = e instanceof Error ? e.stack : ''
+    console.error('[analyze/rewrite] 에러 발생:', msg)
+    console.error('[analyze/rewrite] 스택:', stack)
+    console.error('[analyze/rewrite] 전체 에러:', e)
     return NextResponse.json({ error: `서버 오류가 발생했습니다. (${msg})` }, { status: 500 })
   }
 }
