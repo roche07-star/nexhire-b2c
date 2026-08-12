@@ -169,12 +169,12 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         const dateStr = now.toISOString().slice(0, 10);
         const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
         const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상';
-        const fileName = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`;
+        const fileName = '후보자제안서_수정본_' + candidateName + '_' + dateStr + '_' + timeStr + '.html';
 
         if (linkEl) {
           linkEl.href = url;
           linkEl.download = fileName;
-          linkEl.textContent = \`⬇ \${fileName} 다운로드 (클릭)\`;
+          linkEl.textContent = '⬇ ' + fileName + ' 다운로드 (클릭)';
           linkEl.style.display = 'inline-block';
         }
 
