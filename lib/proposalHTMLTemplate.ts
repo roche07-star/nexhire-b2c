@@ -120,59 +120,39 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     // 수정본 저장 기능
     function saveModifiedProposal() {
       try {
-        // 현재 HTML 복사
-        const htmlClone = document.documentElement.cloneNode(true)
+        // 현재 HTML을 문자열로 가져오기
+        let html = document.documentElement.outerHTML
 
-        // 복사본에서 저장 버튼 제거
-        const saveBtn = htmlClone.querySelector('.save-btn')
-        if (saveBtn) saveBtn.remove()
+        // 저장 버튼 제거
+        html = html.replace(/<button class="save-btn"[^>]*>.*?<\\/button>/s, '')
 
-        // 복사본에서 이 스크립트 제거
-        const scripts = htmlClone.querySelectorAll('script')
-        scripts.forEach(script => {
-          if (script.textContent.includes('saveModifiedProposal')) {
-            script.remove()
-          }
-        })
+        // 이 스크립트 블록 제거
+        html = html.replace(/<script>[\\s\\S]*?saveModifiedProposal[\\s\\S]*?<\\/script>/s, '')
 
-        // 복사본에서 저장 버튼 스타일 제거
-        const styles = htmlClone.querySelectorAll('style')
-        styles.forEach(style => {
-          if (style.textContent.includes('.save-btn')) {
-            style.textContent = style.textContent.replace(/\\/\\* 저장 버튼 스타일 \\*\\/[\\s\\S]*?\\.save-btn:active[\\s\\S]*?\\}/g, '')
-          }
-        })
-
-        // HTML 문자열로 변환
-        const htmlContent = '<!DOCTYPE html>\\n' + htmlClone.outerHTML
+        // 저장 버튼 스타일 제거
+        html = html.replace(/\\/\\* 저장 버튼 스타일 \\*\\/[\\s\\S]*?\\.save-btn:active[\\s\\S]*?\\}/s, '')
 
         // Blob 생성
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
-
-        // 다운로드 링크 생성
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
         const url = URL.createObjectURL(blob)
+
+        // 다운로드
         const a = document.createElement('a')
         a.href = url
 
-        // 파일명 생성 (날짜 + 시간)
         const now = new Date()
         const dateStr = now.toISOString().slice(0, 10)
         const timeStr = now.toTimeString().slice(0, 5).replace(':', '')
         const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상'
 
         a.download = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`
-
-        // 다운로드 실행
         a.click()
 
-        // 메모리 정리
         URL.revokeObjectURL(url)
-
-        // 성공 메시지
         alert('✅ 수정본이 저장되었습니다!')
       } catch (error) {
         console.error('저장 실패:', error)
-        alert('❌ 저장에 실패했습니다. Ctrl+S를 사용해주세요.')
+        alert('❌ 저장 실패')
       }
     }
   </script>
