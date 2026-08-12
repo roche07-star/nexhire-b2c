@@ -120,16 +120,31 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     // 수정본 저장 기능
     function saveModifiedProposal() {
       try {
-        // 저장 버튼 임시 숨김
-        const saveBtn = document.querySelector('.save-btn')
-        const originalDisplay = saveBtn ? saveBtn.style.display : ''
-        if (saveBtn) saveBtn.style.display = 'none'
+        // 현재 HTML 복사
+        const htmlClone = document.documentElement.cloneNode(true)
 
-        // 현재 HTML 전체 가져오기
-        const htmlContent = document.documentElement.outerHTML
+        // 복사본에서 저장 버튼 제거
+        const saveBtn = htmlClone.querySelector('.save-btn')
+        if (saveBtn) saveBtn.remove()
 
-        // 저장 버튼 다시 표시
-        if (saveBtn) saveBtn.style.display = originalDisplay
+        // 복사본에서 이 스크립트 제거
+        const scripts = htmlClone.querySelectorAll('script')
+        scripts.forEach(script => {
+          if (script.textContent.includes('saveModifiedProposal')) {
+            script.remove()
+          }
+        })
+
+        // 복사본에서 저장 버튼 스타일 제거
+        const styles = htmlClone.querySelectorAll('style')
+        styles.forEach(style => {
+          if (style.textContent.includes('.save-btn')) {
+            style.textContent = style.textContent.replace(/\\/\\* 저장 버튼 스타일 \\*\\/[\\s\\S]*?\\.save-btn:active[\\s\\S]*?\\}/g, '')
+          }
+        })
+
+        // HTML 문자열로 변환
+        const htmlContent = '<!DOCTYPE html>\\n' + htmlClone.outerHTML
 
         // Blob 생성
         const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
