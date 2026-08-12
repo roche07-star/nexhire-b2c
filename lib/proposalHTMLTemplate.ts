@@ -84,16 +84,22 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
     @media print {
       body { padding: 0; background: #fff; }
       .container { box-shadow: none; }
-      .edit-hint { display: none; }
       .editable { box-shadow: none !important; background: transparent !important; }
-      .save-btn { display: none; }
+      .save-panel { display: none; }
     }
 
-    /* 저장 버튼 스타일 */
-    .save-btn {
+    /* 저장 패널 스타일 (자동 다운로드 대신 수동 조작 방식) */
+    .save-panel {
       position: fixed;
       top: 20px;
       right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .save-btn {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #fff;
       border: none;
@@ -104,92 +110,96 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
       transition: all 0.2s ease;
-      z-index: 1000;
     }
     .save-btn:hover {
       background: linear-gradient(135deg, #059669 0%, #047857 100%);
       box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
       transform: translateY(-2px);
     }
-    .save-btn:active {
-      transform: translateY(0);
+    .save-btn:active { transform: translateY(0); }
+    .save-status {
+      font-size: 12px;
+      color: #333;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 6px 10px;
+      max-width: 260px;
+      text-align: right;
+      display: none;
+    }
+    .manual-link {
+      font-size: 12px;
+      color: #1e40af;
+      text-decoration: underline;
+      cursor: pointer;
+      background: #fff;
+      border: 1px solid #93c5fd;
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: none;
     }
   </style>
 
   <script>
-    // 수정본 저장 기능 (수동 다운로드)
-    function saveModifiedProposal() {
+    // 수정본 저장 기능 (자동 다운로드 트리거 없이, 사용자가 직접 클릭해서 저장/복사)
+    async function saveModifiedProposal() {
+      const statusEl = document.querySelector('.save-status');
+      const linkEl = document.querySelector('.manual-link');
+
       try {
-        // 현재 HTML을 문자열로 가져오기
-        let html = document.documentElement.outerHTML
+        // 저장 버튼/패널 상태 표시는 유지한 채 HTML 스냅샷 생성
+        const htmlContent = document.documentElement.outerHTML;
 
-        // 저장 버튼 제거
-        html = html.replace(/<button class="save-btn"[^>]*>.*?<\\/button>/s, '')
+        // 1) 클립보드 복사 시도 (사용자가 원하는 곳에 붙여넣기 가능)
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(htmlContent);
+          copied = true;
+        } catch (clipErr) {
+          copied = false;
+        }
 
-        // 이 스크립트 블록 제거
-        html = html.replace(/<script>[\\s\\S]*?saveModifiedProposal[\\s\\S]*?<\\/script>/s, '')
+        // 2) 수동 다운로드용 링크 준비 (자동 클릭하지 않음 - 사용자가 직접 클릭해야 다운로드됨)
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
 
-        // 저장 버튼 스타일 제거
-        html = html.replace(/\\/\\* 저장 버튼 스타일 \\*\\/[\\s\\S]*?\\.save-btn:active[\\s\\S]*?\\}/s, '')
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
+        const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상';
+        const fileName = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`;
 
-        // 1. 클립보드에 복사
-        navigator.clipboard.writeText(html).then(() => {
-          console.log('클립보드 복사 완료')
-        }).catch(() => {
-          console.log('클립보드 복사 실패 (권한 없음)')
-        })
+        if (linkEl) {
+          linkEl.href = url;
+          linkEl.download = fileName;
+          linkEl.textContent = \`⬇ \${fileName} 다운로드 (클릭)\`;
+          linkEl.style.display = 'inline-block';
+        }
 
-        // 2. Data URI 생성 (Blob 대신 사용)
-        const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html)
-
-        // 3. 파일명 생성
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 10)
-        const timeStr = now.toTimeString().slice(0, 5).replace(':', '')
-        const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상'
-        const filename = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`
-
-        // 4. 기존 다운로드 링크가 있으면 제거
-        const existing = document.getElementById('manual-download-link')
-        if (existing) existing.remove()
-
-        // 5. 수동 다운로드 링크 생성 (자동 클릭 없음!)
-        const downloadLink = document.createElement('a')
-        downloadLink.id = 'manual-download-link'
-        downloadLink.href = dataUri
-        downloadLink.download = filename
-        downloadLink.textContent = '📥 클릭하여 수정본 다운로드'
-        downloadLink.style.cssText = \`
-          position: fixed;
-          top: 80px;
-          right: 20px;
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-          color: #fff;
-          padding: 16px 24px;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          text-decoration: none;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
-          z-index: 10000;
-          animation: slideIn 0.3s ease;
-        \`
-
-        // 6. 화면에 추가
-        document.body.appendChild(downloadLink)
-
-        // 7. 안내 메시지
-        alert('✅ 준비 완료!\\n\\n1. HTML이 클립보드에 복사되었습니다\\n2. 화면 우측 상단의 "다운로드" 링크를 클릭하세요')
+        if (statusEl) {
+          statusEl.textContent = copied
+            ? '✅ HTML이 클립보드에 복사되었습니다. 아래 링크를 클릭하면 파일로도 저장할 수 있습니다.'
+            : '⚠️ 클립보드 복사는 실패했지만, 아래 링크를 클릭하면 파일로 저장할 수 있습니다.';
+          statusEl.style.display = 'block';
+        }
       } catch (error) {
-        console.error('저장 실패:', error)
-        alert('❌ 저장 실패: ' + error.message)
+        console.error('저장 준비 실패:', error);
+        if (statusEl) {
+          statusEl.textContent = '❌ 저장 준비에 실패했습니다. Ctrl+S를 사용해주세요.';
+          statusEl.style.display = 'block';
+        }
       }
     }
   </script>
 </head>
 <body>
-  <!-- 수정본 저장 버튼 -->
-  <button class="save-btn" onclick="saveModifiedProposal()">💾 수정본 저장</button>
+  <!-- 수정본 저장 패널: 자동 다운로드 없이 사용자가 직접 클릭해야 동작 -->
+  <div class="save-panel">
+    <button class="save-btn" onclick="saveModifiedProposal()">💾 수정본 저장 준비</button>
+    <div class="save-status"></div>
+    <a class="manual-link" href="#" download></a>
+  </div>
 
   <div class="container">
     <div class="header">
