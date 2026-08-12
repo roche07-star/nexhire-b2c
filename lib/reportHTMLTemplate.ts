@@ -80,7 +80,15 @@ body{background:#0a0a0f;color:#e8e8de;font-family:'Segoe UI',system-ui,sans-seri
 .score-bar{height:100%;background:#e8ff47;border-radius:3px}
 .summary{font-size:15px;color:#b8b8ae;line-height:1.8}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:36px}
-@media(max-width:600px){.grid{grid-template-columns:1fr}}
+@media(max-width:600px){
+body{padding:20px 12px}
+.wrap{max-width:100%;width:100%}
+.report-candidate{font-size:28px}
+.career-title{font-size:18px}
+.band-row{grid-template-columns:60px 1fr 110px;gap:8px;font-size:11px}
+.band-val{font-size:11px}
+.grid{grid-template-columns:1fr}
+}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{background:#1a1a14;border:1px solid #2a2a22;color:#b8b8ae;padding:4px 12px;border-radius:20px;font-size:13px}
 ul.list{list-style:none;display:flex;flex-direction:column;gap:8px}
