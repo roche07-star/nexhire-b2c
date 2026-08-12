@@ -150,7 +150,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       try {
         // HTML 스냅샷 생성 후 .save-panel 제거 (저장된 파일에는 버튼 없음)
         let htmlContent = document.documentElement.outerHTML;
-        htmlContent = htmlContent.replace(/<div class="save-panel">[\s\S]*?<\/div>/, '');
+        htmlContent = htmlContent.replace(/<div class="save-panel">[\\s\\S]*?<\\/div>/, '');
 
         // 1) 클립보드 복사 시도 (사용자가 원하는 곳에 붙여넣기 가능)
         let copied = false;
