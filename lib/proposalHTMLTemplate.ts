@@ -148,8 +148,9 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       const linkEl = document.querySelector('.manual-link');
 
       try {
-        // 저장 버튼/패널 상태 표시는 유지한 채 HTML 스냅샷 생성
-        const htmlContent = document.documentElement.outerHTML;
+        // HTML 스냅샷 생성 후 .save-panel 제거 (저장된 파일에는 버튼 없음)
+        let htmlContent = document.documentElement.outerHTML;
+        htmlContent = htmlContent.replace(/<div class="save-panel">[\s\S]*?<\/div>/, '');
 
         // 1) 클립보드 복사 시도 (사용자가 원하는 곳에 붙여넣기 가능)
         let copied = false;
@@ -196,7 +197,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
 <body>
   <!-- 수정본 저장 패널: 자동 다운로드 없이 사용자가 직접 클릭해야 동작 -->
   <div class="save-panel">
-    <button class="save-btn" onclick="saveModifiedProposal()">💾 수정본 저장 준비</button>
+    <button class="save-btn" onclick="saveModifiedProposal()">💾 수정본 저장</button>
     <div class="save-status"></div>
     <a class="manual-link" href="#" download></a>
   </div>
