@@ -150,7 +150,13 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
       try {
         // HTML 스냅샷 생성 후 .save-panel 제거 (저장된 파일에는 버튼 없음)
         let htmlContent = document.documentElement.outerHTML;
-        htmlContent = htmlContent.replace(/<!-- SAVE_PANEL_START -->[\\s\\S]*?<!-- SAVE_PANEL_END -->/, '');
+        const startMarker = '<!-- SAVE_PANEL_START -->';
+        const endMarker = '<!-- SAVE_PANEL_END -->';
+        const startIdx = htmlContent.indexOf(startMarker);
+        const endIdx = htmlContent.indexOf(endMarker);
+        if (startIdx !== -1 && endIdx !== -1) {
+          htmlContent = htmlContent.substring(0, startIdx) + htmlContent.substring(endIdx + endMarker.length);
+        }
 
         // 1) 클립보드 복사 시도 (사용자가 원하는 곳에 붙여넣기 가능)
         let copied = false;
