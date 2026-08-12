@@ -117,7 +117,7 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
   </style>
 
   <script>
-    // 수정본 저장 기능
+    // 수정본 저장 기능 (수동 다운로드)
     function saveModifiedProposal() {
       try {
         // 현재 HTML을 문자열로 가져오기
@@ -132,27 +132,57 @@ export function generateProposalHTML(proposal: any, resumeAnalysis: any, jdAnaly
         // 저장 버튼 스타일 제거
         html = html.replace(/\\/\\* 저장 버튼 스타일 \\*\\/[\\s\\S]*?\\.save-btn:active[\\s\\S]*?\\}/s, '')
 
-        // Blob 생성
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-        const url = URL.createObjectURL(blob)
+        // 1. 클립보드에 복사
+        navigator.clipboard.writeText(html).then(() => {
+          console.log('클립보드 복사 완료')
+        }).catch(() => {
+          console.log('클립보드 복사 실패 (권한 없음)')
+        })
 
-        // 다운로드
-        const a = document.createElement('a')
-        a.href = url
+        // 2. Data URI 생성 (Blob 대신 사용)
+        const dataUri = 'data:text/html;charset=utf-8,' + encodeURIComponent(html)
 
+        // 3. 파일명 생성
         const now = new Date()
         const dateStr = now.toISOString().slice(0, 10)
         const timeStr = now.toTimeString().slice(0, 5).replace(':', '')
         const candidateName = document.querySelector('.info-value')?.textContent?.trim() || '미상'
+        const filename = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`
 
-        a.download = \`후보자제안서_수정본_\${candidateName}_\${dateStr}_\${timeStr}.html\`
-        a.click()
+        // 4. 기존 다운로드 링크가 있으면 제거
+        const existing = document.getElementById('manual-download-link')
+        if (existing) existing.remove()
 
-        URL.revokeObjectURL(url)
-        alert('✅ 수정본이 저장되었습니다!')
+        // 5. 수동 다운로드 링크 생성 (자동 클릭 없음!)
+        const downloadLink = document.createElement('a')
+        downloadLink.id = 'manual-download-link'
+        downloadLink.href = dataUri
+        downloadLink.download = filename
+        downloadLink.textContent = '📥 클릭하여 수정본 다운로드'
+        downloadLink.style.cssText = \`
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: #fff;
+          padding: 16px 24px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          text-decoration: none;
+          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        \`
+
+        // 6. 화면에 추가
+        document.body.appendChild(downloadLink)
+
+        // 7. 안내 메시지
+        alert('✅ 준비 완료!\\n\\n1. HTML이 클립보드에 복사되었습니다\\n2. 화면 우측 상단의 "다운로드" 링크를 클릭하세요')
       } catch (error) {
         console.error('저장 실패:', error)
-        alert('❌ 저장 실패')
+        alert('❌ 저장 실패: ' + error.message)
       }
     }
   </script>
