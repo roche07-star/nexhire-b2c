@@ -220,7 +220,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
       setPlanAdjustResult(data)
 
       if (data.success) {
-        setMsg(`✅ 플랜 조정 완료: 업그레이드 ${data.results.planUpgrades}명, 다운그레이드 ${data.results.planDowngrades}명`)
+        setMsg(`✅ 플랜 조정 완료: 업그레이드 ${data.results.planUpgrades.count}명, 다운그레이드 ${data.results.planDowngrades.count}명`)
         await loadUsers() // 유저 목록 새로고침
       } else {
         setMsg(`❌ 플랜 조정 실패: ${data.error}`)
