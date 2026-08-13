@@ -15,6 +15,14 @@ export default function SentryInit() {
       tracesSampleRate: 0.1,
       sampleRate: 1.0,
 
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration({
+          maskAllText: true,
+          blockAllMedia: true,
+        }),
+      ],
+
       beforeSend(event) {
         console.log('[Sentry] Capturing event:', event.exception?.values?.[0]?.type)
         return event
@@ -25,6 +33,18 @@ export default function SentryInit() {
     })
 
     console.log('[Sentry] Initialized successfully')
+
+    // 전역 에러 핸들러 등록
+    window.addEventListener('error', (event) => {
+      console.log('[Sentry] Global error caught:', event.error)
+      Sentry.captureException(event.error)
+    })
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.log('[Sentry] Unhandled rejection:', event.reason)
+      Sentry.captureException(event.reason)
+    })
+
     if (typeof window !== 'undefined') {
       ;(window as any).Sentry = Sentry
     }
