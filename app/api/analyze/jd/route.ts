@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rateLimit'
 import { BASE_HEADHUNTER_ROLE, OUTPUT_RULES } from '@/lib/prompts/base-headhunter'
 import { invalidateCache } from '@/lib/cache'
 import { callClaude } from '@/lib/claude-client'
@@ -113,7 +114,32 @@ export async function POST(req: NextRequest) {
 
     // 플랜 횟수 제한 체크
     if (userRole !== 'MANAGER' && !jdCouponId) {
-      const { allowed, limit } = await checkUsage(session.user.email, 'jd')
+      const { allowed, limit, plan } = await checkUsage(session.user.email, 'jd')
+
+      // 🛡️ PRO/EXPERT 플랜 사용자 보호: 분당 5회 (실수/해킹/버그 방지)
+      if (plan === 'PRO' || plan === 'EXPERT') {
+        const protectionKey = `paid-protection:jd:${session.user.email}`
+        const protectionLimit = await checkRateLimit(protectionKey, RATE_LIMITS.PAID_PLAN_PROTECTION)
+
+        if (!protectionLimit.success) {
+          return NextResponse.json(
+            {
+              error: '잠시만 기다려주세요. 분당 5회까지 사용 가능합니다. (사용자 보호 기능)',
+              retryAfter: Math.ceil((protectionLimit.reset - Date.now()) / 1000)
+            },
+            {
+              status: 429,
+              headers: {
+                'X-RateLimit-Limit': String(RATE_LIMITS.PAID_PLAN_PROTECTION.limit),
+                'X-RateLimit-Remaining': String(protectionLimit.remaining),
+                'X-RateLimit-Reset': String(protectionLimit.reset),
+                'Retry-After': String(Math.ceil((protectionLimit.reset - Date.now()) / 1000)),
+              }
+            }
+          )
+        }
+      }
+
       if (!allowed) {
         const msg = limit === 0
           ? 'JD 적합도 분석은 PRO 이상 플랜에서 이용 가능합니다.'

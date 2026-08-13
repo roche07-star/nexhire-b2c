@@ -763,6 +763,31 @@ export async function POST(req: NextRequest) {
           { status: 403 }
         )
       }
+
+      // 🛡️ PRO/EXPERT 플랜 사용자 보호: 분당 5회 (실수/해킹/버그 방지)
+      if (plan === 'PRO' || plan === 'EXPERT') {
+        const { checkRateLimit, RATE_LIMITS } = await import('@/lib/rateLimit')
+        const protectionKey = `paid-protection:rewrite:${email}`
+        const protectionLimit = await checkRateLimit(protectionKey, RATE_LIMITS.PAID_PLAN_PROTECTION)
+
+        if (!protectionLimit.success) {
+          return NextResponse.json(
+            {
+              error: '잠시만 기다려주세요. 분당 5회까지 사용 가능합니다. (사용자 보호 기능)',
+              retryAfter: Math.ceil((protectionLimit.reset - Date.now()) / 1000)
+            },
+            {
+              status: 429,
+              headers: {
+                'X-RateLimit-Limit': String(RATE_LIMITS.PAID_PLAN_PROTECTION.limit),
+                'X-RateLimit-Remaining': String(protectionLimit.remaining),
+                'X-RateLimit-Reset': String(protectionLimit.reset),
+                'Retry-After': String(Math.ceil((protectionLimit.reset - Date.now()) / 1000)),
+              }
+            }
+          )
+        }
+      }
     }
 
     const formData = await req.formData()

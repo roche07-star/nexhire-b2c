@@ -154,6 +154,9 @@ export const RATE_LIMITS = {
   /** 🔒 FREE 플랜 남용 방지: 1일 10회 (코난 제안) */
   FREE_DAILY: { limit: 10, window: 86400 },
 
+  /** 🛡️ PRO/EXPERT 플랜 사용자 보호: 분당 5회 (실수/해킹 방지) */
+  PAID_PLAN_PROTECTION: { limit: 5, window: 60 },
+
   /** 로그인 시도: 5분당 5회 */
   AUTH: { limit: 5, window: 300 },
 
