@@ -1006,19 +1006,126 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 </div>
                 {planAdjustResult.results && (
                   <div style={{ fontSize: 13, color: '#374151' }}>
-                    • 플랜 업그레이드: {planAdjustResult.results.planUpgrades}명<br />
-                    • 플랜 다운그레이드: {planAdjustResult.results.planDowngrades}명<br />
-                    • 탈퇴 처리: {planAdjustResult.results.withdrawals}명<br />
-                    • 데이터 삭제: {planAdjustResult.results.deletions}명
+                    {/* 플랜 업그레이드 */}
+                    {planAdjustResult.results.planUpgrades.count > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                          ⬆️ 플랜 업그레이드: {planAdjustResult.results.planUpgrades.count}명
+                        </div>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                          <thead>
+                            <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #d1d5db' }}>
+                              <th style={{ padding: '8px', textAlign: 'left' }}>이메일</th>
+                              <th style={{ padding: '8px', textAlign: 'center' }}>변경</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {planAdjustResult.results.planUpgrades.users.map((u: any, i: number) => (
+                              <tr key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                <td
+                                  style={{
+                                    padding: '8px',
+                                    cursor: 'pointer',
+                                    color: '#2563eb',
+                                    textDecoration: 'underline'
+                                  }}
+                                  onClick={() => openUserDetail(u.email)}
+                                >
+                                  {u.email}
+                                </td>
+                                <td style={{ padding: '8px', textAlign: 'center' }}>
+                                  {u.from} → <strong style={{ color: '#059669' }}>{u.to}</strong>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 플랜 다운그레이드 */}
+                    {planAdjustResult.results.planDowngrades.count > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                          ⬇️ 플랜 다운그레이드: {planAdjustResult.results.planDowngrades.count}명
+                        </div>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                          <thead>
+                            <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #d1d5db' }}>
+                              <th style={{ padding: '8px', textAlign: 'left' }}>이메일</th>
+                              <th style={{ padding: '8px', textAlign: 'center' }}>변경</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {planAdjustResult.results.planDowngrades.users.map((u: any, i: number) => (
+                              <tr key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                <td
+                                  style={{
+                                    padding: '8px',
+                                    cursor: 'pointer',
+                                    color: '#2563eb',
+                                    textDecoration: 'underline'
+                                  }}
+                                  onClick={() => openUserDetail(u.email)}
+                                >
+                                  {u.email}
+                                </td>
+                                <td style={{ padding: '8px', textAlign: 'center' }}>
+                                  {u.from} → <strong style={{ color: '#f59e0b' }}>{u.to}</strong>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 탈퇴 처리 */}
+                    {planAdjustResult.results.withdrawals.count > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                          🚪 탈퇴 처리: {planAdjustResult.results.withdrawals.count}명
+                        </div>
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>
+                          {planAdjustResult.results.withdrawals.users.map((u: any, i: number) => (
+                            <div key={i} style={{ padding: '4px 0' }}>• {u.email}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 데이터 삭제 */}
+                    {planAdjustResult.results.deletions.count > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                          🗑️ 데이터 삭제: {planAdjustResult.results.deletions.count}명
+                        </div>
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>
+                          {planAdjustResult.results.deletions.users.map((u: any, i: number) => (
+                            <div key={i} style={{ padding: '4px 0' }}>• {u.email}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 아무 조정도 없는 경우 */}
+                    {planAdjustResult.results.planUpgrades.count === 0 &&
+                      planAdjustResult.results.planDowngrades.count === 0 &&
+                      planAdjustResult.results.withdrawals.count === 0 &&
+                      planAdjustResult.results.deletions.count === 0 && (
+                        <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>
+                          조정할 플랜이 없습니다.
+                        </div>
+                      )}
+
+                    {/* 오류 */}
                     {planAdjustResult.results.errors?.length > 0 && (
-                      <>
-                        <br />
-                        <br />
-                        <strong>오류:</strong><br />
+                      <div style={{ marginTop: 16, padding: 12, background: '#fef2f2', borderRadius: 8 }}>
+                        <strong style={{ color: '#991b1b' }}>⚠️ 오류:</strong><br />
                         {planAdjustResult.results.errors.map((e: string, i: number) => (
-                          <span key={i}>• {e}<br /></span>
+                          <div key={i} style={{ padding: '4px 0', fontSize: 12 }}>• {e}</div>
                         ))}
-                      </>
+                      </div>
                     )}
                   </div>
                 )}

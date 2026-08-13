@@ -17,10 +17,10 @@ export async function GET(req: NextRequest) {
   }
 
   const results = {
-    planUpgrades: 0,
-    planDowngrades: 0,
-    withdrawals: 0,
-    deletions: 0,
+    planUpgrades: { count: 0, users: [] as Array<{ email: string; from: string; to: string }> },
+    planDowngrades: { count: 0, users: [] as Array<{ email: string; from: string; to: string }> },
+    withdrawals: { count: 0, users: [] as Array<{ email: string }> },
+    deletions: { count: 0, users: [] as Array<{ email: string }> },
     errors: [] as string[],
   }
 
@@ -61,7 +61,12 @@ export async function GET(req: NextRequest) {
       if (error) {
         results.errors.push(`Reserved plan activation failed for ${user.email}: ${error.message}`)
       } else {
-        results.planUpgrades++
+        results.planUpgrades.count++
+        results.planUpgrades.users.push({
+          email: user.email,
+          from: user.plan,
+          to: nextPlan,
+        })
         console.log(`[cron] ✅ Activated reserved plan ${user.email}: ${user.plan} → ${nextPlan}`)
       }
     }
@@ -109,7 +114,12 @@ export async function GET(req: NextRequest) {
       if (error) {
         results.errors.push(`Downgrade failed for ${user.email}: ${error.message}`)
       } else {
-        results.planDowngrades++
+        results.planDowngrades.count++
+        results.planDowngrades.users.push({
+          email: user.email,
+          from: user.plan,
+          to: newPlan,
+        })
         console.log(`[cron] ✅ Downgraded ${user.email} from ${user.plan} to ${newPlan}`)
       }
     }
@@ -130,7 +140,8 @@ export async function GET(req: NextRequest) {
       if (error) {
         results.errors.push(`Withdrawal failed for ${user.email}: ${error.message}`)
       } else {
-        results.withdrawals++
+        results.withdrawals.count++
+        results.withdrawals.users.push({ email: user.email })
         console.log(`[cron] ✅ Withdrawn ${user.email}`)
       }
     }
@@ -155,7 +166,8 @@ export async function GET(req: NextRequest) {
       if (error) {
         results.errors.push(`Deletion failed for ${user.email}: ${error.message}`)
       } else {
-        results.deletions++
+        results.deletions.count++
+        results.deletions.users.push({ email: user.email })
         console.log(`[cron] ✅ Deleted ${user.email}`)
       }
     }
