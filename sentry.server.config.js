@@ -63,7 +63,7 @@ Sentry.init({
       // Query 파라미터에서 민감 정보 제거
       if (event.request.query_string && typeof event.request.query_string === 'string') {
         const sensitiveParams = ['token', 'api_key', 'apiKey', 'secret', 'password']
-        const hasSecret = sensitiveParams.some(param => event.request!.query_string!.toString().includes(param))
+        const hasSecret = sensitiveParams.some(param => event.request.query_string.toString().includes(param))
         if (hasSecret) {
           event.request.query_string = '[FILTERED]'
         }
