@@ -723,6 +723,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     .filter((u) => !showOnlyHeadhunterSharing || u.headhunter_sharing_enabled === true)
     .filter((u) => !showResetSoon || isResetSoon(u))
 
+  // 초기화 임박 유저 수 (체크박스 상태와 무관하게 항상 실제 숫자 표시)
+  const resetSoonCount = users.filter(u => u.user_type !== 'SUPER_ADMIN' && isResetSoon(u)).length
+
   // 통계는 stats API에서 가져온 데이터 사용
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
   const totalJd = users.reduce((s, u) => s + (u.jd_count ?? 0), 0)
@@ -970,7 +973,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                   onChange={(e) => setShowResetSoon(e.target.checked)}
                   style={{ width: 18, height: 18, cursor: 'pointer' }}
                 />
-                ⏰ 초기화 임박 (3일 이내, PRO/EXPERT) ({filteredUsers.length}명)
+                ⏰ 초기화 임박 (3일 이내, PRO/EXPERT) ({resetSoonCount}명)
               </label>
               <button
                 onClick={runPlanAdjustment}
