@@ -109,4 +109,7 @@ Sentry.init({
 })
 
 console.log('[Sentry Client] Initialized successfully')
-window.Sentry = Sentry
+
+if (typeof window !== 'undefined') {
+  window.Sentry = Sentry
+}
