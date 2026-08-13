@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import './landing.css' // ✅ Performance: 랜딩 페이지 전용 CSS
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import HowItWorks from '@/components/HowItWorks'

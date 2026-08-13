@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import './analyze.css' // ✅ Performance: 분석 페이지 전용 CSS
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import AnalyzeClient from './AnalyzeClient'

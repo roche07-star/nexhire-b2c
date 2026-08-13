@@ -5,10 +5,11 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useAnalysis } from '@/contexts/AnalysisContext'
-import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
-import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
-import { generateReportHTML, downloadReport, viewReport } from '@/lib/reportHTMLTemplate'
-import { generateJDReportHTML, downloadJDReport } from '@/lib/jdReportHTMLTemplate'
+// ✅ Performance: HTML 템플릿 함수들을 dynamic import로 변경 (사용 시에만 로드)
+// import { generateInterviewHTML } from '@/lib/interviewHTMLTemplate'
+// import { generateProposalHTML } from '@/lib/proposalHTMLTemplate'
+// import { generateReportHTML, downloadReport, viewReport } from '@/lib/reportHTMLTemplate'
+// import { generateJDReportHTML, downloadJDReport } from '@/lib/jdReportHTMLTemplate'
 import UpgradeEarlyModal from '@/components/UpgradeEarlyModal'
 
 // 탭별 동적 import (초기 로딩 최적화)
@@ -1622,9 +1623,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               const dlButton = (g: InterviewGuideResult) => (
                 <button
                   className="rewrite-dl-btn"
-                  onClick={() => {
+                  onClick={async () => {
                     try {
                       console.log('[Interview DL] 다운로드 시작:', g)
+                      // ✅ Performance: Dynamic import
+                      const { generateInterviewHTML } = await import('@/lib/interviewHTMLTemplate')
                       const html = generateInterviewHTML(g)
                       console.log('[Interview DL] HTML 생성 완료, 길이:', html.length)
 
@@ -4161,14 +4164,22 @@ function AnalysisResults({
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
             <button
               className="analyze-download-btn"
-              onClick={() => viewReport(result)}
+              onClick={async () => {
+                // ✅ Performance: Dynamic import
+                const { viewReport } = await import('@/lib/reportHTMLTemplate')
+                viewReport(result)
+              }}
               style={{ flex: 1, maxWidth: '300px' }}
             >
               👁️ HTML 리포트 보기
             </button>
             <button
               className="analyze-download-btn"
-              onClick={() => downloadReport(result)}
+              onClick={async () => {
+                // ✅ Performance: Dynamic import
+                const { downloadReport } = await import('@/lib/reportHTMLTemplate')
+                downloadReport(result)
+              }}
               style={{ flex: 1, maxWidth: '300px', background: 'var(--bg3)' }}
             >
               ↓ 다운로드
@@ -4308,6 +4319,8 @@ function JDResults({
       const { proposal } = await res.json()
 
       // HTML 생성
+      // ✅ Performance: Dynamic import
+      const { generateProposalHTML } = await import('@/lib/proposalHTMLTemplate')
       const html = generateProposalHTML(proposal, analysisItem.result, result)
 
       // localStorage에 저장
@@ -4588,7 +4601,11 @@ function JDResults({
             </button>
           ) : (
             <>
-              <button className="analyze-download-btn" onClick={() => downloadJDReport(result, analysisItem)}>
+              <button className="analyze-download-btn" onClick={async () => {
+                // ✅ Performance: Dynamic import
+                const { downloadJDReport } = await import('@/lib/jdReportHTMLTemplate')
+                downloadJDReport(result, analysisItem)
+              }}>
                 ↓ HTML 리포트 다운로드
               </button>
 
