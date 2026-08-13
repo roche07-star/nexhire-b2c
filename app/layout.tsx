@@ -18,6 +18,7 @@ const notoSansKR = Noto_Sans_KR({
   weight: ['300', '400', '500', '700'],
   variable: '--font-noto',
   display: 'swap',
+  preload: false, // Turbopack 폰트 로딩 이슈 회피
 })
 
 export const metadata: Metadata = {
