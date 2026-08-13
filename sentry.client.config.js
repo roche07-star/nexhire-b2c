@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/nextjs'
 
+console.log('[Sentry Client] Initializing...', { dsn: process.env.NEXT_PUBLIC_SENTRY_DSN })
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
@@ -105,3 +107,6 @@ Sentry.init({
     /^moz-extension:\/\//i,
   ],
 })
+
+console.log('[Sentry Client] Initialized successfully')
+window.Sentry = Sentry
