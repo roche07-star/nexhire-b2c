@@ -193,6 +193,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewViewingSaved, setInterviewViewingSaved] = useState<SavedInterviewGuide | null>(null)
   const [showNewInterview, setShowNewInterview] = useState(false)
 
+  // 재분석 완료 후 saved 탭으로 이동
+  useEffect(() => {
+    const refineCompleteId = sessionStorage.getItem('refineComplete')
+    if (refineCompleteId) {
+      sessionStorage.removeItem('refineComplete')
+      setActiveMenu('saved')
+      // 해당 분석 항목 자동 선택
+      if (analysisList) {
+        const item = analysisList.find((a) => a.id === refineCompleteId)
+        if (item) setSavedSelectedItem(item)
+      }
+    }
+  }, [analysisList])
+
   // 면접 가이드 목록 자동 로드 (생성 후 갱신용)
   useEffect(() => {
     if (activeMenu === 'interview' && interviewSavedList === null && !interviewSavedListLoading) {
@@ -3499,7 +3513,8 @@ function AnalysisResults({
         setRefineError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      // 재분석 완료 후 페이지 새로고침하여 업데이트된 분석 결과 표시
+      // 재분석 완료 후 saved 탭으로 이동하여 업데이트된 분석 결과 표시
+      sessionStorage.setItem('refineComplete', analysisId)
       window.location.reload()
     } catch {
       setRefineError('서버 오류가 발생했습니다.')
@@ -4251,7 +4266,7 @@ function AnalysisResults({
                 const { viewReport } = await import('@/lib/reportHTMLTemplate')
                 viewReport(result)
               }}
-              style={{ flex: 1, maxWidth: '150px' }}
+              style={{ flex: 1, maxWidth: '180px' }}
             >
               👁️ HTML<br/>리포트 보기
             </button>
