@@ -3699,15 +3699,15 @@ function AnalysisResults({
         {scores.map((s) => {
           const { grade, color, bgColor } = getScoreGrade(s.value)
           return (
-            <div key={s.label} className="result-score-row" style={{ marginBottom: '12px' }}>
+            <div key={s.label} className="result-score-row" style={{ marginBottom: '4px' }}>
               <div className="score-meta">
-                <span className="score-name">{s.label}</span>
+                <span className="score-name" style={{ fontSize: '13px' }}>{s.label}</span>
                 {s.value != null && (
                   <span style={{
                     display: 'inline-block',
-                    padding: '4px 14px',
-                    borderRadius: '20px',
-                    fontSize: '14px',
+                    padding: '2px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px',
                     fontWeight: '700',
                     color: color,
                     backgroundColor: 'transparent',
@@ -3717,7 +3717,7 @@ function AnalysisResults({
                   </span>
                 )}
               </div>
-              <div className="score-bar-wrap">
+              <div className="score-bar-wrap" style={{ height: '6px' }}>
                 <div className="score-bar" style={{
                   width: `${s.value ?? 0}%`,
                   background: s.value != null ? color : undefined
