@@ -9,6 +9,10 @@
       "schedule": "0 3 * * *"
     },
     {
+      "path": "/api/cron/cleanup-expired-guides",
+      "schedule": "0 4 * * *"
+    },
+    {
       "path": "/api/cron/send-reset-warnings",
       "schedule": "0 10 * * *"
     }
