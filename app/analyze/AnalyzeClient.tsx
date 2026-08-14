@@ -3659,7 +3659,7 @@ function AnalysisResults({
             📌 분석 직무: {result.job_title}
           </div>
         )}
-        {result.career_gap_warning && (
+        {result.career_gap_warning ? (
           <div style={{
             background: 'rgba(239,68,68,0.1)',
             border: '2px solid rgba(239,68,68,0.3)',
@@ -3676,6 +3676,24 @@ function AnalysisResults({
           }}>
             <span style={{ fontSize: 18 }}>⚠️</span>
             <span>{result.career_gap_warning}</span>
+          </div>
+        ) : (
+          <div style={{
+            background: 'rgba(59,130,246,0.1)',
+            border: '2px solid rgba(59,130,246,0.3)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: 16,
+            color: '#2563eb',
+            fontSize: 14,
+            fontWeight: 600,
+            lineHeight: 1.6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10
+          }}>
+            <span style={{ fontSize: 18 }}>✅</span>
+            <span>경력 공백 없음</span>
           </div>
         )}
         {scores.map((s) => {
