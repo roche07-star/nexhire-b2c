@@ -2,7 +2,7 @@ import type { AnalysisResult } from '@/types/analyze'
 import { toArr } from '@/types/analyze'
 import { CAREER_COLORS_HEX } from '@/constants/analyze'
 
-export function generateReportHTML(result: AnalysisResult, date?: string): string {
+export function generateReportHTML(result: AnalysisResult): string {
   const scores = [
     { label: '직무 적합도', value: result.scores?.job_fit },
     { label: '시장 경쟁력', value: result.scores?.market_competitiveness },
@@ -53,7 +53,8 @@ export function generateReportHTML(result: AnalysisResult, date?: string): strin
     ? `<div class="report-candidate">${result.job_title}</div>`
     : ''
 
-  const dateStr = date ? new Date(date).toLocaleDateString('ko-KR') : new Date().toLocaleDateString('ko-KR')
+  // 항상 현재 날짜 사용
+  const dateStr = new Date().toLocaleDateString('ko-KR')
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -164,8 +165,8 @@ ul.improve li::before{color:#888880}
 </html>`
 }
 
-export function downloadReport(result: AnalysisResult, date?: string) {
-  const html = generateReportHTML(result, date)
+export function downloadReport(result: AnalysisResult) {
+  const html = generateReportHTML(result)
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -179,8 +180,8 @@ export function downloadReport(result: AnalysisResult, date?: string) {
 /**
  * HTML 리포트를 새 탭에서 열기 (미리보기)
  */
-export function viewReport(result: AnalysisResult, date?: string) {
-  const html = generateReportHTML(result, date)
+export function viewReport(result: AnalysisResult) {
+  const html = generateReportHTML(result)
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const newWindow = window.open(url, '_blank')
