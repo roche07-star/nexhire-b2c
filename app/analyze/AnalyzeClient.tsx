@@ -2062,8 +2062,9 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               <div key={saved.id} className="jd-saved-card" onClick={() => setInterviewViewingSaved(saved)}>
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">
-                                    {saved.result.job_title || saved.result.candidate_name || '후보자'}
-                                    {saved.result.company && <span style={{ color: 'var(--muted)', fontWeight: 400, marginLeft: 8 }}>@ {saved.result.company}{saved.result.position ? ` — ${saved.result.position}` : ''}</span>}
+                                    {saved.result.candidate_name || '후보자'}
+                                    {saved.result.company && ` @ ${saved.result.company}`}
+                                    {saved.result.position && ` - ${saved.result.position}`}
                                   </span>
                                   <span className="jd-saved-resume interview-expire-tag">{days > 0 ? `${days}일 후 삭제` : '오늘 삭제 예정'}</span>
                                 </div>
