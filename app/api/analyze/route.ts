@@ -63,8 +63,8 @@ const baseTool: Anthropic.Tool = {
         },
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
-      strengths: { type: 'array', items: { type: 'string' }, description: '핵심 강점 (최대 4개)' },
-      improvements: { type: 'array', items: { type: 'string' }, description: '개선 포인트 (최대 4개). ⚠️ 연차별 현실적 기준 적용: 1-3년차는 실무 숙련, 4-7년차는 프로젝트 리딩, 8년차 이상만 팀 관리 기대. 6년차에게 관리자급 경험 요구 금지!' },
+      strengths: { type: 'array', items: { type: 'string' }, description: '핵심 강점 (**최소 2개, 최대 4개 필수**). 구체적 수치·프로젝트명·결과물이 있는 항목만 포함.' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선 포인트 (**최소 2개, 최대 4개 필수**). ⚠️⚠️ 아무리 우수한 후보자라도 개선 포인트는 반드시 존재합니다! 연차별 현실적 기준 적용: 1-3년차는 실무 숙련, 4-7년차는 프로젝트 리딩, 8년차 이상만 팀 관리 기대. 6년차에게 관리자급 경험 요구 금지!' },
       keywords: { type: 'array', items: { type: 'string' }, description: '핵심 키워드 (최대 8개)' },
       summary: { type: 'string', description: '헤드헌터용 종합 요약. 각 항목은 줄바꿈(\\n)으로 구분. 콜론(:) 없이 작성. 포지셔닝 경력N년차, 직급, 직무\\n핵심 강점 수치/프로젝트명 포함\\n커리어 패턴 성장형/전환형/순환형/분산형, 이직 시그널\\n시장 제안 제안 가능 포지션 또는 리스크' },
       career_paths: {
@@ -121,8 +121,8 @@ const proBasicTool: Anthropic.Tool = {
         required: ['job_fit', 'market_competitiveness', 'growth_potential'],
       },
       summary: { type: 'string', description: '헤드헌터용 종합 요약. 각 항목은 줄바꿈(\\n)으로 구분. 콜론(:) 없이 작성. 포지셔닝 경력N년차, 직급, 직무\\n핵심 강점 수치/프로젝트명 포함\\n커리어 패턴 성장형/전환형/순환형/분산형, 이직 시그널\\n시장 제안 제안 가능 포지션 또는 리스크' },
-      strengths: { type: 'array', items: { type: 'string' }, description: '이력서의 핵심 강점 (최대 4개)' },
-      improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (최대 4개). ⚠️ 연차별 현실적 기준: 1-3년차는 실무, 4-7년차는 리딩, 8년차+ 팀 관리. 6년차에게 관리자급 경험 요구 절대 금지!' },
+      strengths: { type: 'array', items: { type: 'string' }, description: '이력서의 핵심 강점 (**최소 2개, 최대 4개 필수**). 구체적 수치·프로젝트명·결과물이 있는 항목만 포함.' },
+      improvements: { type: 'array', items: { type: 'string' }, description: '개선이 필요한 부분 (**최소 2개, 최대 4개 필수**). ⚠️⚠️ 아무리 우수한 후보자라도 개선 포인트는 반드시 존재합니다! 연차별 현실적 기준: 1-3년차는 실무, 4-7년차는 리딩, 8년차+ 팀 관리. 6년차에게 관리자급 경험 요구 절대 금지!' },
       keywords: { type: 'array', items: { type: 'string' }, description: '이력서에서 발견된 핵심 키워드 (최대 8개)' },
     },
     required: ['job_title', 'scores', 'summary', 'strengths', 'improvements', 'keywords'],
@@ -521,6 +521,14 @@ ${OUTPUT_RULES}
         console.error('[analyze] missing keywords in PRO tool output:', JSON.stringify(basicInput).slice(0, 400))
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
+      if (!Array.isArray(basicInput.strengths) || (basicInput.strengths as unknown[]).length < 2) {
+        console.error('[analyze] missing strengths in PRO tool output (min 2 required):', JSON.stringify(basicInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+      if (!Array.isArray(basicInput.improvements) || (basicInput.improvements as unknown[]).length < 2) {
+        console.error('[analyze] missing improvements in PRO tool output (min 2 required):', JSON.stringify(basicInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
 
       // 하이브리드 하네스 검증 단계 (토큰 절약: 환경 변수로 제어)
       const ENABLE_VALIDATION = process.env.ENABLE_VALIDATION !== 'false'
@@ -753,6 +761,14 @@ ${OUTPUT_RULES}`
       }
       if (!Array.isArray(freeInput.keywords) || (freeInput.keywords as unknown[]).length === 0) {
         console.error('[analyze] missing keywords in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+      if (!Array.isArray(freeInput.strengths) || (freeInput.strengths as unknown[]).length < 2) {
+        console.error('[analyze] missing strengths in FREE tool output (min 2 required):', JSON.stringify(freeInput).slice(0, 400))
+        return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
+      }
+      if (!Array.isArray(freeInput.improvements) || (freeInput.improvements as unknown[]).length < 2) {
+        console.error('[analyze] missing improvements in FREE tool output (min 2 required):', JSON.stringify(freeInput).slice(0, 400))
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
 
