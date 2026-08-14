@@ -33,7 +33,12 @@ export async function POST(request: Request) {
 
     // 요청 바디 파싱
     const body = await request.json()
-    const { analysisId, stage } = body
+    const {
+      analysisId,
+      stage,
+      autoSettlement = false, // 정산 자동 등록 여부
+      settlementData = null // 정산 정보 (수동 등록 시)
+    } = body
 
     if (!analysisId || !stage) {
       return NextResponse.json(
@@ -51,10 +56,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // 본인 데이터인지 확인
+    // 본인 데이터인지 확인 (정산 등록에 필요한 정보 포함)
     const { data: analysis, error: analysisError } = await supabase
       .from('analyses')
-      .select('user_email, pipeline_stage')
+      .select('user_email, pipeline_stage, result')
       .eq('id', analysisId)
       .single()
 
@@ -67,6 +72,7 @@ export async function POST(request: Request) {
     }
 
     const oldStage = analysis.pipeline_stage || 'pending'
+    const result = analysis.result as any
 
     // 파이프라인 단계 업데이트
     const { error: updateError } = await supabase
@@ -98,11 +104,65 @@ export async function POST(request: Request) {
       // 히스토리 저장 실패는 치명적이지 않음 (로그만 남김)
     }
 
+    let settlementId = null
+
+    // 합격(completed) 처리 시 정산 등록
+    if (stage === 'completed' && (autoSettlement || settlementData)) {
+      try {
+        // 정산 데이터 준비
+        const settlement = settlementData || {
+          candidate_name: result?.candidate_name || '미정',
+          start_date: new Date().toISOString().slice(0, 10), // 기본값: 오늘
+          salary: 0, // 급여는 수동 입력 필요
+          commission_rate: 17,
+          incentive_rate: 70,
+          my_role: 'PM',
+          my_ratio: 50,
+        }
+
+        // JD 분석 정보 가져오기 (회사명, 포지션)
+        const { data: jdAnalyses } = await supabase
+          .from('jd_analyses')
+          .select('result')
+          .eq('analysis_id', analysisId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+
+        if (jdAnalyses && jdAnalyses.length > 0) {
+          const jdResult = jdAnalyses[0].result as any
+          settlement.company = settlement.company || jdResult?.company
+          settlement.position = settlement.position || jdResult?.position
+        }
+
+        // 정산 등록
+        const { data: settlementRecord, error: settlementError } = await supabase
+          .from('settlements')
+          .insert({
+            ...settlement,
+            headhunter_email: email,
+            memo: settlement.memo || `파이프라인 합격 자동 등록 (분석 ID: ${analysisId})`,
+          })
+          .select()
+          .single()
+
+        if (settlementError) {
+          console.error('Settlement insert error:', settlementError)
+          // 정산 등록 실패해도 파이프라인 업데이트는 성공으로 처리
+        } else {
+          settlementId = settlementRecord.id
+        }
+      } catch (e) {
+        console.error('Settlement creation error:', e)
+        // 정산 등록 실패해도 파이프라인 업데이트는 성공으로 처리
+      }
+    }
+
     return NextResponse.json({
       success: true,
       analysisId,
       oldStage,
       newStage: stage,
+      settlementId, // 정산 등록 성공 시 ID 반환
     })
   } catch (error) {
     console.error('Pipeline update error:', error)
