@@ -4495,7 +4495,6 @@ function JDResults({
               </span>
             )
           })()}
-          <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
         </div>
         <p className="jd-verdict">{result.verdict}</p>
       </div>
