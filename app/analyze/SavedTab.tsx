@@ -38,6 +38,16 @@ interface SavedTabProps {
   AnalysisResults: any
 }
 
+// 점수를 등급으로 변환하는 함수
+function getScoreGrade(score: number | null | undefined): { grade: string; color: string; bgColor: string } {
+  const val = score ?? 0
+  if (val >= 90) return { grade: 'S', color: '#9333EA', bgColor: '#F3E8FF' } // 보라색
+  if (val >= 75) return { grade: 'A', color: '#3B82F6', bgColor: '#DBEAFE' } // 파란색
+  if (val >= 60) return { grade: 'B', color: '#10B981', bgColor: '#D1FAE5' } // 초록색
+  if (val >= 50) return { grade: 'C', color: '#F59E0B', bgColor: '#FEF3C7' } // 노란색
+  return { grade: 'D', color: '#EF4444', bgColor: '#FEE2E2' } // 빨간색
+}
+
 export default function SavedTab({
   savedSelectedItem,
   analysisList,
@@ -333,9 +343,28 @@ export default function SavedTab({
                     <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
                   </div>
                   <div className="jd-saved-card-right">
-                    <span className="jd-saved-score" style={{ color: 'var(--accent)' }}>
-                      {item.result.scores?.job_fit ?? '—'}%
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="jd-saved-score" style={{ color: 'var(--accent)' }}>
+                        {item.result.scores?.job_fit ?? '—'}%
+                      </span>
+                      {item.result.scores?.job_fit != null && (() => {
+                        const { grade, color, bgColor } = getScoreGrade(item.result.scores.job_fit)
+                        return (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            color: color,
+                            backgroundColor: bgColor,
+                            border: `1px solid ${color}`
+                          }}>
+                            {grade}
+                          </span>
+                        )
+                      })()}
+                    </div>
                     <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                   </div>
                   <button

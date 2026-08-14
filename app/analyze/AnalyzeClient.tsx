@@ -41,6 +41,16 @@ import {
   INTERVIEW_LOADING_STEPS,
 } from '@/constants/analyze'
 
+// 점수를 등급으로 변환하는 함수
+function getScoreGrade(score: number | null | undefined): { grade: string; color: string; bgColor: string } {
+  const val = score ?? 0
+  if (val >= 90) return { grade: 'S', color: '#9333EA', bgColor: '#F3E8FF' } // 보라색
+  if (val >= 75) return { grade: 'A', color: '#3B82F6', bgColor: '#DBEAFE' } // 파란색
+  if (val >= 60) return { grade: 'B', color: '#10B981', bgColor: '#D1FAE5' } // 초록색
+  if (val >= 50) return { grade: 'C', color: '#F59E0B', bgColor: '#FEF3C7' } // 노란색
+  return { grade: 'D', color: '#EF4444', bgColor: '#FEE2E2' } // 빨간색
+}
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType, userRole }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null; userRole?: string }) {
   const {
     state: analysisState,
@@ -2462,7 +2472,26 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   <span className="jd-saved-resume">{item.result.position ?? item.result.resume_job_title ?? '이력서 분석'}</span>
                                 </div>
                                 <div className="jd-saved-card-right">
-                                  <span className="jd-saved-score" style={{ color }}>{item.result.fit_score ?? 0}%</span>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span className="jd-saved-score" style={{ color }}>{item.result.fit_score ?? 0}%</span>
+                                    {(() => {
+                                      const { grade, color: gradeColor, bgColor } = getScoreGrade(item.result.fit_score)
+                                      return (
+                                        <span style={{
+                                          display: 'inline-block',
+                                          padding: '2px 6px',
+                                          borderRadius: '4px',
+                                          fontSize: '11px',
+                                          fontWeight: '700',
+                                          color: gradeColor,
+                                          backgroundColor: bgColor,
+                                          border: `1px solid ${gradeColor}`
+                                        }}>
+                                          {grade}
+                                        </span>
+                                      )
+                                    })()}
+                                  </div>
                                   <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                                 </div>
                                 <button
@@ -3628,17 +3657,39 @@ function AnalysisResults({
             <span>{result.career_gap_warning}</span>
           </div>
         )}
-        {scores.map((s) => (
-          <div key={s.label} className="result-score-row">
-            <div className="score-meta">
-              <span className="score-name">{s.label}</span>
-              <span className="score-val">{s.value != null ? `${s.value}%` : '—'}</span>
+        {scores.map((s) => {
+          const { grade, color, bgColor } = getScoreGrade(s.value)
+          return (
+            <div key={s.label} className="result-score-row">
+              <div className="score-meta">
+                <span className="score-name">{s.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="score-val">{s.value != null ? `${s.value}%` : '—'}</span>
+                  {s.value != null && (
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      color: color,
+                      backgroundColor: bgColor,
+                      border: `1px solid ${color}`
+                    }}>
+                      {grade}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="score-bar-wrap">
+                <div className="score-bar" style={{
+                  width: `${s.value ?? 0}%`,
+                  background: s.value != null ? color : undefined
+                }} />
+              </div>
             </div>
-            <div className="score-bar-wrap">
-              <div className="score-bar" style={{ width: `${s.value ?? 0}%` }} />
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="results-section">
@@ -4418,7 +4469,26 @@ function JDResults({
           {result.position && <span className="jd-position-tag">{result.position}</span>}
         </div>
         <div className="jd-score-row">
-          <span className="jd-score" style={{ color }}>{result.fit_score ?? 0}%</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="jd-score" style={{ color }}>{result.fit_score ?? 0}%</span>
+            {(() => {
+              const { grade, color: gradeColor, bgColor } = getScoreGrade(result.fit_score)
+              return (
+                <span style={{
+                  display: 'inline-block',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: gradeColor,
+                  backgroundColor: bgColor,
+                  border: `1.5px solid ${gradeColor}`
+                }}>
+                  {grade}
+                </span>
+              )
+            })()}
+          </div>
           <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
         </div>
         <p className="jd-verdict">{result.verdict}</p>
