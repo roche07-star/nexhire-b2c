@@ -544,7 +544,12 @@ export default function SettlementsClient() {
 
         {/* 헤더 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <div style={{ fontSize: '15px', fontWeight: 700, color: '#1c1917' }}>정산 내역</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: '#1c1917' }}>정산 내역</div>
+            <div style={{ fontSize: '11px', color: '#78716c', fontStyle: 'italic' }}>
+              💡 수정 시 후보자 이름을 클릭하세요!
+            </div>
+          </div>
           {isPro && (
             <button
               onClick={() => setShowForm(p => !p)}
