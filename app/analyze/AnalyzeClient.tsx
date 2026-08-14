@@ -3671,15 +3671,15 @@ function AnalysisResults({
         {scores.map((s) => {
           const { grade, color, bgColor } = getScoreGrade(s.value)
           return (
-            <div key={s.label} className="result-score-row">
+            <div key={s.label} className="result-score-row" style={{ marginBottom: '12px' }}>
               <div className="score-meta">
                 <span className="score-name">{s.label}</span>
                 {s.value != null && (
                   <span style={{
                     display: 'inline-block',
-                    padding: '8px 20px',
-                    borderRadius: '24px',
-                    fontSize: '16px',
+                    padding: '4px 14px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
                     fontWeight: '700',
                     color: color,
                     backgroundColor: 'transparent',
