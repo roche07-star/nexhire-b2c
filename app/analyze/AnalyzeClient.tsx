@@ -3480,7 +3480,6 @@ function AnalysisResults({
       .finally(() => setExpanding(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const [refinementText, setRefinementText] = useState<string>(result.refinement_text ?? '')
   const [userInput, setUserInput] = useState('')
   const [refining, setRefining] = useState(false)
   const [refineError, setRefineError] = useState<string | null>(null)
@@ -3495,28 +3494,15 @@ function AnalysisResults({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ analysisId, userInput }),
       })
+      const data = await res.json()
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
         setRefineError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      if (!res.body) {
-        setRefineError('응답을 받지 못했습니다.')
-        return
-      }
-      setRefined(true)
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let text = ''
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        text += decoder.decode(value, { stream: true })
-        setRefinementText(text)
-      }
+      // 재분석 완료 후 페이지 새로고침하여 업데이트된 분석 결과 표시
+      window.location.reload()
     } catch {
       setRefineError('서버 오류가 발생했습니다.')
-    } finally {
       setRefining(false)
     }
   }
@@ -4037,9 +4023,17 @@ function AnalysisResults({
               {refineError && <div className="refine-error">{refineError}</div>}
             </>
           ) : (
-            <div className="refinement-result">
-              <div className="refinement-header">보완 재분석 결과</div>
-              <RefinementTextView text={refinementText} />
+            <div style={{
+              padding: '16px',
+              background: 'rgba(34, 197, 94, 0.1)',
+              border: '2px solid rgba(34, 197, 94, 0.3)',
+              borderRadius: '12px',
+              color: '#22c55e',
+              fontSize: '14px',
+              fontWeight: 600,
+              textAlign: 'center'
+            }}>
+              ✅ 보완 재분석 완료 - 아래 분석 결과에 반영되었습니다
             </div>
           )}
         </div>
@@ -4257,7 +4251,7 @@ function AnalysisResults({
                 const { viewReport } = await import('@/lib/reportHTMLTemplate')
                 viewReport(result)
               }}
-              style={{ flex: 1, maxWidth: '300px' }}
+              style={{ flex: 1, maxWidth: '150px' }}
             >
               👁️ HTML<br/>리포트 보기
             </button>
