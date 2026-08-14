@@ -51,6 +51,18 @@ function getScoreGrade(score: number | null | undefined): { grade: string; color
   return { grade: 'D', color: '#EF4444', bgColor: '#FEE2E2' } // 빨간색
 }
 
+// JD 적합도 등급 라벨
+function getJDGradeLabel(grade: string): string {
+  const labels: Record<string, string> = {
+    'S': '강력추천',
+    'A': '추천',
+    'B': '조건부추천',
+    'C': '신중검토',
+    'D': '비추천'
+  }
+  return labels[grade] || ''
+}
+
 export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail, userType, userRole }: { initialIsPro: boolean; initialIsExpert?: boolean; userEmail: string | null; userType?: string | null; userRole?: string }) {
   const {
     state: analysisState,
@@ -2476,6 +2488,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                     <span className="jd-saved-score" style={{ color }}>{item.result.fit_score ?? 0}%</span>
                                     {(() => {
                                       const { grade, color: gradeColor, bgColor } = getScoreGrade(item.result.fit_score)
+                                      const gradeLabel = getJDGradeLabel(grade)
                                       return (
                                         <span style={{
                                           display: 'inline-block',
@@ -2487,7 +2500,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                           backgroundColor: bgColor,
                                           border: `1px solid ${gradeColor}`
                                         }}>
-                                          {grade}
+                                          {grade} {gradeLabel}
                                         </span>
                                       )
                                     })()}
@@ -4473,6 +4486,7 @@ function JDResults({
             <span className="jd-score" style={{ color }}>{result.fit_score ?? 0}%</span>
             {(() => {
               const { grade, color: gradeColor, bgColor } = getScoreGrade(result.fit_score)
+              const gradeLabel = getJDGradeLabel(grade)
               return (
                 <span style={{
                   display: 'inline-block',
@@ -4484,7 +4498,7 @@ function JDResults({
                   backgroundColor: bgColor,
                   border: `1.5px solid ${gradeColor}`
                 }}>
-                  {grade}
+                  {grade} {gradeLabel}
                 </span>
               )
             })()}
