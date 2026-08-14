@@ -4259,7 +4259,7 @@ function AnalysisResults({
               }}
               style={{ flex: 1, maxWidth: '300px' }}
             >
-              👁️ HTML 리포트 보기
+              👁️ HTML<br/>리포트 보기
             </button>
             <button
               className="analyze-download-btn"
