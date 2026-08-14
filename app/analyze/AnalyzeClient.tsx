@@ -1547,26 +1547,36 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div className="analyze-candidate-name">{result?.candidate_name || '미정'}</div>
-                      <button
-                        onClick={() => {
-                          setEditingCandidateName(true)
-                          setCandidateNameInput(result?.candidate_name || '')
-                        }}
-                        style={{
-                          padding: '6px 12px',
-                          background: 'rgba(167, 139, 250, 0.2)',
-                          color: '#a78bfa',
-                          border: '1px solid rgba(167, 139, 250, 0.4)',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '13px',
-                          fontWeight: 600,
-                        }}
-                      >
-                        ✏️ 수정
-                      </button>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="analyze-candidate-name">{result?.candidate_name || '미정'}</div>
+                        <button
+                          onClick={() => {
+                            setEditingCandidateName(true)
+                            setCandidateNameInput(result?.candidate_name || '')
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'rgba(167, 139, 250, 0.2)',
+                            color: '#a78bfa',
+                            border: '1px solid rgba(167, 139, 250, 0.4)',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                          }}
+                        >
+                          ✏️ 수정
+                        </button>
+                      </div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        marginTop: '6px',
+                        fontStyle: 'italic'
+                      }}>
+                        💡 이름이 정확하지 않으면 수정 버튼 클릭 후 입력 바랍니다!
+                      </div>
                     </div>
                   )}
                   {!editingCandidateName && result?.job_title && <div className="analyze-candidate-job">{result.job_title}</div>}
