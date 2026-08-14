@@ -24,6 +24,9 @@ export async function PATCH(
     console.log('[pipeline/PATCH] Updating candidate:', id, input)
 
     const updateData: any = {}
+    const oldStage = input.old_stage || null
+    const autoSettlement = input.autoSettlement || false
+
     if (input.stage !== undefined) updateData.stage = input.stage
     if (input.notes !== undefined) updateData.notes = input.notes
     if (input.next_action !== undefined) updateData.next_action = input.next_action
@@ -51,17 +54,58 @@ export async function PATCH(
       return NextResponse.json({ error: '후보자를 찾을 수 없습니다.' }, { status: 404 })
     }
 
+    let settlementId = null
+
+    // PASSED 처리 시 정산 자동 등록
+    if (input.stage === 'PASSED' && (autoSettlement || input.hired_date || input.salary)) {
+      try {
+        const settlementData: any = {
+          candidate_name: data.candidate_name || '미정',
+          company: data.company_name,
+          position: data.position_title,
+          start_date: input.hired_date || new Date().toISOString().slice(0, 10),
+          salary: input.salary || 0,
+          commission_rate: 17,
+          incentive_rate: 70,
+          my_role: 'PM',
+          my_ratio: 50,
+          headhunter_email: session.user.email,
+          memo: `파이프라인 합격 등록 (ID: ${id})`,
+        }
+
+        // 정산 등록
+        const { data: settlementRecord, error: settlementError } = await supabase
+          .from('settlements')
+          .insert(settlementData)
+          .select()
+          .single()
+
+        if (settlementError) {
+          console.error('[pipeline/PATCH] Settlement insert error:', settlementError)
+        } else {
+          settlementId = settlementRecord.id
+          console.log('[pipeline/PATCH] Settlement created:', settlementId)
+        }
+      } catch (e) {
+        console.error('[pipeline/PATCH] Settlement creation error:', e)
+      }
+    }
+
     // 알림 생성 (후보자 상태 변경)
     if (input.stage && session?.user?.email) {
       try {
         const stageName = (PIPELINE_STAGE_LABELS as any)[input.stage] || input.stage
+        let message = `${data.candidate_name || '후보자'} : ${stageName}`
+        if (settlementId) {
+          message += ' (정산 자동 등록 완료)'
+        }
         await supabase.from('notifications').insert({
           user_email: session.user.email,
-          type: 'info',
-          icon: '📋',
+          type: settlementId ? 'success' : 'info',
+          icon: settlementId ? '💰' : '📋',
           title: '후보자 상태 변경',
-          message: `${data.candidate_name || '후보자'} : ${stageName}`,
-          link: '/pipeline',
+          message,
+          link: settlementId ? '/settlements' : '/pipeline',
           is_read: false,
         })
         console.log('[pipeline/PATCH] 알림 생성 완료:', session.user.email)
@@ -71,7 +115,10 @@ export async function PATCH(
       }
     }
 
-    return NextResponse.json({ candidate: data })
+    return NextResponse.json({
+      candidate: data,
+      settlementId // 정산 등록 성공 시 ID 반환
+    })
   } catch (e: any) {
     console.error('[pipeline/PATCH] Unexpected error:', e)
     return NextResponse.json({ error: '서버 오류' }, { status: 500 })
