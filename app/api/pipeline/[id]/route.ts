@@ -65,7 +65,7 @@ export async function PATCH(
           position: data.position_title,
           start_date: input.hired_date || new Date().toISOString().slice(0, 10),
           salary: input.salary || 0,
-          commission_rate: 17,
+          commission_rate: input.fee || 17, // 합격 정보의 수수료율 사용, 없으면 17%
           incentive_rate: 70,
           my_role: 'PM',
           my_ratio: 50,
