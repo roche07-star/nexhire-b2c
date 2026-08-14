@@ -2484,27 +2484,25 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   <span className="jd-saved-resume">{item.result.position ?? item.result.resume_job_title ?? '이력서 분석'}</span>
                                 </div>
                                 <div className="jd-saved-card-right">
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span className="jd-saved-score" style={{ color }}>{item.result.fit_score ?? 0}%</span>
-                                    {(() => {
-                                      const { grade, color: gradeColor, bgColor } = getScoreGrade(item.result.fit_score)
-                                      const gradeLabel = getJDGradeLabel(grade)
-                                      return (
-                                        <span style={{
-                                          display: 'inline-block',
-                                          padding: '2px 6px',
-                                          borderRadius: '4px',
-                                          fontSize: '11px',
-                                          fontWeight: '700',
-                                          color: gradeColor,
-                                          backgroundColor: bgColor,
-                                          border: `1px solid ${gradeColor}`
-                                        }}>
-                                          {grade} {gradeLabel}
-                                        </span>
-                                      )
-                                    })()}
-                                  </div>
+                                  {(() => {
+                                    const { grade, color: gradeColor } = getScoreGrade(item.result.fit_score)
+                                    const gradeLabel = getJDGradeLabel(grade)
+                                    return (
+                                      <span style={{
+                                        display: 'inline-block',
+                                        padding: '6px 16px',
+                                        borderRadius: '20px',
+                                        fontSize: '13px',
+                                        fontWeight: '700',
+                                        color: gradeColor,
+                                        backgroundColor: 'transparent',
+                                        border: `2px solid ${gradeColor}`,
+                                        whiteSpace: 'nowrap'
+                                      }}>
+                                        {grade} {gradeLabel}
+                                      </span>
+                                    )
+                                  })()}
                                   <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                                 </div>
                                 <button
@@ -3676,23 +3674,20 @@ function AnalysisResults({
             <div key={s.label} className="result-score-row">
               <div className="score-meta">
                 <span className="score-name">{s.label}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className="score-val">{s.value != null ? `${s.value}%` : '—'}</span>
-                  {s.value != null && (
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      color: color,
-                      backgroundColor: bgColor,
-                      border: `1px solid ${color}`
-                    }}>
-                      {grade}
-                    </span>
-                  )}
-                </div>
+                {s.value != null && (
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '8px 20px',
+                    borderRadius: '24px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    color: color,
+                    backgroundColor: 'transparent',
+                    border: `2px solid ${color}`
+                  }}>
+                    {grade}
+                  </span>
+                )}
               </div>
               <div className="score-bar-wrap">
                 <div className="score-bar" style={{
@@ -4482,27 +4477,24 @@ function JDResults({
           {result.position && <span className="jd-position-tag">{result.position}</span>}
         </div>
         <div className="jd-score-row">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="jd-score" style={{ color }}>{result.fit_score ?? 0}%</span>
-            {(() => {
-              const { grade, color: gradeColor, bgColor } = getScoreGrade(result.fit_score)
-              const gradeLabel = getJDGradeLabel(grade)
-              return (
-                <span style={{
-                  display: 'inline-block',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  color: gradeColor,
-                  backgroundColor: bgColor,
-                  border: `1.5px solid ${gradeColor}`
-                }}>
-                  {grade} {gradeLabel}
-                </span>
-              )
-            })()}
-          </div>
+          {(() => {
+            const { grade, color: gradeColor } = getScoreGrade(result.fit_score)
+            const gradeLabel = getJDGradeLabel(grade)
+            return (
+              <span style={{
+                display: 'inline-block',
+                padding: '10px 24px',
+                borderRadius: '28px',
+                fontSize: '18px',
+                fontWeight: '700',
+                color: gradeColor,
+                backgroundColor: 'transparent',
+                border: `2px solid ${gradeColor}`
+              }}>
+                {grade} {gradeLabel}
+              </span>
+            )
+          })()}
           <span className="jd-rec-badge" style={{ borderColor: color, color }}>{label}</span>
         </div>
         <p className="jd-verdict">{result.verdict}</p>

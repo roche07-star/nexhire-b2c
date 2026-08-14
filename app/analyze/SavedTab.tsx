@@ -343,28 +343,23 @@ export default function SavedTab({
                     <span className="jd-saved-resume">{item.result.summary?.slice(0, 60)}…</span>
                   </div>
                   <div className="jd-saved-card-right">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className="jd-saved-score" style={{ color: 'var(--accent)' }}>
-                        {item.result.scores?.job_fit ?? '—'}%
-                      </span>
-                      {item.result.scores?.job_fit != null && (() => {
-                        const { grade, color, bgColor } = getScoreGrade(item.result.scores.job_fit)
-                        return (
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: '700',
-                            color: color,
-                            backgroundColor: bgColor,
-                            border: `1px solid ${color}`
-                          }}>
-                            {grade}
-                          </span>
-                        )
-                      })()}
-                    </div>
+                    {item.result.scores?.job_fit != null && (() => {
+                      const { grade, color } = getScoreGrade(item.result.scores.job_fit)
+                      return (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '6px 16px',
+                          borderRadius: '20px',
+                          fontSize: '14px',
+                          fontWeight: '700',
+                          color: color,
+                          backgroundColor: 'transparent',
+                          border: `2px solid ${color}`
+                        }}>
+                          {grade}
+                        </span>
+                      )
+                    })()}
                     <span className="jd-saved-date">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
                   </div>
                   <button
