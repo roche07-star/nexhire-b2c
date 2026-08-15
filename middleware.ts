@@ -15,15 +15,49 @@ export default auth(async (req) => {
   const { pathname } = req.nextUrl
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
 
-  // 🔑 Sentry User Context 설정 (서버 사이드)
+  // 🔑 Sentry User Context + Tags + Context 설정 (서버 사이드)
   if (req.auth?.user) {
+    const userEmail = req.auth.user.email
+
+    // User 정보
     Sentry.setUser({
-      id: req.auth.user.email || 'unknown',
-      email: req.auth.user.email || undefined,
+      id: userEmail || 'unknown',
+      email: userEmail || undefined,
       username: req.auth.user.name || undefined,
     })
+
+    // Tags (검색/필터 가능)
+    Sentry.setTags({
+      page: pathname,
+      environment: process.env.NODE_ENV || 'production',
+    })
+
+    // DB에서 추가 정보 가져오기 (비동기, 에러 무시)
+    if (userEmail) {
+      supabase
+        .from('users')
+        .select('plan, user_type, status')
+        .eq('email', userEmail)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            Sentry.setTags({
+              plan: data.plan || 'FREE',
+              user_type: data.user_type || 'JOBSEEKER',
+              status: data.status || 'active',
+            })
+
+            Sentry.setContext('subscription', {
+              plan: data.plan,
+              user_type: data.user_type,
+              status: data.status,
+            })
+          }
+        })
+    }
   } else {
     Sentry.setUser(null)
+    Sentry.setTags({})
   }
 
   // IP 차단 체크
