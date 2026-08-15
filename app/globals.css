@@ -4314,9 +4314,14 @@ footer.footer-container {
   }
   .cursor, .cursor-ring { display: none !important; }
 
-  /* 특정 페이지들은 여유 공간 30px로 축소 (대시보드, 채용프로세스, 관리자, Store, 플랜) */
+  /* 특정 페이지들은 여유 공간 30px로 축소 (채용프로세스, 관리자, Store) */
   .reduced-nav-spacing {
     margin-top: -40px; /* 70px → 30px 여유 공간 */
+  }
+
+  /* 대시보드, 플랜은 여유 공간 10px로 더 축소 */
+  .minimal-nav-spacing {
+    margin-top: -60px; /* 70px → 10px 여유 공간 */
   }
 
   /* NAV (터치 타겟 개선) */

@@ -133,7 +133,7 @@ export default function PlansClient({ userEmail, userType, currentPlan, isSuperA
   const selected = content[effectiveType]
 
   return (
-    <main className="reduced-nav-spacing" style={{
+    <main className="minimal-nav-spacing" style={{
       background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
       minHeight: '100vh',
       position: 'relative',
