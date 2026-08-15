@@ -1020,10 +1020,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   <div
                     key={candidate.id}
                     onClick={() => {
-                      console.log('[Dashboard] Candidate clicked:', candidate)
-                      console.log('[Dashboard] jd_analysis_id:', candidate.jd_analysis_id)
-                      console.log('[Dashboard] analysis_id:', candidate.analysis_id)
-
                       // JD 분석 ID가 있으면 JD 분석 페이지로
                       if (candidate.jd_analysis_id) {
                         router.push(`/analyze?tab=jd&id=${candidate.jd_analysis_id}`)
