@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import * as XLSX from 'xlsx'
 
@@ -105,6 +106,7 @@ function formatPaymentMethod(paymentMethod: string | null): string {
 }
 
 export default function SettlementsClient() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'summary' | 'payments' | 'refunds'>('summary')
   const [summary, setSummary] = useState<SummaryData | null>(null)
   const [previousSummary, setPreviousSummary] = useState<SummaryData | null>(null)
@@ -512,7 +514,34 @@ export default function SettlementsClient() {
       <div className="settlements-container">
         {/* 헤더 */}
         <div className="header">
-          <h1 className="title">📊 정산 대시보드</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => router.push('/admin')}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: '1px solid #e5e7eb',
+                background: '#fff',
+                color: '#18181b',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff'
+              }}
+            >
+              ← 뒤로
+            </button>
+            <h1 className="title">📊 정산 대시보드</h1>
+          </div>
 
           {/* 기간 선택 */}
           <div className="date-range-buttons">
