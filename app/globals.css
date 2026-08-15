@@ -6089,4 +6089,10 @@ footer.footer-container {
   .ax-feature-desc {
     font-size: 14px;
   }
+
+  /* 로그인 페이지 모바일 */
+  .login-page {
+    align-items: flex-start !important;
+    padding-top: 80px !important;
+  }
 }
