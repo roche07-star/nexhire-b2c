@@ -2,11 +2,16 @@ import type { Metadata } from 'next'
 import { Outfit, Noto_Sans_KR } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import dynamic from 'next/dynamic'
 import './globals.css'
 // import CustomCursor from '@/components/CustomCursor'
 import Providers from '@/components/Providers'
-import ResetWarningPopup from '@/components/ResetWarningPopup'
 import SentryInit from '@/components/SentryInit'
+
+// Lazy load non-critical components
+const ResetWarningPopup = dynamic(() => import('@/components/ResetWarningPopup'), {
+  ssr: false, // 클라이언트에서만 필요
+})
 
 const outfit = Outfit({
   subsets: ['latin'],

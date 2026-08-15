@@ -1,16 +1,19 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
-import HowItWorks from '@/components/HowItWorks'
-import Features from '@/components/Features'
-import Persona from '@/components/Persona'
-import Pricing from '@/components/Pricing'
-import Faq from '@/components/Faq'
-import Cta from '@/components/Cta'
-import Footer from '@/components/Footer'
 import ScrollReveal from '@/components/ScrollReveal'
-import PromoBanner from '@/components/PromoBanner'
+
+// 첫 화면 이후 컴포넌트는 lazy loading
+const HowItWorks = dynamic(() => import('@/components/HowItWorks'))
+const Features = dynamic(() => import('@/components/Features'))
+const Persona = dynamic(() => import('@/components/Persona'))
+const Pricing = dynamic(() => import('@/components/Pricing'))
+const Faq = dynamic(() => import('@/components/Faq'))
+const Cta = dynamic(() => import('@/components/Cta'))
+const Footer = dynamic(() => import('@/components/Footer'))
+const PromoBanner = dynamic(() => import('@/components/PromoBanner'))
 
 export default async function Home() {
   const session = await auth()
