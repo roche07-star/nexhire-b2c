@@ -4313,18 +4313,6 @@ footer.footer-container {
   }
   .cursor, .cursor-ring { display: none !important; }
 
-  /* 모바일 텍스트 줄바꿈 강제 (화면 벗어남 방지) */
-  * {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: keep-all; /* 한글은 단어 단위로 */
-  }
-
-  /* 긴 영문/URL은 강제 줄바꿈 */
-  p, li, span, div {
-    word-break: break-word;
-  }
-
   /* NAV (터치 타겟 개선) */
   nav {
     padding: 12px 16px; /* 6px 10px → 12px 16px */
@@ -4335,6 +4323,27 @@ footer.footer-container {
   /* .nav-links { display: none; } */ /* 햄버거 버튼을 위해 제거 */
   .nav-links.show-on-mobile { display: flex !important; gap: 16px; font-size: 14px; } /* 12px → 14px */
   .nav-cta { gap: 6px; } /* 3px → 6px */
+
+  /* 네비게이션 사용자 정보 간소화 */
+  .nav-user {
+    gap: 6px; /* 10px → 6px */
+  }
+  .nav-user-info {
+    display: none; /* 모바일에서는 숨김 */
+  }
+  .nav-avatar {
+    width: 32px; /* 30px → 32px (터치 타겟) */
+    height: 32px;
+  }
+
+  /* 생성 Report 다운로드 버튼 (모바일 최적화) */
+  /* inline style을 덮어쓰기 */
+  button[style*="rgba(255,255,255,0.1)"],
+  button[style*="rgba(232,255,71"] {
+    padding: 10px 16px !important; /* 작게 */
+    font-size: 13px !important;
+    min-height: 44px !important; /* 터치 타겟 */
+  }
   .btn-ghost {
     padding: 12px 16px; /* 4px 7px → 12px 16px (44px 터치 타겟) */
     font-size: 14px; /* 9px → 14px */
