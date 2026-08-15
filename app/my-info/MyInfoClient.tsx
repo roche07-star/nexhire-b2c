@@ -359,13 +359,18 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                         fontSize: 13,
                         color: 'var(--muted2)',
                       }}>
-                        {payment.paid_at ? formatDate(payment.paid_at, true) : '-'}
-                        {isRefunded && payment.refunded_at && (
-                          <span style={{ marginLeft: 8, color: '#ef4444' }}>
-                            • 환불: {formatDate(payment.refunded_at, true)}
-                          </span>
-                        )}
+                        결제: {payment.paid_at ? formatDate(payment.paid_at, true) : '-'}
                       </div>
+                      {isRefunded && payment.refunded_at && (
+                        <div style={{
+                          fontSize: 13,
+                          color: '#ef4444',
+                          fontWeight: 600,
+                          marginTop: 4,
+                        }}>
+                          환불: {formatDate(payment.refunded_at, true)}
+                        </div>
+                      )}
                     </div>
 
                     <div style={{
