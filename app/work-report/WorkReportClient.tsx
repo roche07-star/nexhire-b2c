@@ -288,7 +288,7 @@ export default function WorkReportClient({ userEmail, isPro, isHeadhunter, userP
   }
 
   return (
-    <div style={{
+    <div className="zero-nav-spacing" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
       padding: '120px 20px 60px',

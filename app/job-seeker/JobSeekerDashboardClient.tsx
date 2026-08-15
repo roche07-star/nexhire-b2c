@@ -312,7 +312,7 @@ export default function JobSeekerDashboardClient() {
   const today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
 
   return (
-    <main className="page" style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(16px, 4vw, 20px)' }}>
+    <main className="page zero-nav-spacing" style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(16px, 4vw, 20px)' }}>
       {/* 헤더 */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 'clamp(20px, 5vw, 28px)', fontWeight: 700, marginBottom: 6 }}>
