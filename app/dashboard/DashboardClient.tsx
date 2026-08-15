@@ -145,6 +145,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
     passedTarget: 20,
     proposalTarget: 10
   })
+  const [showAllCandidates, setShowAllCandidates] = useState(false)
 
   // 목표 불러오기 (Supabase)
   useEffect(() => {
@@ -308,11 +309,10 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
         const data = await res.json()
         const candidates = data.candidates || []
 
-        // 진행 중인 후보자 목록 (최신순, 최대 5명)
+        // 진행 중인 후보자 목록 (최신순)
         const activeCands = candidates
           .filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage))
           .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-          .slice(0, 5)
 
         // 파이프라인 데이터 계산
         const active = candidates.filter((c: any) => !['PASSED', 'FAILED'].includes(c.stage)).length
@@ -1016,7 +1016,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 진행 중 ({hiringStats.active}명)
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {activeCandidates.map((candidate) => (
+                {(showAllCandidates ? activeCandidates : activeCandidates.slice(0, 5)).map((candidate) => (
                   <div
                     key={candidate.id}
                     onClick={() => router.push('/pipeline')}
@@ -1075,7 +1075,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               </div>
               {hiringStats.active > 5 && (
                 <button
-                  onClick={() => router.push('/pipeline')}
+                  onClick={() => setShowAllCandidates(!showAllCandidates)}
                   style={{
                     width: '100%',
                     marginTop: 12,
@@ -1100,7 +1100,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                     e.currentTarget.style.color = 'rgba(255,255,255,0.6)'
                   }}
                 >
-                  +{hiringStats.active - 5}명 더 보기 →
+                  {showAllCandidates ? '접기 ↑' : `+${hiringStats.active - 5}명 더 보기 ↓`}
                 </button>
               )}
             </div>
