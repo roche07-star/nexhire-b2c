@@ -52,14 +52,10 @@ Sentry.init({
     }
 
     // ========================================
-    // 4. 사용자 PII 제거 (이메일만 해시 처리)
+    // 4. 사용자 정보 유지 (Slack 알림에 포함)
     // ========================================
-    if (event.user?.email) {
-      // 이메일을 해시로 변환 (간단한 해시)
-      const email = event.user.email
-      const hash = email.split('@')[0].slice(0, 3) + '***'
-      event.user.email = hash + '@***'
-    }
+    // User Context (email, username)를 Slack 알림에 포함하기 위해 그대로 유지
+    // setUser()로 설정된 정보가 Sentry → Slack으로 전송됨
 
     // ========================================
     // 5. Breadcrumbs에서 민감 데이터 제거

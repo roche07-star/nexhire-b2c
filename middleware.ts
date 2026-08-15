@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import * as Sentry from '@sentry/nextjs'
 
 // 공개 API 라우트 (인증 불필요)
 const PUBLIC_API_ROUTES = [
@@ -13,6 +14,17 @@ const PUBLIC_API_ROUTES = [
 export default auth(async (req) => {
   const { pathname } = req.nextUrl
   const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'
+
+  // 🔑 Sentry User Context 설정 (서버 사이드)
+  if (req.auth?.user) {
+    Sentry.setUser({
+      id: req.auth.user.email || 'unknown',
+      email: req.auth.user.email || undefined,
+      username: req.auth.user.name || undefined,
+    })
+  } else {
+    Sentry.setUser(null)
+  }
 
   // IP 차단 체크
   if (ip !== 'unknown') {

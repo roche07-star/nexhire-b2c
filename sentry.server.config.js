@@ -102,18 +102,13 @@ Sentry.init({
     }
 
     // ========================================
-    // 5. 사용자 정보 최소화
+    // 5. 사용자 정보 유지 (Slack 알림에 포함)
     // ========================================
     if (event.user) {
-      // IP 주소 제거
+      // IP 주소만 제거 (개인정보 보호)
       delete event.user.ip_address
 
-      // 이메일 해시 처리
-      if (event.user.email) {
-        const email = event.user.email
-        event.user.id = email.split('@')[0].slice(0, 3) + '***'
-        delete event.user.email
-      }
+      // Email, Username은 Slack 알림을 위해 유지
     }
 
     return event
