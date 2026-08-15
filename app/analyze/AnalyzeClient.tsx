@@ -3682,25 +3682,25 @@ function AnalysisResults({
           <div style={{
             background: 'rgba(59,130,246,0.1)',
             border: '2px solid rgba(59,130,246,0.3)',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            marginBottom: 16,
+            borderRadius: '8px',
+            padding: '8px 12px',
+            marginBottom: 8,
             color: '#2563eb',
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: 600,
-            lineHeight: 1.6,
+            lineHeight: 1.4,
             display: 'flex',
             alignItems: 'center',
-            gap: 10
+            gap: 8
           }}>
-            <span style={{ fontSize: 18 }}>✅</span>
+            <span style={{ fontSize: 16 }}>✅</span>
             <span>경력 공백 없음</span>
           </div>
         )}
         {scores.map((s) => {
           const { grade, color, bgColor } = getScoreGrade(s.value)
           return (
-            <div key={s.label} className="result-score-row" style={{ marginBottom: '4px' }}>
+            <div key={s.label} className="result-score-row" style={{ marginBottom: '2px' }}>
               <div className="score-meta">
                 <span className="score-name" style={{ fontSize: '13px' }}>{s.label}</span>
                 {s.value != null && (
@@ -3718,7 +3718,7 @@ function AnalysisResults({
                   </span>
                 )}
               </div>
-              <div className="score-bar-wrap" style={{ height: '6px' }}>
+              <div className="score-bar-wrap" style={{ height: '4px' }}>
                 <div className="score-bar" style={{
                   width: `${s.value ?? 0}%`,
                   background: s.value != null ? color : undefined

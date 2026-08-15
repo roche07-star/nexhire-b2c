@@ -2806,11 +2806,11 @@ footer.footer-container {
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
-.result-score-row { display: flex; flex-direction: column; gap: 14px; padding: 32px 28px; background: rgba(0,0,0,0.2); border-radius: 14px; margin-bottom: 8px; }
-.score-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.score-name { font-size: 14px; color: var(--muted2); }
-.score-val { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
-.results-section .score-bar-wrap { height: 12px; border-radius: 6px; }
+.result-score-row { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 2px; }
+.score-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.score-name { font-size: 13px; color: var(--muted2); }
+.score-val { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.results-section .score-bar-wrap { height: 4px; border-radius: 3px; }
 .results-section .score-bar { border-radius: 5px; box-shadow: 0 0 10px rgba(232,255,71,0.2); }
 
 .result-summary {
