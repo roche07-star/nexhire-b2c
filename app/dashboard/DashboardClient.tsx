@@ -1019,7 +1019,13 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 {(showAllCandidates ? activeCandidates : activeCandidates.slice(0, 5)).map((candidate) => (
                   <div
                     key={candidate.id}
-                    onClick={() => router.push('/pipeline')}
+                    onClick={() => {
+                      if (candidate.jd_analysis_id) {
+                        router.push(`/analyze?tab=jd&id=${candidate.jd_analysis_id}`)
+                      } else {
+                        router.push('/pipeline')
+                      }
+                    }}
                     style={{
                       padding: '16px',
                       background: 'rgba(255,255,255,0.03)',
