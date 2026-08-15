@@ -55,6 +55,9 @@ export default function SentryInit() {
 
   // 🔑 User Context 설정 (로그인 시 Sentry에 user 정보 전송)
   useEffect(() => {
+    // 클라이언트에서만 실행
+    if (typeof window === 'undefined') return
+
     if (session?.user) {
       Sentry.setUser({
         id: session.user.email || 'unknown',
