@@ -41,11 +41,11 @@ draw.text((content_x, content_y), "Jobizic",
 
 # 메인 카피 (두 줄, 여백 충분히)
 hero_y = content_y + 130
-draw.text((content_x, hero_y), "AI가 1분 만에 분석하는",
+draw.text((content_x, hero_y), "AI가 1분만에 분석해서",
           fill='#f1f5f9', font=font_hero, anchor="lt")
 
 hero_y += 85
-draw.text((content_x, hero_y), "합격 이력서",
+draw.text((content_x, hero_y), "수정하는 합격 이력서",
           fill='#ffffff', font=font_hero, anchor="lt")
 
 # 서브 카피
