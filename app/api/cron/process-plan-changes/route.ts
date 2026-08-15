@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { auth } from '@/auth'
+import { isAdmin } from '@/lib/auth-helpers'
 
 /**
  * Cron job: 플랜 변경 자동 처리
@@ -10,9 +12,14 @@ import { supabase } from '@/lib/supabase'
  * 3. withdrawn 사용자 중 data_delete_at 지난 사용자 완전 삭제
  */
 export async function GET(req: NextRequest) {
-  // Vercel Cron 인증 (선택)
+  // 인증 체크: 관리자 세션 또는 Cron Secret
+  const session = await auth()
   const authHeader = req.headers.get('authorization')
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+
+  const isAdminUser = session?.user && isAdmin(session)
+  const isCronJob = process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`
+
+  if (!isAdminUser && !isCronJob) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
