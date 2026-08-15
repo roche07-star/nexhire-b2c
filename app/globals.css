@@ -4337,12 +4337,12 @@ footer.footer-container {
   /* 여유 공간 없음 - 모든 페이지에 적용 (네비게이션 바로 아래) */
   .zero-nav-spacing {
     margin-top: -14px !important; /* 70px → 56px */
-    padding-top: 60px !important; /* inline style 오버라이드 */
+    padding-top: 20px !important; /* 최소 여유 공간 */
   }
 
   /* 플랜 페이지 추가 padding */
   main.zero-nav-spacing[style*="overflow"] {
-    padding-top: 80px !important;
+    padding-top: 40px !important;
   }
 
   /* NAV (터치 타겟 개선) */
