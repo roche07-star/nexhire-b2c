@@ -89,6 +89,24 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={`${outfit.variable} ${notoSansKR.variable}`}>
+      <head>
+        {/* DNS Prefetch & Preconnect for faster resource loading */}
+        <link rel="dns-prefetch" href="https://api.anthropic.com" />
+        <link rel="dns-prefetch" href="https://vercel-insights.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Critical CSS for Hero section (LCP optimization) */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            body { margin: 0; background: #0f0f0f; color: #fff; }
+            .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 120px 20px 80px; }
+            .hero h1 { font-size: clamp(36px, 7vw, 72px); font-weight: 700; line-height: 1.1; margin: 24px 0; text-align: center; max-width: 900px; }
+            .hero-demo { margin-top: 60px; width: 100%; max-width: 1000px; }
+            .demo-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); }
+          `
+        }} />
+      </head>
       <body>
         <SentryInit />
         <Providers>
