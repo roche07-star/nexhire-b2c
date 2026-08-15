@@ -1444,7 +1444,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   // 초기 로딩 Skeleton UI
   // Suspense가 로딩 처리 (Option 3)
   return (
-    <main className="analyze-page">
+    <main className="analyze-page moderate-nav-spacing">
       <div className="analyze-layout">
 
         {/* 메인 콘텐츠 */}

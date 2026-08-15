@@ -4324,6 +4324,11 @@ footer.footer-container {
     margin-top: -60px; /* 70px → 10px 여유 공간 */
   }
 
+  /* 이력서 분석은 여유 공간 50px로 축소 */
+  .moderate-nav-spacing {
+    margin-top: -20px; /* 70px → 50px 여유 공간 */
+  }
+
   /* NAV (터치 타겟 개선) */
   nav {
     padding: 12px 16px; /* 6px 10px → 12px 16px */
