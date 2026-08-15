@@ -9,9 +9,7 @@ import Providers from '@/components/Providers'
 import SentryInit from '@/components/SentryInit'
 
 // Lazy load non-critical components
-const ResetWarningPopup = dynamic(() => import('@/components/ResetWarningPopup'), {
-  ssr: false, // 클라이언트에서만 필요
-})
+const ResetWarningPopup = dynamic(() => import('@/components/ResetWarningPopup'))
 
 const outfit = Outfit({
   subsets: ['latin'],
