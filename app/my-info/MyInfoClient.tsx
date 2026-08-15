@@ -393,12 +393,14 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                     justifyContent: 'space-between',
                     alignItems: 'center',
                   }}>
-                    <div style={{
-                      fontSize: 13,
-                      color: 'var(--muted2)',
-                    }}>
-                      거래 ID: {payment.transaction_id || '-'}
-                    </div>
+                    {payment.transaction_id && (
+                      <div style={{
+                        fontSize: 13,
+                        color: 'var(--muted2)',
+                      }}>
+                        거래 ID: {payment.transaction_id}
+                      </div>
+                    )}
 
                     {/* Toss Payments만 영수증 보기 (PortOne은 미지원) */}
                     {payment.payment_gateway !== 'portone' && payment.transaction_id && (
