@@ -4340,9 +4340,9 @@ footer.footer-container {
     padding-top: 20px !important; /* 최소 여유 공간 */
   }
 
-  /* 플랜 페이지도 동일하게 */
+  /* 플랜 페이지는 최소 padding */
   main.zero-nav-spacing[style*="overflow"] {
-    padding-top: 20px !important;
+    padding-top: 10px !important;
   }
 
   /* NAV (터치 타겟 개선) */
