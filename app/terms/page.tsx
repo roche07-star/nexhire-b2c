@@ -223,6 +223,14 @@ export default function TermsPage() {
               <li>보유 중인 쿠폰은 '내 정보' 메뉴에서 확인할 수 있습니다.</li>
               <li>쿠폰 잔여 횟수 및 유효기간이 표시됩니다.</li>
             </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.4.4 플랜 변경 시 쿠폰 유지</h3>
+            <ul>
+              <li><strong>플랜 다운그레이드 또는 만료 시에도 보유 중인 쿠폰은 유효기간 내에 계속 사용할 수 있습니다.</strong></li>
+              <li>예: PRO 플랜에서 쿠폰 5개 구매 후 FREE 플랜으로 변경 → 쿠폰 5개는 유효기간 내 사용 가능</li>
+              <li>FREE 플랜 한도(3회) 소진 후에도 쿠폰을 사용하여 서비스를 이용할 수 있습니다.</li>
+              <li>쿠폰은 탈퇴 후 30일 경과 시 데이터 완전 삭제와 함께 소멸됩니다.</li>
+            </ul>
           </div>
 
           <div className="privacy-section">
