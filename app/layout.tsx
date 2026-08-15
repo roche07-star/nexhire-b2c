@@ -12,14 +12,17 @@ const outfit = Outfit({
   subsets: ['latin'],
   variable: '--font-outfit',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 })
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
+  weight: ['400', '500', '700'], // 300 제거 (미사용), 600/800은 700 fallback
   variable: '--font-noto',
   display: 'swap',
-  preload: false, // Turbopack 폰트 로딩 이슈 회피
+  preload: true, // Turbopack 안정화로 재활성화
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
 })
 
 export const metadata: Metadata = {

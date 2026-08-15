@@ -28,3 +28,4 @@ tests/fixtures/*.docx
 tests/fixtures/*.txt
 !tests/fixtures/README.md
 server.log
+bundle-analysis.log
