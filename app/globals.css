@@ -6093,6 +6093,6 @@ footer.footer-container {
   /* 로그인 페이지 모바일 */
   .login-page {
     align-items: flex-start !important;
-    padding-top: 80px !important;
+    padding-top: 10px !important;
   }
 }
