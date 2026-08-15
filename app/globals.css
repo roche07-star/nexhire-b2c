@@ -4306,49 +4306,51 @@ footer.footer-container {
    MOBILE RESPONSIVE (≤768px)
    ═══════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* 전체 기본 폰트 크기 축소 */
+  /* 전체 기본 폰트 크기 (가독성 개선) */
   body {
     cursor: auto !important;
-    font-size: 12px;
+    font-size: 14px; /* 12px → 14px */
   }
   .cursor, .cursor-ring { display: none !important; }
 
-  /* NAV */
+  /* NAV (터치 타겟 개선) */
   nav {
-    padding: 6px 10px;
-    gap: 5px;
+    padding: 12px 16px; /* 6px 10px → 12px 16px */
+    gap: 8px; /* 5px → 8px */
   }
-  .nav-logo-icon { width: 18px; height: 18px; }
-  .nav-logo-text { font-size: 11px; letter-spacing: 0.3px; }
+  .nav-logo-icon { width: 24px; height: 24px; } /* 18px → 24px */
+  .nav-logo-text { font-size: 14px; letter-spacing: 0.5px; } /* 11px → 14px */
   /* .nav-links { display: none; } */ /* 햄버거 버튼을 위해 제거 */
-  .nav-links.show-on-mobile { display: flex !important; gap: 16px; font-size: 12px; }
-  .nav-cta { gap: 3px; }
+  .nav-links.show-on-mobile { display: flex !important; gap: 16px; font-size: 14px; } /* 12px → 14px */
+  .nav-cta { gap: 6px; } /* 3px → 6px */
   .btn-ghost {
-    padding: 4px 7px;
-    font-size: 9px;
-    border-radius: 4px;
+    padding: 12px 16px; /* 4px 7px → 12px 16px (44px 터치 타겟) */
+    font-size: 14px; /* 9px → 14px */
+    border-radius: 6px; /* 4px → 6px */
+    min-height: 44px; /* 터치 타겟 최소 높이 */
   }
   .btn-primary {
-    padding: 4px 9px;
-    font-size: 9px;
-    border-radius: 4px;
+    padding: 12px 20px; /* 4px 9px → 12px 20px */
+    font-size: 14px; /* 9px → 14px */
+    border-radius: 6px;
+    min-height: 44px;
   }
 
-  /* HERO */
-  .hero { padding: 50px 10px 25px; }
+  /* HERO (가독성 개선) */
+  .hero { padding: 50px 16px 25px; } /* 10px → 16px */
   .hero h1 { font-size: clamp(22px, 7vw, 36px); margin-bottom: 10px; }
-  .hero-sub { font-size: 11px; margin-bottom: 18px; }
+  .hero-sub { font-size: 14px; margin-bottom: 18px; line-height: 1.6; } /* 11px → 14px */
   .hero-badge {
-    padding: 3px 9px;
-    font-size: 9px;
+    padding: 6px 12px; /* 3px 9px → 6px 12px */
+    font-size: 12px; /* 9px → 12px */
     margin-bottom: 18px;
   }
-  .hero-actions { gap: 5px; margin-bottom: 28px; }
+  .hero-actions { gap: 8px; margin-bottom: 28px; } /* 5px → 8px */
 
   /* SECTION */
-  .section { padding: 25px 10px; }
+  .section { padding: 25px 16px; } /* 10px → 16px */
   .section-title { font-size: clamp(18px, 5vw, 28px); margin-bottom: 8px; }
-  .section-sub { font-size: 10px; }
+  .section-sub { font-size: 12px; } /* 10px → 12px */
 
   /* FEATURE */
   .feature-grid {
@@ -4956,28 +4958,30 @@ footer.footer-container {
     font-size: 10px !important;
   }
   .privacy-agree-link {
-    font-size: 9px !important;
+    font-size: 12px !important; /* 9px → 12px (가독성) */
   }
 
-  /* 분석 버튼 */
+  /* 분석 버튼 (터치 타겟 개선) */
   .analyze-btn,
   .btn-hero.analyze-btn {
-    padding: 8px 20px !important;
-    font-size: 11px !important;
-    border-radius: 6px !important;
+    padding: 12px 24px !important; /* 8px 20px → 12px 24px */
+    font-size: 14px !important; /* 11px → 14px */
+    border-radius: 8px !important; /* 6px → 8px */
+    min-height: 44px; /* 터치 타겟 */
     width: 100%;
     max-width: none;
   }
 
   .jd-analyze-btn {
-    padding: 8px 16px !important;
-    font-size: 11px !important;
+    padding: 12px 20px !important; /* 8px 16px → 12px 20px */
+    font-size: 14px !important; /* 11px → 14px */
+    min-height: 44px;
   }
 
   /* 로딩 */
   .analyze-loading {
     padding: 18px !important;
-    font-size: 11px !important;
+    font-size: 14px !important; /* 11px → 14px */
   }
   .analyze-spinner {
     width: 26px !important;
