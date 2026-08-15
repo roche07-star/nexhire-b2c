@@ -202,6 +202,30 @@ export default function TermsPage() {
           </div>
 
           <div className="privacy-section">
+            <h2>제7조의4 (쿠폰 사용 정책)</h2>
+
+            <h3 style={{ marginTop: 16, fontSize: '16px', fontWeight: 600 }}>7.4.1 사용 순서</h3>
+            <ul>
+              <li><strong>서비스 이용 시 플랜 횟수를 먼저 사용하며, 쿠폰은 플랜 횟수 소진 후 자동으로 사용됩니다.</strong></li>
+              <li>예: PRO 플랜 (20회) + 쿠폰 (5회) 보유 시 → 플랜 20회를 먼저 사용 → 이후 쿠폰 5회 사용</li>
+              <li>쿠폰 우선 사용을 원하시는 경우, 쿠폰 만료 전 플랜 횟수를 먼저 소진하시기를 권장합니다.</li>
+            </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.4.2 쿠폰 유효기간</h3>
+            <ul>
+              <li>쿠폰 유효기간은 구매 시점으로부터 3개월입니다.</li>
+              <li>유효기간 만료 시 미사용 쿠폰은 자동 소멸되며, 환불되지 않습니다.</li>
+              <li>플랜 횟수가 남은 상태에서 쿠폰이 만료될 수 있으므로, 유효기간을 확인하시기 바랍니다.</li>
+            </ul>
+
+            <h3 style={{ marginTop: 20, fontSize: '16px', fontWeight: 600 }}>7.4.3 쿠폰 확인</h3>
+            <ul>
+              <li>보유 중인 쿠폰은 '내 정보' 메뉴에서 확인할 수 있습니다.</li>
+              <li>쿠폰 잔여 횟수 및 유효기간이 표시됩니다.</li>
+            </ul>
+          </div>
+
+          <div className="privacy-section">
             <h2>제8조 (약관 변경)</h2>
             <p>회사는 약관을 변경할 경우 시행일 7일 전 서비스 내 공지합니다. 변경 후 계속 서비스를 이용하면 변경 약관에 동의한 것으로 간주합니다.</p>
           </div>
