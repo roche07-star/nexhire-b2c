@@ -47,7 +47,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'telegram' | 'tokens' | 'audit-logs'
+type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'telegram' | 'tokens'
 
 interface Stats {
   total: number
@@ -105,10 +105,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [detailData, setDetailData] = useState<Record<string, unknown> | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  // audit logs state
-  const [auditLogs, setAuditLogs] = useState<any[] | null>(null)
-  const [auditLoading, setAuditLoading] = useState(false)
-  const [auditEmailFilter, setAuditEmailFilter] = useState('')
 
   // support state
   const [supportMessages, setSupportMessages] = useState<any[] | null>(null)
@@ -390,22 +386,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     setLoading(null)
   }
 
-  async function loadAuditLogs() {
-    setAuditLoading(true)
-    try {
-      const url = auditEmailFilter
-        ? `/api/admin/audit-logs?email=${encodeURIComponent(auditEmailFilter)}`
-        : '/api/admin/audit-logs'
-      const res = await fetch(url)
-      const data = await res.json()
-      setAuditLogs(data.logs || [])
-    } catch (e) {
-      console.error('Load audit logs error:', e)
-      setAuditLogs([])
-    } finally {
-      setAuditLoading(false)
-    }
-  }
 
   async function loadCoupons() {
     if (coupons !== null) return
@@ -689,7 +669,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   function onTabChange(t: AdminTab) {
     setTab(t)
     if (t === 'coupons') loadCoupons()
-    if (t === 'audit-logs') loadAuditLogs()
     if (t === 'support') {
       loadSupportMessages()
       loadAnnouncements()
@@ -759,7 +738,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               <button className={`admin-tab-btn${tab === 'payment-gateway' ? ' active' : ''}`} onClick={() => onTabChange('payment-gateway')}>💳 결제 설정</button>
               <button className={`admin-tab-btn${tab === 'telegram' ? ' active' : ''}`} onClick={() => onTabChange('telegram')}>🤖 텔레그램</button>
               <button className={`admin-tab-btn${tab === 'tokens' ? ' active' : ''}`} onClick={() => onTabChange('tokens')}>🔍 토큰 관리</button>
-              <button className={`admin-tab-btn${tab === 'audit-logs' ? ' active' : ''}`} onClick={() => onTabChange('audit-logs')}>📋 접근 로그</button>
             </>
           )}
         </div>
@@ -790,7 +768,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             {isSuperAdmin && (
               <>
                 <option value="tokens">🔍 토큰 관리</option>
-                <option value="audit-logs">📋 접근 로그</option>
               </>
             )}
           </select>
@@ -2870,158 +2847,6 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
       )}
 
       {/* 접근 로그 탭 */}
-      {tab === 'audit-logs' && (
-        <div className="admin-content">
-          <h2 className="admin-subtitle">헤드헌터 후보자 접근 로그</h2>
-
-          {/* 필터 */}
-          <div className="admin-section">
-            <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <input
-                type="text"
-                placeholder="후보자 이메일로 필터링..."
-                value={auditEmailFilter}
-                onChange={(e) => setAuditEmailFilter(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb',
-                  fontSize: '14px',
-                  width: '300px'
-                }}
-              />
-              <button
-                onClick={loadAuditLogs}
-                style={{
-                  padding: '8px 16px',
-                  background: '#18181b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500
-                }}
-              >
-                조회
-              </button>
-              {auditEmailFilter && (
-                <button
-                  onClick={() => {
-                    setAuditEmailFilter('')
-                    setAuditLogs(null)
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    background: '#f3f4f6',
-                    color: '#18181b',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  초기화
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* 로그 테이블 */}
-          {auditLoading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>로딩 중...</div>
-          ) : auditLogs === null ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
-              조회 버튼을 눌러 접근 로그를 확인하세요
-            </div>
-          ) : auditLogs.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
-              접근 로그가 없습니다
-            </div>
-          ) : (
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>접근 시간</th>
-                    <th>헤드헌터</th>
-                    <th>후보자</th>
-                    <th>액션</th>
-                    <th>IP 주소</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {auditLogs.map((log: any) => (
-                    <tr key={log.id}>
-                      <td>{new Date(log.created_at).toLocaleString('ko-KR')}</td>
-                      <td>{log.actor_email}</td>
-                      <td>{log.target_email}</td>
-                      <td>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '4px 8px',
-                          background: log.details?.access_type === 'view' ? '#dbeafe' :
-                                    log.details?.access_type === 'export' ? '#fef3c7' :
-                                    log.details?.access_type === 'contact' ? '#dcfce7' : '#e5e7eb',
-                          color: log.details?.access_type === 'view' ? '#1e40af' :
-                                 log.details?.access_type === 'export' ? '#92400e' :
-                                 log.details?.access_type === 'contact' ? '#166534' : '#374151',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: 500
-                        }}>
-                          {log.details?.access_type === 'view' ? '조회' :
-                           log.details?.access_type === 'export' ? '내보내기' :
-                           log.details?.access_type === 'contact' ? '연락' :
-                           log.details?.access_type === 'share' ? '공유' :
-                           log.details?.access_type || '알 수 없음'}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: '13px', color: '#6b7280' }}>
-                        {log.ip_address || '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div style={{
-                marginTop: '16px',
-                padding: '12px',
-                background: '#f9fafb',
-                borderRadius: '8px',
-                fontSize: '13px',
-                color: '#6b7280'
-              }}>
-                <strong>📊 통계:</strong> 총 {auditLogs.length}건의 접근 로그
-                {auditEmailFilter && ` (${auditEmailFilter} 필터링)`}
-              </div>
-            </div>
-          )}
-
-          {/* 안내 */}
-          <div className="admin-section" style={{ marginTop: '24px' }}>
-            <div style={{
-              background: '#eff6ff',
-              border: '1px solid #3b82f6',
-              borderRadius: '8px',
-              padding: '16px',
-              fontSize: '14px',
-              lineHeight: '1.6'
-            }}>
-              <div style={{ fontWeight: '600', marginBottom: '12px', color: '#1e40af' }}>
-                📋 접근 로그 정보
-              </div>
-              <ul style={{ margin: 0, paddingLeft: '20px', color: '#1e3a8a' }}>
-                <li>헤드헌터가 Eve 플랫폼에서 후보자 정보를 조회할 때 자동 기록됩니다</li>
-                <li>개인정보보호법 제26조에 따른 수탁자 모니터링 의무를 준수합니다</li>
-                <li>로그는 영구 보관되며 삭제되지 않습니다</li>
-                <li>부적절한 접근 적발 시 해당 헤드헌터 계정을 즉시 정지할 수 있습니다</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 공지사항 작성/수정 모달 */}
       {showAnnouncementModal && (
