@@ -1074,14 +1074,34 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                 ))}
               </div>
               {hiringStats.active > 5 && (
-                <div style={{
-                  marginTop: 12,
-                  textAlign: 'center',
-                  fontSize: 13,
-                  color: 'rgba(255,255,255,0.5)'
-                }}>
+                <button
+                  onClick={() => router.push('/pipeline')}
+                  style={{
+                    width: '100%',
+                    marginTop: 12,
+                    padding: '12px 16px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.6)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                    e.currentTarget.style.borderColor = 'rgba(251, 191, 36, 0.3)'
+                    e.currentTarget.style.color = '#fbbf24'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'
+                    e.currentTarget.style.color = 'rgba(255,255,255,0.6)'
+                  }}
+                >
                   +{hiringStats.active - 5}명 더 보기 →
-                </div>
+                </button>
               )}
             </div>
           )}
@@ -1275,8 +1295,9 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
               )
             })()}
           </div>
+          </div>
 
-          {/* 전체보기 버튼 */}
+          {/* 전체보기 버튼 (스크롤 영역 밖) */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
@@ -1307,7 +1328,6 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
             >
               📊 채용 프로세스 전체보기
             </button>
-          </div>
           </div>
         </div>
       </div>
