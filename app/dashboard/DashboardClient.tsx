@@ -411,7 +411,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
       {/* 공지사항 모달 */}
       <AnnouncementModal />
 
-      <main style={{
+      <main className="reduced-nav-spacing" style={{
         padding: '100px 20px 40px',
         maxWidth: 1400,
         margin: '0 auto',

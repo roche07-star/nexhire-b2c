@@ -285,7 +285,7 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
   }
 
   return (
-    <main className="store-page">
+    <main className="store-page reduced-nav-spacing">
       <div className="store-container">
         <div className="store-header">
           <div className="store-header-content">

@@ -161,7 +161,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
   }
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 80 }}>
+    <div className="reduced-nav-spacing" style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 80 }}>
       <div style={{ maxWidth: 1600, margin: '0 auto', padding: '32px 20px' }}>
         {/* 헤더 */}
         <div style={{ marginBottom: 32 }}>
