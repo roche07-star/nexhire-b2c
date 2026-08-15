@@ -4326,12 +4326,23 @@ footer.footer-container {
 
   /* 이력서 분석은 여유 공간 50px로 축소 */
   .moderate-nav-spacing {
-    margin-top: -20px; /* 70px → 50px 여유 공간 */
+    margin-top: -20px !important; /* 70px → 50px 여유 공간 */
   }
 
-  /* 대시보드는 여유 공간 없음 (네비게이션 바로 아래) */
+  /* 플랜 페이지 padding 조정 */
+  .zero-nav-spacing[style*="overflow: hidden"] {
+    padding-top: 80px !important; /* 플랜 페이지 */
+  }
+
+  /* 여유 공간 없음 - 모든 페이지에 적용 (네비게이션 바로 아래) */
   .zero-nav-spacing {
-    margin-top: -14px; /* 70px → 56px (네비게이션 높이만큼만) */
+    margin-top: -14px !important; /* 70px → 56px */
+    padding-top: 60px !important; /* inline style 오버라이드 */
+  }
+
+  /* 플랜 페이지 추가 padding */
+  main.zero-nav-spacing[style*="overflow"] {
+    padding-top: 80px !important;
   }
 
   /* NAV (터치 타겟 개선) */
