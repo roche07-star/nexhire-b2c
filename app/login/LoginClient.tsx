@@ -50,7 +50,7 @@ export default function LoginClient() {
   }
 
   return (
-    <main className="login-page">
+    <main className="login-page zero-nav-spacing">
       <div className="login-bg" />
       <div className="login-card">
         <div className="login-brand">
