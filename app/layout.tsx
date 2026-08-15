@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     siteName: 'Jobizic',
     images: [
       {
-        url: '/og-image.png',
+        url: '/api/og',
         width: 1200,
         height: 630,
         alt: 'Jobizic - AI 이력서 분석 서비스',
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Jobizic — AI 이력서 분석으로 취업 성공률 UP',
     description: 'Claude AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다.',
-    images: ['/og-image.png'],
+    images: ['/api/og'],
     creator: '@jobizic',
   },
   alternates: {
