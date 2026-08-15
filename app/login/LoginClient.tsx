@@ -146,10 +146,6 @@ export default function LoginClient() {
               {isLoading ? '로그인 중...' : '이메일로 로그인'}
             </button>
           </form>
-
-          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '11px', color: '#a8a29e' }}>
-            💡 PG 심사용 테스트 계정: kcp-test@jobizic.com
-          </p>
         </div>
 
         <p className="login-terms">
