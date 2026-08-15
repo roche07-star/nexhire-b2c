@@ -737,7 +737,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
       {/* 공지사항 모달 */}
       <AnnouncementModal />
 
-      <main className="admin-page reduced-nav-spacing">
+      <main className="admin-page zero-nav-spacing">
       <div className="admin-container">
         <div className="admin-header">
           <div className="section-label">MANAGER</div>
