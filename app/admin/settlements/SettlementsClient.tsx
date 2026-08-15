@@ -113,8 +113,16 @@ export default function SettlementsClient() {
   const [loading, setLoading] = useState(true)
 
   // 필터 상태
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month'>('month')
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1) // 1~12
+  const today = new Date()
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'custom'>('month')
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1) // 1~12
+  const [customStartDate, setCustomStartDate] = useState(
+    new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
+  )
+  const [customEndDate, setCustomEndDate] = useState(
+    new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+  )
   const [planFilter, setPlanFilter] = useState<'ALL' | 'PRO' | 'EXPERT'>('ALL')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'success' | 'failed' | 'refunded' | 'pending'>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
@@ -126,10 +134,40 @@ export default function SettlementsClient() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [refundReason, setRefundReason] = useState('')
 
+  // 빠른 선택 헬퍼
+  const setQuickRange = (type: 'today' | 'last7days' | 'thisMonth' | 'lastMonth') => {
+    const now = new Date()
+    setDateRange('custom')
+
+    switch (type) {
+      case 'today':
+        const todayStr = now.toISOString().split('T')[0]
+        setCustomStartDate(todayStr)
+        setCustomEndDate(todayStr)
+        break
+      case 'last7days':
+        const weekAgo = new Date(now)
+        weekAgo.setDate(now.getDate() - 7)
+        setCustomStartDate(weekAgo.toISOString().split('T')[0])
+        setCustomEndDate(now.toISOString().split('T')[0])
+        break
+      case 'thisMonth':
+        setCustomStartDate(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0])
+        setCustomEndDate(new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0])
+        break
+      case 'lastMonth':
+        const lastMonth = now.getMonth() - 1
+        const lastMonthYear = lastMonth < 0 ? now.getFullYear() - 1 : now.getFullYear()
+        const lastMonthNum = lastMonth < 0 ? 11 : lastMonth
+        setCustomStartDate(new Date(lastMonthYear, lastMonthNum, 1).toISOString().split('T')[0])
+        setCustomEndDate(new Date(lastMonthYear, lastMonthNum + 1, 0).toISOString().split('T')[0])
+        break
+    }
+  }
+
   // 기간 계산
   const getDateRange = () => {
     const today = new Date()
-    const year = today.getFullYear()
 
     switch (dateRange) {
       case 'today':
@@ -145,12 +183,27 @@ export default function SettlementsClient() {
           end: today.toISOString().split('T')[0]
         }
       case 'month':
-        // selectedMonth 기준 (1~12)
-        const monthStart = new Date(year, selectedMonth - 1, 1)
-        const monthEnd = new Date(year, selectedMonth, 0)
+        // selectedYear, selectedMonth 기준
+        const monthStart = new Date(selectedYear, selectedMonth - 1, 1)
+        const monthEnd = new Date(selectedYear, selectedMonth, 0)
         return {
           start: monthStart.toISOString().split('T')[0],
           end: monthEnd.toISOString().split('T')[0]
+        }
+      case 'custom':
+        // 커스텀 날짜 범위
+        if (customStartDate && customEndDate) {
+          return {
+            start: customStartDate,
+            end: customEndDate
+          }
+        }
+        // 기본값 (이번 달)
+        const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1)
+        const defaultEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        return {
+          start: defaultStart.toISOString().split('T')[0],
+          end: defaultEnd.toISOString().split('T')[0]
         }
     }
   }
@@ -171,7 +224,7 @@ export default function SettlementsClient() {
       }
     }
     fetchSummary()
-  }, [dateRange, selectedMonth])
+  }, [dateRange, selectedYear, selectedMonth, customStartDate, customEndDate])
 
   // 차트 데이터 로드
   useEffect(() => {
@@ -218,7 +271,7 @@ export default function SettlementsClient() {
     if (activeTab === 'payments') {
       fetchPayments()
     }
-  }, [activeTab, currentPage, planFilter, statusFilter, searchQuery, dateRange, selectedMonth])
+  }, [activeTab, currentPage, planFilter, statusFilter, searchQuery, dateRange, selectedYear, selectedMonth, customStartDate, customEndDate])
 
   // 환불 내역 로드
   useEffect(() => {
@@ -235,7 +288,7 @@ export default function SettlementsClient() {
     if (activeTab === 'refunds') {
       fetchRefunds()
     }
-  }, [activeTab, refundPage, dateRange, selectedMonth])
+  }, [activeTab, refundPage, dateRange, selectedYear, selectedMonth, customStartDate, customEndDate])
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString() + '원'
@@ -342,37 +395,131 @@ export default function SettlementsClient() {
 
           {/* 기간 선택 */}
           <div className="date-range-buttons">
-            {(['today', 'week', 'month'] as const).map((range) => (
+            {(['today', 'week', 'month', 'custom'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setDateRange(range)}
                 className={`date-btn ${dateRange === range ? 'active' : ''}`}
               >
-                {range === 'today' ? '오늘' : range === 'week' ? '이번 주' : `${selectedMonth}월`}
+                {range === 'today' ? '오늘' :
+                 range === 'week' ? '이번 주' :
+                 range === 'month' ? `${selectedYear}년 ${selectedMonth}월` :
+                 '기간 선택'}
               </button>
             ))}
             {dateRange === 'month' && (
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                style={{
-                  marginLeft: 8,
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  border: '1px solid #e5e7eb',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background: 'var(--surface)',
-                  color: 'var(--text)',
-                }}
-              >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                  <option key={month} value={month}>
-                    {month}월
-                  </option>
-                ))}
-              </select>
+              <>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  style={{
+                    marginLeft: 8,
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {Array.from(
+                    { length: new Date().getFullYear() - 2024 + 2 },
+                    (_, i) => 2024 + i
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}년
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                  style={{
+                    marginLeft: 8,
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                  }}
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                    <option key={month} value={month}>
+                      {month}월
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+            {dateRange === 'custom' && (
+              <div style={{ marginLeft: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    fontSize: 14,
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                  }}
+                />
+                <span style={{ color: 'var(--muted2)' }}>~</span>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    fontSize: 14,
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
+                  {[
+                    { label: '오늘', type: 'today' as const },
+                    { label: '최근 7일', type: 'last7days' as const },
+                    { label: '이번 달', type: 'thisMonth' as const },
+                    { label: '지난 달', type: 'lastMonth' as const },
+                  ].map(({ label, type }) => (
+                    <button
+                      key={type}
+                      onClick={() => setQuickRange(type)}
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 6,
+                        border: '1px solid #e5e7eb',
+                        background: 'var(--surface)',
+                        color: 'var(--muted2)',
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#f3f4f6'
+                        e.currentTarget.style.color = 'var(--text)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--surface)'
+                        e.currentTarget.style.color = 'var(--muted2)'
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
