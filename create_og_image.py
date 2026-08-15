@@ -82,9 +82,9 @@ draw.text((badge_x + badge_w//2, badge_y + badge_h//2),
           "무료 3회 체험",
           fill='#ffffff', font=font_badge, anchor="mm")
 
-# URL (우측 하단, 밝은 보라)
-draw.text((width - 160, height - 55), "jobizic.com",
-          fill='#c4b5fd', font=font_sub, anchor="lt")
+# URL (중앙 하단, 밝은 보라)
+draw.text((width // 2, height - 55), "jobizic.com",
+          fill='#c4b5fd', font=font_sub, anchor="mm")
 
 # 작은 장식 요소 (우측 상단 - 브랜드 포인트)
 accent_x = width - 150
