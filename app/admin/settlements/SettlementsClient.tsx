@@ -107,6 +107,7 @@ function formatPaymentMethod(paymentMethod: string | null): string {
 export default function SettlementsClient() {
   const [activeTab, setActiveTab] = useState<'summary' | 'payments' | 'refunds'>('summary')
   const [summary, setSummary] = useState<SummaryData | null>(null)
+  const [previousSummary, setPreviousSummary] = useState<SummaryData | null>(null)
   const [payments, setPayments] = useState<PaymentsData | null>(null)
   const [refunds, setRefunds] = useState<RefundsData | null>(null)
   const [chartData, setChartData] = useState<ChartData[]>([])
@@ -137,6 +138,43 @@ export default function SettlementsClient() {
   const [showRefundModal, setShowRefundModal] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [refundReason, setRefundReason] = useState('')
+
+  // 증감률 계산
+  const calculateChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0
+    return ((current - previous) / previous) * 100
+  }
+
+  // 증감 표시 컴포넌트
+  const ChangeIndicator = ({ current, previous }: { current: number; previous: number }) => {
+    const change = calculateChange(current, previous)
+    const isPositive = change > 0
+    const isNegative = change < 0
+
+    if (Math.abs(change) < 0.01) {
+      return <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>-</span>
+    }
+
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+      }}>
+        <span style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: isPositive ? '#10b981' : isNegative ? '#ef4444' : '#6b7280'
+        }}>
+          {isPositive ? '▲' : isNegative ? '▼' : '-'} {Math.abs(change).toFixed(1)}%
+        </span>
+        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+          전월 대비
+        </span>
+      </div>
+    )
+  }
 
   // 정렬 헬퍼
   const handleSort = (column: 'date' | 'email' | 'amount' | 'plan') => {
@@ -260,6 +298,23 @@ export default function SettlementsClient() {
     }
   }
 
+  // 지난 달 기간 계산 (월별 모드일 때만)
+  const getPreviousMonthRange = () => {
+    if (dateRange !== 'month') return null
+
+    const prevMonth = selectedMonth - 1
+    const prevYear = prevMonth < 1 ? selectedYear - 1 : selectedYear
+    const prevMonthNum = prevMonth < 1 ? 12 : prevMonth
+
+    const monthStart = new Date(prevYear, prevMonthNum - 1, 1)
+    const monthEnd = new Date(prevYear, prevMonthNum, 0)
+
+    return {
+      start: monthStart.toISOString().split('T')[0],
+      end: monthEnd.toISOString().split('T')[0]
+    }
+  }
+
   // 요약 데이터 로드
   useEffect(() => {
     const fetchSummary = async () => {
@@ -273,6 +328,20 @@ export default function SettlementsClient() {
         setSummary(data)
       } else {
         console.error('요약 데이터 로드 실패:', await res.text())
+      }
+
+      // 지난 달 데이터 로드 (월별 모드일 때만)
+      const prevRange = getPreviousMonthRange()
+      if (prevRange) {
+        const prevRes = await fetch(`/api/admin/settlements/summary?start=${prevRange.start}&end=${prevRange.end}`)
+        if (prevRes.ok) {
+          const prevData = await prevRes.json()
+          setPreviousSummary(prevData)
+        } else {
+          setPreviousSummary(null)
+        }
+      } else {
+        setPreviousSummary(null)
       }
     }
     fetchSummary()
@@ -599,26 +668,40 @@ export default function SettlementsClient() {
               <div className="kpi-tile kpi-blue">
                 <div className="kpi-label">💰 총 매출</div>
                 <div className="kpi-value">{formatCurrency(summary.grossRevenue)}</div>
+                {previousSummary && <ChangeIndicator current={summary.grossRevenue} previous={previousSummary.grossRevenue} />}
                 <div className="kpi-subtitle">{summary.period.start} ~ {summary.period.end}</div>
               </div>
 
               <div className="kpi-tile kpi-green">
                 <div className="kpi-label">✨ 순 매출</div>
                 <div className="kpi-value">{formatCurrency(summary.netRevenue)}</div>
+                {previousSummary && <ChangeIndicator current={summary.netRevenue} previous={previousSummary.netRevenue} />}
                 <div className="kpi-subtitle">총 매출 - 환불액</div>
               </div>
 
               <div className="kpi-tile kpi-red">
                 <div className="kpi-label">🔄 환불액</div>
                 <div className="kpi-value">{formatCurrency(summary.totalRefunds)}</div>
+                {previousSummary && <ChangeIndicator current={summary.totalRefunds} previous={previousSummary.totalRefunds} />}
                 <div className="kpi-subtitle">완료된 환불</div>
               </div>
 
               <div className="kpi-tile kpi-purple">
                 <div className="kpi-label">📈 MRR</div>
                 <div className="kpi-value">{formatCurrency(summary.mrr)}</div>
+                {previousSummary && <ChangeIndicator current={summary.mrr} previous={previousSummary.mrr} />}
                 <div className="kpi-subtitle">
-                  활성 구독: {summary.activeSubscriptions}명<br />
+                  활성 구독: {summary.activeSubscriptions}명
+                  {previousSummary && (
+                    <span style={{
+                      marginLeft: 4,
+                      fontSize: 12,
+                      color: summary.activeSubscriptions > previousSummary.activeSubscriptions ? '#10b981' : summary.activeSubscriptions < previousSummary.activeSubscriptions ? '#ef4444' : '#6b7280'
+                    }}>
+                      ({summary.activeSubscriptions > previousSummary.activeSubscriptions ? '+' : ''}{summary.activeSubscriptions - previousSummary.activeSubscriptions})
+                    </span>
+                  )}
+                  <br />
                   PRO {summary.planCounts.PRO}명 / EXPERT {summary.planCounts.EXPERT}명
                 </div>
               </div>
