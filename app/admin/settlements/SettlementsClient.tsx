@@ -129,10 +129,62 @@ export default function SettlementsClient() {
   const [currentPage, setCurrentPage] = useState(1)
   const [refundPage, setRefundPage] = useState(1)
 
+  // 정렬 상태
+  const [sortBy, setSortBy] = useState<'date' | 'email' | 'amount' | 'plan' | null>(null)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+
   // 환불 모달 상태
   const [showRefundModal, setShowRefundModal] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [refundReason, setRefundReason] = useState('')
+
+  // 정렬 헬퍼
+  const handleSort = (column: 'date' | 'email' | 'amount' | 'plan') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('desc')
+    }
+  }
+
+  const sortData = <T extends Payment | Refund>(data: T[]): T[] => {
+    if (!sortBy) return data
+
+    return [...data].sort((a, b) => {
+      let aValue: string | number = ''
+      let bValue: string | number = ''
+
+      switch (sortBy) {
+        case 'date':
+          aValue = 'paid_at' in a ? a.paid_at : a.requested_at
+          bValue = 'paid_at' in b ? b.paid_at : b.requested_at
+          break
+        case 'email':
+          aValue = a.user_email
+          bValue = b.user_email
+          break
+        case 'amount':
+          aValue = a.amount
+          bValue = b.amount
+          break
+        case 'plan':
+          aValue = a.plan || ''
+          bValue = b.plan || ''
+          break
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue)
+      }
+
+      return sortOrder === 'asc'
+        ? (aValue as number) - (bValue as number)
+        : (bValue as number) - (aValue as number)
+    })
+  }
 
   // 빠른 선택 헬퍼
   const setQuickRange = (type: 'today' | 'last7days' | 'thisMonth' | 'lastMonth') => {
@@ -650,10 +702,18 @@ export default function SettlementsClient() {
                   <table className="payments-table">
                     <thead>
                       <tr>
-                        <th>일자</th>
-                        <th>사용자</th>
-                        <th>플랜</th>
-                        <th className="text-right">금액</th>
+                        <th onClick={() => handleSort('date')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          일자 {sortBy === 'date' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th onClick={() => handleSort('email')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          사용자 {sortBy === 'email' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th onClick={() => handleSort('plan')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          플랜 {sortBy === 'plan' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th className="text-right" onClick={() => handleSort('amount')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          금액 {sortBy === 'amount' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
                         <th className="text-center">결제방법</th>
                         <th className="text-center">쿠폰 사용</th>
                         <th className="text-center">상태</th>
@@ -661,7 +721,7 @@ export default function SettlementsClient() {
                       </tr>
                     </thead>
                     <tbody>
-                      {payments.payments.map((payment) => {
+                      {sortData(payments.payments).map((payment) => {
                         const couponUsed = payment.coupon_status?.has_used || false
                         const canRefund = payment.status === 'success' && !couponUsed
 
@@ -727,7 +787,7 @@ export default function SettlementsClient() {
 
                 {/* 모바일 카드 */}
                 <div className="mobile-cards">
-                  {payments.payments.map((payment) => {
+                  {sortData(payments.payments).map((payment) => {
                     const couponUsed = payment.coupon_status?.has_used || false
                     const canRefund = payment.status === 'success' && !couponUsed
 
@@ -839,17 +899,25 @@ export default function SettlementsClient() {
                   <table className="payments-table">
                     <thead>
                       <tr>
-                        <th>요청일</th>
-                        <th>사용자</th>
-                        <th>플랜</th>
-                        <th className="text-right">금액</th>
+                        <th onClick={() => handleSort('date')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          요청일 {sortBy === 'date' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th onClick={() => handleSort('email')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          사용자 {sortBy === 'email' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th onClick={() => handleSort('plan')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          플랜 {sortBy === 'plan' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
+                        <th className="text-right" onClick={() => handleSort('amount')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                          금액 {sortBy === 'amount' && (sortOrder === 'asc' ? '▲' : '▼')}
+                        </th>
                         <th>사유</th>
                         <th className="text-center">상태</th>
                         <th>처리일</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {refunds.refunds.map((refund) => (
+                      {sortData(refunds.refunds).map((refund) => (
                         <tr key={refund.id}>
                           <td>{new Date(refund.requested_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
                           <td className="email">{refund.user_email}</td>
@@ -870,7 +938,7 @@ export default function SettlementsClient() {
 
                 {/* 모바일 카드 */}
                 <div className="mobile-cards">
-                  {refunds.refunds.map((refund) => (
+                  {sortData(refunds.refunds).map((refund) => (
                     <div key={refund.id} className="payment-card">
                       <div className="card-header">
                         <span className={`plan-badge ${refund.plan === 'EXPERT' ? 'expert' : refund.plan === 'STORE' ? 'store' : 'pro'}`}>
@@ -1197,6 +1265,12 @@ export default function SettlementsClient() {
           font-size: 12px;
           font-weight: 700;
           color: #6b7280;
+          transition: background 0.2s, color 0.2s;
+        }
+
+        .payments-table th:hover {
+          background: #f3f4f6;
+          color: #18181b;
         }
 
         .payments-table td {
