@@ -107,6 +107,16 @@ export async function processInterviewJob(
       return
     }
 
+    // Step 1.5: 수정된 이력서 조회 (있으면 우선 사용)
+    const { data: generatedResume } = await supabase
+      .from('generated_resumes')
+      .select('html_content')
+      .eq('analysis_id', inputData.analysisId)
+      .eq('user_email', email)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single()
+
     // Step 2: JD 분석 조회
     await updateJobProgress(jobId, 2, 'JD 분석 결과를 확인하는 중...')
 
@@ -140,6 +150,11 @@ export async function processInterviewJob(
 개선 필요: ${toArr(a.improvements).join(' / ')}
 핵심 키워드: ${toArr(a.keywords).join(', ')}
 ${careerSummary ? `커리어 경로: ${careerSummary}` : ''}`
+
+    // 수정된 이력서 추가 (있으면 우선 사용)
+    const updatedResumeSection = generatedResume?.html_content
+      ? `\n\n[수정된 최신 이력서]:\n${generatedResume.html_content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`
+      : ''
 
     const companyAnalysisSection = jdContext?.company_analysis
       ? `[회사 상세 분석]:
@@ -249,7 +264,7 @@ STAR는 행동 기반 면접 기법으로, 후보자의 과거 경험을 구체�
 🚨🚨🚨 다시 한번 강조: SECTION 5 역질문(reverse_questions 3-5개), SECTION 6 체크리스트(checklist 5-7개) 반드시 포함! 절대 누락하지 마세요! 🚨🚨🚨`
 
     const userContent = `[후보자 이력서 분석 결과]
-${candidateProfile}
+${candidateProfile}${updatedResumeSection}
 
 [채용 정보]
 ${jdSection}
