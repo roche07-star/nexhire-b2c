@@ -28,13 +28,30 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
   // 생성된 HTML의 body 스타일 강제 제거 (모바일 대응)
   useEffect(() => {
     if (!editing && displayRef.current) {
-      const bodyElement = displayRef.current.querySelector('body')
-      if (bodyElement) {
-        // 모바일에서 padding 강제 제거
-        if (window.innerWidth <= 768) {
+      // 모바일에서 padding 강제 제거
+      if (window.innerWidth <= 768) {
+        // 1. body 태그 찾아서 스타일 제거
+        const bodyElement = displayRef.current.querySelector('body')
+        if (bodyElement) {
           bodyElement.style.padding = '0'
           bodyElement.style.margin = '0'
+          bodyElement.style.maxWidth = '100%'
+          bodyElement.style.width = '100%'
         }
+
+        // 2. displayRef 자체도 패딩 제거
+        displayRef.current.style.padding = '0'
+
+        // 3. 모든 자식 div에도 적용 (추가 보험)
+        const allDivs = displayRef.current.querySelectorAll('div')
+        allDivs.forEach((div: Element) => {
+          if (div instanceof HTMLElement) {
+            const currentPadding = window.getComputedStyle(div).padding
+            if (currentPadding && parseInt(currentPadding) > 20) {
+              div.style.padding = '0'
+            }
+          }
+        })
       }
     }
   }, [editing, resume.html_content])
