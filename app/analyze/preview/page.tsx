@@ -559,6 +559,7 @@ ${element.innerHTML}
 
             <div
               id="resume-content"
+              className="resume-content-preview"
               contentEditable={isEditing}
               suppressContentEditableWarning
               style={{

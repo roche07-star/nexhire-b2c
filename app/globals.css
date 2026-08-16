@@ -6095,4 +6095,10 @@ footer.footer-container {
     align-items: flex-start !important;
     padding-top: 10px !important;
   }
+
+  /* 생성된 이력서 미리보기 모바일 */
+  .resume-content-preview {
+    padding: 20px !important;
+    border-radius: 12px !important;
+  }
 }
