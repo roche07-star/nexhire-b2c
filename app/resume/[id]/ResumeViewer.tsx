@@ -365,14 +365,25 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
       )}
 
       {/* 반응형 스타일 */}
-      <style jsx>{`
+      <style jsx global>{`
         .resume-content {
           padding: 48px;
         }
 
+        /* 생성된 HTML 내부 강제 스타일 */
+        .resume-content body,
+        .resume-content > * {
+          max-width: 100% !important;
+          width: 100% !important;
+        }
+
         @media (max-width: 768px) {
           .resume-content {
-            padding: 16px;
+            padding: 16px !important;
+          }
+
+          .resume-content body {
+            padding: 12px 8px !important;
           }
         }
       `}</style>
