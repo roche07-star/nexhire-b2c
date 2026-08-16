@@ -278,7 +278,7 @@ ${element.innerHTML}
       fontFamily: 'Noto Sans KR, -apple-system, BlinkMacSystemFont, sans-serif',
       background: '#0a0a0a',
       minHeight: '100vh',
-      padding: '16px 20px',
+      padding: '8px 20px',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -286,7 +286,7 @@ ${element.innerHTML}
       }}>
         {/* 헤더 */}
         <div style={{
-          marginBottom: '24px',
+          marginBottom: '16px',
         }}>
           <button
             onClick={() => router.push('/analyze')}
@@ -296,8 +296,8 @@ ${element.innerHTML}
               color: '#999',
               fontSize: '14px',
               cursor: 'pointer',
-              padding: '8px 0',
-              marginBottom: '12px',
+              padding: '4px 0',
+              marginBottom: '4px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -316,7 +316,8 @@ ${element.innerHTML}
             fontSize: '32px',
             fontWeight: 700,
             color: '#fff',
-            marginBottom: '8px',
+            marginBottom: '4px',
+            marginTop: '0',
           }}>생성 Report</h1>
 
           <div style={{
