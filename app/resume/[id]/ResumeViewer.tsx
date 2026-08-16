@@ -25,6 +25,20 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
     }
   }, [editing, resume.html_content])
 
+  // 생성된 HTML의 body 스타일 강제 제거 (모바일 대응)
+  useEffect(() => {
+    if (!editing && displayRef.current) {
+      const bodyElement = displayRef.current.querySelector('body')
+      if (bodyElement) {
+        // 모바일에서 padding 강제 제거
+        if (window.innerWidth <= 768) {
+          bodyElement.style.padding = '0'
+          bodyElement.style.margin = '0'
+        }
+      }
+    }
+  }, [editing, resume.html_content])
+
   // FREE 플랜 워터마크 추가 (경력 섹션 블러 처리)
   useEffect(() => {
     if (userPlan === 'FREE' && !editing && displayRef.current) {

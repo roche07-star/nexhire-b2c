@@ -155,11 +155,11 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
 - 색상: 블랙(#000) 기본, 강조색(#2563eb) 섹션 제목
 - 여백:
   * 데스크톱 (768px 이상): 상하좌우 40px, 섹션 간 24px
-  * 모바일 (768px 미만): 상하 12px, 좌우 8px, 섹션 간 12px (컴팩트!)
+  * **모바일 (768px 미만): padding 0 (부모 컴포넌트에서 처리), 섹션 간 12px**
 - 폰트 크기: 이름 28px, 섹션 제목 20px, 본문 14px
 - 줄 간격: 1.6
 - 페이지 나누기: 경력 항목 사이에 page-break-inside: avoid 사용
-- **레이아웃**: body에 max-width 설정 금지! 전체 화면 사용
+- **레이아웃**: body에 max-width 설정 금지! 전체 화면 사용, 모바일에서 padding 제거
 
 **중요: 레이아웃 구조**
 - ❌ position: absolute, fixed 절대 사용 금지
@@ -203,15 +203,16 @@ ${(analysisResult.improvements || []).map((imp: string, i: number) => `  ${i + 1
       padding: 40px;
       font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
       line-height: 1.6;
-      max-width: 100% !important; /* 전체 화면 사용 */
+      max-width: 100% !important;
+      width: 100% !important;
     }
     section { margin-bottom: 24px; position: relative; }
     h1 { font-size: 28px; margin: 0 0 8px 0; }
     h2 { color: #2563eb; font-size: 20px; margin-bottom: 12px; }
 
-    /* 모바일 반응형: 컴팩트 레이아웃! */
+    /* 모바일 반응형: 패딩 제거! */
     @media (max-width: 768px) {
-      body { padding: 12px 8px !important; }
+      body { padding: 0 !important; }
       section { margin-bottom: 12px; }
       h1 { font-size: 24px; }
       h2 { font-size: 18px; }
