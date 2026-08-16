@@ -253,10 +253,11 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
         style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '0 20px 40px',
+          padding: '0 8px 40px',
         }}
       >
         <div
+          className="resume-card"
           style={{
             background: '#fff',
             borderRadius: '16px',
@@ -270,8 +271,8 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
               ref={contentRef}
               contentEditable={true}
               suppressContentEditableWarning
+              className="resume-content"
               style={{
-                padding: '48px',
                 color: '#000',
                 lineHeight: 1.6,
                 cursor: 'text',
@@ -281,8 +282,8 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
             <div
               ref={displayRef}
               dangerouslySetInnerHTML={{ __html: resume.html_content }}
+              className="resume-content"
               style={{
-                padding: '48px',
                 color: '#000',
                 lineHeight: 1.6,
               }}
@@ -362,6 +363,19 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
           </div>
         </div>
       )}
+
+      {/* 반응형 스타일 */}
+      <style jsx>{`
+        .resume-content {
+          padding: 48px;
+        }
+
+        @media (max-width: 768px) {
+          .resume-content {
+            padding: 16px;
+          }
+        }
+      `}</style>
     </main>
   )
 }
