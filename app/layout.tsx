@@ -10,6 +10,7 @@ import SentryInit from '@/components/SentryInit'
 
 // Lazy load non-critical components
 const ResetWarningPopup = dynamic(() => import('@/components/ResetWarningPopup'))
+const UTMTracker = dynamic(() => import('@/components/UTMTracker'))
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SentryInit />
         <Providers>
+          <UTMTracker />
           {/* <CustomCursor /> */}
           {children}
           <ResetWarningPopup />
