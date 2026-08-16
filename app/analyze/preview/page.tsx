@@ -278,7 +278,7 @@ ${element.innerHTML}
       fontFamily: 'Noto Sans KR, -apple-system, BlinkMacSystemFont, sans-serif',
       background: '#0a0a0a',
       minHeight: '100vh',
-      padding: '40px 20px',
+      padding: '16px 20px',
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -286,7 +286,7 @@ ${element.innerHTML}
       }}>
         {/* 헤더 */}
         <div style={{
-          marginBottom: '32px',
+          marginBottom: '24px',
         }}>
           <button
             onClick={() => router.push('/analyze')}
@@ -297,7 +297,7 @@ ${element.innerHTML}
               fontSize: '14px',
               cursor: 'pointer',
               padding: '8px 0',
-              marginBottom: '24px',
+              marginBottom: '12px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -341,69 +341,74 @@ ${element.innerHTML}
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '13px', color: '#999' }}>
-                분석일: {new Date().toLocaleDateString('ko-KR')}
-              </span>
+            <div style={{ fontSize: '13px', color: '#999' }}>
+              분석일: {new Date().toLocaleDateString('ko-KR')}
+            </div>
+          </div>
 
+          {/* 다운로드 버튼 영역 */}
+          {(plan === 'PRO' || plan === 'EXPERT') && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '12px',
+              justifyContent: 'flex-end',
+            }}>
               {/* PRO/EXPERT: HTML 다운로드 버튼 */}
-              {(plan === 'PRO' || plan === 'EXPERT') && (
-                <button
-                  onClick={downloadHTML}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                  }}
-                >
-                  📄 HTML
-                </button>
-              )}
+              <button
+                onClick={downloadHTML}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                }}
+              >
+                📄 HTML
+              </button>
 
               {/* PRO/EXPERT: PDF 다운로드 버튼 */}
-              {(plan === 'PRO' || plan === 'EXPERT') && (
-                <button
-                  onClick={downloadPDF}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                  }}
-                >
-                  📑 PDF
-                </button>
-              )}
+              <button
+                onClick={downloadPDF}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                }}
+              >
+                📑 PDF
+              </button>
 
               {/* PRO/EXPERT: DOCX 다운로드 버튼 */}
-              {(plan === 'PRO' || plan === 'EXPERT') && docx && (
+              {docx && (
                 <button
                   onClick={downloadDocx}
                   style={{
@@ -428,7 +433,7 @@ ${element.innerHTML}
                 </button>
               )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* 변경사항 섹션 */}
