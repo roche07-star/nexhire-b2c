@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Coupon } from '@/lib/types/coupon'
 import AnnouncementModal from '@/components/AnnouncementModal'
 import { PLAN_LIMITS as CENTRAL_PLAN_LIMITS, type UserType as CentralUserType } from '@/lib/constants/planLimits'
@@ -47,7 +48,7 @@ const FEATURE_LABELS: Record<string, string> = {
   package: '🎁 올인원 패키지',
 }
 
-type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'telegram' | 'tokens'
+type AdminTab = 'users' | 'plan-changes' | 'support' | 'coupons' | 'payment-gateway' | 'telegram' | 'tokens' | 'keywords'
 
 interface Stats {
   total: number
@@ -66,6 +67,7 @@ interface AdminClientProps {
 }
 
 export default function AdminClient({ currentUserType }: AdminClientProps) {
+  const router = useRouter()
   const isSuperAdmin = currentUserType === 'SUPER_ADMIN'
 
   const [tab, setTab] = useState<AdminTab>('users')
@@ -667,6 +669,12 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   }
 
   function onTabChange(t: AdminTab) {
+    // 키워드 분석 탭은 별도 페이지로 이동
+    if (t === 'keywords') {
+      router.push('/admin/keywords')
+      return
+    }
+
     setTab(t)
     if (t === 'coupons') loadCoupons()
     if (t === 'support') {
@@ -732,6 +740,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
             📅 플랜 변경 예정 {users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length > 0 && `(${users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length})`}
           </button>
           <button className={`admin-tab-btn${tab === 'support' ? ' active' : ''}`} onClick={() => onTabChange('support')}>💬 고객센터</button>
+          <button className={`admin-tab-btn${tab === 'keywords' ? ' active' : ''}`} onClick={() => onTabChange('keywords')}>📊 키워드 분석</button>
           <button className={`admin-tab-btn${tab === 'coupons' ? ' active' : ''}`} onClick={() => onTabChange('coupons')}>쿠폰 관리</button>
           {isSuperAdmin && (
             <>
@@ -764,6 +773,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               📅 플랜 변경 예정{users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length > 0 ? ` (${users.filter(u => u.downgrade_to || u.status === 'withdrawing' || u.next_plan).length})` : ''}
             </option>
             <option value="support">💬 고객센터</option>
+            <option value="keywords">📊 키워드 분석</option>
             <option value="coupons">🎫 쿠폰 관리</option>
             {isSuperAdmin && (
               <>
