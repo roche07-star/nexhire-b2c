@@ -249,7 +249,7 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
         style={{
           maxWidth: '900px',
           margin: '0 auto',
-          padding: '12px 0',
+          padding: '0 20px 40px',
         }}
       >
         <div
