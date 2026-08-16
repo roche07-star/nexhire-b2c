@@ -247,7 +247,7 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
       {/* 이력서 내용 */}
       <div
         style={{
-          maxWidth: '900px',
+          maxWidth: '100%',
           margin: '0 auto',
           padding: '0 20px 40px',
         }}
