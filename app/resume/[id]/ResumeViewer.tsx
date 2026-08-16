@@ -185,7 +185,11 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+    <main style={{
+      minHeight: '100vh',
+      background: '#0a0a0a',
+      fontFamily: 'Noto Sans KR, -apple-system, BlinkMacSystemFont, sans-serif',
+    }}>
       {/* 상단 액션 바 */}
       <div
         style={{
@@ -194,10 +198,10 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
           zIndex: 100,
           background: 'rgba(20, 20, 20, 0.95)',
           backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid var(--border)',
-          padding: '16px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          padding: '12px 20px',
           display: 'flex',
-          gap: '12px',
+          gap: '8px',
           justifyContent: 'center',
           flexWrap: 'wrap',
         }}
@@ -247,18 +251,18 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
       {/* 이력서 내용 */}
       <div
         style={{
-          maxWidth: '100%',
+          maxWidth: '1200px',
           margin: '0 auto',
           padding: '0 20px 40px',
         }}
       >
         <div
           style={{
-            background: '#ffffff',
-            borderRadius: '8px',
-            boxShadow: editing ? '0 4px 20px rgba(167, 139, 250, 0.3)' : '0 4px 20px rgba(0,0,0,0.15)',
+            background: '#fff',
+            borderRadius: '16px',
+            boxShadow: editing ? '0 8px 32px rgba(232,255,71,0.3)' : '0 8px 32px rgba(0,0,0,0.3)',
             overflow: 'hidden',
-            border: editing ? '2px solid #a78bfa' : 'none',
+            outline: editing ? '3px solid #e8ff47' : 'none',
           }}
         >
           {editing ? (
@@ -267,10 +271,9 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
               contentEditable={true}
               suppressContentEditableWarning
               style={{
-                padding: '20px',
+                padding: '48px',
                 color: '#000',
                 lineHeight: 1.6,
-                outline: '2px solid rgba(167, 139, 250, 0.2)',
                 cursor: 'text',
               }}
             />
@@ -279,7 +282,7 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
               ref={displayRef}
               dangerouslySetInnerHTML={{ __html: resume.html_content }}
               style={{
-                padding: '0',
+                padding: '48px',
                 color: '#000',
                 lineHeight: 1.6,
               }}
@@ -290,12 +293,11 @@ export default function ResumeViewer({ resume, userPlan, canDownload }: { resume
         {/* 메타 정보 */}
         <div
           style={{
-            marginTop: '24px',
-            padding: '16px',
-            background: 'var(--surface)',
-            borderRadius: '8px',
+            marginTop: '48px',
+            paddingTop: '24px',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
             fontSize: '13px',
-            color: 'var(--muted)',
+            color: '#666',
             textAlign: 'center',
           }}
         >
