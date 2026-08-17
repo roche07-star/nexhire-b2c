@@ -2002,6 +2002,86 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               )}
             </div>
 
+            {/* 외부 관리자 링크 */}
+            <div style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 32,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              marginBottom: 24
+            }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: '#333' }}>
+                🔗 외부 관리자 페이지
+              </h3>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => window.open('https://admin.portone.io/', '_blank')}
+                  style={{
+                    flex: '1 1 200px',
+                    padding: '16px 24px',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: '2px solid #7b61ff',
+                    background: '#f5f3ff',
+                    color: '#7b61ff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#7b61ff'
+                    e.currentTarget.style.color = '#fff'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f5f3ff'
+                    e.currentTarget.style.color = '#7b61ff'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  <span>포트원 관리자</span>
+                  <span style={{ fontSize: 14 }}>↗</span>
+                </button>
+
+                <button
+                  onClick={() => window.open('https://partner.kcp.co.kr/main', '_blank')}
+                  style={{
+                    flex: '1 1 200px',
+                    padding: '16px 24px',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: '2px solid #0ea5e9',
+                    background: '#f0f9ff',
+                    color: '#0ea5e9',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#0ea5e9'
+                    e.currentTarget.style.color = '#fff'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f0f9ff'
+                    e.currentTarget.style.color = '#0ea5e9'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  <span>NHN KCP 가맹 관리자</span>
+                  <span style={{ fontSize: 14 }}>↗</span>
+                </button>
+              </div>
+            </div>
+
             {/* 안내 사항 */}
             <div style={{
               background: '#fffbeb',
