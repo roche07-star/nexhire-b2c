@@ -303,7 +303,7 @@ function PaymentPageContent({ product, userEmail }: TossPaymentClientProps) {
           • 결제 후 즉시 {product.plan} 플랜이 활성화됩니다<br />
           • 환불은 결제 후 7일 이내, 서비스 사용 5회 미만 시 전액 가능합니다<br />
           • 처리 기간: 접수 후 1-2 영업일, 환불 완료까지 3-5 영업일<br />
-          • 문의사항은 roche@jobizic.com
+          • 문의사항은 support@jobizic.com
         </div>
       </div>
     </div>

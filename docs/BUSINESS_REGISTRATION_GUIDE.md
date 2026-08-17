@@ -261,7 +261,7 @@ JOBIZIC 서비스의 정식 사업 개시를 위한 사업자 등록의 필요�
 ```
 사업장 주소: [자택 주소 가능]
 전화번호: [연락 가능한 번호]
-이메일: roche@jobizic.com
+이메일: support@jobizic.com
 ```
 
 **업종 정보:**
@@ -349,7 +349,7 @@ JOBIZIC 서비스의 정식 사업 개시를 위한 사업자 등록의 필요�
 사업자등록번호: [123-45-67890]
 통신판매업신고: [2024-서울강남-00000] (신고 후)
 주소: [사업장 주소]
-이메일: roche@jobizic.com
+이메일: support@jobizic.com
 고객센터: [연락처]
 ```
 
@@ -495,7 +495,7 @@ TOSS_SECRET_KEY=live_sk_[발급받은키]
     <div>사업자등록번호: [123-45-67890]</div>
     <div>통신판매업신고: [2024-서울강남-00000]</div>
     <div>주소: [사업장 주소]</div>
-    <div>이메일: roche@jobizic.com  |  고객센터: [연락처]</div>
+    <div>이메일: support@jobizic.com  |  고객센터: [연락처]</div>
   </div>
   
   <div className="links">
