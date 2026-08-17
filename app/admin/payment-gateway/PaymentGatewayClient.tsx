@@ -221,6 +221,87 @@ export default function PaymentGatewayClient() {
           </div>
         </div>
 
+        {/* 외부 관리자 링크 */}
+        <div style={{
+          background: '#1a1a14',
+          borderRadius: '12px',
+          padding: '20px',
+          marginBottom: '24px',
+          border: '1px solid #292524'
+        }}>
+          <h3 style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            marginBottom: '12px',
+            color: '#a8a29e'
+          }}>
+            외부 관리자 페이지
+          </h3>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => window.open('https://admin.portone.io/', '_blank')}
+              style={{
+                flex: '1 1 200px',
+                padding: '14px 20px',
+                background: '#7b61ff',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#6b51ef'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#7b61ff'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span>포트원 관리자</span>
+              <span style={{ fontSize: '12px' }}>↗</span>
+            </button>
+
+            <button
+              onClick={() => window.open('https://partner.kcp.co.kr/main', '_blank')}
+              style={{
+                flex: '1 1 200px',
+                padding: '14px 20px',
+                background: '#0ea5e9',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#0284c7'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0ea5e9'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span>NHN KCP 가맹 관리자</span>
+              <span style={{ fontSize: '12px' }}>↗</span>
+            </button>
+          </div>
+        </div>
+
         {/* 전환 버튼 */}
         <div style={{
           display: 'flex',
