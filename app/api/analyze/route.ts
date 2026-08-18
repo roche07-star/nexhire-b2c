@@ -861,11 +861,11 @@ ${maskedText.slice(0, 3000)}
       }
     }
 
-    // 사용량 증가 (MANAGER 제외)
-    if (role !== 'MANAGER') {
-      await incrementUsage(email, 'analyze')
+    // 사용량 증가 (MANAGER도 통계 목적으로 카운트)
+    await incrementUsage(email, 'analyze')
 
-      // 🔒 이상 사용 패턴 감지 (비동기, 백그라운드)
+    // 🔒 이상 사용 패턴 감지 (비동기, 백그라운드)
+    if (role !== 'MANAGER') {
       // SUPER_ADMIN, MANAGER는 JOBSEEKER로 매핑
       const securityUserType: 'JOBSEEKER' | 'HEADHUNTER' =
         userType === 'HEADHUNTER' ? 'HEADHUNTER' : 'JOBSEEKER'

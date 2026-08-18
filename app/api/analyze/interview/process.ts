@@ -335,10 +335,8 @@ ${additionalLines ? `\n[추가 정보]\n${additionalLines}` : ''}`
       return
     }
 
-    // Step 6: Usage 증가 (Manager 제외)
-    if (role !== 'MANAGER') {
-      await incrementUsage(email, 'interview')
-    }
+    // Step 6: Usage 증가
+    await incrementUsage(email, 'interview')
 
     // Step 7: Job 완료
     await updateJobProgress(jobId, 6, '완료!')

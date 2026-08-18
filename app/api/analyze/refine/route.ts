@@ -165,10 +165,8 @@ ${B2C_PURPOSE}
       .update({ result: updatedResult })
       .eq('id', analysisId)
 
-    // 사용량 증가 (MANAGER 제외)
-    if (role !== 'MANAGER') {
-      await incrementUsage(email, 'analyze')
-    }
+    // 사용량 증가
+    await incrementUsage(email, 'analyze')
 
     return NextResponse.json({ success: true, result: updatedResult })
   } catch (e) {
