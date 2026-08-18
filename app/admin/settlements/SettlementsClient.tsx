@@ -320,30 +320,38 @@ export default function SettlementsClient() {
   // 요약 데이터 로드
   useEffect(() => {
     const fetchSummary = async () => {
-      const { start, end } = getDateRange()
-      console.log('요약 데이터 요청:', { start, end })
-      const res = await fetch(`/api/admin/settlements/summary?start=${start}&end=${end}`)
-      console.log('요약 API 응답 상태:', res.status)
-      if (res.ok) {
-        const data = await res.json()
-        console.log('요약 데이터:', data)
-        setSummary(data)
-      } else {
-        console.error('요약 데이터 로드 실패:', await res.text())
-      }
+      try {
+        const { start, end } = getDateRange()
+        console.log('요약 데이터 요청:', { start, end })
+        const res = await fetch(`/api/admin/settlements/summary?start=${start}&end=${end}`)
+        console.log('요약 API 응답 상태:', res.status)
+        if (res.ok) {
+          const data = await res.json()
+          console.log('요약 데이터:', data)
+          setSummary(data)
+        } else {
+          const errorText = await res.text()
+          console.error('요약 데이터 로드 실패:', errorText)
+          alert(`⚠️ 요약 데이터를 불러오는데 실패했습니다.\n상태: ${res.status}\n관리자에게 문의하세요.`)
+        }
 
-      // 지난 달 데이터 로드 (월별 모드일 때만)
-      const prevRange = getPreviousMonthRange()
-      if (prevRange) {
-        const prevRes = await fetch(`/api/admin/settlements/summary?start=${prevRange.start}&end=${prevRange.end}`)
-        if (prevRes.ok) {
-          const prevData = await prevRes.json()
-          setPreviousSummary(prevData)
+        // 지난 달 데이터 로드 (월별 모드일 때만)
+        const prevRange = getPreviousMonthRange()
+        if (prevRange) {
+          const prevRes = await fetch(`/api/admin/settlements/summary?start=${prevRange.start}&end=${prevRange.end}`)
+          if (prevRes.ok) {
+            const prevData = await prevRes.json()
+            setPreviousSummary(prevData)
+          } else {
+            setPreviousSummary(null)
+          }
         } else {
           setPreviousSummary(null)
         }
-      } else {
-        setPreviousSummary(null)
+      } catch (error) {
+        console.error('요약 데이터 로드 중 에러:', error)
+        alert('⚠️ 요약 데이터를 불러오는 중 오류가 발생했습니다.\n네트워크 연결을 확인해주세요.')
+        // Sentry에 자동 전송됨
       }
     }
     fetchSummary()
@@ -352,11 +360,20 @@ export default function SettlementsClient() {
   // 차트 데이터 로드
   useEffect(() => {
     const fetchChartData = async () => {
-      const year = new Date().getFullYear()
-      const res = await fetch(`/api/admin/settlements/chart?start=${year}-01-01&end=${year}-12-31`)
-      if (res.ok) {
-        const { data } = await res.json()
-        setChartData(data || [])
+      try {
+        const year = new Date().getFullYear()
+        const res = await fetch(`/api/admin/settlements/chart?start=${year}-01-01&end=${year}-12-31`)
+        if (res.ok) {
+          const { data } = await res.json()
+          setChartData(data || [])
+        } else {
+          console.error('차트 데이터 로드 실패:', res.status)
+          alert(`⚠️ 차트 데이터를 불러오는데 실패했습니다.\n상태: ${res.status}`)
+        }
+      } catch (error) {
+        console.error('차트 데이터 로드 중 에러:', error)
+        alert('⚠️ 차트 데이터를 불러오는 중 오류가 발생했습니다.')
+        // Sentry에 자동 전송됨
       }
     }
     if (activeTab === 'summary') {
@@ -367,29 +384,38 @@ export default function SettlementsClient() {
   // 결제 내역 로드
   useEffect(() => {
     const fetchPayments = async () => {
-      setLoading(true)
-      const { start, end } = getDateRange()
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '20',
-        plan: planFilter,
-        status: statusFilter,
-        start,
-        end,
-      })
-      if (searchQuery) params.set('search', searchQuery)
+      try {
+        setLoading(true)
+        const { start, end } = getDateRange()
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: '20',
+          plan: planFilter,
+          status: statusFilter,
+          start,
+          end,
+        })
+        if (searchQuery) params.set('search', searchQuery)
 
-      console.log('결제 내역 요청:', params.toString())
-      const res = await fetch(`/api/admin/settlements/payments?${params}`)
-      console.log('결제 API 응답 상태:', res.status)
-      if (res.ok) {
-        const data = await res.json()
-        console.log('결제 데이터:', data)
-        setPayments(data)
-      } else {
-        console.error('결제 내역 로드 실패:', await res.text())
+        console.log('결제 내역 요청:', params.toString())
+        const res = await fetch(`/api/admin/settlements/payments?${params}`)
+        console.log('결제 API 응답 상태:', res.status)
+        if (res.ok) {
+          const data = await res.json()
+          console.log('결제 데이터:', data)
+          setPayments(data)
+        } else {
+          const errorText = await res.text()
+          console.error('결제 내역 로드 실패:', errorText)
+          alert(`⚠️ 결제 내역을 불러오는데 실패했습니다.\n상태: ${res.status}\n관리자에게 문의하세요.`)
+        }
+      } catch (error) {
+        console.error('결제 내역 로드 중 에러:', error)
+        alert('⚠️ 결제 내역을 불러오는 중 오류가 발생했습니다.\n네트워크 연결을 확인해주세요.')
+        // Sentry에 자동 전송됨
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     if (activeTab === 'payments') {
       fetchPayments()
@@ -399,14 +425,24 @@ export default function SettlementsClient() {
   // 환불 내역 로드
   useEffect(() => {
     const fetchRefunds = async () => {
-      setLoading(true)
-      const { start, end } = getDateRange()
-      const res = await fetch(`/api/admin/settlements/refund?page=${refundPage}&limit=20&start=${start}&end=${end}`)
-      if (res.ok) {
-        const data = await res.json()
-        setRefunds(data)
+      try {
+        setLoading(true)
+        const { start, end } = getDateRange()
+        const res = await fetch(`/api/admin/settlements/refund?page=${refundPage}&limit=20&start=${start}&end=${end}`)
+        if (res.ok) {
+          const data = await res.json()
+          setRefunds(data)
+        } else {
+          console.error('환불 내역 로드 실패:', res.status)
+          alert(`⚠️ 환불 내역을 불러오는데 실패했습니다.\n상태: ${res.status}`)
+        }
+      } catch (error) {
+        console.error('환불 내역 로드 중 에러:', error)
+        alert('⚠️ 환불 내역을 불러오는 중 오류가 발생했습니다.')
+        // Sentry에 자동 전송됨
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     if (activeTab === 'refunds') {
       fetchRefunds()
