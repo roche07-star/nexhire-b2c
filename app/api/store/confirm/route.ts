@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { sendPaymentNotification } from '@/lib/telegram'
@@ -44,7 +45,10 @@ export async function POST(req: NextRequest) {
     // 토스페이먼츠 결제 승인 요청
     const secretKey = process.env.TOSS_SECRET_KEY
     if (!secretKey) {
-      return NextResponse.json({ error: '서버 설정 오류' }, { status: 500 })
+      Sentry.captureException(new Error('TOSS_SECRET_KEY 환경변수 없음 (STORE)'), {
+        extra: { userEmail: session.user.email, orderId }
+      })
+      return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다. 고객센터(roche07he@gmail.com)로 문의해주세요.' }, { status: 500 })
     }
 
     const encodedKey = Buffer.from(secretKey + ':').toString('base64')
