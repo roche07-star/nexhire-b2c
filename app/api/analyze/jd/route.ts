@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage, incrementUsage } from '@/lib/usageLimits'
@@ -382,7 +383,10 @@ ${candidateProfile}`
 
     const toolUse = message.content.find((c) => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
-      return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+      Sentry.captureException(new Error('Claude tool_use 응답 없음 (JD)'), {
+        extra: { content: JSON.stringify(message.content).slice(0, 1000) }
+      })
+      return NextResponse.json({ error: 'JD 적합도 분석 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     const resultPayload = {
@@ -412,7 +416,10 @@ ${candidateProfile}`
     })
     if (insertError) {
       console.error('[analyze/jd] DB insert error:', insertError)
-      return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
+      Sentry.captureException(insertError, {
+        extra: { operation: 'jd_analyses.insert' }
+      })
+      return NextResponse.json({ error: 'JD 분석 결과를 저장하는 중 오류가 발생했습니다. 고객센터(roche07he@gmail.com)로 문의해주세요.' }, { status: 500 })
     }
 
     // 캐시 무효화 (Dashboard 통계 갱신)
@@ -448,6 +455,7 @@ ${candidateProfile}`
     return NextResponse.json(resultPayload)
   } catch (e) {
     console.error('[analyze/jd]', e)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: 'JD 분석 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
