@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 
@@ -18,7 +19,8 @@ export async function GET(req: NextRequest) {
 
     if (userError) {
       console.error('Failed to fetch goals:', userError)
-      return NextResponse.json({ error: 'Failed to fetch goals' }, { status: 500 })
+      Sentry.captureException(userError)
+      return NextResponse.json({ error: '목표를 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     // goals가 없으면 기본값 반환
@@ -32,7 +34,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ goals })
   } catch (error) {
     console.error('GET /api/dashboard/goals error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    Sentry.captureException(error)
+    return NextResponse.json({ error: '목표를 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
 
@@ -82,12 +85,14 @@ export async function POST(req: NextRequest) {
 
     if (updateError) {
       console.error('Failed to save goals:', updateError)
-      return NextResponse.json({ error: 'Failed to save goals' }, { status: 500 })
+      Sentry.captureException(updateError)
+      return NextResponse.json({ error: '목표를 저장하는 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, goals })
   } catch (error) {
     console.error('POST /api/dashboard/goals error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    Sentry.captureException(error)
+    return NextResponse.json({ error: '목표를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }

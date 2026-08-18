@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
@@ -25,7 +26,8 @@ export async function PATCH(req: NextRequest) {
 
       if (error) {
         console.error('[notifications/mark-read] Error:', error)
-        return NextResponse.json({ error: '읽음 처리 실패' }, { status: 500 })
+        Sentry.captureException(error)
+        return NextResponse.json({ error: '알림 읽음 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
       }
     } else {
       // 전체 알림 읽음 처리
@@ -37,7 +39,8 @@ export async function PATCH(req: NextRequest) {
 
       if (error) {
         console.error('[notifications/mark-read] Error:', error)
-        return NextResponse.json({ error: '읽음 처리 실패' }, { status: 500 })
+        Sentry.captureException(error)
+        return NextResponse.json({ error: '알림 읽음 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
       }
     }
 

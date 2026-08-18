@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
@@ -23,7 +24,8 @@ export async function GET() {
 
     if (error) {
       console.error('[notifications] Query error:', error)
-      return NextResponse.json({ error: '알림 조회 실패' }, { status: 500 })
+      Sentry.captureException(error)
+      return NextResponse.json({ error: '알림을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     return NextResponse.json({ notifications: notifications || [] })

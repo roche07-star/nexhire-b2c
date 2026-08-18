@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { isSuperAdmin } from '@/lib/auth-helpers'
@@ -84,7 +85,12 @@ export async function POST(req: NextRequest) {
   }
 
   const { error } = await supabase.from('users').update(updateData).eq('email', email)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    Sentry.captureException(error, {
+      extra: { email, plan, updateData }
+    })
+    return NextResponse.json({ error: '플랜 변경 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
+  }
 
   return NextResponse.json({
     ok: true,

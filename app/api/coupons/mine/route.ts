@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { toCoupon, toCouponWithStatus, type DatabaseCoupon } from '@/lib/types/coupon'
@@ -27,6 +28,7 @@ export async function GET() {
     return NextResponse.json({ coupons })
   } catch (e) {
     console.error('[coupons/mine]', e)
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '쿠폰 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }

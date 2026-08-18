@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { isAdmin, isSuperAdmin } from '@/lib/auth-helpers'
@@ -36,7 +37,8 @@ export async function GET() {
     return NextResponse.json({ coupons: data ?? [] })
   } catch (e) {
     console.error('[admin/coupons GET]', e)
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '쿠폰 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
 
@@ -75,6 +77,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ codes: data?.map((r) => r.code) ?? [] })
   } catch (e) {
     console.error('[admin/coupons POST]', e)
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '쿠폰 발급 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
