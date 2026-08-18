@@ -1254,7 +1254,7 @@ ${maskedText}
       if (dbError) {
         console.error('[rewrite/standard] DB 저장 실패:', dbError)
         Sentry.captureException(dbError)
-        return NextResponse.json({ error: '이력서 생성 결과를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
+        return NextResponse.json({ error: '이력서 생성 결과를 저장하는 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
       }
 
       console.log('[rewrite/standard] DB 저장 성공:', { resumeId: resume?.id, previewLength: htmlContent?.length, plan, changesCount: changes?.length })

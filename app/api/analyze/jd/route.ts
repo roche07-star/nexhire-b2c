@@ -419,7 +419,7 @@ ${candidateProfile}`
       Sentry.captureException(insertError, {
         extra: { operation: 'jd_analyses.insert' }
       })
-      return NextResponse.json({ error: 'JD 분석 결과를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
+      return NextResponse.json({ error: 'JD 분석 결과를 저장하는 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
     }
 
     // 캐시 무효화 (Dashboard 통계 갱신)

@@ -909,7 +909,7 @@ ${maskedText.slice(0, 3000)}
       Sentry.captureException(insertError, {
         extra: { userEmail: email, operation: 'analyses.insert' }
       })
-      return NextResponse.json({ error: '분석 결과를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
+      return NextResponse.json({ error: '분석 결과를 저장하는 중 오류가 발생했습니다. 고객센터로 문의해주세요.' }, { status: 500 })
     }
 
     // 월간 업무 Report 자동 통합
