@@ -77,7 +77,7 @@ export default function MyInfoButton() {
 
   async function openModal() {
     setOpen(true)
-    if (info) return
+    // ✅ 매번 최신 데이터 로드 (캐싱 제거)
     setLoading(true)
     try {
       const res = await fetch('/api/my-info')
