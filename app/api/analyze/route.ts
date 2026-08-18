@@ -485,7 +485,7 @@ ${OUTPUT_RULES}
 - summary 각 항목은 반드시 개행(\n)으로 구분`
 
       const basicMsg = await callClaude({
-        max_tokens: 2000,
+        max_tokens: 4000,  // ✅ 2000 → 4000으로 증가 (상세 이력서 대응)
         system: [{
           type: 'text',
           text: basicSystemPrompt,
@@ -690,7 +690,7 @@ ${basicInput.current_salary
 3가지 경로를 generate_career_paths 도구로 출력하십시오.`
 
         const careerMsg = await callClaude({
-          max_tokens: 2000,
+          max_tokens: 4000,  // ✅ 2000 → 4000으로 증가
           tool_choice: { type: 'tool', name: 'generate_career_paths' },
           tools: [proCareerTool],
           messages: [{ role: 'user', content: careerPrompt }],
@@ -739,7 +739,7 @@ career_paths에 BASELINE(현재 경로 유지) 1개만 반환하십시오.
 ${OUTPUT_RULES}`
 
       const message = await callClaude({
-        max_tokens: 2000,
+        max_tokens: 4000,  // ✅ 2000 → 4000으로 증가 (FREE 플랜도 동일 적용)
         system: [{
           type: 'text',
           text: freeSystemPrompt,
