@@ -260,7 +260,7 @@ export async function POST(req: NextRequest) {
 
       if (!limited.success) {
         return NextResponse.json(
-          { error: '너무 많은 요청입니다. 잠시 후 다시 시도하세요.' },
+          { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
           {
             status: 429,
             headers: {
@@ -425,7 +425,13 @@ export async function POST(req: NextRequest) {
       resumeText = pastedText
     } else {
       if (!file) return NextResponse.json({ error: '파일 또는 텍스트를 입력해 주세요.' }, { status: 400 })
-      if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: '파일 크기는 10MB 이하여야 합니다.' }, { status: 400 })
+      if (file.size > 10 * 1024 * 1024) {
+        Sentry.captureMessage('파일 크기 초과', {
+          level: 'warning',
+          extra: { fileSize: file.size, maxSize: 10 * 1024 * 1024, userEmail: email }
+        })
+        return NextResponse.json({ error: '파일이 너무 큽니다. 10MB 이하의 파일을 업로드해주세요.' }, { status: 413 })
+      }
       buffer = Buffer.from(await file.arrayBuffer())
       try {
         resumeText = await extractText(buffer, file.name)
@@ -508,7 +514,10 @@ ${OUTPUT_RULES}
 
       const basicTU = basicMsg.content.find(c => c.type === 'tool_use')
       if (!basicTU || basicTU.type !== 'tool_use') {
-        return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('Claude tool_use 응답 없음 (PRO)'), {
+          extra: { content: JSON.stringify(basicMsg.content).slice(0, 1000), userEmail: email }
+        })
+        return NextResponse.json({ error: '이력서 분석 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       const basicInput = basicTU.input as Record<string, unknown>
@@ -764,7 +773,10 @@ ${OUTPUT_RULES}`
       })
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
-        return NextResponse.json({ error: '분석 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('Claude tool_use 응답 없음 (FREE)'), {
+          extra: { content: JSON.stringify(message.content).slice(0, 1000), userEmail: email }
+        })
+        return NextResponse.json({ error: '이력서 분석 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
       const freeInput = toolUse.input as Record<string, unknown>
       const freeScores = freeInput.scores as Record<string, unknown> | undefined
@@ -894,7 +906,10 @@ ${maskedText.slice(0, 3000)}
       .single()
     if (insertError) {
       console.error('[analyze] insert error:', insertError)
-      return NextResponse.json({ error: `분석 결과 저장 실패: ${insertError.message}` }, { status: 500 })
+      Sentry.captureException(insertError, {
+        extra: { userEmail: email, operation: 'analyses.insert' }
+      })
+      return NextResponse.json({ error: '분석 결과를 저장하는 중 오류가 발생했습니다. 고객센터(roche07he@gmail.com)로 문의해주세요.' }, { status: 500 })
     }
 
     // 월간 업무 Report 자동 통합
