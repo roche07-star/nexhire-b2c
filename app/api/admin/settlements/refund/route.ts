@@ -112,6 +112,54 @@ export async function POST(req: NextRequest) {
               console.error(`패키지 쿠폰 삭제 오류 (${pkgFeature}):`, couponDeleteError)
             }
           }
+        } else if (feature === 'storage') {
+          // Storage 쿠폰: 삭제 후 초과 분석 처리
+          const { error: couponDeleteError } = await supabase
+            .from('coupons')
+            .delete()
+            .eq('issued_to', payment.user_email)
+            .eq('issued_by', 'STORE')
+            .eq('feature', feature)
+            .gte('claimed_at', couponDeleteStart.toISOString())
+            .lte('claimed_at', couponDeleteEnd.toISOString())
+
+          if (couponDeleteError) {
+            console.error('Storage 쿠폰 삭제 오류:', couponDeleteError)
+          } else {
+            // 쿠폰 삭제 후 남은 storage 쿠폰 개수 확인
+            const { data: remainingCoupons } = await supabase
+              .from('coupons')
+              .select('id')
+              .eq('claimed_by', payment.user_email)
+              .eq('feature', 'storage')
+              .is('deleted_at', null)
+
+            const maxCount = 1 + (remainingCoupons?.length || 0)  // FREE 기본 1개
+
+            // 저장된 분석 개수 확인
+            const { data: savedAnalyses } = await supabase
+              .from('analyses')
+              .select('id')
+              .eq('user_email', payment.user_email)
+              .eq('preserved', true)
+              .order('created_at', { ascending: false })
+
+            // 초과된 분석 삭제 (오래된 것부터)
+            if (savedAnalyses && savedAnalyses.length > maxCount) {
+              const toDelete = savedAnalyses.slice(maxCount)
+
+              const { error: deleteError } = await supabase
+                .from('analyses')
+                .update({ preserved: false })
+                .in('id', toDelete.map(a => a.id))
+
+              if (deleteError) {
+                console.error('초과 분석 삭제 오류:', deleteError)
+              } else {
+                console.log(`[Refund] Storage 환불: 초과 분석 ${toDelete.length}개 삭제 (최대: ${maxCount}개)`)
+              }
+            }
+          }
         } else {
           // 단일 상품: 해당 feature 쿠폰만 삭제
           const { error: couponDeleteError } = await supabase
@@ -130,8 +178,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 플랜 구매 환불: 플랜을 FREE로 되돌림
+    // 플랜 구매 환불: 사용 횟수 체크 + 플랜을 FREE로 되돌림
     if (payment.plan === 'PRO' || payment.plan === 'EXPERT') {
+      // 사용 횟수 확인 (약관: 5회 초과 시 환불 불가)
+      const { data: userData } = await supabase
+        .from('users')
+        .select('analyze_count, jd_count, rewrite_count, interview_count, proposal_count')
+        .eq('email', payment.user_email)
+        .single()
+
+      if (userData) {
+        const totalUsage =
+          (userData.analyze_count || 0) +
+          (userData.jd_count || 0) +
+          (userData.rewrite_count || 0) +
+          (userData.interview_count || 0) +
+          (userData.proposal_count || 0)
+
+        if (totalUsage > 5) {
+          return NextResponse.json({
+            error: `사용 횟수 ${totalUsage}회로 환불이 불가능합니다 (약관: 5회 이하만 환불 가능)`
+          }, { status: 400 })
+        }
+
+        console.log(`[Refund] 플랜 환불 가능: 사용 횟수 ${totalUsage}회 (5회 이하)`)
+      }
+
       const { error: planRollbackError } = await supabase
         .from('users')
         .update({
