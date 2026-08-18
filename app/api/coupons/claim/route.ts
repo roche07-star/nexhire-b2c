@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { toCoupon, canClaimCoupon, type DatabaseCoupon } from '@/lib/types/coupon'
@@ -30,7 +31,10 @@ export async function POST(req: NextRequest) {
     // ✅ 타입 검증 및 변환
     const coupon = toCoupon(rawCoupon)
     if (!coupon) {
-      return NextResponse.json({ error: '잘못된 쿠폰 데이터입니다.' }, { status: 500 })
+      Sentry.captureException(new Error('쿠폰 타입 변환 실패'), {
+        extra: { rawCoupon }
+      })
+      return NextResponse.json({ error: '잘못된 쿠폰 데이터입니다. 고객센터로 문의해주세요.' }, { status: 500 })
     }
 
     // ✅ 등록 가능 여부 검증 (타입 안전)
@@ -61,6 +65,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (e) {
     console.error('[coupons/claim]', e)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '쿠폰 등록 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
