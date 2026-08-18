@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { checkUsage } from '@/lib/usageLimits'
@@ -85,7 +86,10 @@ export async function POST(req: NextRequest) {
     )
 
     if (jobError || !jobId) {
-      return NextResponse.json({ error: 'Job 생성 실패' }, { status: 500 })
+      Sentry.captureException(jobError || new Error('Job ID 없음'), {
+        extra: { operation: 'createJob' }
+      })
+      return NextResponse.json({ error: '면접 가이드 생성을 시작할 수 없습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     // 즉시 처리 시작 (동기 - Vercel 제약)
@@ -112,6 +116,7 @@ export async function POST(req: NextRequest) {
 
   } catch (e) {
     console.error('[POST /api/analyze/interview]', e)
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '면접 가이드 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }

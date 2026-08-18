@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
 import { extractText } from '@/lib/extractText'
