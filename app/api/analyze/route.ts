@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import * as Sentry from '@sentry/nextjs'
 import { extractText } from '@/lib/extractText'
 import { maskPII } from '@/lib/maskPII'
 import { auth } from '@/auth'
@@ -515,18 +516,30 @@ ${OUTPUT_RULES}
       const scoresObj = basicInput.scores as Record<string, unknown> | undefined
       if (!scoresObj || typeof scoresObj.job_fit !== 'number') {
         console.error('[analyze] missing scores in PRO tool output:', JSON.stringify(basicInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답: scores 누락'), {
+          extra: { basicInput: JSON.stringify(basicInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(basicInput.keywords) || (basicInput.keywords as unknown[]).length === 0) {
         console.error('[analyze] missing keywords in PRO tool output:', JSON.stringify(basicInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답: keywords 누락'), {
+          extra: { basicInput: JSON.stringify(basicInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(basicInput.strengths) || (basicInput.strengths as unknown[]).length < 2) {
         console.error('[analyze] missing strengths in PRO tool output (min 2 required):', JSON.stringify(basicInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답: strengths 부족'), {
+          extra: { basicInput: JSON.stringify(basicInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(basicInput.improvements) || (basicInput.improvements as unknown[]).length < 2) {
         console.error('[analyze] missing improvements in PRO tool output (min 2 required):', JSON.stringify(basicInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답: improvements 부족'), {
+          extra: { basicInput: JSON.stringify(basicInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
 
@@ -757,18 +770,30 @@ ${OUTPUT_RULES}`
       const freeScores = freeInput.scores as Record<string, unknown> | undefined
       if (!freeScores || typeof freeScores.job_fit !== 'number') {
         console.error('[analyze] missing scores in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답 (FREE): scores 누락'), {
+          extra: { freeInput: JSON.stringify(freeInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(freeInput.keywords) || (freeInput.keywords as unknown[]).length === 0) {
         console.error('[analyze] missing keywords in FREE tool output:', JSON.stringify(freeInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답 (FREE): keywords 누락'), {
+          extra: { freeInput: JSON.stringify(freeInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(freeInput.strengths) || (freeInput.strengths as unknown[]).length < 2) {
         console.error('[analyze] missing strengths in FREE tool output (min 2 required):', JSON.stringify(freeInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답 (FREE): strengths 부족'), {
+          extra: { freeInput: JSON.stringify(freeInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
       if (!Array.isArray(freeInput.improvements) || (freeInput.improvements as unknown[]).length < 2) {
         console.error('[analyze] missing improvements in FREE tool output (min 2 required):', JSON.stringify(freeInput).slice(0, 400))
+        Sentry.captureException(new Error('Claude API 불완전 응답 (FREE): improvements 부족'), {
+          extra: { freeInput: JSON.stringify(freeInput).slice(0, 1000), userEmail: email }
+        })
         return NextResponse.json({ error: '분석 결과가 불완전합니다. 다시 시도해 주세요.' }, { status: 500 })
       }
 
