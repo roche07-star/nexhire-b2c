@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { callClaude } from '@/lib/claude-client'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 import { BASE_HEADHUNTER_ROLE, ANALYSIS_STEPS, OUTPUT_RULES, B2C_PURPOSE } from '@/lib/prompts/base-headhunter'
 
 export const maxDuration = 60
@@ -55,6 +56,17 @@ export async function POST(req: NextRequest) {
     const plan = role === 'MANAGER' ? 'EXPERT' : (userData?.plan ?? 'FREE')
     if (plan === 'FREE') {
       return NextResponse.json({ error: 'PRO 이상 플랜에서 사용 가능합니다.' }, { status: 403 })
+    }
+
+    // 사용량 체크 (MANAGER 제외)
+    if (role !== 'MANAGER') {
+      const { allowed, limit } = await checkUsage(email, 'analyze')
+      if (!allowed) {
+        return NextResponse.json(
+          { error: `이번 달 이력서 분석 횟수(${limit}회)를 모두 사용했습니다. 플랜을 업그레이드하세요.` },
+          { status: 403 }
+        )
+      }
     }
 
     const { data: row } = await supabase
@@ -152,6 +164,11 @@ ${B2C_PURPOSE}
       .from('analyses')
       .update({ result: updatedResult })
       .eq('id', analysisId)
+
+    // 사용량 증가 (MANAGER 제외)
+    if (role !== 'MANAGER') {
+      await incrementUsage(email, 'analyze')
+    }
 
     return NextResponse.json({ success: true, result: updatedResult })
   } catch (e) {
