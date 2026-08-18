@@ -225,7 +225,14 @@ export async function incrementUsage(email: string, feature: Feature): Promise<v
 
   // 플랜 한도 내: users 테이블 카운트 증가
   if (current < limit) {
-    await supabase.rpc(RPC_FN[feature], { user_email: email })
+    const { error } = await supabase.rpc(RPC_FN[feature], { user_email: email })
+
+    if (error) {
+      console.error(`[usageLimits] RPC 증가 실패 (${feature}):`, error)
+      throw new Error(`사용량 증가 실패: ${error.message}`)
+    }
+
+    console.log(`[usageLimits] 사용량 증가 성공 (${feature}): ${email}`)
     return
   }
 
