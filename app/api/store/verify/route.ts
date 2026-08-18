@@ -108,8 +108,8 @@ export async function POST(req: NextRequest) {
       package: {
         analyze: 50,
         jd: 50,
-        rewrite: 50,
-        interview: userType === 'HEADHUNTER' ? 25 : 15,
+        rewrite: userType === 'HEADHUNTER' ? 25 : 30,  // ✅ 수정: 구직자 30회, 헤드헌터 25회
+        interview: userType === 'HEADHUNTER' ? 25 : 20,  // ✅ 수정: 구직자 20회, 헤드헌터 25회
         proposal: userType === 'HEADHUNTER' ? 50 : 0,
       },
     }
