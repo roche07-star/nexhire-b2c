@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { auth } from '@/auth'
 import Anthropic from '@anthropic-ai/sdk'
 import { CHATBOT_SYSTEM_PROMPT } from '@/lib/chatbot-prompt'
@@ -29,7 +30,10 @@ export async function POST(req: NextRequest) {
 
     const content = response.content[0]
     if (content.type !== 'text') {
-      return NextResponse.json({ error: '응답 오류' }, { status: 500 })
+      Sentry.captureException(new Error('챗봇 응답 타입 오류'), {
+        extra: { contentType: content.type }
+      })
+      return NextResponse.json({ error: '챗봇 응답 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -38,8 +42,9 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error('Chatbot error:', error)
+    Sentry.captureException(error)
     return NextResponse.json(
-      { error: '챗봇 응답 중 오류가 발생했습니다' },
+      { error: '챗봇 응답 중 오류가 발생했습니다. 다시 시도해주세요.' },
       { status: 500 }
     )
   }
