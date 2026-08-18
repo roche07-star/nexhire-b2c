@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       Sentry.captureException(new Error('TOSS_SECRET_KEY 환경변수 없음 (STORE)'), {
         extra: { userEmail: session.user.email, orderId }
       })
-      return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다. 고객센터(roche07he@gmail.com)로 문의해주세요.' }, { status: 500 })
+      return NextResponse.json({ error: '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     const encodedKey = Buffer.from(secretKey + ':').toString('base64')

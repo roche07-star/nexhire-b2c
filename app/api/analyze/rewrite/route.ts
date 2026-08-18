@@ -866,7 +866,10 @@ export async function POST(req: NextRequest) {
       .download(filePath)
 
     if (fileErr || !fileData) {
-      return NextResponse.json({ error: '원본 파일을 불러올 수 없습니다.' }, { status: 500 })
+      Sentry.captureException(fileErr || new Error('fileData 없음'), {
+        extra: { analysisId }
+      })
+      return NextResponse.json({ error: '원본 파일을 불러올 수 없습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     const buffer = Buffer.from(await fileData.arrayBuffer())
@@ -963,12 +966,18 @@ export async function POST(req: NextRequest) {
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
-        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('템플릿 단락 재작성: tool_use 없음'), {
+          extra: { content: message.content }
+        })
+        return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       const { rewrites, changes: tplChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
-        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('템플릿: rewrites 배열 없음'), {
+          extra: { toolInput: toolUse.input }
+        })
+        return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
       const allRewrites = templateParas.map(p => {
         if (piiIndexes.has(p.index)) return p.text  // PII 단락: 원본 그대로
@@ -1199,7 +1208,10 @@ ${maskedText}
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
         console.error('[rewrite/standard] No tool_use in response:', JSON.stringify(message.content))
-        return NextResponse.json({ error: '이력서 생성 실패' }, { status: 500 })
+        Sentry.captureException(new Error('표준 이력서: tool_use 없음'), {
+          extra: { content: message.content }
+        })
+        return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       const { sections, changes } = toolUse.input as {
@@ -1241,7 +1253,8 @@ ${maskedText}
 
       if (dbError) {
         console.error('[rewrite/standard] DB 저장 실패:', dbError)
-        return NextResponse.json({ error: 'DB 저장 실패: ' + dbError.message }, { status: 500 })
+        Sentry.captureException(dbError)
+        return NextResponse.json({ error: '이력서 생성 결과를 저장하는 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       console.log('[rewrite/standard] DB 저장 성공:', { resumeId: resume?.id, previewLength: htmlContent?.length, plan, changesCount: changes?.length })
@@ -1419,12 +1432,18 @@ ${maskedText}
 
       const toolUse = message.content.find(c => c.type === 'tool_use')
       if (!toolUse || toolUse.type !== 'tool_use') {
-        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('DOCX 재작성: tool_use 없음'), {
+          extra: { content: message.content }
+        })
+        return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       const { rewrites, changes: docxChanges } = toolUse.input as { rewrites?: string[]; changes?: string[] }
       if (!Array.isArray(rewrites)) {
-        return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
+        Sentry.captureException(new Error('DOCX: rewrites 배열 없음'), {
+          extra: { toolInput: toolUse.input }
+        })
+        return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
       }
 
       const allRewrites = paras.map(p => {
@@ -1556,7 +1575,10 @@ ${maskedText}
 
     const toolUse = message.content.find(c => c.type === 'tool_use')
     if (!toolUse || toolUse.type !== 'tool_use') {
-      return NextResponse.json({ error: '이력서 생성 결과를 받지 못했습니다.' }, { status: 500 })
+      Sentry.captureException(new Error('섹션 재작성: tool_use 없음'), {
+        extra: { content: message.content }
+      })
+      return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
     const rewriteData = toolUse.input as RewriteResult & { changes?: string[] }
@@ -1564,6 +1586,9 @@ ${maskedText}
     if (!rewriteData.candidate_name) rewriteData.candidate_name = candidateName
 
     if (!Array.isArray(rewriteData.sections) || rewriteData.sections.length === 0) {
+      Sentry.captureException(new Error('섹션 재작성: sections 배열 없음'), {
+        extra: { rewriteData }
+      })
       return NextResponse.json({ error: '이력서 섹션 데이터를 받지 못했습니다. 다시 시도해 주세요.' }, { status: 500 })
     }
 
@@ -1655,6 +1680,7 @@ ${maskedText}
     console.error('[analyze/rewrite] 에러 발생:', msg)
     console.error('[analyze/rewrite] 스택:', stack)
     console.error('[analyze/rewrite] 전체 에러:', e)
-    return NextResponse.json({ error: `서버 오류가 발생했습니다. (${msg})` }, { status: 500 })
+    Sentry.captureException(e)
+    return NextResponse.json({ error: '이력서 생성 중 오류가 발생했습니다. 다시 시도해주세요.' }, { status: 500 })
   }
 }
