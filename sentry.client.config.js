@@ -58,14 +58,16 @@ Sentry.init({
     // setUser()로 설정된 정보가 Sentry → Slack으로 전송됨
 
     // ========================================
-    // 5. Breadcrumbs에서 민감 데이터 제거
+    // 5. Breadcrumbs에서 민감 데이터만 제거 (URL/상태코드는 유지)
     // ========================================
     if (event.breadcrumbs) {
       event.breadcrumbs = event.breadcrumbs.map(breadcrumb => {
-        if (breadcrumb.data) {
-          // API 응답 데이터 제거
-          delete breadcrumb.data.response
-          delete breadcrumb.data.request
+        if (breadcrumb.category === 'fetch' || breadcrumb.category === 'xhr') {
+          // API 요청은 URL, method, status_code만 유지
+          if (breadcrumb.data) {
+            const { url, method, status_code } = breadcrumb.data
+            breadcrumb.data = { url, method, status_code }
+          }
         }
         return breadcrumb
       })
@@ -87,12 +89,16 @@ Sentry.init({
     'MyApp_RemoveAllHighlights',
     'atomicFindClose',
 
-    // 네트워크 에러 (일시적)
-    'NetworkError',
-    'Non-Error promise rejection captured',
+    // ❌ 네트워크 에러는 수집해야 함! (주석 처리)
+    // 'NetworkError',
+    // 'Non-Error promise rejection captured',
 
     // 봇/크롤러
     'BotDetected',
+
+    // 외부 스크립트 에러만 무시
+    'ResizeObserver loop limit exceeded',
+    'Script error.',
   ],
 
   // 무시할 URL 패턴

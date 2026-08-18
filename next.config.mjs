@@ -7,6 +7,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 const nextConfig = {
+  // ✅ Source Map 활성화 (Sentry 에러 추적용)
+  productionBrowserSourceMaps: true,
+
   experimental: {
     serverActions: {
       bodySizeLimit: '5mb',
