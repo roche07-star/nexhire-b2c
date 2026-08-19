@@ -75,6 +75,10 @@ export async function GET(req: NextRequest) {
           deleted_at: deleteDate.toISOString()
         }).eq('user_email', user.email).is('deleted_at', null)
 
+        await supabase.from('generated_resumes').update({
+          deleted_at: deleteDate.toISOString()
+        }).eq('user_email', user.email).is('deleted_at', null)
+
         // ✅ 감사 로그 기록
         await supabase.from('audit_logs').insert({
           action: 'user_withdrawn',
@@ -130,9 +134,15 @@ export async function GET(req: NextRequest) {
       .lt('deleted_at', hardDeleteThreshold.toISOString())
       .not('deleted_at', 'is', null)
 
+    const { data: resumesToDelete } = await supabase
+      .from('generated_resumes')
+      .select('id, user_email')
+      .lt('deleted_at', hardDeleteThreshold.toISOString())
+      .not('deleted_at', 'is', null)
+
     let hardDeleteCount = 0
 
-    // 외래 키 순서: interview_guides → jd_analyses → analyses
+    // 외래 키 순서: interview_guides → jd_analyses → analyses → generated_resumes
     if (interviewToDelete && interviewToDelete.length > 0) {
       await supabase.from('interview_guides').delete().lt('deleted_at', hardDeleteThreshold.toISOString())
       hardDeleteCount += interviewToDelete.length
@@ -149,6 +159,12 @@ export async function GET(req: NextRequest) {
       await supabase.from('analyses').delete().lt('deleted_at', hardDeleteThreshold.toISOString())
       hardDeleteCount += analysesToDelete.length
       console.log(`[cron/process-withdrawals] Hard deleted ${analysesToDelete.length} analyses`)
+    }
+
+    if (resumesToDelete && resumesToDelete.length > 0) {
+      await supabase.from('generated_resumes').delete().lt('deleted_at', hardDeleteThreshold.toISOString())
+      hardDeleteCount += resumesToDelete.length
+      console.log(`[cron/process-withdrawals] Hard deleted ${resumesToDelete.length} generated_resumes`)
     }
 
     if (jobsToDelete && jobsToDelete.length > 0) {

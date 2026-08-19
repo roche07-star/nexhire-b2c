@@ -145,6 +145,10 @@ export async function POST(req: NextRequest) {
     deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
+  await supabase.from('generated_resumes').update({
+    deleted_at: deleteDate.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
+
   // ✅ 개인정보는 6개월 후 Hard delete 시 삭제 (재가입 시 복원 가능)
 
   // ✅ 감사 로그 기록

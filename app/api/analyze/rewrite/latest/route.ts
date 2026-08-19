@@ -14,6 +14,7 @@ export async function GET() {
       .from('generated_resumes')
       .select('*')
       .eq('user_email', session.user.email)
+      .is('deleted_at', null) // ✅ 복원된 데이터만 조회
       .order('created_at', { ascending: false })
       .limit(1)
       .single()

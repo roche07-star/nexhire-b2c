@@ -101,6 +101,10 @@ export async function POST(req: NextRequest) {
     deleted_at: null
   }).eq('user_email', email).not('deleted_at', 'is', null)
 
+  await supabase.from('generated_resumes').update({
+    deleted_at: null
+  }).eq('user_email', email).not('deleted_at', 'is', null)
+
   return NextResponse.json({
     success: true,
     message: '데이터가 복원되었습니다.',
