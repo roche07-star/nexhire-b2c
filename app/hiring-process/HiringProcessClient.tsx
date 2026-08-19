@@ -148,7 +148,14 @@ export default function HiringProcessClient() {
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
                   <div style={{ fontSize: '24px' }}>📌</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{p.candidate_name} · {p.company_name}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>
+                      {p.candidate_name}
+                      <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--muted)', marginLeft: '8px' }}>
+                        {new Date(p.updated_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })} 업데이트
+                      </span>
+                      {' · '}
+                      {p.company_name}
+                    </div>
                     <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>{p.next_action}</div>
                   </div>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: '#fbbf24' }}>
@@ -454,6 +461,14 @@ function ProcessCard({ process, onUpdate, onAddSchedule }: { process: HiringProc
         }}>
           <span>👤</span>
           <span>{process.candidate_name}</span>
+          <span style={{
+            fontSize: '12px',
+            fontWeight: 500,
+            color: 'var(--muted)',
+            marginLeft: '8px'
+          }}>
+            {new Date(process.updated_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })} 업데이트
+          </span>
           <span style={{
             padding: '4px 10px',
             background: stageColor + '20',
