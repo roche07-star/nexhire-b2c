@@ -72,10 +72,39 @@ const FEATURE_LINKS: Record<string, string> = {
   storage: '/analyze',
 }
 
+interface RestorableData {
+  restorable: boolean
+  data_delete_at?: string
+  data?: {
+    analyses: number
+    jdAnalyses: number
+    interviewGuides: number
+    coupons: number
+  }
+}
+
 export default function MyInfoClient({ coupons: initialCoupons, payments: initialPayments }: Props) {
   const [coupons, setCoupons] = useState<CouponWithDetails[]>(initialCoupons)
   const [payments, setPayments] = useState<Payment[]>(initialPayments)
   const [loading, setLoading] = useState(false)
+  const [restorableData, setRestorableData] = useState<RestorableData | null>(null)
+  const [isRestoring, setIsRestoring] = useState(false)
+
+  // ✅ 복원 가능한 데이터 확인
+  useEffect(() => {
+    const checkRestorable = async () => {
+      try {
+        const res = await fetch('/api/user/restore')
+        if (res.ok) {
+          const data = await res.json()
+          setRestorableData(data)
+        }
+      } catch (err) {
+        console.error('[MyInfo] 복원 가능 여부 확인 실패:', err)
+      }
+    }
+    checkRestorable()
+  }, [])
 
   // ✅ 구매 후 최신 데이터 가져오기
   useEffect(() => {
@@ -104,6 +133,30 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
 
     return () => window.removeEventListener('focus', handleFocus)
   }, [])
+
+  const handleRestore = async () => {
+    if (!confirm('기존 데이터를 복원하시겠습니까?\n\n복원 후에는 되돌릴 수 없으며, FREE 플랜으로 시작됩니다.')) {
+      return
+    }
+
+    setIsRestoring(true)
+    try {
+      const res = await fetch('/api/user/restore', { method: 'POST' })
+      const data = await res.json()
+
+      if (res.ok) {
+        alert(`데이터가 복원되었습니다!\n\n이력서 분석: ${data.restored.analyses}개\nJD 분석: ${data.restored.jdAnalyses}개\n면접 가이드: ${data.restored.interviewGuides}개\n쿠폰: ${data.restored.coupons}개`)
+        window.location.reload()
+      } else {
+        alert(data.error || '복원에 실패했습니다.')
+      }
+    } catch (err) {
+      alert('복원 중 오류가 발생했습니다.')
+      console.error('[MyInfo] 복원 실패:', err)
+    } finally {
+      setIsRestoring(false)
+    }
+  }
 
   const isExpired = (expiresAt: string | null) => {
     if (!expiresAt) return false
@@ -163,6 +216,80 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
             보유 쿠폰 및 구매 내역을 확인하세요
           </p>
         </div>
+
+        {/* 🔄 데이터 복원 */}
+        {restorableData?.restorable && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+            border: '2px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: 16,
+            padding: 32,
+            marginBottom: 24,
+          }}>
+            <h2 style={{
+              fontSize: 20,
+              fontWeight: 700,
+              marginBottom: 12,
+              color: 'var(--text)',
+            }}>
+              🔄 데이터 복원 가능
+            </h2>
+            <p style={{
+              color: 'var(--muted2)',
+              marginBottom: 16,
+              lineHeight: 1.6,
+            }}>
+              이전에 저장된 데이터를 복원할 수 있습니다. 복원하면 FREE 플랜으로 시작되며, 사용 횟수는 0으로 초기화됩니다.
+            </p>
+
+            {restorableData.data && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 12,
+                padding: 16,
+                marginBottom: 16,
+              }}>
+                <div style={{ fontSize: 14, color: 'var(--muted2)', marginBottom: 8 }}>
+                  <strong>복원 가능한 데이터:</strong>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, fontSize: 14 }}>
+                  <div>• 이력서 분석: <strong>{restorableData.data.analyses}개</strong></div>
+                  <div>• JD 분석: <strong>{restorableData.data.jdAnalyses}개</strong></div>
+                  <div>• 면접 가이드: <strong>{restorableData.data.interviewGuides}개</strong></div>
+                  <div>• 쿠폰: <strong>{restorableData.data.coupons}개</strong></div>
+                </div>
+              </div>
+            )}
+
+            {restorableData.data_delete_at && (
+              <p style={{
+                fontSize: 14,
+                color: 'var(--muted2)',
+                marginBottom: 16,
+              }}>
+                데이터 삭제 예정일: {formatDate(restorableData.data_delete_at)}
+              </p>
+            )}
+
+            <button
+              onClick={handleRestore}
+              disabled={isRestoring}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 12,
+                padding: '12px 24px',
+                fontSize: 16,
+                fontWeight: 600,
+                cursor: isRestoring ? 'not-allowed' : 'pointer',
+                opacity: isRestoring ? 0.6 : 1,
+              }}
+            >
+              {isRestoring ? '복원 중...' : '데이터 복원하기'}
+            </button>
+          </div>
+        )}
 
         {/* 🎫 보유 쿠폰 */}
         <div style={{
