@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   // 현재 사용자 정보 확인
   const { data: userData } = await supabase
     .from('users')
-    .select('status, data_delete_at, plan')
+    .select('status, data_delete_at, last_restored_at, plan')
     .eq('email', email)
     .single()
 
@@ -29,12 +29,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '사용자를 찾을 수 없습니다' }, { status: 404 })
   }
 
-  // withdrawn 상태가 아니면 복원 불가
-  if (userData.status !== 'withdrawn') {
+  // ✅ 복원 가능 조건 확인
+  const isWithdrawn = userData.status === 'withdrawn'
+  const isReactivatedButNotRestored = userData.status === 'active' && userData.data_delete_at && !userData.last_restored_at
+
+  if (!isWithdrawn && !isReactivatedButNotRestored) {
     return NextResponse.json({ error: '복원 가능한 상태가 아닙니다' }, { status: 400 })
   }
 
-  // data_delete_at 체크
+  // data_delete_at 체크 (보존 기간 만료)
   if (userData.data_delete_at) {
     const deleteAt = new Date(userData.data_delete_at)
     if (new Date() >= deleteAt) {
@@ -83,6 +86,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  // ✅ deleted_at 제거 (데이터 복원)
+  await supabase.from('analyses').update({
+    deleted_at: null
+  }).eq('user_email', email).not('deleted_at', 'is', null)
+
+  await supabase.from('jd_analyses').update({
+    deleted_at: null
+  }).eq('user_email', email).not('deleted_at', 'is', null)
+
+  await supabase.from('interview_guides').update({
+    deleted_at: null
+  }).eq('user_email', email).not('deleted_at', 'is', null)
+
+  await supabase.from('jobs').update({
+    deleted_at: null
+  }).eq('user_email', email).not('deleted_at', 'is', null)
+
   return NextResponse.json({
     success: true,
     message: '데이터가 복원되었습니다.',
@@ -109,15 +129,25 @@ export async function GET(req: NextRequest) {
 
   const { data: userData } = await supabase
     .from('users')
-    .select('status, data_delete_at')
+    .select('status, data_delete_at, last_restored_at')
     .eq('email', email)
     .single()
 
-  if (!userData || userData.status !== 'withdrawn') {
+  if (!userData) {
     return NextResponse.json({ restorable: false })
   }
 
-  // data_delete_at 체크
+  // ✅ 복원 가능 조건:
+  // 1. withdrawn 상태 (아직 로그인 안 함)
+  // 2. active 상태 + data_delete_at 존재 + last_restored_at null (로그인했지만 복원 안 함)
+  const isWithdrawn = userData.status === 'withdrawn'
+  const isReactivatedButNotRestored = userData.status === 'active' && userData.data_delete_at && !userData.last_restored_at
+
+  if (!isWithdrawn && !isReactivatedButNotRestored) {
+    return NextResponse.json({ restorable: false })
+  }
+
+  // data_delete_at 체크 (보존 기간 만료 여부)
   if (userData.data_delete_at && new Date() >= new Date(userData.data_delete_at)) {
     return NextResponse.json({ restorable: false, reason: 'expired' })
   }
