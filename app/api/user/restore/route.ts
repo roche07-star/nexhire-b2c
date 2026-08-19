@@ -67,16 +67,14 @@ export async function POST(req: NextRequest) {
     .eq('claimed_by', email)
     .is('deleted_at', null)
 
-  // 데이터 복원: status 변경 + FREE 플랜 + 사용량 리셋 + 복원 시각 기록
+  // 데이터 복원: status 변경 + FREE 플랜 + 복원 시각 기록
+  // ✅ 사용량은 유지 (악용 방지: 탈퇴 → 재가입으로 무한 사용 불가)
   const now = new Date().toISOString()
   const { error } = await supabase.from('users').update({
     status: 'active',
     plan: 'FREE',
-    analyze_count: 0,
-    jd_count: 0,
-    rewrite_count: 0,
-    interview_count: 0,
-    monthly_reset_at: now,
+    // ✅ 사용량 유지 (analyze_count, jd_count 등)
+    // ✅ monthly_reset_at 유지 (다음 월간 리셋일에 초기화)
     withdraw_requested_at: null,
     data_delete_at: null,
     last_restored_at: now,  // 복원 시각 기록
