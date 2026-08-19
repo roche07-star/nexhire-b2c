@@ -358,26 +358,13 @@ export async function POST(req: NextRequest) {
     // 이력서 저장 개수 체크 (저장하는 경우만)
     // preserveMode가 'skip' 또는 'none' 또는 'replace'인 경우는 체크 안 함
     if (preserveMode !== 'replace' && preserveMode !== 'skip' && preserveMode !== 'none') {
-      // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
-      const { data: userData } = await supabase
-        .from('users')
-        .select('last_restored_at')
-        .eq('email', email)
-        .single()
-
-      // 현재 저장된 이력서 개수 (_file_path가 있고, last_restored_at 이후 생성된 것만)
-      let countQuery = supabase
+      // 현재 저장된 이력서 개수 (_file_path가 있고, deleted_at이 null인 것)
+      const { count: savedCount } = await supabase
         .from('analyses')
         .select('id', { count: 'exact', head: true })
         .eq('user_email', email)
+        .is('deleted_at', null) // ✅ 복원된 데이터 포함
         .not('result->_file_path', 'is', null)
-
-      // last_restored_at 이후 생성된 것만 카운트 (재가입 후 이력서만)
-      if (userData?.last_restored_at) {
-        countQuery = countQuery.gte('created_at', userData.last_restored_at)
-      }
-
-      const { count: savedCount } = await countQuery
 
       // 보유한 이력서 추가 저장 쿠폰 개수 (사용 여부 무관)
       const { count: resumeCouponCount } = await supabase
@@ -989,24 +976,13 @@ ${maskedText.slice(0, 3000)}
     if (insertData?.id && preserveMode !== 'skip' && (file && buffer || pastedText)) {
       console.log('[analyze] 보존 조건 확인:', { preserveMode, hasFile: !!(file && buffer), hasPastedText: !!pastedText })
 
-      // last_restored_at 조회 (탈퇴 후 재가입 시 이전 이력서 제외)
-      const { data: userDataForPreserve } = await supabase
-        .from('users')
-        .select('last_restored_at')
-        .eq('email', email)
-        .maybeSingle()
-
-      let prevQuery = supabase
+      // 기존 이력서 조회 (복원된 데이터 포함)
+      const { data: prevAnalyses } = await supabase
         .from('analyses')
         .select('id, result, created_at')
         .eq('user_email', email)
-
-      // last_restored_at 이후 생성된 것만 (재가입 후 이력서만)
-      if (userDataForPreserve?.last_restored_at) {
-        prevQuery = prevQuery.gte('created_at', userDataForPreserve.last_restored_at)
-      }
-
-      const { data: prevAnalyses } = await prevQuery.limit(100)
+        .is('deleted_at', null) // ✅ 복원된 데이터 포함
+        .limit(100)
 
       // 실제 파일 존재 여부 확인 (유령 파일 제거)
       const preservedChecks = await Promise.all(
