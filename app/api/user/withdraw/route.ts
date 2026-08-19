@@ -58,18 +58,17 @@ export async function POST(req: NextRequest) {
 
   // 유료 플랜(PRO/EXPERT): withdrawing (종료일까지 유지)
   if (userData.plan === 'PRO' || userData.plan === 'EXPERT') {
-    // plan_end_date가 없거나 과거면 현재 시점으로부터 30일 후로 설정
-    const deleteDate = (planEndDate && planEndDate > now)
-      ? planEndDate
-      : new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30일 후
+    // plan_end_date 이후 180일 후 삭제 (약관 준수: 6개월 보존)
+    const deleteDate = planEndDate && planEndDate > now
+      ? new Date(new Date(planEndDate).getTime() + 180 * 24 * 60 * 60 * 1000)
+      : new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000)
 
     const { error } = await supabase.from('users').update({
       status: 'withdrawing',
       withdraw_requested_at: now.toISOString(),
       data_delete_at: deleteDate.toISOString(),
       last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
-      name: null,              // ✅ 즉시 익명화
-      image: null,             // ✅ 즉시 익명화
+      // ✅ 개인정보는 6개월 후 삭제 (재가입 시 복원 가능하도록)
     }).eq('email', email)
 
     if (error) {
@@ -109,11 +108,13 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  // FREE 플랜 또는 plan_end_date 지난 경우: 즉시 withdrawn 및 데이터 삭제
+  // FREE 플랜 또는 plan_end_date 지난 경우: 즉시 withdrawn, 데이터는 180일 후 삭제
+  const deleteDate = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000) // 6개월 후
+
   const { error } = await supabase.from('users').update({
     status: 'withdrawn',
     withdraw_requested_at: now.toISOString(),
-    data_delete_at: now.toISOString(), // 즉시 삭제
+    data_delete_at: deleteDate.toISOString(), // ✅ 6개월 후 삭제
     last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
   }).eq('email', email)
 
@@ -127,28 +128,24 @@ export async function POST(req: NextRequest) {
     withdrawn_at: now.toISOString(),
   }).eq('user_email', email).is('withdrawn_at', null)
 
-  // ✅ Soft delete: 즉시 삭제 대신 deleted_at 설정
+  // ✅ Soft delete: 180일 후 삭제 예정 표시 (약관 준수)
   await supabase.from('analyses').update({
-    deleted_at: now.toISOString()
+    deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
   await supabase.from('jd_analyses').update({
-    deleted_at: now.toISOString()
+    deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
   await supabase.from('interview_guides').update({
-    deleted_at: now.toISOString()
+    deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
   await supabase.from('jobs').update({
-    deleted_at: now.toISOString()
+    deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
-  // ✅ 개인정보 익명화 (즉시)
-  await supabase.from('users').update({
-    name: null,
-    image: null,
-  }).eq('email', email)
+  // ✅ 개인정보는 6개월 후 Hard delete 시 삭제 (재가입 시 복원 가능)
 
   // ✅ 감사 로그 기록
   await supabase.from('audit_logs').insert({
@@ -165,11 +162,11 @@ export async function POST(req: NextRequest) {
 
   // 📌 보존: payments, coupons는 삭제하지 않음 (법적 보존)
 
-  console.log(`[withdraw] User ${email} withdrawn with soft delete`)
+  console.log(`[withdraw] User ${email} withdrawn with 180-day retention`)
 
   return NextResponse.json({
     status: 'withdrawn',
-    data_delete_at: now.toISOString(),
-    message: '탈퇴가 완료되었습니다. 모든 데이터가 삭제되었습니다.',
+    data_delete_at: deleteDate.toISOString(),
+    message: '탈퇴가 완료되었습니다. 데이터는 6개월간 보존되며, 재가입 시 복원할 수 있습니다.',
   })
 }

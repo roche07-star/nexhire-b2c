@@ -5,8 +5,7 @@ import { supabase } from '@/lib/supabase'
  * Vercel Cron Job: 탈퇴 처리 자동화
  * 매일 실행:
  * 1. withdrawing → withdrawn 전환 (plan_end_date 지난 경우)
- * 2. Soft delete (30일 경과)
- * 3. Hard delete (90일 경과, 결제 정보 제외)
+ * 2. Hard delete (180일 경과 - 약관 준수: 6개월 보존)
  */
 export async function GET(req: NextRequest) {
   // Vercel Cron Secret 검증
@@ -44,11 +43,13 @@ export async function GET(req: NextRequest) {
     const results = await Promise.all(users.map(async (user) => {
       try {
         // 1. 상태를 withdrawn으로 전환
+        const deleteDate = new Date(new Date(now).getTime() + 180 * 24 * 60 * 60 * 1000) // 6개월 후
+
         const { error: updateError } = await supabase
           .from('users')
           .update({
             status: 'withdrawn',
-            data_delete_at: now, // 삭제 예정일 기록
+            data_delete_at: deleteDate.toISOString(), // ✅ 6개월 후 삭제 예정
           })
           .eq('email', user.email)
 
@@ -57,23 +58,21 @@ export async function GET(req: NextRequest) {
           return { email: user.email, success: false, error: updateError.message }
         }
 
-        // 2. ✅ Soft delete (30일 후 삭제 예정 표시)
-        const softDeleteDate = new Date(new Date(now).getTime() + 30 * 24 * 60 * 60 * 1000)
-
+        // 2. ✅ Soft delete (180일 후 삭제 예정 표시 - 약관 준수)
         await supabase.from('analyses').update({
-          deleted_at: softDeleteDate.toISOString()
+          deleted_at: deleteDate.toISOString()
         }).eq('user_email', user.email).is('deleted_at', null)
 
         await supabase.from('jd_analyses').update({
-          deleted_at: softDeleteDate.toISOString()
+          deleted_at: deleteDate.toISOString()
         }).eq('user_email', user.email).is('deleted_at', null)
 
         await supabase.from('interview_guides').update({
-          deleted_at: softDeleteDate.toISOString()
+          deleted_at: deleteDate.toISOString()
         }).eq('user_email', user.email).is('deleted_at', null)
 
         await supabase.from('jobs').update({
-          deleted_at: softDeleteDate.toISOString()
+          deleted_at: deleteDate.toISOString()
         }).eq('user_email', user.email).is('deleted_at', null)
 
         // ✅ 감사 로그 기록
@@ -82,16 +81,17 @@ export async function GET(req: NextRequest) {
           user_email: user.email,
           details: {
             status: 'withdrawn',
-            deletion_stage: 'soft',
-            soft_delete_date: softDeleteDate.toISOString()
+            deletion_stage: 'scheduled',
+            delete_date: deleteDate.toISOString(),
+            retention_days: 180
           },
-          deletion_stage: 'soft'
+          deletion_stage: 'scheduled'
         })
 
         // 📌 보존: payments, coupons는 삭제하지 않음
 
-        console.log(`[cron/process-withdrawals] Successfully processed ${user.email} with soft delete`)
-        return { email: user.email, success: true, stage: 'soft_delete' }
+        console.log(`[cron/process-withdrawals] Successfully processed ${user.email} with 180-day retention`)
+        return { email: user.email, success: true, stage: 'scheduled_delete', delete_date: deleteDate }
       } catch (err: any) {
         console.error(`[cron/process-withdrawals] Error processing ${user.email}:`, err)
         return { email: user.email, success: false, error: err.message }
@@ -102,9 +102,9 @@ export async function GET(req: NextRequest) {
     const failCount = results.filter(r => !r.success).length
 
     // ============================================
-    // 3. Hard delete: deleted_at이 90일 지난 데이터 영구 삭제
+    // 3. Hard delete: deleted_at이 180일 지난 데이터 영구 삭제 (약관 준수: 6개월 보존)
     // ============================================
-    const hardDeleteThreshold = new Date(new Date(now).getTime() - 90 * 24 * 60 * 60 * 1000)
+    const hardDeleteThreshold = new Date(new Date(now).getTime() - 180 * 24 * 60 * 60 * 1000)
 
     const { data: analysesToDelete } = await supabase
       .from('analyses')
@@ -157,6 +157,24 @@ export async function GET(req: NextRequest) {
       console.log(`[cron/process-withdrawals] Hard deleted ${jobsToDelete.length} jobs`)
     }
 
+    // 4. ✅ 개인정보 익명화 (data_delete_at이 지난 사용자)
+    const { data: usersToAnonymize } = await supabase
+      .from('users')
+      .select('email')
+      .eq('status', 'withdrawn')
+      .lt('data_delete_at', now)
+      .or('name.not.is.null,image.not.is.null')
+
+    if (usersToAnonymize && usersToAnonymize.length > 0) {
+      await supabase.from('users').update({
+        name: null,
+        image: null,
+      }).eq('status', 'withdrawn').lt('data_delete_at', now)
+
+      console.log(`[cron/process-withdrawals] Anonymized ${usersToAnonymize.length} users`)
+      hardDeleteCount += usersToAnonymize.length
+    }
+
     // ✅ Hard delete 감사 로그
     if (hardDeleteCount > 0) {
       await supabase.from('audit_logs').insert({
@@ -165,7 +183,8 @@ export async function GET(req: NextRequest) {
         details: {
           deletion_stage: 'hard',
           count: hardDeleteCount,
-          threshold_date: hardDeleteThreshold.toISOString()
+          threshold_date: hardDeleteThreshold.toISOString(),
+          anonymized_users: usersToAnonymize?.length || 0
         },
         deletion_stage: 'hard'
       })
