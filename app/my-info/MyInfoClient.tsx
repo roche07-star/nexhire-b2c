@@ -239,7 +239,7 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
               marginBottom: 16,
               lineHeight: 1.6,
             }}>
-              이전에 저장된 데이터를 복원할 수 있습니다. 복원하면 FREE 플랜으로 시작되며, 사용 횟수는 0으로 초기화됩니다.
+              이전에 저장된 데이터를 복원할 수 있습니다. 복원하면 FREE 플랜으로 시작되며, 이전 사용 횟수가 그대로 유지됩니다.
             </p>
 
             {restorableData.data && (
