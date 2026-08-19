@@ -555,8 +555,11 @@ function CandidateCard({ candidate, onClick, onDelete }: { candidate: PipelineCa
       >
         ×
       </button>
-      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'var(--text)' }}>
-        {candidate.candidate_name}
+      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span>{candidate.candidate_name}</span>
+        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--muted)' }}>
+          {new Date(candidate.updated_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' })} 업데이트
+        </span>
       </div>
       <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 4 }}>
         {candidate.company_name}
