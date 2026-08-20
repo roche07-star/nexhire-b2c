@@ -1493,6 +1493,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
             {/* 상단 탭 */}
             <div className="analyze-tab-bar">
+                {/* 헤드헌터/관리자 전용: JD분석 탭 (맨 앞) */}
+                {(userType?.toLowerCase() === 'headhunter' || userRole === 'MANAGER') && (
+                  <button
+                    className={`analyze-tab-btn${activeMenu === 'jd-analysis' ? ' active' : ''}`}
+                    onClick={() => onMenuClick('jd-analysis')}
+                  >
+                    <span>📊</span> JD분석
+                  </button>
+                )}
                 <button
                   className={`analyze-tab-btn${activeMenu === 'upload' ? ' active' : ''}`}
                   onClick={() => onMenuClick('upload')}
@@ -1513,15 +1522,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span>📋</span> JD기반 분석
                   {jdSavedList && jdSavedList.length > 0 && <span className="tab-badge">{jdSavedList.length}개</span>}
                 </button>
-                {/* 헤드헌터/관리자 전용: JD분석 탭 */}
-                {(userType?.toLowerCase() === 'headhunter' || userRole === 'MANAGER') && (
-                  <button
-                    className={`analyze-tab-btn${activeMenu === 'jd-analysis' ? ' active' : ''}`}
-                    onClick={() => onMenuClick('jd-analysis')}
-                  >
-                    <span>📊</span> JD분석
-                  </button>
-                )}
                 <button
                   className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
                   onClick={() => onMenuClick('rewrite')}
