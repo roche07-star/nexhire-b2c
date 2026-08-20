@@ -120,9 +120,10 @@ function ConsentPageContent() {
         throw new Error(data.error || '동의 처리 실패')
       }
 
-      // 동의 완료 후 세션 업데이트를 위해 /api/after-login으로 리다이렉트
-      console.log('[consent] Consent saved, redirecting to after-login for session update...')
-      window.location.href = '/api/after-login'
+      // 동의 완료 후 세션 업데이트를 위해 로그아웃 후 재로그인
+      console.log('[consent] Consent saved, signing out and redirecting to login...')
+      // 로그아웃 후 로그인 페이지로 리다이렉트 (세션 강제 갱신)
+      window.location.href = '/api/auth/signout?callbackUrl=/login'
 
     } catch (err: any) {
       console.error(err)
