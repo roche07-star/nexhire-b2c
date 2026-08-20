@@ -2257,7 +2257,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {/* JD 입력 폼 */}
                     <button className="jd-back-btn" onClick={() => setShowNewJdAnalysis(false)}>← 목록으로</button>
                     <div className="jd-form">
-                      <h2>📊 JD 분석</h2>
                       <div className="jd-field">
                         <label className="jd-label">회사명 <span className="jd-label-required">*</span></label>
                         <input
