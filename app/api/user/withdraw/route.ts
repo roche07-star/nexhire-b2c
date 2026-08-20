@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
       withdraw_requested_at: now.toISOString(),
       data_delete_at: deleteDate.toISOString(),
       last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
+      user_type: null,  // ✅ user_type 초기화
       // ✅ 개인정보는 6개월 후 삭제 (재가입 시 복원 가능하도록)
     }).eq('email', email)
 
@@ -80,6 +81,9 @@ export async function POST(req: NextRequest) {
       is_agreed: false,
       withdrawn_at: now.toISOString(),
     }).eq('user_email', email).is('withdrawn_at', null)
+
+    // ✅ 알림 삭제 (즉시 삭제)
+    await supabase.from('notifications').delete().eq('user_email', email)
 
     // ✅ 감사 로그 기록
     await supabase.from('audit_logs').insert({
@@ -116,6 +120,7 @@ export async function POST(req: NextRequest) {
     withdraw_requested_at: now.toISOString(),
     data_delete_at: deleteDate.toISOString(), // ✅ 6개월 후 삭제
     last_restored_at: null,  // 탈퇴 시 복원 기록 초기화
+    user_type: null,  // ✅ user_type 초기화
   }).eq('email', email)
 
   if (error) {
@@ -148,6 +153,9 @@ export async function POST(req: NextRequest) {
   await supabase.from('generated_resumes').update({
     deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
+
+  // ✅ 알림 삭제 (즉시 삭제)
+  await supabase.from('notifications').delete().eq('user_email', email)
 
   // ✅ 개인정보는 6개월 후 Hard delete 시 삭제 (재가입 시 복원 가능)
 
