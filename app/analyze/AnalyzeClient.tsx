@@ -209,6 +209,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [jdAnalysisSavedListLoading, setJdAnalysisSavedListLoading] = useState(false)
   const [jdAnalysisViewingSaved, setJdAnalysisViewingSaved] = useState<any>(null)
   const [showNewJdAnalysis, setShowNewJdAnalysis] = useState(false)
+  const [jdAnalysisResultTab, setJdAnalysisResultTab] = useState<'raw' | 'analysis'>('raw')
 
   // 재분석 완료 후 saved 탭으로 이동
   useEffect(() => {
@@ -2202,54 +2203,182 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                 {jdAnalysisViewingSaved || jdAnalysisResult ? (
                   <div className="jd-result-view">
                     {/* 결과 표시 영역 */}
-                    <button className="jd-back-btn" onClick={() => { setJdAnalysisViewingSaved(null); setJdAnalysisResult(null) }}>
+                    <button className="jd-back-btn" onClick={() => { setJdAnalysisViewingSaved(null); setJdAnalysisResult(null); setJdAnalysisResultTab('raw'); }}>
                       ← 목록으로
                     </button>
+
+                    {/* 헤더 */}
+                    <div className="jd-result-header" style={{ marginBottom: 20 }}>
+                      <h2>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company} - {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.position}</h2>
+                      <div className="jd-result-meta">
+                        <span className={`jd-priority jd-priority-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}`}>
+                          우선순위: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}
+                        </span>
+                        <span className={`jd-difficulty jd-difficulty-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}`}>
+                          난이도: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 탭 버튼 */}
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 20, borderBottom: '2px solid var(--border-strong)' }}>
+                      <button
+                        onClick={() => setJdAnalysisResultTab('raw')}
+                        style={{
+                          padding: '10px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: jdAnalysisResultTab === 'raw' ? '2px solid var(--gold)' : '2px solid transparent',
+                          color: jdAnalysisResultTab === 'raw' ? 'var(--gold)' : 'var(--muted)',
+                          fontWeight: jdAnalysisResultTab === 'raw' ? 600 : 400,
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          marginBottom: -2,
+                        }}
+                      >
+                        📄 원본
+                      </button>
+                      <button
+                        onClick={() => setJdAnalysisResultTab('analysis')}
+                        style={{
+                          padding: '10px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: jdAnalysisResultTab === 'analysis' ? '2px solid var(--gold)' : '2px solid transparent',
+                          color: jdAnalysisResultTab === 'analysis' ? 'var(--gold)' : 'var(--muted)',
+                          fontWeight: jdAnalysisResultTab === 'analysis' ? 600 : 400,
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          marginBottom: -2,
+                        }}
+                      >
+                        🔍 분석
+                      </button>
+                    </div>
+
                     <div className="jd-result-container">
-                      <div className="jd-result-header">
-                        <h2>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company} - {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.position}</h2>
-                        <div className="jd-result-meta">
-                          <span className={`jd-priority jd-priority-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}`}>
-                            우선순위: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}
-                          </span>
-                          <span className={`jd-difficulty jd-difficulty-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}`}>
-                            난이도: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}
-                          </span>
+                      {/* 원본 탭 */}
+                      {jdAnalysisResultTab === 'raw' && (
+                        <div style={{
+                          padding: 20,
+                          background: 'var(--bg-2)',
+                          borderRadius: 8,
+                          border: '1px solid var(--border)',
+                          whiteSpace: 'pre-wrap',
+                          fontSize: 14,
+                          lineHeight: 1.8,
+                          color: 'var(--text)',
+                          maxHeight: 700,
+                          overflowY: 'auto'
+                        }}>
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.raw_text || 'JD 원문이 없습니다.'}
                         </div>
-                      </div>
+                      )}
 
-                      <div className="jd-result-section">
-                        <h3>📍 필수 스킬</h3>
-                        <div className="jd-skills-grid">
-                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.map((skill: string, i: number) => (
-                            <span key={i} className="jd-skill-tag">{skill}</span>
-                          ))}
+                      {/* 분석 탭 */}
+                      {jdAnalysisResultTab === 'analysis' && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                          {/* 기본 정보 */}
+                          {((jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location || (jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate) && (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location && (
+                                <div>
+                                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6, fontWeight: 600 }}>근무지</div>
+                                  <div style={{ fontSize: 14 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location}</div>
+                                </div>
+                              )}
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate && (
+                                <div>
+                                  <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6, fontWeight: 600 }}>연봉 범위</div>
+                                  <div style={{ fontSize: 14 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate}</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* 필수 스킬 */}
+                          <div className="jd-result-section">
+                            <h3>📍 필수 스킬</h3>
+                            <div className="jd-skills-grid">
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.map((skill: string, i: number) => (
+                                <span key={i} className="jd-skill-tag">{skill}</span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 주요 포인트 */}
+                          <div className="jd-result-section">
+                            <h3>💡 주요 포인트</h3>
+                            <ul className="jd-points-list">
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.map((point: string, i: number) => (
+                                <li key={i}>{point}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* 타겟 프로필 */}
+                          <div className="jd-result-section">
+                            <h3>🎯 타겟 프로필</h3>
+                            <p style={{ lineHeight: 1.7 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.target_profile}</p>
+                          </div>
+
+                          {/* 검색 전략 */}
+                          <div className="jd-result-section">
+                            <h3>🔍 검색 전략</h3>
+                            <p style={{ lineHeight: 1.7 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.search_strategy}</p>
+                          </div>
+
+                          {/* 난이도 분석 */}
+                          <div className="jd-result-section">
+                            <h3>⚠️ 난이도 분석</h3>
+                            <p style={{ lineHeight: 1.7 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason}</p>
+                          </div>
+
+                          {/* 검색 키워드 */}
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.keywords?.length > 0 && (
+                            <div className="jd-result-section">
+                              <h3>🔑 검색 키워드</h3>
+                              <div className="jd-skills-grid">
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.keywords?.map((keyword: string, i: number) => (
+                                  <span key={i} className="jd-skill-tag" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)' }}>{keyword}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 인사팀 코멘트 */}
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.client_comment && (
+                            <div className="jd-result-section">
+                              <h3>💼 인사팀 코멘트</h3>
+                              <div style={{
+                                padding: 16,
+                                background: 'var(--bg-2)',
+                                borderRadius: 8,
+                                border: '1px solid var(--border)',
+                                whiteSpace: 'pre-wrap',
+                                lineHeight: 1.7
+                              }}>
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.client_comment}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 회사 URL */}
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url && (
+                            <div className="jd-result-section">
+                              <h3>🏢 회사 정보</h3>
+                              <a
+                                href={(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: 'var(--gold)', textDecoration: 'underline' }}
+                              >
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url}
+                              </a>
+                            </div>
+                          )}
                         </div>
-                      </div>
-
-                      <div className="jd-result-section">
-                        <h3>🎯 타겟 프로필</h3>
-                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.target_profile}</p>
-                      </div>
-
-                      <div className="jd-result-section">
-                        <h3>🔍 검색 전략</h3>
-                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.search_strategy}</p>
-                      </div>
-
-                      <div className="jd-result-section">
-                        <h3>💡 주요 포인트</h3>
-                        <ul className="jd-points-list">
-                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.map((point: string, i: number) => (
-                            <li key={i}>{point}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="jd-result-section">
-                        <h3>⚠️ 난이도 분석</h3>
-                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason}</p>
-                      </div>
+                      )}
                     </div>
                   </div>
                 ) : showNewJdAnalysis ? (
