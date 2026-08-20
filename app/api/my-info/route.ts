@@ -11,7 +11,7 @@ export async function GET() {
 
   const [{ data: user }, { data: coupons }, { data: consents }, { data: payments }] = await Promise.all([
     supabase.from('users')
-      .select('plan, analyze_count, jd_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
+      .select('plan, analyze_count, jd_count, jd_analysis_count, jd_match_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, monthly_reset_at, user_type, service_type, headhunter_sharing_enabled, headhunter_sharing_consented_at, downgrade_to, plan_end_date, status, data_delete_at, extra_credits')
       .eq('email', email).single(),
     supabase.from('coupons')
       .select('id, code, feature, used, credits, used_at, expires_at, claimed_at')

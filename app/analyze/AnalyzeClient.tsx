@@ -2514,7 +2514,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="jd-list-container">
                     {/* 저장된 JD 목록 */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div className="jd-list-title">저장된 JD 분석</div>
+                      <div className="jd-list-title">분석 JD</div>
                       <button className="rewrite-dl-btn" onClick={() => setShowNewJdAnalysis(true)}>
                         + 새 JD 분석
                       </button>
@@ -2522,7 +2522,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     {jdAnalysisSavedListLoading ? (
                       <div className="jd-list-loading">불러오는 중...</div>
                     ) : !jdAnalysisSavedList || jdAnalysisSavedList.length === 0 ? (
-                      <div className="jd-no-analysis">저장된 JD 분석이 없습니다. 새 분석을 시작해 보세요.</div>
+                      <div className="jd-no-analysis">분석 JD가 없습니다. 새 분석을 시작해 보세요.</div>
                     ) : (
                       <div className="jd-saved-list">
                         {jdAnalysisSavedList.map((saved) => (
