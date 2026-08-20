@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
-import { callClaude } from '@/lib/claude-client'
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export const maxDuration = 60
 
@@ -85,7 +86,7 @@ ${content}
 
 ${client_comment ? `[인사팀 코멘트]\n${client_comment}\n\n` : ''}${company_url ? `[회사 URL]\n${company_url}\n\n` : ''}우선순위, 난이도, 필수 스킬, 타겟 프로필, 검색 전략을 분석해 주세요.`
 
-    const response = await callClaude({
+    const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
       system: '당신은 전문 헤드헌터입니다. 채용공고를 분석하여 우선순위, 난이도, 필수 스킬, 타겟 프로필, 검색 전략을 제시합니다.',
@@ -94,7 +95,7 @@ ${client_comment ? `[인사팀 코멘트]\n${client_comment}\n\n` : ''}${company
       tool_choice: { type: 'tool', name: 'analyze_jd' }
     })
 
-    const toolUse = response.content.find((c: any) => c.type === 'tool_use')
+    const toolUse = response.content.find((c: any) => c.type === 'tool_use') as any
     if (!toolUse) {
       throw new Error('분석 결과를 생성하지 못했습니다.')
     }
