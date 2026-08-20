@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
     withdrawn_at: now.toISOString(),
   }).eq('user_email', email).is('withdrawn_at', null)
 
-  // ✅ Soft delete: 180일 후 삭제 예정 표시 (약관 준수)
+  // ✅ Soft delete: 180일 후 삭제 예정 표시 (재가입 시 복원 가능)
   await supabase.from('analyses').update({
     deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)

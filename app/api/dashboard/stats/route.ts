@@ -84,43 +84,51 @@ export async function GET() {
           supabase
             .from('analyses')
             .select('*', { count: 'exact', head: true })
-            .eq('user_email', email),
+            .eq('user_email', email)
+            .is('deleted_at', null),
           supabase
             .from('analyses')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email)
-            .gte('created_at', firstDayOfMonth.toISOString()),
+            .gte('created_at', firstDayOfMonth.toISOString())
+            .is('deleted_at', null),
           supabase
             .from('jd_analyses')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email)
-            .gte('created_at', firstDayOfMonth.toISOString()),
+            .gte('created_at', firstDayOfMonth.toISOString())
+            .is('deleted_at', null),
           supabase
             .from('interview_guides')
             .select('*', { count: 'exact', head: true })
             .eq('user_email', email)
-            .gte('created_at', firstDayOfMonth.toISOString()),
+            .gte('created_at', firstDayOfMonth.toISOString())
+            .is('deleted_at', null),
           supabase
             .from('analyses')
             .select('score')
             .eq('user_email', email)
             .gt('score', 0)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false })
             .limit(50),
           supabase
             .from('analyses')
             .select('pipeline_stage')
-            .eq('user_email', email),
+            .eq('user_email', email)
+            .is('deleted_at', null),
           supabase
             .from('analyses')
             .select('id, candidate_name, position, score, created_at, pipeline_stage, result')
             .eq('user_email', email)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false })
             .limit(10),
           supabase
             .from('jd_analyses')
             .select('id, result, created_at')
             .eq('user_email', email)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false })
             .limit(10),
         ])
