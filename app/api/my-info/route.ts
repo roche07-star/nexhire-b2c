@@ -48,14 +48,14 @@ export async function GET() {
 
   const usage: Record<string, { used: number; limit: number }> = {
     analyze:      { used: (user?.analyze_count ?? 0) + (couponUsed.analyze || 0),   limit: limits.analyze + (extraCredits.analyze || 0) + (extraCredits.resume || 0) },  // ✅ 기존 resume 쿠폰 하위호환
-    jd_analysis:  { used: (user?.jd_analysis_count ?? 0) + (couponUsed.jd_analysis || 0), limit: limits.jd_analysis + (extraCredits.jd_analysis || 0) },
     jd_match:     { used: (user?.jd_match_count ?? 0) + (couponUsed.jd_match || 0), limit: limits.jd_match + (extraCredits.jd_match || 0) },
     rewrite:      { used: (user?.rewrite_count ?? 0) + (couponUsed.rewrite || 0),   limit: limits.rewrite + (extraCredits.rewrite || 0) },
     interview:    { used: (user?.interview_count ?? 0) + (couponUsed.interview || 0), limit: limits.interview + (extraCredits.interview || 0) },
   }
 
-  // 헤드헌터만 클라이언트 제안서 표시
+  // 헤드헌터만 JD 분석, 클라이언트 제안서 표시
   if (userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN') {
+    usage.jd_analysis = { used: (user?.jd_analysis_count ?? 0) + (couponUsed.jd_analysis || 0), limit: limits.jd_analysis + (extraCredits.jd_analysis || 0) }
     usage.proposal = { used: user?.proposal_count ?? 0, limit: limits.proposal + (extraCredits.proposal || 0) }
   }
 
