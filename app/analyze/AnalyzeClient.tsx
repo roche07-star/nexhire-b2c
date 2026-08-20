@@ -2740,15 +2740,16 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           paddingBottom: '12px',
                           borderBottom: '2px solid var(--border)'
                         }}>
-                          JD 선택 또는 새 JD 입력
+                          JD 선택 또는 입력
                         </div>
 
-                        {/* JD분석 목록 */}
-                        {jdAnalysisSavedList && jdAnalysisSavedList.length > 0 && (
+                        {/* JD 목록 (분석된 JD + 저장된 JD 통합) */}
+                        {((jdAnalysisSavedList && jdAnalysisSavedList.length > 0) || savedJDTemplates.length > 0) && (
                           <div className="jd-template-section">
-                            <div className="jd-list-title">📊 JD분석 목록</div>
+                            <div className="jd-list-title">📋 JD 목록</div>
                             <div className="jd-template-list">
-                              {jdAnalysisSavedList.map((saved) => (
+                              {/* JD 분석 목록 */}
+                              {jdAnalysisSavedList && jdAnalysisSavedList.map((saved) => (
                                 <div
                                   key={saved.id}
                                   className="jd-template-card"
@@ -2775,25 +2776,11 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   </div>
                                 </div>
                               ))}
-                            </div>
-                          </div>
-                        )}
 
-                        {/* 저장된 JD */}
-                        {savedJDTemplates.length > 0 && (
-                          <div
-                            className="jd-template-section"
-                            style={{
-                              marginTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 20 : 0,
-                              paddingTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 20 : 0,
-                              borderTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? '1px solid var(--border)' : 'none'
-                            }}
-                          >
-                            <div className="jd-list-title">📁 저장된 JD</div>
-                            <div className="jd-template-list">
+                              {/* 저장된 JD */}
                               {savedJDTemplates.map((template) => (
                                 <div
-                                  key={template.id}
+                                  key={`template-${template.id}`}
                                   className="jd-template-card"
                                   onClick={() => selectJDTemplate(template)}
                                 >
