@@ -1298,7 +1298,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                               fontSize: 12
                             }}>
                               <div>📝 {u.analyze_count ?? 0}/{limits.analyze + (extraCredits.resume || 0)}</div>
-                              <div>📋 JD분석 {u.jd_analysis_count ?? 0}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</div>
+                              {(u.user_type === 'HEADHUNTER' || u.user_type === 'MANAGER' || u.user_type === 'SUPER_ADMIN') && (
+                                <div>📋 JD분석 {u.jd_analysis_count ?? 0}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</div>
+                              )}
                               <div>🎯 JD매칭 {u.jd_match_count ?? 0}/{limits.jd_match + (extraCredits.jd_match || 0)}</div>
                               <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
                               <div>🎤 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
@@ -2508,7 +2510,9 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         <div className="admin-detail-row">
                           <span className={`plan-badge ${plan.toLowerCase()}`}>{plan}</span>
                           <span>이력서 분석 {String(u.analyze_count)}/{limits.analyze + (extraCredits.resume || 0)}</span>
-                          <span>JD 분석 {String(u.jd_analysis_count)}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</span>
+                          {(u.user_type === 'HEADHUNTER' || u.user_type === 'MANAGER' || u.user_type === 'SUPER_ADMIN') && (
+                            <span>JD 분석 {String(u.jd_analysis_count)}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</span>
+                          )}
                           <span>JD 매칭 {String(u.jd_match_count)}/{limits.jd_match + (extraCredits.jd_match || 0)}</span>
                           <span>이력서 생성 {String(u.rewrite_count)}/{limits.rewrite + (extraCredits.rewrite || 0)}</span>
                           <span>면접 가이드 {String(u.interview_count)}/{limits.interview + (extraCredits.interview || 0)}</span>
