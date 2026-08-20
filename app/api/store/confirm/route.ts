@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     // orderId에서 feature 추출 (store_feature_timestamp_random 형식)
-    const featureMatch = orderId.match(/store_([a-z]+)_/)
+    const featureMatch = orderId.match(/store_([a-z_]+)_/)
     const feature = featureMatch ? featureMatch[1] : null
 
     if (!feature) {
@@ -32,7 +32,10 @@ export async function POST(req: NextRequest) {
     // 상품명 매핑
     const productNames: Record<string, string> = {
       resume: '이력서 분석',
+      analyze: '이력서 분석',
       jd: 'JD 적합도 분석',
+      jd_analysis: 'JD 분석',
+      jd_match: 'JD 적합도 분석',
       rewrite: '이력서 생성',
       interview: '면접 가이드',
       proposal: '클라이언트 제안서',
@@ -120,16 +123,18 @@ export async function POST(req: NextRequest) {
     }
 
     // 상품별 쿠폰 생성 개수
-    const couponCounts: Record<string, { analyze?: number; jd?: number; rewrite?: number; interview?: number; proposal?: number }> = {
+    const couponCounts: Record<string, { analyze?: number; jd?: number; jd_analysis?: number; jd_match?: number; rewrite?: number; interview?: number; proposal?: number }> = {
       analyze: { analyze: 1 },
-      jd: { jd: 1 },
+      jd: { jd: 1 },  // 레거시
+      jd_analysis: { jd_analysis: 1 },
+      jd_match: { jd_match: 1 },
       rewrite: { rewrite: 1 },
       interview: { interview: 1 },
       proposal: { proposal: 1 },
       storage: {}, // 스토리지는 별도 처리 필요
       package: {
         analyze: 50,
-        jd: 50,
+        jd: 50,  // 레거시
         rewrite: 50,
         interview: userType === 'HEADHUNTER' ? 25 : 15,
         proposal: userType === 'HEADHUNTER' ? 50 : 0,

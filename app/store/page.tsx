@@ -3,6 +3,7 @@ import Footer from '@/components/Footer'
 import dynamic from 'next/dynamic'
 import { auth } from '@/auth'
 import { getPaymentGatewayMode } from '@/lib/payment-gateway'
+import { supabase } from '@/lib/supabase'
 
 const StoreClient = dynamic(() => import('./StoreClient'), {
   loading: () => (
@@ -28,6 +29,7 @@ export default async function StorePage() {
   let isManager = false
   let userEmail: string | null = null
   let userName: string | null = null
+  let userType: string | null = null
 
   try {
     const session = await auth()
@@ -35,6 +37,17 @@ export default async function StorePage() {
       isManager = (session.user as { role?: string }).role === 'MANAGER'
       userEmail = session.user.email || null
       userName = session.user.name || null
+
+      // user_type 조회
+      if (userEmail) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('user_type')
+          .eq('email', userEmail)
+          .single()
+
+        userType = userData?.user_type || null
+      }
     }
   } catch {
     // ignore auth errors
@@ -51,6 +64,7 @@ export default async function StorePage() {
         isManager={isManager}
         userEmail={userEmail}
         userName={userName}
+        userType={userType}
         paymentGateway={gateway}
       />
       <Footer />

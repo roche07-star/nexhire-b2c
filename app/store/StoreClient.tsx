@@ -11,7 +11,7 @@ interface Product {
   nameEn: string
   price: number
   originalPrice?: number
-  feature: 'storage' | 'analyze' | 'resume' | 'jd' | 'rewrite' | 'proposal' | 'interview' | 'package'
+  feature: 'storage' | 'analyze' | 'resume' | 'jd' | 'jd_analysis' | 'jd_match' | 'rewrite' | 'proposal' | 'interview' | 'package'
   icon: string
   gradient: string
   description: string[]
@@ -57,7 +57,7 @@ const PRODUCTS: Product[] = [
     name: 'JD 적합도 분석',
     nameEn: 'Job Description Match',
     price: 2900,
-    feature: 'jd',
+    feature: 'jd_match',
     icon: '🎯',
     gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
     description: [
@@ -66,6 +66,23 @@ const PRODUCTS: Product[] = [
       '✅ 매칭 강점/부족한 점/어필 전략',
       '✅ 지원 추천 등급 (APPLY/CONSIDER/SKIP)',
     ],
+  },
+  {
+    id: '2-1',
+    name: 'JD 분석',
+    nameEn: 'Job Description Analysis',
+    price: 1900,
+    originalPrice: 2900,
+    feature: 'jd_analysis',
+    icon: '📋',
+    gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
+    description: [
+      '✅ AI 기반 JD 종합 분석',
+      '✅ 직무/요구사항/우대사항 정리',
+      '✅ 핵심 키워드 & 필수 역량 추출',
+      '✅ 예상 연봉/복지/성장성 분석',
+    ],
+    badge: '🔥 할인',
   },
   {
     id: '3',
@@ -138,10 +155,11 @@ interface Props {
   isManager: boolean
   userEmail: string | null
   userName: string | null
+  userType: string | null
   paymentGateway: PaymentGateway
 }
 
-export default function StoreClient({ isManager, userEmail, userName, paymentGateway }: Props) {
+export default function StoreClient({ isManager, userEmail, userName, userType, paymentGateway }: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -284,6 +302,41 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
     }
   }
 
+  // 헤드헌터 전용 체크
+  if (userType !== 'HEADHUNTER' && userType !== 'MANAGER' && userType !== 'SUPER_ADMIN') {
+    return (
+      <main className="store-page zero-nav-spacing">
+        <div className="store-container">
+          <div className="store-header">
+            <div className="store-header-content">
+              <h1 className="store-title">STORE</h1>
+              <p className="store-subtitle" style={{ color: '#f59e0b', marginTop: '20px' }}>
+                ⚠️ 헤드헌터 전용 서비스입니다
+              </p>
+              <p className="store-description" style={{ marginTop: '20px' }}>
+                STORE는 헤드헌터를 위한 전용 상품 구매 페이지입니다.<br />
+                헤드헌터 계정으로 로그인 후 이용해 주세요.
+              </p>
+              <div style={{ marginTop: '40px' }}>
+                <a href="/analyze" style={{
+                  display: 'inline-block',
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: '600'
+                }}>
+                  대시보드로 이동
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="store-page zero-nav-spacing">
       <div className="store-container">
@@ -291,11 +344,11 @@ export default function StoreClient({ isManager, userEmail, userName, paymentGat
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
             <p className="store-subtitle">
-              JOBIZIC 커리어 부스터 팩 <br className="mobile-only" />
+              헤드헌터 전용 커리어 부스터 팩 <br className="mobile-only" />
               (쿠폰 유효기간: 3개월)
             </p>
             <p className="store-description">
-              당신의 커리어를 한 단계 업그레이드할 <br className="mobile-only" />
+              헤드헌터의 업무 효율을 극대화할 <br className="mobile-only" />
               프리미엄 JOBIZIC 분석 서비스
             </p>
           </div>

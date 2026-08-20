@@ -76,8 +76,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '이미 처리된 결제입니다' }, { status: 400 })
     }
 
-    // Step 6: orderId에서 feature 추출
-    const featureMatch = orderId.match(/store_([a-z]+)_/)
+    // Step 6: orderId에서 feature 추출 (언더스코어 포함)
+    const featureMatch = orderId.match(/store_([a-z_]+)_/)
     const feature = featureMatch ? featureMatch[1] : null
 
     if (!feature) {
@@ -98,18 +98,20 @@ export async function POST(req: NextRequest) {
     const threeMonthsLater = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000)
 
     // 상품별 쿠폰 생성 개수
-    const couponCounts: Record<string, { analyze?: number; jd?: number; rewrite?: number; interview?: number; proposal?: number }> = {
+    const couponCounts: Record<string, { analyze?: number; jd?: number; jd_analysis?: number; jd_match?: number; rewrite?: number; interview?: number; proposal?: number }> = {
       analyze: { analyze: 1 },
-      jd: { jd: 1 },
+      jd: { jd: 1 },  // 레거시
+      jd_analysis: { jd_analysis: 1 },
+      jd_match: { jd_match: 1 },
       rewrite: { rewrite: 1 },
       interview: { interview: 1 },
       proposal: { proposal: 1 },
       storage: {},
       package: {
         analyze: 50,
-        jd: 50,
-        rewrite: userType === 'HEADHUNTER' ? 25 : 30,  // ✅ 수정: 구직자 30회, 헤드헌터 25회
-        interview: userType === 'HEADHUNTER' ? 25 : 20,  // ✅ 수정: 구직자 20회, 헤드헌터 25회
+        jd: 50,  // 레거시 (jd_analysis + jd_match 합쳐서 처리)
+        rewrite: userType === 'HEADHUNTER' ? 25 : 30,  // 구직자 30회, 헤드헌터 25회
+        interview: userType === 'HEADHUNTER' ? 25 : 20,  // 구직자 20회, 헤드헌터 25회
         proposal: userType === 'HEADHUNTER' ? 50 : 0,
       },
     }
