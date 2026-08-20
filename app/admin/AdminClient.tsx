@@ -253,7 +253,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     if (res.ok) {
       const data = await res.json()
       setUsers((prev) => prev.map((u) => u.email === email
-        ? { ...u, plan, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
+        ? { ...u, plan, analyze_count: 0, jd_analysis_count: 0, jd_match_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
         : u
       ))
       const durationLabel = duration === 0 ? '무제한' : `${duration}개월`
@@ -339,7 +339,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
     })
     if (res.ok) {
       setUsers((prev) => prev.map((u) => u.email === email
-        ? { ...u, analyze_count: 0, jd_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
+        ? { ...u, analyze_count: 0, jd_analysis_count: 0, jd_match_count: 0, rewrite_count: 0, interview_count: 0, weekly_report_count: 0, monthly_report_count: 0 }
         : u
       ))
       showMsg(`${email} 사용량 초기화 완료`)
@@ -720,7 +720,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
 
   // 통계는 stats API에서 가져온 데이터 사용
   const totalAnalyze = users.reduce((s, u) => s + (u.analyze_count ?? 0), 0)
-  const totalJd = users.reduce((s, u) => s + (u.jd_count ?? 0), 0)
+  const totalJd = users.reduce((s, u) => s + ((u.jd_analysis_count ?? 0) + (u.jd_match_count ?? 0)), 0)
   const totalRewrite = users.reduce((s, u) => s + (u.rewrite_count ?? 0), 0)
   const totalInterview = users.reduce((s, u) => s + (u.interview_count ?? 0), 0)
 
@@ -1361,7 +1361,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         <button
                           className="admin-btn reset"
                           disabled={
-                            (u.analyze_count === 0 && u.jd_count === 0 && u.rewrite_count === 0 && u.interview_count === 0)
+                            (u.analyze_count === 0 && u.jd_analysis_count === 0 && u.jd_match_count === 0 && u.rewrite_count === 0 && u.interview_count === 0)
                             || loading === u.email + 'reset'
                           }
                           onClick={() => resetCount(u.email)}
@@ -2508,7 +2508,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         <div className="admin-detail-row">
                           <span className={`plan-badge ${plan.toLowerCase()}`}>{plan}</span>
                           <span>이력서 분석 {String(u.analyze_count)}/{limits.analyze + (extraCredits.resume || 0)}</span>
-                          <span>JD 적합도 분석 {String(u.jd_count)}/{limits.jd + (extraCredits.jd || 0)}</span>
+                          <span>JD 분석 {String(u.jd_analysis_count)}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</span>
+                          <span>JD 매칭 {String(u.jd_match_count)}/{limits.jd_match + (extraCredits.jd_match || 0)}</span>
                           <span>이력서 생성 {String(u.rewrite_count)}/{limits.rewrite + (extraCredits.rewrite || 0)}</span>
                           <span>면접 가이드 {String(u.interview_count)}/{limits.interview + (extraCredits.interview || 0)}</span>
                         </div>
@@ -2613,7 +2614,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                       // 총 토큰 계산
                       const totalTokens =
                         (u.analyze_count ?? 0) * AVG_ANALYZE +
-                        (u.jd_count ?? 0) * AVG_JD +
+                        ((u.jd_analysis_count ?? 0) + (u.jd_match_count ?? 0)) * AVG_JD +
                         (u.rewrite_count ?? 0) * AVG_REWRITE +
                         (u.interview_count ?? 0) * AVG_INTERVIEW
 
@@ -2657,10 +2658,10 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         </td>
                         <td style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '14px', fontWeight: '600' }}>
-                            {u.jd_count ?? 0}회
+                            {((u.jd_analysis_count ?? 0) + (u.jd_match_count ?? 0))}회
                           </div>
                           <div style={{ fontSize: '11px', color: '#999' }}>
-                            {((u.jd_count ?? 0) * 3000).toLocaleString()}
+                            {(((u.jd_analysis_count ?? 0) + (u.jd_match_count ?? 0)) * 3000).toLocaleString()}
                           </div>
                         </td>
                         <td style={{ textAlign: 'center' }}>
