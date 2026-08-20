@@ -1297,15 +1297,15 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                               gap: 2,
                               fontSize: 12
                             }}>
-                              <div>📝 {u.analyze_count ?? 0}/{limits.analyze + (extraCredits.resume || 0)}</div>
+                              <div>📝 이력서분석 {u.analyze_count ?? 0}/{limits.analyze + (extraCredits.resume || 0)}</div>
                               {(userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN') && (
                                 <div>📋 JD분석 {u.jd_analysis_count ?? 0}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</div>
                               )}
                               <div>🎯 JD매칭 {u.jd_match_count ?? 0}/{limits.jd_match + (extraCredits.jd_match || 0)}</div>
-                              <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
-                              <div>🎤 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
-                              <div>📊 {u.weekly_report_count ?? 0}/{limits.weekly_report + (extraCredits.weekly_report || 0)}</div>
-                              <div>📅 {u.monthly_report_count ?? 0}/{limits.monthly_report + (extraCredits.monthly_report || 0)}</div>
+                              <div>✏️ 이력서생성 {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
+                              <div>🎤 면접가이드 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
+                              <div>📊 주간Report {u.weekly_report_count ?? 0}/{limits.weekly_report + (extraCredits.weekly_report || 0)}</div>
+                              <div>📅 월간Report {u.monthly_report_count ?? 0}/{limits.monthly_report + (extraCredits.monthly_report || 0)}</div>
                             </div>
                           )
                         })()}
