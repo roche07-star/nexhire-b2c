@@ -2732,6 +2732,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                     {!showJDInput ? (
                       <>
+                        <div style={{
+                          fontSize: '16px',
+                          fontWeight: 700,
+                          color: '#fff',
+                          marginBottom: '20px',
+                          paddingBottom: '12px',
+                          borderBottom: '2px solid var(--border)'
+                        }}>
+                          JD 선택 또는 새 JD 입력
+                        </div>
+
                         {/* JD분석 목록 */}
                         {jdAnalysisSavedList && jdAnalysisSavedList.length > 0 && (
                           <div className="jd-template-section">
