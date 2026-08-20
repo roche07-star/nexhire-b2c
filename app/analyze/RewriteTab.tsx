@@ -56,6 +56,20 @@ export default function RewriteTab({
       </div>
 
       <div className="jd-list-title">이력서 생성</div>
+      <div style={{
+        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+        border: '1px solid #fbbf24',
+        borderRadius: '8px',
+        padding: '12px 16px',
+        marginBottom: '16px',
+        fontSize: '14px',
+        color: '#92400e'
+      }}>
+        💡 <strong>이력서 생성은 JD 적합도 분석을 먼저 완료해야 사용할 수 있습니다.</strong><br />
+        <span style={{ fontSize: '13px', opacity: 0.9 }}>
+          JD 적합도 분석 탭에서 지원하고자 하는 공고를 분석한 후, 해당 결과를 선택하여 이력서를 생성하세요.
+        </span>
+      </div>
       <p className="rewrite-desc">
         JOBIZIC이 추천하는 <strong>깔끔하고 전문적인 포맷</strong>으로 이력서를 생성합니다.<br />
         가독성이 뛰어나고 채용 담당자가 선호하는 구조로 자동 구성되며, 최신 업무 활동 내역도 자동으로 반영됩니다.<br />
