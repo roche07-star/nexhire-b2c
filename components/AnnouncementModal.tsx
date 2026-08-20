@@ -22,7 +22,7 @@ export default function AnnouncementModal() {
 
   async function fetchUnreadAnnouncements() {
     try {
-      const res = await fetch('/api/announcements/unread')
+      const res = await fetch('/api/announcements')
       if (res.ok) {
         const data = await res.json()
         setAnnouncements(data.announcements || [])
@@ -34,36 +34,24 @@ export default function AnnouncementModal() {
     }
   }
 
-  async function handleMarkRead(announcementId: string, dismissUntil?: string) {
+  async function handleMarkViewed(announcementId: string) {
     try {
-      await fetch('/api/announcements/mark-read', {
+      await fetch('/api/announcements/view', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ announcementId, dismissUntil })
+        body: JSON.stringify({ announcementId })
       })
     } catch (error) {
-      console.error('Failed to mark as read:', error)
+      console.error('Failed to mark as viewed:', error)
     }
-  }
-
-  function handleDismissToday() {
-    const current = announcements[currentIndex]
-    if (!current) return
-
-    // 내일 00:00까지
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setHours(0, 0, 0, 0)
-
-    handleMarkRead(current.id, tomorrow.toISOString())
-    handleNext()
   }
 
   function handleConfirm() {
     const current = announcements[currentIndex]
     if (!current) return
 
-    handleMarkRead(current.id)
+    // 확인 처리 (영구적으로 안 보임)
+    handleMarkViewed(current.id)
     handleNext()
   }
 
@@ -226,49 +214,20 @@ export default function AnnouncementModal() {
         {/* Actions */}
         <div
           style={{
-            display: 'flex',
-            gap: 10,
             paddingTop: 20,
             borderTop: '1px solid #e5e7eb'
           }}
         >
           <button
-            onClick={handleDismissToday}
-            style={{
-              flex: 1,
-              padding: '12px 20px',
-              background: '#f3f4f6',
-              color: '#374151',
-              border: '1px solid #e5e7eb',
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              fontFamily: 'inherit'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e5e7eb'
-              e.currentTarget.style.transform = 'translateY(-1px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f3f4f6'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            오늘 하루 보지 않기
-          </button>
-
-          <button
             onClick={handleConfirm}
             style={{
-              flex: 1,
-              padding: '12px 20px',
+              width: '100%',
+              padding: '14px 20px',
               background: 'linear-gradient(135deg, #22d3ee, #a78bfa)',
               color: 'white',
               border: 'none',
               borderRadius: 10,
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.2s',
