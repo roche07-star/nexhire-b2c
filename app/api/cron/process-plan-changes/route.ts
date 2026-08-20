@@ -55,6 +55,8 @@ export async function GET(req: NextRequest) {
         // 사용량 리셋
         analyze_count: 0,
         jd_count: 0,
+        jd_analysis_count: 0,
+        jd_match_count: 0,
         rewrite_count: 0,
         interview_count: 0,
         proposal_count: 0,
@@ -101,8 +103,14 @@ export async function GET(req: NextRequest) {
           ...updateData,
           analyze_count: 3,
           jd_count: 3,
+          jd_analysis_count: 3,
+          jd_match_count: 3,
           rewrite_count: 3,
           interview_count: 0,
+          proposal_count: 0,
+          resume_count: 0,
+          weekly_report_count: 0,
+          monthly_report_count: 0,
         }
       }
       // 다운그레이드 to PRO: 리셋
@@ -111,8 +119,14 @@ export async function GET(req: NextRequest) {
           ...updateData,
           analyze_count: 0,
           jd_count: 0,
+          jd_analysis_count: 0,
+          jd_match_count: 0,
           rewrite_count: 0,
           interview_count: 0,
+          proposal_count: 0,
+          resume_count: 0,
+          weekly_report_count: 0,
+          monthly_report_count: 0,
         }
       }
 

@@ -144,6 +144,8 @@ export async function POST(req: NextRequest) {
           // 사용량 리셋
           analyze_count: 0,
           jd_count: 0,
+          jd_analysis_count: 0,
+          jd_match_count: 0,
           rewrite_count: 0,
           interview_count: 0,
           proposal_count: 0,

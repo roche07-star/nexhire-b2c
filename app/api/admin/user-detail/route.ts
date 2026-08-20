@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   const [{ data: user }, { data: analyses }, { data: jdAnalyses }, { data: coupons }] =
     await Promise.all([
-      supabase.from('users').select('email, name, plan, analyze_count, jd_count, rewrite_count, interview_count, created_at').eq('email', email).single(),
+      supabase.from('users').select('email, name, plan, analyze_count, jd_count, jd_analysis_count, jd_match_count, rewrite_count, interview_count, proposal_count, resume_count, weekly_report_count, monthly_report_count, created_at').eq('email', email).single(),
       supabase.from('analyses').select('id, result, created_at').eq('user_email', email).order('created_at', { ascending: false }).limit(5),
       supabase.from('jd_analyses').select('id, result, created_at').eq('user_email', email).order('created_at', { ascending: false }).limit(5),
       supabase.from('coupons').select('code, feature, claimed_at, used_at').eq('claimed_by', email).order('claimed_at', { ascending: false }),

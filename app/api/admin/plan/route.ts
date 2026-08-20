@@ -69,8 +69,12 @@ export async function POST(req: NextRequest) {
   if (plan === 'FREE') {
     updateData.analyze_count = 3
     updateData.jd_count = 3
+    updateData.jd_analysis_count = 3
+    updateData.jd_match_count = 3
     updateData.rewrite_count = 3
     updateData.interview_count = 0
+    updateData.proposal_count = 0
+    updateData.resume_count = 0
     updateData.weekly_report_count = 0
     updateData.monthly_report_count = 0
   }
@@ -78,8 +82,12 @@ export async function POST(req: NextRequest) {
   else {
     updateData.analyze_count = 0
     updateData.jd_count = 0
+    updateData.jd_analysis_count = 0
+    updateData.jd_match_count = 0
     updateData.rewrite_count = 0
     updateData.interview_count = 0
+    updateData.proposal_count = 0
+    updateData.resume_count = 0
     updateData.weekly_report_count = 0
     updateData.monthly_report_count = 0
   }

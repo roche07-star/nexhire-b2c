@@ -16,8 +16,14 @@ export async function POST(req: NextRequest) {
     .update({
       analyze_count: 0,
       jd_count: 0,
+      jd_analysis_count: 0,
+      jd_match_count: 0,
       rewrite_count: 0,
       interview_count: 0,
+      proposal_count: 0,
+      resume_count: 0,
+      weekly_report_count: 0,
+      monthly_report_count: 0,
       monthly_reset_at: new Date().toISOString(),
     })
     .eq('email', email)
