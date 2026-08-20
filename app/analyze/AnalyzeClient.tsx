@@ -193,6 +193,23 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewViewingSaved, setInterviewViewingSaved] = useState<SavedInterviewGuide | null>(null)
   const [showNewInterview, setShowNewInterview] = useState(false)
 
+  // ── JD 분석 (헤드헌터 전용)
+  const [jdAnalysisCompany, setJdAnalysisCompany] = useState('')
+  const [jdAnalysisPosition, setJdAnalysisPosition] = useState('')
+  const [jdAnalysisContent, setJdAnalysisContent] = useState('')
+  const [jdAnalysisComment, setJdAnalysisComment] = useState('')
+  const [jdAnalysisCompanyUrl, setJdAnalysisCompanyUrl] = useState('')
+  const [jdAnalysisLocation, setJdAnalysisLocation] = useState('')
+  const [jdAnalysisSalary, setJdAnalysisSalary] = useState('')
+  const [jdAnalysisResult, setJdAnalysisResult] = useState<any>(null)
+  const [jdAnalysisLoading, setJdAnalysisLoading] = useState(false)
+  const [jdAnalysisLoadingMsg, setJdAnalysisLoadingMsg] = useState('')
+  const [jdAnalysisError, setJdAnalysisError] = useState<string | null>(null)
+  const [jdAnalysisSavedList, setJdAnalysisSavedList] = useState<any[] | null>(null)
+  const [jdAnalysisSavedListLoading, setJdAnalysisSavedListLoading] = useState(false)
+  const [jdAnalysisViewingSaved, setJdAnalysisViewingSaved] = useState<any>(null)
+  const [showNewJdAnalysis, setShowNewJdAnalysis] = useState(false)
+
   // 재분석 완료 후 saved 탭으로 이동
   useEffect(() => {
     const refineCompleteId = sessionStorage.getItem('refineComplete')
@@ -269,6 +286,18 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .finally(() => setSavedListLoading(false))
     }
   }, [activeMenu, analysisList, savedListLoading])
+
+  // JD 분석 목록 자동 로드 (헤드헌터 전용)
+  useEffect(() => {
+    if (activeMenu === 'jd-analysis' && jdAnalysisSavedList === null && !jdAnalysisSavedListLoading) {
+      setJdAnalysisSavedListLoading(true)
+      fetch('/api/jd-analysis/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setJdAnalysisSavedList(analyses ?? []))
+        .catch(() => setJdAnalysisSavedList([]))
+        .finally(() => setJdAnalysisSavedListLoading(false))
+    }
+  }, [activeMenu, jdAnalysisSavedList, jdAnalysisSavedListLoading])
 
   // FREE 유저 초기 데이터 병렬 로드
   useEffect(() => {
@@ -1473,6 +1502,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span>📋</span> JD기반 분석
                   {jdSavedList && jdSavedList.length > 0 && <span className="tab-badge">{jdSavedList.length}개</span>}
                 </button>
+                {/* 헤드헌터 전용: JD분석 탭 */}
+                {userType?.toLowerCase() === 'headhunter' && (
+                  <button
+                    className={`analyze-tab-btn${activeMenu === 'jd-analysis' ? ' active' : ''}`}
+                    onClick={() => onMenuClick('jd-analysis')}
+                  >
+                    <span>📊</span> JD분석
+                  </button>
+                )}
                 <button
                   className={`analyze-tab-btn${activeMenu === 'rewrite' ? ' active' : ''}`}
                   onClick={() => onMenuClick('rewrite')}
@@ -2147,6 +2185,247 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               )
             })()}
 
+            {/* JD 분석 모드 (헤드헌터 전용) */}
+            {activeMenu === 'jd-analysis' && (
+              <div className="analyze-content">
+                {jdAnalysisViewingSaved || jdAnalysisResult ? (
+                  <div className="jd-result-view">
+                    {/* 결과 표시 영역 */}
+                    <button className="jd-back-btn" onClick={() => { setJdAnalysisViewingSaved(null); setJdAnalysisResult(null) }}>
+                      ← 목록으로
+                    </button>
+                    <div className="jd-result-container">
+                      <div className="jd-result-header">
+                        <h2>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company} - {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.position}</h2>
+                        <div className="jd-result-meta">
+                          <span className={`jd-priority jd-priority-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}`}>
+                            우선순위: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}
+                          </span>
+                          <span className={`jd-difficulty jd-difficulty-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}`}>
+                            난이도: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="jd-result-section">
+                        <h3>📍 필수 스킬</h3>
+                        <div className="jd-skills-grid">
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.map((skill: string, i: number) => (
+                            <span key={i} className="jd-skill-tag">{skill}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="jd-result-section">
+                        <h3>🎯 타겟 프로필</h3>
+                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.target_profile}</p>
+                      </div>
+
+                      <div className="jd-result-section">
+                        <h3>🔍 검색 전략</h3>
+                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.search_strategy}</p>
+                      </div>
+
+                      <div className="jd-result-section">
+                        <h3>💡 주요 포인트</h3>
+                        <ul className="jd-points-list">
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.map((point: string, i: number) => (
+                            <li key={i}>{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="jd-result-section">
+                        <h3>⚠️ 난이도 분석</h3>
+                        <p>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : showNewJdAnalysis ? (
+                  <div className="jd-input-container">
+                    {/* JD 입력 폼 */}
+                    <button className="jd-back-btn" onClick={() => setShowNewJdAnalysis(false)}>← 목록으로</button>
+                    <div className="jd-form">
+                      <h2>📊 JD 분석</h2>
+                      <div className="jd-field">
+                        <label className="jd-label">회사명 <span className="jd-label-required">*</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) 삼성전자, 카카오, 네이버"
+                          value={jdAnalysisCompany}
+                          onChange={(e) => setJdAnalysisCompany(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">포지션 <span className="jd-label-required">*</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) Backend 개발자, Data Scientist"
+                          value={jdAnalysisPosition}
+                          onChange={(e) => setJdAnalysisPosition(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">근무지 <span className="jd-label-optional">(선택)</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) 서울 강남구, 경기 성남시"
+                          value={jdAnalysisLocation}
+                          onChange={(e) => setJdAnalysisLocation(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">연봉 범위 <span className="jd-label-optional">(선택)</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="예) 5000만원 ~ 7000만원"
+                          value={jdAnalysisSalary}
+                          onChange={(e) => setJdAnalysisSalary(e.target.value)}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">JD 내용 <span className="jd-label-required">*</span></label>
+                        <textarea
+                          className="jd-textarea"
+                          placeholder="채용공고 전문을 입력하세요..."
+                          value={jdAnalysisContent}
+                          onChange={(e) => setJdAnalysisContent(e.target.value)}
+                          rows={15}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">💼 인사팀 코멘트 <span className="jd-label-optional">(선택)</span></label>
+                        <textarea
+                          className="jd-textarea"
+                          placeholder="예) 개발직군 채용 경험 필수, 스타트업 경험자 우대, 영어 실무 가능자만"
+                          value={jdAnalysisComment}
+                          onChange={(e) => setJdAnalysisComment(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      <div className="jd-field">
+                        <label className="jd-label">회사 URL <span className="jd-label-optional">(선택)</span></label>
+                        <input
+                          className="jd-input"
+                          type="text"
+                          placeholder="https://..."
+                          value={jdAnalysisCompanyUrl}
+                          onChange={(e) => setJdAnalysisCompanyUrl(e.target.value)}
+                        />
+                      </div>
+                      {jdAnalysisError && <div className="analyze-error">{jdAnalysisError}</div>}
+                      <button
+                        className="jd-analyze-btn"
+                        onClick={async () => {
+                          if (!jdAnalysisCompany.trim() || !jdAnalysisPosition.trim() || !jdAnalysisContent.trim()) {
+                            setJdAnalysisError('회사명, 포지션, JD 내용은 필수입니다.')
+                            return
+                          }
+                          setJdAnalysisError(null)
+                          setJdAnalysisLoading(true)
+                          setJdAnalysisLoadingMsg('JD를 분석하고 있습니다...')
+                          try {
+                            const res = await fetch('/api/jd-analysis', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                company: jdAnalysisCompany,
+                                position: jdAnalysisPosition,
+                                location: jdAnalysisLocation,
+                                salary_estimate: jdAnalysisSalary,
+                                content: jdAnalysisContent,
+                                client_comment: jdAnalysisComment,
+                                company_url: jdAnalysisCompanyUrl
+                              })
+                            })
+                            const data = await res.json()
+                            if (!res.ok) throw new Error(data.error || '분석 실패')
+                            setJdAnalysisResult(data.result)
+                            // 목록 갱신
+                            fetch('/api/jd-analysis/list')
+                              .then((r) => r.json())
+                              .then(({ analyses }) => setJdAnalysisSavedList(analyses ?? []))
+                              .catch(() => {})
+                            // 폼 초기화
+                            setJdAnalysisCompany('')
+                            setJdAnalysisPosition('')
+                            setJdAnalysisLocation('')
+                            setJdAnalysisSalary('')
+                            setJdAnalysisContent('')
+                            setJdAnalysisComment('')
+                            setJdAnalysisCompanyUrl('')
+                            setShowNewJdAnalysis(false)
+                          } catch (err: any) {
+                            setJdAnalysisError(err.message)
+                          } finally {
+                            setJdAnalysisLoading(false)
+                            setJdAnalysisLoadingMsg('')
+                          }
+                        }}
+                        disabled={jdAnalysisLoading}
+                      >
+                        {jdAnalysisLoading ? jdAnalysisLoadingMsg : '📊 JD 분석하기'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="jd-list-container">
+                    {/* 저장된 JD 목록 */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className="jd-list-title">저장된 JD 분석</div>
+                      <button className="rewrite-dl-btn" onClick={() => setShowNewJdAnalysis(true)}>
+                        + 새 JD 분석
+                      </button>
+                    </div>
+                    {jdAnalysisSavedListLoading ? (
+                      <div className="jd-list-loading">불러오는 중...</div>
+                    ) : !jdAnalysisSavedList || jdAnalysisSavedList.length === 0 ? (
+                      <div className="jd-no-analysis">저장된 JD 분석이 없습니다. 새 분석을 시작해 보세요.</div>
+                    ) : (
+                      <div className="jd-saved-list">
+                        {jdAnalysisSavedList.map((saved) => (
+                          <div key={saved.id} className="jd-saved-card" onClick={() => setJdAnalysisViewingSaved(saved)}>
+                            <div className="jd-saved-card-left">
+                              <span className="jd-saved-company">{saved.result.company} - {saved.result.position}</span>
+                              <span className="jd-saved-resume">
+                                우선순위: {saved.result.priority} | 난이도: {saved.result.difficulty}
+                              </span>
+                            </div>
+                            <div className="jd-saved-card-right">
+                              <span className="jd-saved-date">{new Date(saved.created_at).toLocaleDateString('ko-KR')}</span>
+                            </div>
+                            <button
+                              className="saved-delete-btn"
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                if (!confirm('JD 분석을 삭제하시겠습니까?')) return
+                                try {
+                                  const res = await fetch(`/api/jd-analysis/${saved.id}`, { method: 'DELETE' })
+                                  if (res.ok) {
+                                    setJdAnalysisSavedList(prev => prev ? prev.filter(j => j.id !== saved.id) : prev)
+                                    if (jdAnalysisViewingSaved?.id === saved.id) setJdAnalysisViewingSaved(null)
+                                  }
+                                } catch (err) {
+                                  console.error('Delete error:', err)
+                                }
+                              }}
+                              title="삭제"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* JD 기반 분석 모드 */}
             {activeMenu === 'jd' && (
               <div className="jd-section" ref={jdTopRef}>
@@ -2410,7 +2689,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         </div>
                       </div>
                       <div className="jd-field">
-                        <label className="jd-label">클라이언트 코멘트 <span className="jd-label-optional">(선택)</span></label>
+                        <label className="jd-label">💼 인사팀 코멘트 <span className="jd-label-optional">(선택)</span></label>
                         <textarea
                           className="jd-textarea"
                           placeholder="예) 개발직군 채용 경험 필수, 스타트업 경험자 우대, 영어 실무 가능자만&#10;요건 완화/강화, 우선순위 변경, 기피 프로파일 등을 입력하세요."

@@ -141,7 +141,36 @@ export interface JDTemplate {
   created_at: string
 }
 
-export type SidebarMenu = 'upload' | 'saved' | 'jd' | 'rewrite' | 'interview'
+// JD 분석 결과 (헤드헌터 전용)
+export interface JDAnalysisResult {
+  id?: string
+  company: string
+  position: string
+  location?: string
+  salary_estimate?: string
+  priority: string // 상/중/하
+  difficulty: string // 상/중/하
+  required_skills: string[]
+  key_points: string[]
+  target_profile: string
+  search_strategy: string
+  difficulty_reason: string
+  keywords: string[]
+  raw_text: string
+  client_comment?: string
+  company_url?: string
+  created_at?: string
+  expires_at?: string
+}
+
+export interface SavedJDAnalysisOnly {
+  id: string
+  result: JDAnalysisResult
+  created_at: string
+  expires_at?: string
+}
+
+export type SidebarMenu = 'upload' | 'saved' | 'jd' | 'jd-analysis' | 'rewrite' | 'interview'
 
 // 유틸리티 함수
 export const toArr = (v: unknown): string[] =>

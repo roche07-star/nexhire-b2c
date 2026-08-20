@@ -166,7 +166,7 @@ export default function PipelineClient({ userEmail, userPlan }: PipelineClientPr
         {/* 헤더 */}
         <div style={{ marginBottom: 32 }}>
           <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8, color: 'var(--text)' }}>
-            📊 채용 파이프라인
+            📊 채용 프로세스
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: 14 }}>
             후보자를 단계별로 관리하고 진행 상황을 추적하세요.
