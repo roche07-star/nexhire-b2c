@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     default: 'Jobizic — AI 이력서 분석으로 취업 성공률 UP',
     template: '%s | Jobizic'
   },
-  description: 'Claude AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다. 무료 체험 3회, 프로 플랜으로 무제한 분석!',
+  description: 'AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다. 무료 체험 3회, 프로 플랜으로 무제한 분석!',
   keywords: ['이력서 분석', 'AI 이력서', '이력서 첨삭', '자기소개서 작성', '취업 준비', '이직 준비', 'AI 커리어 분석', '이력서 최적화'],
   authors: [{ name: 'Jobizic' }],
   creator: 'Jobizic',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: 'https://jobizic.com',
     title: 'Jobizic — AI 이력서 분석으로 취업 성공률 UP',
-    description: 'Claude AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다. 무료 체험 3회, 프로 플랜으로 무제한 분석!',
+    description: 'AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다. 무료 체험 3회, 프로 플랜으로 무제한 분석!',
     siteName: 'Jobizic',
     images: [
       {
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Jobizic — AI 이력서 분석으로 취업 성공률 UP',
-    description: 'Claude AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다.',
+    description: 'AI가 당신의 이력서를 분석하고 강점/약점을 정확히 파악합니다.',
     images: ['/og-image.png'],
     creator: '@jobizic',
   },
