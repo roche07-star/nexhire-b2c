@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         .from('coupons')
         .select('id, expires_at')
         .eq('claimed_by', session.user.email)
-        .eq('feature', 'jd')
+        .eq('feature', 'jd_match')
         .is('used_at', null)
       const now = new Date()
       const valid = (jdCoupons ?? []).find(c => !c.expires_at || new Date(c.expires_at) > now)
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     // 플랜 횟수 제한 체크
     if (userRole !== 'MANAGER' && !jdCouponId) {
-      const { allowed, limit, plan } = await checkUsage(session.user.email, 'jd')
+      const { allowed, limit, plan } = await checkUsage(session.user.email, 'jd_match')
 
       // 🛡️ PRO/EXPERT 플랜 사용자 보호: 분당 5회 (실수/해킹/버그 방지)
       if (plan === 'PRO' || plan === 'EXPERT') {
@@ -402,7 +402,7 @@ ${candidateProfile}`
     if (jdCouponId) {
       await supabase.from('coupons').update({ used_at: new Date().toISOString() }).eq('id', jdCouponId)
     } else if (userRole !== 'MANAGER') {
-      await incrementUsage(session.user.email, 'jd')
+      await incrementUsage(session.user.email, 'jd_match')
     }
 
     const expiresAt = new Date()

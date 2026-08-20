@@ -52,7 +52,7 @@ export async function processJdJob(
     // await supabase.from('jd_analyses').insert(...)
 
     // Step 6: Usage 증가 & 완료
-    await incrementUsage(email, 'jd')
+    await incrementUsage(email, 'jd_match')
 
     await invalidateCache(`jd_analyses:${email}`)
     // await completeJob(jobId, resultPayload)

@@ -3,7 +3,9 @@
 export const FEATURE_LABEL: Record<string, string> = {
   resume: '이력서 분석',
   direction: '방향성 분석',
-  jd: 'JD 적합도 분석',
+  jd: 'JD 적합도 분석', // 레거시 (호환성 유지)
+  jd_analysis: 'JD 분석',
+  jd_match: 'JD 적합도 분석',
   rewrite: '이력서 생성',
 }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { auth } from '@/auth'
 import { supabase } from '@/lib/supabase'
+import { checkUsage, incrementUsage } from '@/lib/usageLimits'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -65,6 +66,24 @@ export async function POST(req: NextRequest) {
     const userRole = (session.user as any).role
     if (userType !== 'headhunter' && userRole !== 'MANAGER') {
       return NextResponse.json({ error: '헤드헌터 또는 관리자만 이용 가능한 기능입니다.' }, { status: 403 })
+    }
+
+    // 사용량 체크
+    const usageCheck = await checkUsage(session.user.email, 'jd_analysis')
+    if (!usageCheck.allowed) {
+      if (usageCheck.canUpgradeEarly && usageCheck.nextPlan) {
+        return NextResponse.json({
+          error: 'UPGRADE_AVAILABLE',
+          message: `JD분석 횟수가 소진되었습니다. ${usageCheck.nextPlan} 플랜을 조기 활성화하시겠습니까?`,
+          nextPlan: usageCheck.nextPlan
+        }, { status: 403 })
+      }
+      return NextResponse.json({
+        error: 'USAGE_LIMIT',
+        message: `JD분석 ${usageCheck.limit}회 한도를 모두 사용했습니다. 플랜을 업그레이드하거나 쿠폰을 구매해 주세요.`,
+        limit: usageCheck.limit,
+        plan: usageCheck.plan
+      }, { status: 403 })
     }
 
     const { company, position, location, salary_estimate, content, client_comment, company_url } = await req.json()
@@ -137,6 +156,9 @@ ${client_comment ? `[인사팀 코멘트]\n${client_comment}\n\n` : ''}${company
       console.error('Supabase insert error:', error)
       throw new Error('저장 실패')
     }
+
+    // 사용량 증가
+    await incrementUsage(session.user.email, 'jd_analysis')
 
     return NextResponse.json({
       result: data.result,

@@ -99,7 +99,7 @@ export interface UseCouponInput {
 export function isValidFeature(value: unknown): value is Feature {
   return (
     typeof value === 'string' &&
-    ['analyze', 'jd', 'rewrite', 'interview', 'proposal'].includes(value)
+    ['analyze', 'jd', 'jd_analysis', 'jd_match', 'rewrite', 'interview', 'proposal', 'resume', 'weekly_report', 'monthly_report'].includes(value)
   )
 }
 

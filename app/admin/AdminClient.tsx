@@ -41,7 +41,9 @@ type UserTypeKey = CentralUserType
 const FEATURE_LABELS: Record<string, string> = {
   storage: '추가 저장 Slot',
   resume: '이력서 분석',
-  jd: 'JD 적합도 분석',
+  jd: 'JD 적합도 분석', // 레거시
+  jd_analysis: 'JD 분석',
+  jd_match: 'JD 적합도 분석',
   rewrite: '이력서 생성',
   proposal: '클라이언트 제안서',
   interview: '면접 가이드',
