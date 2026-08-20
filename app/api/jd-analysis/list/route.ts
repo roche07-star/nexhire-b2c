@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
       .from('jd_analyses')
       .select('*')
       .eq('user_email', session.user.email)
+      .is('analysis_id', null)  // ✅ JD분석만 (analysis_id 없음)
       .order('created_at', { ascending: false })
 
     if (error) {
