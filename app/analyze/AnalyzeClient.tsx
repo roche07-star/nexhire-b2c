@@ -1321,6 +1321,17 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
         .then(({ analyses }) => setJdSavedList(analyses ?? []))
         .catch(() => {})
         .finally(() => setJdSavedListLoading(false))
+    } else if (id === 'jd-analysis') {
+      setResult(null)
+      setActiveMenu('jd-analysis')
+      setJdAnalysisError(null)
+      // JD 분석 목록 로드
+      setJdAnalysisSavedListLoading(true)
+      fetch('/api/jd-analysis/list')
+        .then((r) => r.json())
+        .then(({ analyses }) => setJdAnalysisSavedList(analyses ?? []))
+        .catch(() => setJdAnalysisSavedList([]))
+        .finally(() => setJdAnalysisSavedListLoading(false))
     } else if (id === 'rewrite') {
       setResult(null)
       setActiveMenu('rewrite')
