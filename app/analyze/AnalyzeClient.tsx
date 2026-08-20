@@ -290,7 +290,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
   // JD 분석 목록 자동 로드 (헤드헌터 전용)
   useEffect(() => {
-    if (activeMenu === 'jd-analysis' && jdAnalysisSavedList === null && !jdAnalysisSavedListLoading) {
+    if ((activeMenu === 'jd-analysis' || activeMenu === 'jd') && jdAnalysisSavedList === null && !jdAnalysisSavedListLoading) {
       setJdAnalysisSavedListLoading(true)
       fetch('/api/jd-analysis/list')
         .then((r) => r.json())
