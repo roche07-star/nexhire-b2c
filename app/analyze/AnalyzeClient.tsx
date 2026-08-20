@@ -1648,7 +1648,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd-analysis' ? 'JD 적합도 분석' : activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' || userRole === 'MANAGER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
+                    {activeMenu === 'jd-analysis' ? 'JD 분석' : activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' || userRole === 'MANAGER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 JOBIZIC이 3분 안에 커리어 방향을 제시합니다.</p>
@@ -2197,7 +2197,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               )
             })()}
 
-            {/* JD 적합도 분석 모드 (헤드헌터 전용) */}
+            {/* JD 분석 모드 (헤드헌터 전용) */}
             {activeMenu === 'jd-analysis' && (
               <div className="analyze-content">
                 {jdAnalysisViewingSaved || jdAnalysisResult ? (
@@ -2506,7 +2506,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         }}
                         disabled={jdAnalysisLoading}
                       >
-                        {jdAnalysisLoading ? jdAnalysisLoadingMsg : '📊 JD 적합도 분석하기'}
+                        {jdAnalysisLoading ? jdAnalysisLoadingMsg : '📊 JD 분석하기'}
                       </button>
                     </div>
                   </div>
@@ -2514,15 +2514,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="jd-list-container">
                     {/* 저장된 JD 목록 */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div className="jd-list-title">저장된 JD 적합도 분석</div>
+                      <div className="jd-list-title">저장된 JD 분석</div>
                       <button className="rewrite-dl-btn" onClick={() => setShowNewJdAnalysis(true)}>
-                        + 새 JD 적합도 분석
+                        + 새 JD 분석
                       </button>
                     </div>
                     {jdAnalysisSavedListLoading ? (
                       <div className="jd-list-loading">불러오는 중...</div>
                     ) : !jdAnalysisSavedList || jdAnalysisSavedList.length === 0 ? (
-                      <div className="jd-no-analysis">저장된 JD 적합도 분석이 없습니다. 새 분석을 시작해 보세요.</div>
+                      <div className="jd-no-analysis">저장된 JD 분석이 없습니다. 새 분석을 시작해 보세요.</div>
                     ) : (
                       <div className="jd-saved-list">
                         {jdAnalysisSavedList.map((saved) => (
@@ -2530,7 +2530,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             <div className="jd-saved-card-left">
                               <span className="jd-saved-company">{saved.result.company} - {saved.result.position}</span>
                               <span className="jd-saved-resume">
-                                우선순위: {saved.result.priority} | 난이도: {saved.result.difficulty}
+                                난이도: {saved.result.difficulty}
                               </span>
                             </div>
                             <div className="jd-saved-card-right">
@@ -2540,7 +2540,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               className="saved-delete-btn"
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (!confirm('JD 적합도 분석을 삭제하시겠습니까?')) return
+                                if (!confirm('JD 분석을 삭제하시겠습니까?')) return
                                 try {
                                   const res = await fetch(`/api/jd-analysis/${saved.id}`, { method: 'DELETE' })
                                   if (res.ok) {
