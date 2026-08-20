@@ -154,6 +154,10 @@ export async function POST(req: NextRequest) {
     deleted_at: deleteDate.toISOString()
   }).eq('user_email', email).is('deleted_at', null)
 
+  await supabase.from('jd_templates').update({
+    deleted_at: deleteDate.toISOString()
+  }).eq('user_email', email).is('deleted_at', null)
+
   // ✅ 알림 삭제 (즉시 삭제)
   await supabase.from('notifications').delete().eq('user_email', email)
 

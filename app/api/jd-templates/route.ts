@@ -13,6 +13,7 @@ export async function GET() {
       .from('jd_templates')
       .select('*')
       .eq('user_email', session.user.email)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       .select('id, company, position')
       .eq('user_email', session.user.email)
       .eq('company', trimmedCompany)
+      .is('deleted_at', null)
 
     if (dupCheckError) {
       console.error('[jd-templates] Duplicate check error:', dupCheckError)
