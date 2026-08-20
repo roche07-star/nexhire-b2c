@@ -696,7 +696,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   }
 
   function nextResetDate(u: User) {
-    if (!u.monthly_reset_at) return '—'
+    if (!u.monthly_reset_at || u.plan === 'FREE') return '—'
     const d = new Date(u.monthly_reset_at)
     return d.toLocaleDateString('ko-KR')
   }
