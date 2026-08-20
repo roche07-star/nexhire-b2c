@@ -10,7 +10,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     // 헤드헌터 또는 관리자만 접근 가능
-    const userType = (session.user as any).type?.toLowerCase()
+    const userType = (session.user as any).userType?.toLowerCase()
     const userRole = (session.user as any).role
     if (userType !== 'headhunter' && userRole !== 'MANAGER') {
       return NextResponse.json({ error: '헤드헌터 또는 관리자만 이용 가능한 기능입니다.' }, { status: 403 })
