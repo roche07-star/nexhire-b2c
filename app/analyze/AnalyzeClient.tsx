@@ -2220,198 +2220,132 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                       </div>
                     </div>
 
-                    {/* 탭 버튼 */}
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 20, borderBottom: '2px solid var(--border-strong)' }}>
-                      <button
-                        onClick={() => setJdAnalysisResultTab('raw')}
-                        style={{
-                          padding: '10px 16px',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: jdAnalysisResultTab === 'raw' ? '2px solid var(--gold)' : '2px solid transparent',
-                          color: jdAnalysisResultTab === 'raw' ? 'var(--gold)' : 'var(--muted)',
-                          fontWeight: jdAnalysisResultTab === 'raw' ? 600 : 400,
-                          fontSize: 14,
-                          cursor: 'pointer',
-                          marginBottom: -2,
-                        }}
-                      >
-                        📄 원본
-                      </button>
-                      <button
-                        onClick={() => setJdAnalysisResultTab('analysis')}
-                        style={{
-                          padding: '10px 16px',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: jdAnalysisResultTab === 'analysis' ? '2px solid var(--gold)' : '2px solid transparent',
-                          color: jdAnalysisResultTab === 'analysis' ? 'var(--gold)' : 'var(--muted)',
-                          fontWeight: jdAnalysisResultTab === 'analysis' ? 600 : 400,
-                          fontSize: 14,
-                          cursor: 'pointer',
-                          marginBottom: -2,
-                        }}
-                      >
-                        🔍 분석
-                      </button>
-                    </div>
-
-                    <div className="jd-result-container">
-                      {/* 원본 탭 */}
-                      {jdAnalysisResultTab === 'raw' && (
-                        <div style={{
-                          padding: 20,
-                          background: 'var(--bg-2)',
-                          borderRadius: 8,
-                          border: '1px solid var(--border)',
-                          whiteSpace: 'pre-wrap',
-                          fontSize: 14,
-                          lineHeight: 1.8,
-                          color: 'var(--text)',
-                          maxHeight: 700,
-                          overflowY: 'auto'
-                        }}>
-                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.raw_text || 'JD 원문이 없습니다.'}
+                    {/* 좌우 분할 레이아웃 (EVE 스타일) */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: (jdAnalysisViewingSaved?.result || jdAnalysisResult)?.raw_text ? '1fr 1fr' : '1fr',
+                      gap: 24,
+                      marginBottom: 20
+                    }}>
+                      {/* 좌측: JD 원문 */}
+                      {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.raw_text && (
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: 'var(--text)' }}>📄 JD 원문</div>
+                          <div style={{
+                            padding: 16,
+                            background: 'var(--bg-2)',
+                            borderRadius: 8,
+                            border: '1px solid var(--border)',
+                            maxHeight: 700,
+                            overflowY: 'auto',
+                            whiteSpace: 'pre-wrap',
+                            fontSize: 12,
+                            lineHeight: 1.7,
+                            color: 'var(--text)'
+                          }}>
+                            {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.raw_text}
+                          </div>
                         </div>
                       )}
 
-                      {/* 분석 탭 */}
-                      {jdAnalysisResultTab === 'analysis' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                          {/* 기본 정보 카드 */}
+                      {/* 우측: 분석 내용 */}
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: 'var(--text)' }}>🔍 AI 분석 결과</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                          {/* 기본 정보 */}
                           {((jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location || (jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate) && (
-                            <div style={{
-                              padding: 20,
-                              background: 'var(--surface)',
-                              borderRadius: 12,
-                              border: '1px solid var(--border)',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location && (
-                                  <div>
-                                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>📍 근무지</div>
-                                    <div style={{ fontSize: 15, fontWeight: 500 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location}</div>
-                                  </div>
-                                )}
-                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate && (
-                                  <div>
-                                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>💰 연봉 범위</div>
-                                    <div style={{ fontSize: 15, fontWeight: 500 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate}</div>
-                                  </div>
-                                )}
-                              </div>
+                            <div style={{ display: 'flex', gap: 16, marginBottom: 0 }}>
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location && (
+                                <div>
+                                  <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>근무지</span>
+                                  <div>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.location}</div>
+                                </div>
+                              )}
+                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate && (
+                                <div>
+                                  <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>예상 연봉</span>
+                                  <div>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.salary_estimate}</div>
+                                </div>
+                              )}
                             </div>
                           )}
 
                           {/* 필수 스킬 */}
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.length > 0 && (
+                            <div style={{ marginBottom: 0 }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 8 }}>필수 스킬</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.map((skill: string, i: number) => (
+                                  <span key={i} style={{
+                                    padding: '6px 12px',
+                                    background: 'var(--gold)',
+                                    color: '#fff',
+                                    borderRadius: 4,
+                                    fontSize: 12,
+                                    fontWeight: 600
+                                  }}>{skill}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 타겟 프로필 & 검색 전략 */}
                           <div style={{
-                            padding: 24,
-                            background: 'var(--surface)',
-                            borderRadius: 12,
+                            padding: 16,
+                            background: 'var(--bg-2)',
+                            borderRadius: 8,
                             border: '1px solid var(--border)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                            marginBottom: 0
                           }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 20 }}>📍</span> 필수 스킬
-                            </h3>
-                            <div className="jd-skills-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.required_skills?.map((skill: string, i: number) => (
-                                <span key={i} style={{
-                                  padding: '8px 16px',
-                                  background: 'linear-gradient(135deg, var(--gold) 0%, #d4a574 100%)',
-                                  color: '#fff',
-                                  borderRadius: 20,
-                                  fontSize: 13,
-                                  fontWeight: 600,
-                                  boxShadow: '0 2px 6px rgba(184,146,42,0.25)'
-                                }}>{skill}</span>
-                              ))}
+                            <div style={{ marginBottom: 12 }}>
+                              <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>타깃 프로파일</span>
+                              <div style={{ marginTop: 4, fontSize: 13, lineHeight: 1.6 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.target_profile}</div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>서칭 전략</span>
+                              <div style={{ marginTop: 4, fontSize: 13, lineHeight: 1.6 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.search_strategy}</div>
                             </div>
                           </div>
 
                           {/* 주요 포인트 */}
-                          <div style={{
-                            padding: 24,
-                            background: 'var(--surface)',
-                            borderRadius: 12,
-                            border: '1px solid var(--border)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                          }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 20 }}>💡</span> 주요 포인트
-                            </h3>
-                            <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                              {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.map((point: string, i: number) => (
-                                <li key={i} style={{ lineHeight: 1.7, fontSize: 14, color: 'var(--text-secondary)' }}>{point}</li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {/* 타겟 프로필 */}
-                          <div style={{
-                            padding: 24,
-                            background: 'var(--surface)',
-                            borderRadius: 12,
-                            border: '1px solid var(--border)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                          }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 20 }}>🎯</span> 타겟 프로필
-                            </h3>
-                            <p style={{ lineHeight: 1.8, fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.target_profile}</p>
-                          </div>
-
-                          {/* 검색 전략 */}
-                          <div style={{
-                            padding: 24,
-                            background: 'var(--surface)',
-                            borderRadius: 12,
-                            border: '1px solid var(--border)',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                          }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 20 }}>🔍</span> 검색 전략
-                            </h3>
-                            <p style={{ lineHeight: 1.8, fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.search_strategy}</p>
-                          </div>
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.length > 0 && (
+                            <div style={{ marginBottom: 0 }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 8 }}>헤드헌터 주목 포인트</div>
+                              <ul style={{ paddingLeft: 16, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.key_points?.map((point: string, i: number) => (
+                                  <li key={i} style={{ fontSize: 13, lineHeight: 1.6 }}>{point}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
                           {/* 난이도 분석 */}
-                          <div style={{
-                            padding: 24,
-                            background: 'linear-gradient(135deg, rgba(255,107,107,0.1) 0%, rgba(255,77,77,0.05) 100%)',
-                            borderRadius: 12,
-                            border: '1px solid rgba(255,107,107,0.2)',
-                            boxShadow: '0 2px 8px rgba(255,77,77,0.1)'
-                          }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#d63031', display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <span style={{ fontSize: 20 }}>⚠️</span> 난이도 분석
-                            </h3>
-                            <p style={{ lineHeight: 1.8, fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason}</p>
-                          </div>
+                          {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason && (
+                            <div style={{
+                              padding: 12,
+                              background: 'rgba(255, 107, 107, 0.1)',
+                              borderRadius: 6,
+                              border: '1px solid rgba(255, 107, 107, 0.2)',
+                              marginBottom: 0
+                            }}>
+                              <div style={{ fontSize: 12, color: '#d63031', fontWeight: 600, marginBottom: 4 }}>난이도 사유</div>
+                              <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text)' }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty_reason}</div>
+                            </div>
+                          )}
 
                           {/* 검색 키워드 */}
                           {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.keywords?.length > 0 && (
-                            <div style={{
-                              padding: 24,
-                              background: 'var(--surface)',
-                              borderRadius: 12,
-                              border: '1px solid var(--border)',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 20 }}>🔑</span> 검색 키워드
-                              </h3>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                            <div style={{ marginBottom: 0 }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 8 }}>검색 키워드</div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                                 {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.keywords?.map((keyword: string, i: number) => (
                                   <span key={i} style={{
-                                    padding: '6px 14px',
+                                    padding: '4px 10px',
                                     background: 'var(--bg-2)',
                                     border: '1px solid var(--border)',
-                                    borderRadius: 16,
-                                    fontSize: 13,
-                                    color: 'var(--text-secondary)',
-                                    fontWeight: 500
+                                    borderRadius: 4,
+                                    fontSize: 12,
+                                    color: 'var(--text)'
                                   }}>{keyword}</span>
                                 ))}
                               </div>
@@ -2421,73 +2355,32 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           {/* 인사팀 코멘트 */}
                           {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.client_comment && (
                             <div style={{
-                              padding: 24,
-                              background: 'linear-gradient(135deg, rgba(116,185,255,0.1) 0%, rgba(82,143,255,0.05) 100%)',
-                              borderRadius: 12,
-                              border: '1px solid rgba(116,185,255,0.2)',
-                              boxShadow: '0 2px 8px rgba(82,143,255,0.1)'
+                              padding: 12,
+                              background: 'rgba(116, 185, 255, 0.1)',
+                              borderRadius: 6,
+                              marginBottom: 0
                             }}>
-                              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#0984e3', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 20 }}>💼</span> 인사팀 코멘트
-                              </h3>
-                              <div style={{
-                                padding: 16,
-                                background: 'rgba(255,255,255,0.5)',
-                                borderRadius: 8,
-                                whiteSpace: 'pre-wrap',
-                                lineHeight: 1.8,
-                                fontSize: 14,
-                                color: 'var(--text-secondary)'
-                              }}>
-                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.client_comment}
-                              </div>
+                              <div style={{ fontSize: 12, color: '#0984e3', fontWeight: 600, marginBottom: 4 }}>인사팀 코멘트</div>
+                              <div style={{ fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.client_comment}</div>
                             </div>
                           )}
 
                           {/* 회사 URL */}
                           {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url && (
-                            <div style={{
-                              padding: 24,
-                              background: 'var(--surface)',
-                              borderRadius: 12,
-                              border: '1px solid var(--border)',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                              <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 20 }}>🏢</span> 회사 정보
-                              </h3>
+                            <div style={{ marginBottom: 0 }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 8 }}>회사 URL</div>
                               <a
                                 href={(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                style={{
-                                  color: 'var(--gold)',
-                                  textDecoration: 'none',
-                                  fontSize: 14,
-                                  fontWeight: 500,
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 6,
-                                  padding: '8px 16px',
-                                  background: 'rgba(184,146,42,0.1)',
-                                  borderRadius: 8,
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = 'rgba(184,146,42,0.2)'
-                                  e.currentTarget.style.transform = 'translateX(4px)'
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = 'rgba(184,146,42,0.1)'
-                                  e.currentTarget.style.transform = 'translateX(0)'
-                                }}
+                                style={{ color: '#4a9eff', textDecoration: 'underline', fontSize: 13 }}
                               >
-                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url} →
+                                {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company_url}
                               </a>
                             </div>
                           )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ) : showNewJdAnalysis ? (
