@@ -2211,9 +2211,6 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                     <div className="jd-result-header" style={{ marginBottom: 20 }}>
                       <h2>{(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.company} - {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.position}</h2>
                       <div className="jd-result-meta">
-                        <span className={`jd-priority jd-priority-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}`}>
-                          우선순위: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.priority}
-                        </span>
                         <span className={`jd-difficulty jd-difficulty-${(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}`}>
                           난이도: {(jdAnalysisViewingSaved?.result || jdAnalysisResult)?.difficulty}
                         </span>
