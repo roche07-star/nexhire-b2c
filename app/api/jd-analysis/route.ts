@@ -88,7 +88,7 @@ ${content}
 ${client_comment ? `[인사팀 코멘트]\n${client_comment}\n\n` : ''}${company_url ? `[회사 URL]\n${company_url}\n\n` : ''}우선순위, 난이도, 필수 스킬, 타겟 프로필, 검색 전략을 분석해 주세요.`
 
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 4096,
       system: '당신은 전문 헤드헌터입니다. 채용공고를 분석하여 우선순위, 난이도, 필수 스킬, 타겟 프로필, 검색 전략을 제시합니다.',
       messages: [{ role: 'user', content: prompt }],
