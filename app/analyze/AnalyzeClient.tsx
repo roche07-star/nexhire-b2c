@@ -2732,8 +2732,42 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                     {!showJDInput ? (
                       <>
-                        {savedJDTemplates.length > 0 && (
+                        {/* JD분석 목록 */}
+                        {jdAnalysisSavedList && jdAnalysisSavedList.length > 0 && (
                           <div className="jd-template-section">
+                            <div className="jd-list-title">📊 JD분석 목록</div>
+                            <div className="jd-template-list">
+                              {jdAnalysisSavedList.map((saved) => (
+                                <div
+                                  key={saved.id}
+                                  className="jd-template-card"
+                                  onClick={() => {
+                                    // JD분석 데이터를 JD 적합도 분석용으로 변환
+                                    setJdCompany(saved.result.company || '')
+                                    setJdPosition(saved.result.position || '')
+                                    setJdContent(saved.result.raw_text || '')
+                                    setJdCompanyUrl(saved.result.company_url || '')
+                                    setJdClientComment(saved.result.client_comment || '')
+                                    setSelectedTemplateId(null)
+                                    setShowJDInput(true)
+                                  }}
+                                >
+                                  <div className="jd-template-info">
+                                    <span className="jd-template-company">{saved.result.company}</span>
+                                    {saved.result.position && <span className="jd-template-position">{saved.result.position}</span>}
+                                  </div>
+                                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>
+                                    난이도: {saved.result.difficulty}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 저장된 JD */}
+                        {savedJDTemplates.length > 0 && (
+                          <div className="jd-template-section" style={{ marginTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 16 : 0 }}>
                             <div className="jd-list-title">📁 저장된 JD</div>
                             <div className="jd-template-list">
                               {savedJDTemplates.map((template) => (
@@ -2767,7 +2801,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             setSelectedTemplateId(null); // 새 입력 시 템플릿 ID 초기화
                             setShowJDInput(true)
                           }}
-                          style={{ width: '100%', marginTop: savedJDTemplates.length > 0 ? 16 : 0 }}
+                          style={{ width: '100%', marginTop: (jdAnalysisSavedList && jdAnalysisSavedList.length > 0) || savedJDTemplates.length > 0 ? 16 : 0 }}
                         >
                           + 새 JD 입력
                         </button>
