@@ -2753,12 +2753,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   }}
                                 >
                                   <div className="jd-template-info">
-                                    <span className="jd-template-company">{saved.result.company}</span>
-                                    {saved.result.position && <span className="jd-template-position">{saved.result.position}</span>}
+                                    <div className="jd-template-title">
+                                      {saved.result.position || '포지션 미상'}
+                                    </div>
+                                    <div className="jd-template-meta">
+                                      {saved.result.company}
+                                      {saved.result.difficulty && ` • 난이도: ${saved.result.difficulty}`}
+                                      {saved.created_at && ` • ${new Date(saved.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).replace(/\. /g, '.').replace(/\.$/,'')}`}
+                                    </div>
                                   </div>
-                                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>
-                                    난이도: {saved.result.difficulty}
-                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -2767,7 +2770,14 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
                         {/* 저장된 JD */}
                         {savedJDTemplates.length > 0 && (
-                          <div className="jd-template-section" style={{ marginTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 16 : 0 }}>
+                          <div
+                            className="jd-template-section"
+                            style={{
+                              marginTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 20 : 0,
+                              paddingTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? 20 : 0,
+                              borderTop: jdAnalysisSavedList && jdAnalysisSavedList.length > 0 ? '1px solid var(--border)' : 'none'
+                            }}
+                          >
                             <div className="jd-list-title">📁 저장된 JD</div>
                             <div className="jd-template-list">
                               {savedJDTemplates.map((template) => (
@@ -2777,8 +2787,13 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                                   onClick={() => selectJDTemplate(template)}
                                 >
                                   <div className="jd-template-info">
-                                    <span className="jd-template-company">{template.company}</span>
-                                    {template.position && <span className="jd-template-position">{template.position}</span>}
+                                    <div className="jd-template-title">
+                                      {template.position || '포지션 미상'}
+                                    </div>
+                                    <div className="jd-template-meta">
+                                      {template.company}
+                                      {template.created_at && ` • ${new Date(template.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).replace(/\. /g, '.').replace(/\.$/,'')}`}
+                                    </div>
                                   </div>
                                   <button
                                     className="jd-template-delete"
