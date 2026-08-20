@@ -465,7 +465,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
               </div>
 
               <div className="results-label" style={{ marginBottom: 10 }}>
-                💡 JD 분석 결과를 바탕으로 <strong>합격 확률을 높이는 이력서</strong>를 AI가 자동 생성합니다
+                💡 JD 적합도 분석 결과를 바탕으로 <strong>합격 확률을 높이는 이력서</strong>를 AI가 자동 생성합니다
               </div>
 
               <div className="demo-summary-block">
@@ -477,7 +477,7 @@ export default function DemoModal({ userType, onClose }: { userType?: 'JOBSEEKER
 
               <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="results-section">
-                  <div className="results-label">📌 개선 포인트 (JD 분석 기반)</div>
+                  <div className="results-label">📌 개선 포인트 (JD 적합도 분석 기반)</div>
                   <ul className="result-list">
                     <li><strong>PRD 경험 부재</strong> → 사이드 프로젝트 PRD 샘플 추가 권장</li>
                     <li><strong>GTM 성과 모호함</strong> → "MQL 220건, 전환율 28%, SQL 40% 개선" 등 구체적 수치로 재작성</li>

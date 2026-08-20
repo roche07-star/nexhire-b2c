@@ -145,7 +145,7 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
       const data = await res.json()
 
       if (res.ok) {
-        alert(`데이터가 복원되었습니다!\n\n이력서 분석: ${data.restored.analyses}개\nJD 분석: ${data.restored.jdAnalyses}개\n면접 가이드: ${data.restored.interviewGuides}개\n쿠폰: ${data.restored.coupons}개`)
+        alert(`데이터가 복원되었습니다!\n\n이력서 분석: ${data.restored.analyses}개\nJD 적합도 분석: ${data.restored.jdAnalyses}개\n면접 가이드: ${data.restored.interviewGuides}개\n쿠폰: ${data.restored.coupons}개`)
         window.location.reload()
       } else {
         alert(data.error || '복원에 실패했습니다.')
@@ -254,7 +254,7 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, fontSize: 14 }}>
                   <div>• 이력서 분석: <strong>{restorableData.data.analyses}개</strong></div>
-                  <div>• JD 분석: <strong>{restorableData.data.jdAnalyses}개</strong></div>
+                  <div>• JD 적합도 분석: <strong>{restorableData.data.jdAnalyses}개</strong></div>
                   <div>• 면접 가이드: <strong>{restorableData.data.interviewGuides}개</strong></div>
                   <div>• 쿠폰: <strong>{restorableData.data.coupons}개</strong></div>
                 </div>

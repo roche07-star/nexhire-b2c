@@ -193,7 +193,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
   const [interviewViewingSaved, setInterviewViewingSaved] = useState<SavedInterviewGuide | null>(null)
   const [showNewInterview, setShowNewInterview] = useState(false)
 
-  // ── JD 분석 (헤드헌터 전용)
+  // ── JD 적합도 분석 (헤드헌터 전용)
   const [jdAnalysisCompany, setJdAnalysisCompany] = useState('')
   const [jdAnalysisPosition, setJdAnalysisPosition] = useState('')
   const [jdAnalysisContent, setJdAnalysisContent] = useState('')
@@ -288,7 +288,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
     }
   }, [activeMenu, analysisList, savedListLoading])
 
-  // JD 분석 목록 자동 로드 (헤드헌터 전용)
+  // JD 적합도 분석 목록 자동 로드 (헤드헌터 전용)
   useEffect(() => {
     if ((activeMenu === 'jd-analysis' || activeMenu === 'jd') && jdAnalysisSavedList === null && !jdAnalysisSavedListLoading) {
       setJdAnalysisSavedListLoading(true)
@@ -470,7 +470,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
 
     if (tab === 'jd') {
       setActiveMenu('jd')
-      // JD ID가 있으면 해당 JD 분석 로드
+      // JD ID가 있으면 해당 JD 적합도 분석 로드
       if (id) {
         // JD 목록 로드 후 해당 JD 선택
         fetch('/api/analyze/jd/list')
@@ -1326,7 +1326,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       setResult(null)
       setActiveMenu('jd-analysis')
       setJdAnalysisError(null)
-      // JD 분석 목록 로드
+      // JD 적합도 분석 목록 로드
       setJdAnalysisSavedListLoading(true)
       fetch('/api/jd-analysis/list')
         .then((r) => r.json())
@@ -1462,7 +1462,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
       } else {
         setJdResult(data)
         // 백그라운드 분석 완료
-        completeJdAnalysis('jd-temp') // JD 분석은 별도 저장 없으므로 임시 ID
+        completeJdAnalysis('jd-temp') // JD 적합도 분석은 별도 저장 없으므로 임시 ID
         setTimeout(() => jdTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
         // 저장 목록 갱신
         fetch('/api/analyze/jd/list')
@@ -1648,7 +1648,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               ) : (
                 <>
                   <h1 className="analyze-title">
-                    {activeMenu === 'jd-analysis' ? 'JD 분석' : activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' || userRole === 'MANAGER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
+                    {activeMenu === 'jd-analysis' ? 'JD 적합도 분석' : activeMenu === 'jd' ? 'JD 적합도 분석' : activeMenu === 'saved' ? (userType?.toUpperCase() === 'HEADHUNTER' || userRole === 'MANAGER' ? '분석 결과' : '분석 & 이력서 재생성') : activeMenu === 'rewrite' ? '이력서 생성' : activeMenu === 'interview' ? '면접 가이드' : '이력서 분석'}
                   </h1>
                   {activeMenu === 'upload' && (
                     <p className="analyze-sub">PDF 또는 DOCX 파일을 업로드하면 JOBIZIC이 3분 안에 커리어 방향을 제시합니다.</p>
@@ -2197,7 +2197,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
               )
             })()}
 
-            {/* JD 분석 모드 (헤드헌터 전용) */}
+            {/* JD 적합도 분석 모드 (헤드헌터 전용) */}
             {activeMenu === 'jd-analysis' && (
               <div className="analyze-content">
                 {jdAnalysisViewingSaved || jdAnalysisResult ? (
@@ -2506,7 +2506,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                         }}
                         disabled={jdAnalysisLoading}
                       >
-                        {jdAnalysisLoading ? jdAnalysisLoadingMsg : '📊 JD 분석하기'}
+                        {jdAnalysisLoading ? jdAnalysisLoadingMsg : '📊 JD 적합도 분석하기'}
                       </button>
                     </div>
                   </div>
@@ -2514,15 +2514,15 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <div className="jd-list-container">
                     {/* 저장된 JD 목록 */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div className="jd-list-title">저장된 JD 분석</div>
+                      <div className="jd-list-title">저장된 JD 적합도 분석</div>
                       <button className="rewrite-dl-btn" onClick={() => setShowNewJdAnalysis(true)}>
-                        + 새 JD 분석
+                        + 새 JD 적합도 분석
                       </button>
                     </div>
                     {jdAnalysisSavedListLoading ? (
                       <div className="jd-list-loading">불러오는 중...</div>
                     ) : !jdAnalysisSavedList || jdAnalysisSavedList.length === 0 ? (
-                      <div className="jd-no-analysis">저장된 JD 분석이 없습니다. 새 분석을 시작해 보세요.</div>
+                      <div className="jd-no-analysis">저장된 JD 적합도 분석이 없습니다. 새 분석을 시작해 보세요.</div>
                     ) : (
                       <div className="jd-saved-list">
                         {jdAnalysisSavedList.map((saved) => (
@@ -2540,7 +2540,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               className="saved-delete-btn"
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (!confirm('JD 분석을 삭제하시겠습니까?')) return
+                                if (!confirm('JD 적합도 분석을 삭제하시겠습니까?')) return
                                 try {
                                   const res = await fetch(`/api/jd-analysis/${saved.id}`, { method: 'DELETE' })
                                   if (res.ok) {
@@ -2748,7 +2748,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <div className="jd-template-section">
                             <div className="jd-list-title">📋 JD 목록</div>
                             <div className="jd-template-list">
-                              {/* JD 분석 목록 */}
+                              {/* JD 적합도 분석 목록 */}
                               {jdAnalysisSavedList && jdAnalysisSavedList.map((saved) => (
                                 <div
                                   key={saved.id}
@@ -2867,7 +2867,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                           <span style={{ fontSize: 12, color: '#999' }}>
                             • 홈페이지, About 페이지, IR 자료 등에서 회사의 사업방향, 비전, 핵심가치를 파악
                             <br />
-                            • JD 분석 시 회사 특성에 맞춘 강점 강조
+                            • JD 적합도 분석 시 회사 특성에 맞춘 강점 강조
                             <br />
                             • 면접 가이드 생성 시 회사 문화와 방향성을 고려한 질문/답변 제공
                           </span>
@@ -2918,10 +2918,10 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   </>
                 ) : (
                   <>
-                    {/* 저장된 JD 분석 목록 */}
+                    {/* 저장된 JD 적합도 분석 목록 */}
                     {(jdSavedList && jdSavedList.length > 0) && (
                       <div className="jd-saved-section">
-                        <div className="jd-list-title">📊 이전 JD 분석 결과 ({jdSavedList.length}건)</div>
+                        <div className="jd-list-title">📊 이전 JD 적합도 분석 결과 ({jdSavedList.length}건)</div>
                         <div className="jd-saved-list">
                           {jdSavedList.map((item) => {
                             const rec = item.result.recommendation
@@ -3005,7 +3005,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                             )
                           })}
                         </div>
-                        <div className="jd-saved-divider">새 JD 분석</div>
+                        <div className="jd-saved-divider">새 JD 적합도 분석</div>
                       </div>
                     )}
                     {jdSavedListLoading && <div className="jd-list-loading">불러오는 중...</div>}
@@ -3497,7 +3497,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
             <div className="preserve-choice-modal" onClick={(e) => e.stopPropagation()}>
               <div className="preserve-choice-title">JD 선택</div>
               <div className="preserve-choice-desc">
-                생성할 이력서에 반영할 JD 분석 결과를 선택해 주세요.
+                생성할 이력서에 반영할 JD 적합도 분석 결과를 선택해 주세요.
               </div>
 
               <div style={{
@@ -3527,7 +3527,7 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      if (confirm(`${jd.result.company}${jd.result.position ? ` — ${jd.result.position}` : ''} JD 분석을 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.`)) {
+                      if (confirm(`${jd.result.company}${jd.result.position ? ` — ${jd.result.position}` : ''} JD 적합도 분석을 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.`)) {
                         fetch(`/api/analyze/jd/${jd.id}`, { method: 'DELETE' })
                           .then(r => {
                             if (r.ok) {
@@ -4950,7 +4950,7 @@ function JDResults({
   return (
     <div className="jd-results">
       <button className="jd-back-btn" onClick={onReset} style={{ marginBottom: 16 }}>
-        {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
+        {analysisItem ? '← 다른 JD 적합도 분석하기' : '← 목록으로'}
       </button>
 
       <div className="jd-results-header">
@@ -5164,7 +5164,7 @@ function JDResults({
 
       <div className="jd-result-actions">
         <button className="jd-reset-btn" onClick={onReset}>
-          {analysisItem ? '← 다른 JD 분석하기' : '← 목록으로'}
+          {analysisItem ? '← 다른 JD 적합도 분석하기' : '← 목록으로'}
         </button>
         {analysisItem && (
           !isPro ? (

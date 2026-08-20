@@ -823,7 +823,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
           >
             <div style={{ fontSize: 28, marginBottom: 6 }}>🎯</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#fbbf24', marginBottom: 4 }}>
-              JD 분석
+              JD 적합도 분석
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               JD와 후보자 적합도 분석
@@ -1020,7 +1020,7 @@ export default function DashboardClient({ userEmail, userPlan, userType }: Dashb
                   <div
                     key={candidate.id}
                     onClick={() => {
-                      // JD 분석 ID가 있으면 JD 분석 페이지로
+                      // JD 적합도 분석 ID가 있으면 JD 적합도 분석 페이지로
                       if (candidate.jd_analysis_id) {
                         router.push(`/analyze?tab=jd&id=${candidate.jd_analysis_id}`)
                       } else if (candidate.analysis_id) {

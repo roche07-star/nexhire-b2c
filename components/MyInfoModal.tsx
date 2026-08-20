@@ -5,10 +5,10 @@ import { createPortal } from 'react-dom'
 import type { CouponWithStatus } from '@/lib/types/coupon'
 
 const FEATURE_LABEL: Record<string, string> = {
-  storage: '추가 저장 Slot', resume: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
+  storage: '추가 저장 Slot', resume: '이력서 분석', jd: 'JD 적합도 분석', rewrite: '이력서 생성', proposal: '클라이언트 제안서', interview: '면접 가이드', package: '올인원 패키지',
 }
 const USAGE_LABEL: Record<string, string> = {
-  analyze: '이력서 분석', jd: 'JD 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서', resume: '이력서 재생성', weekly_report: '주간 Report', monthly_report: '월간 Report',
+  analyze: '이력서 분석', jd: 'JD 적합도 분석', rewrite: '이력서 생성', interview: '면접 가이드', proposal: '클라이언트 제안서', resume: '이력서 재생성', weekly_report: '주간 Report', monthly_report: '월간 Report',
 }
 const FEATURE_LINKS: Record<string, string> = {
   resume: '/analyze',
@@ -228,7 +228,7 @@ export default function MyInfoButton() {
       const data = await res.json()
 
       if (res.ok) {
-        alert(`✅ 데이터 복원 완료!\n\n이력서 분석: ${data.restored.analyses}건\nJD 분석: ${data.restored.jdAnalyses}건\n면접 가이드: ${data.restored.interviewGuides}건\n쿠폰: ${data.restored.coupons}개`)
+        alert(`✅ 데이터 복원 완료!\n\n이력서 분석: ${data.restored.analyses}건\nJD 적합도 분석: ${data.restored.jdAnalyses}건\n면접 가이드: ${data.restored.interviewGuides}건\n쿠폰: ${data.restored.coupons}개`)
         setRestorableData(null)
         // 페이지 새로고침
         window.location.reload()
@@ -899,7 +899,7 @@ export default function MyInfoButton() {
                         </div>
                         <div style={{ fontSize: 13, color: '#78716c', marginBottom: '12px' }}>
                           • 이력서 분석: {restorableData.data.analyses}건<br/>
-                          • JD 분석: {restorableData.data.jdAnalyses}건<br/>
+                          • JD 적합도 분석: {restorableData.data.jdAnalyses}건<br/>
                           • 면접 가이드: {restorableData.data.interviewGuides}건<br/>
                           • 쿠폰: {restorableData.data.coupons}개
                         </div>

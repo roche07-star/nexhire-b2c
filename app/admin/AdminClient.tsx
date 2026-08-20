@@ -41,7 +41,7 @@ type UserTypeKey = CentralUserType
 const FEATURE_LABELS: Record<string, string> = {
   storage: '추가 저장 Slot',
   resume: '이력서 분석',
-  jd: 'JD 분석',
+  jd: 'JD 적합도 분석',
   rewrite: '이력서 생성',
   proposal: '클라이언트 제안서',
   interview: '면접 가이드',
@@ -288,7 +288,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   async function deleteUser(email: string, name: string | null) {
     // 확인 다이얼로그
     const userName = name || email
-    const confirmMsg = `정말로 "${userName}"를 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없습니다!\n\n삭제될 데이터:\n- 유저 정보\n- 이력서 분석 결과\n- JD 분석 결과\n- 면접 가이드\n- 쿠폰\n\n삭제하려면 "삭제"를 입력하세요.`
+    const confirmMsg = `정말로 "${userName}"를 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없습니다!\n\n삭제될 데이터:\n- 유저 정보\n- 이력서 분석 결과\n- JD 적합도 분석 결과\n- 면접 가이드\n- 쿠폰\n\n삭제하려면 "삭제"를 입력하세요.`
 
     const userInput = prompt(confirmMsg)
 
@@ -2502,7 +2502,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                         <div className="admin-detail-row">
                           <span className={`plan-badge ${plan.toLowerCase()}`}>{plan}</span>
                           <span>이력서 분석 {String(u.analyze_count)}/{limits.analyze + (extraCredits.resume || 0)}</span>
-                          <span>JD 분석 {String(u.jd_count)}/{limits.jd + (extraCredits.jd || 0)}</span>
+                          <span>JD 적합도 분석 {String(u.jd_count)}/{limits.jd + (extraCredits.jd || 0)}</span>
                           <span>이력서 생성 {String(u.rewrite_count)}/{limits.rewrite + (extraCredits.rewrite || 0)}</span>
                           <span>면접 가이드 {String(u.interview_count)}/{limits.interview + (extraCredits.interview || 0)}</span>
                         </div>
@@ -2549,7 +2549,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
 
                   {jdAnalyses.length > 0 && (
                     <div className="admin-detail-section">
-                      <div className="admin-detail-label">JD 분석 내역 (최근 5건)</div>
+                      <div className="admin-detail-label">JD 적합도 분석 내역 (최근 5건)</div>
                       {jdAnalyses.map((a, i) => {
                         const r = a.result as Record<string, unknown>
                         return (
@@ -2588,7 +2588,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                     <th>유저</th>
                     <th>플랜</th>
                     <th>이력서 분석</th>
-                    <th>JD 분석</th>
+                    <th>JD 적합도 분석</th>
                     <th>이력서 생성</th>
                     <th>면접 가이드</th>
                     <th>총 추정 토큰</th>
@@ -2600,7 +2600,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                     .map((u) => {
                       // 평균 토큰 사용량 (tokens per request)
                       const AVG_ANALYZE = 6700      // 이력서 분석 (검증 포함)
-                      const AVG_JD = 3000            // JD 분석
+                      const AVG_JD = 3000            // JD 적합도 분석
                       const AVG_REWRITE = 8000       // 이력서 생성
                       const AVG_INTERVIEW = 26000    // 면접 가이드
 
@@ -2740,7 +2740,7 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
               <strong>📊 평균 토큰 사용량 (참고):</strong>
               <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                 <div>• 이력서 분석: <strong>6,700 tokens</strong> (검증 포함)</div>
-                <div>• JD 분석: <strong>3,000 tokens</strong></div>
+                <div>• JD 적합도 분석: <strong>3,000 tokens</strong></div>
                 <div>• 이력서 생성: <strong>8,000 tokens</strong> (평균)</div>
                 <div>• 면접 가이드: <strong>26,000 tokens</strong></div>
               </div>

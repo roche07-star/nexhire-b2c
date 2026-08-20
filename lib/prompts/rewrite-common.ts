@@ -31,7 +31,7 @@ function toArr(v: unknown): string[] {
 /**
  * 핵심역량/업무상 강점 작성 지침
  *
- * @param jd - JD 분석 결과 (optional)
+ * @param jd - JD 적합도 분석 결과 (optional)
  * @param proposal - 제안서 데이터 (optional)
  * @returns 핵심역량 작성 지침 문자열
  */
@@ -48,7 +48,7 @@ ${proposal.strengths.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}
 ❗ 위 제안서 핵심 강점을 한 글자도 바꾸지 말고 그대로 핵심역량/업무상 강점 섹션으로 사용하십시오.
 ❗ 기존 이력서의 핵심역량/업무상 강점 내용은 완전히 무시하십시오.
 ` : jd ? `
-**JD 분석 기반으로 완전히 새로 작성**:
+**JD 적합도 분석 기반으로 완전히 새로 작성**:
 - 아래 JD 매칭 포인트만을 사용하여 핵심역량/업무상 강점을 처음부터 새로 작성
 - JD 필수 요건: ${toArr(jd.matching_points).slice(0, 3).join(', ')}
 - 위 키워드를 기반으로 구체적인 강점 항목 작성
@@ -75,7 +75,7 @@ export function buildFactPreservationRules(): string {
 /**
  * 기본 보완 원칙 (핵심역량 예외 포함)
  *
- * @param jd - JD 분석 결과 (optional)
+ * @param jd - JD 적합도 분석 결과 (optional)
  * @returns 기본 보완 원칙 문자열
  */
 export function buildBasicSupplementRules(jd: JDContext | null): string {

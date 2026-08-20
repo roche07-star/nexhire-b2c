@@ -16,7 +16,7 @@ export default function AnalysisBadge() {
     return null
   }
 
-  // 우선순위: 이력서 분석 > 이력서 생성 > JD 분석
+  // 우선순위: 이력서 분석 > 이력서 생성 > JD 적합도 분석
   let currentTask = ''
   let currentColor = '#3b82f6'
   let queueCount = 0
@@ -29,7 +29,7 @@ export default function AnalysisBadge() {
     currentTask = state.rewrite.isAnalyzing ? '이력서 생성 중' : '이력서 생성 완료!'
     currentColor = state.rewrite.isCompleted ? '#22c55e' : '#8b5cf6'
   } else if (state.jd.isAnalyzing || state.jd.isCompleted) {
-    currentTask = state.jd.isAnalyzing ? 'JD 분석 중' : 'JD 분석 완료!'
+    currentTask = state.jd.isAnalyzing ? 'JD 적합도 분석 중' : 'JD 적합도 분석 완료!'
     currentColor = state.jd.isCompleted ? '#22c55e' : '#f97316'
   }
 

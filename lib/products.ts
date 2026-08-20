@@ -35,7 +35,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'JOBSEEKER',
     features: [
       '이력서 분석 20회',
-      'JD 분석 20회',
+      'JD 적합도 분석 20회',
       '이력서 생성 10회',
       '면접 가이드 10회',
       '주간 Report 4회',
@@ -54,7 +54,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'JOBSEEKER',
     features: [
       '이력서 분석 20회/월',
-      'JD 분석 20회/월',
+      'JD 적합도 분석 20회/월',
       '이력서 생성 10회/월',
       '면접 가이드 10회/월',
       '주간 Report 4회/월',
@@ -73,7 +73,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'JOBSEEKER',
     features: [
       '이력서 분석 30회',
-      'JD 분석 30회',
+      'JD 적합도 분석 30회',
       '이력서 생성 20회',
       '면접 가이드 20회',
       '주간 Report 4회',
@@ -92,7 +92,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'JOBSEEKER',
     features: [
       '이력서 분석 30회/월',
-      'JD 분석 30회/월',
+      'JD 적합도 분석 30회/월',
       '이력서 생성 20회/월',
       '면접 가이드 20회/월',
       '주간 Report 4회/월',
@@ -111,7 +111,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'HEADHUNTER',
     features: [
       '이력서 분석 25회',
-      'JD 분석 25회',
+      'JD 적합도 분석 25회',
       '이력서 생성 15회',
       '면접 가이드 15회',
       '제안서 20회',
@@ -131,7 +131,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'HEADHUNTER',
     features: [
       '이력서 분석 25회/월',
-      'JD 분석 25회/월',
+      'JD 적합도 분석 25회/월',
       '이력서 생성 15회/월',
       '면접 가이드 15회/월',
       '제안서 20회/월',
@@ -151,7 +151,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'HEADHUNTER',
     features: [
       '이력서 분석 50회',
-      'JD 분석 50회',
+      'JD 적합도 분석 50회',
       '이력서 생성 25회',
       '면접 가이드 25회',
       '제안서 50회',
@@ -171,7 +171,7 @@ export const PRODUCTS: Record<ProductId, Product> = {
     userType: 'HEADHUNTER',
     features: [
       '이력서 분석 50회/월',
-      'JD 분석 50회/월',
+      'JD 적합도 분석 50회/월',
       '이력서 생성 25회/월',
       '면접 가이드 25회/월',
       '제안서 50회/월',
