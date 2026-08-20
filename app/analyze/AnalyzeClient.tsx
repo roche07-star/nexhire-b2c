@@ -1502,8 +1502,8 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                   <span>📋</span> JD기반 분석
                   {jdSavedList && jdSavedList.length > 0 && <span className="tab-badge">{jdSavedList.length}개</span>}
                 </button>
-                {/* 헤드헌터 전용: JD분석 탭 */}
-                {userType?.toLowerCase() === 'headhunter' && (
+                {/* 헤드헌터/관리자 전용: JD분석 탭 */}
+                {(userType?.toLowerCase() === 'headhunter' || userRole === 'MANAGER') && (
                   <button
                     className={`analyze-tab-btn${activeMenu === 'jd-analysis' ? ' active' : ''}`}
                     onClick={() => onMenuClick('jd-analysis')}
