@@ -1295,7 +1295,8 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                               fontSize: 12
                             }}>
                               <div>📝 {u.analyze_count ?? 0}/{limits.analyze + (extraCredits.resume || 0)}</div>
-                              <div>📋 {u.jd_count ?? 0}/{limits.jd + (extraCredits.jd || 0)}</div>
+                              <div>📋 JD분석 {u.jd_analysis_count ?? 0}/{limits.jd_analysis + (extraCredits.jd_analysis || 0)}</div>
+                              <div>🎯 JD매칭 {u.jd_match_count ?? 0}/{limits.jd_match + (extraCredits.jd_match || 0)}</div>
                               <div>✏️ {u.rewrite_count ?? 0}/{limits.rewrite + (extraCredits.rewrite || 0)}</div>
                               <div>🎤 {u.interview_count ?? 0}/{limits.interview + (extraCredits.interview || 0)}</div>
                               <div>📊 {u.weekly_report_count ?? 0}/{limits.weekly_report + (extraCredits.weekly_report || 0)}</div>

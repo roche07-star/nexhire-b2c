@@ -83,7 +83,7 @@ export async function detectRapidExhaustion(
   const limits = PLAN_LIMITS[userType]?.[plan]
   if (!limits) return { suspicious: false }
 
-  const totalLimit = limits.analyze + limits.jd + limits.rewrite + limits.interview + limits.proposal
+  const totalLimit = limits.analyze + limits.jd_analysis + limits.jd_match + limits.rewrite + limits.interview + limits.proposal
 
   // 80% 이상을 24시간 내 소진
   const exhaustionRate = total24h / totalLimit
@@ -140,7 +140,7 @@ export async function detectPostPaymentBinge(
     const limits = PLAN_LIMITS[userType]?.[plan]
     if (!limits) return { suspicious: false }
 
-    const totalLimit = limits.analyze + limits.jd + limits.rewrite + limits.interview + limits.proposal
+    const totalLimit = limits.analyze + limits.jd_analysis + limits.jd_match + limits.rewrite + limits.interview + limits.proposal
 
     // 결제 후 6시간 내 80% 이상 사용
     if (total / totalLimit >= 0.8) {
