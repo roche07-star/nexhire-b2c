@@ -13,9 +13,12 @@ interface User {
   plan: 'FREE' | 'PRO' | 'EXPERT'
   user_type: 'SUPER_ADMIN' | 'MANAGER' | 'HEADHUNTER' | 'JOBSEEKER' | null
   analyze_count: number
-  jd_count: number
+  jd_count?: number  // 레거시
+  jd_analysis_count: number
+  jd_match_count: number
   rewrite_count: number
   interview_count: number
+  proposal_count?: number
   weekly_report_count: number
   monthly_report_count: number
   monthly_reset_at: string | null
