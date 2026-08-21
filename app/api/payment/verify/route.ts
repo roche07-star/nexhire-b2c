@@ -104,6 +104,15 @@ export async function POST(req: NextRequest) {
     const endDateStr = currentUser.plan_end_date || '' // "2026-08-21" (DB에서 직접)
     const hasActivePlan = endDateStr && endDateStr > todayStr && currentUser.plan !== 'FREE'
 
+    console.log('[Payment] hasActivePlan 체크:', {
+      email: session.user.email,
+      currentPlan: currentUser.plan,
+      endDateStr,
+      todayStr,
+      comparison: endDateStr > todayStr,
+      hasActivePlan
+    })
+
     let updateData
     let updateError
     let isReserved = false
