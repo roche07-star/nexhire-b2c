@@ -19,9 +19,17 @@ export async function GET() {
       .limit(1)
       .single()
 
+    console.log('[Latest Resume API]', {
+      user: session.user.email,
+      hasResume: !!resume,
+      error: error?.code,
+      resumeId: resume?.id
+    })
+
     if (error) {
       if (error.code === 'PGRST116') {
         // 데이터 없음
+        console.log('[Latest Resume] No data found for user:', session.user.email)
         return NextResponse.json({ success: true, data: null })
       }
       console.error('생성된 이력서 조회 실패:', error)
