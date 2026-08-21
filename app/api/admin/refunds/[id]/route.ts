@@ -5,7 +5,7 @@ import { isAdmin } from '@/lib/auth-helpers'
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -18,7 +18,8 @@ export async function DELETE(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
     }
 
-    const refundId = params.id
+    const { id } = await params
+    const refundId = id
 
     // 환불 삭제
     const { error } = await supabase
