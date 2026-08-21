@@ -99,9 +99,10 @@ export async function POST(req: NextRequest) {
 
     const currentEndDate = currentUser.plan_end_date ? new Date(currentUser.plan_end_date) : null
     // 만료일이 오늘보다 미래이고 FREE가 아닌 경우에만 예약 구매 (오늘 = 만료일인 경우 즉시 활성화)
-    const now_date = new Date(now.toISOString().split('T')[0]) // 날짜만 비교
-    const end_date = currentEndDate ? new Date(currentEndDate.toISOString().split('T')[0]) : null
-    const hasActivePlan = end_date && end_date > now_date && currentUser.plan !== 'FREE'
+    // 타임존 문제 방지를 위해 날짜 문자열로 직접 비교
+    const todayStr = now.toISOString().split('T')[0] // "2026-08-21"
+    const endDateStr = currentUser.plan_end_date || '' // "2026-08-21" (DB에서 직접)
+    const hasActivePlan = endDateStr && endDateStr > todayStr && currentUser.plan !== 'FREE'
 
     let updateData
     let updateError
