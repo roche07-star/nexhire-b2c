@@ -27,7 +27,7 @@ export default function PromoBanner({ className }: { className?: string }) {
       <div className={`promo-banner${className ? ' ' + className : ''}`}>
         <div className="promo-content">
           <span className="promo-text">
-            ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인
+            ⚡ <strong>베타테스트 특가</strong> 3개월권 10% 할인
             <span className="promo-price">
               <span className="price-original">29,700원</span>
               <span className="price-arrow">→</span>
@@ -51,7 +51,7 @@ export default function PromoBanner({ className }: { className?: string }) {
     <div className={`promo-banner${className ? ' ' + className : ''}`}>
       <div className="promo-content">
         <span className="promo-text">
-          ⚡ <strong>7월 한정 특가</strong> 3개월권 10% 할인
+          ⚡ <strong>베타테스트 특가</strong> 3개월권 10% 할인
           <span className="promo-price">
             <span className="price-original">29,700원</span>
             <span className="price-arrow">→</span>
