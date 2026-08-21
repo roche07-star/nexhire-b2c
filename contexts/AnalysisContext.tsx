@@ -106,7 +106,7 @@ const getInitialState = (): AnalysisState => {
       }
 
       // 새 구조
-      return {
+      const loadedState = {
         resume: {
           ...defaultState.resume,
           ...(parsed.resume || {}),
@@ -122,6 +122,22 @@ const getInitialState = (): AnalysisState => {
           ...(parsed.rewrite || {}),
         },
       }
+
+      // 🔥 긴급 수정: 이력서 생성이 5분 이상 지속되면 강제 초기화
+      const now = Date.now()
+      const FIVE_MINUTES = 5 * 60 * 1000
+      if (loadedState.rewrite.isAnalyzing && loadedState.rewrite.startedAt) {
+        const elapsed = now - loadedState.rewrite.startedAt
+        if (elapsed > FIVE_MINUTES) {
+          console.warn('[AnalysisContext] 이력서 생성 타임아웃 감지, 강제 초기화:', {
+            elapsed: Math.floor(elapsed / 1000) + '초',
+            startedAt: new Date(loadedState.rewrite.startedAt).toISOString()
+          })
+          loadedState.rewrite = defaultState.rewrite
+        }
+      }
+
+      return loadedState
     }
   } catch (error) {
     console.error('Failed to load analysis state:', error)
