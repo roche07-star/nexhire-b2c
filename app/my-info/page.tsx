@@ -27,12 +27,11 @@ export default async function MyInfoPage() {
   console.log('[MyInfo] Coupons:', coupons)
   console.log('[MyInfo] Coupons error:', couponsError)
 
-  // 결제 내역 조회 (성공한 결제만, 취소/환불 제외)
+  // 결제 내역 조회 (모든 결제: 성공, 취소, 환불 포함)
   const { data: payments, error: paymentsError } = await supabase
     .from('payments')
     .select('*')
     .eq('user_email', session.user.email)
-    .eq('status', 'success')  // 성공한 결제만
     .order('paid_at', { ascending: false })
 
   console.log('[MyInfo] User:', session.user.email)

@@ -176,20 +176,21 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
     // Invalid Date 체크
     if (isNaN(date.getTime())) return '기한 없음'
 
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-
-    if (!includeTime) {
-      return `${year}년 ${month}월 ${day}일`
+    // 한국 시간(UTC+9)으로 변환
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     }
 
-    const hours = date.getHours()
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    const period = hours >= 12 ? '오후' : '오전'
-    const displayHours = hours % 12 || 12
+    if (includeTime) {
+      options.hour = '2-digit'
+      options.minute = '2-digit'
+      options.hour12 = true
+    }
 
-    return `${year}년 ${month}월 ${day}일 ${period} ${displayHours}:${minutes}`
+    return new Intl.DateTimeFormat('ko-KR', options).format(date)
   }
 
   return (
