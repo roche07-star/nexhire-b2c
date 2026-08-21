@@ -168,13 +168,23 @@ export async function POST(req: NextRequest) {
             .single()
 
           if (error) {
-            console.error('쿠폰 생성 오류:', error)
-            continue
+            console.error(`[Store Verify] ${type} 쿠폰 생성 실패:`, error)
+            return NextResponse.json({
+              error: `쿠폰 생성 실패 (${type}): ${error.message}`,
+            }, { status: 500 })
           }
 
           coupons.push(coupon)
         }
       }
+    }
+
+    // 쿠폰 생성 확인
+    if (coupons.length === 0) {
+      console.error('[Store Verify] 쿠폰이 하나도 생성되지 않음!', { feature, counts })
+      return NextResponse.json({
+        error: '쿠폰 발급에 실패했습니다. 고객센터로 문의해주세요.',
+      }, { status: 500 })
     }
 
     // Step 9: 주문 상태 업데이트

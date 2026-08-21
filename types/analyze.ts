@@ -101,6 +101,7 @@ export interface InterviewGuideResult {
   position?: string | null
   candidate_name?: string | null
   job_title?: string | null
+  interview_format?: string | null
 }
 
 export interface SavedInterviewGuide {
