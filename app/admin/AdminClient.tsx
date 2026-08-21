@@ -107,6 +107,11 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
   const [genResult, setGenResult] = useState<string[] | null>(null)
   const [genLoading, setGenLoading] = useState(false)
 
+  // 쿠폰 재발급 state
+  const [reissueOrderId, setReissueOrderId] = useState('')
+  const [reissueLoading, setReissueLoading] = useState(false)
+  const [reissueResult, setReissueResult] = useState<any>(null)
+
   // 유저 상세 모달
   const [detailEmail, setDetailEmail] = useState<string | null>(null)
   const [detailData, setDetailData] = useState<Record<string, unknown> | null>(null)
@@ -433,6 +438,42 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
       }
     } finally {
       setGenLoading(false)
+    }
+  }
+
+  async function reissueCoupon(e: React.FormEvent) {
+    e.preventDefault()
+
+    if (!reissueOrderId.trim()) {
+      showMsg('주문 ID를 입력하세요')
+      return
+    }
+
+    setReissueLoading(true)
+    setReissueResult(null)
+
+    try {
+      const res = await fetch('/api/admin/reissue-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: reissueOrderId.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setReissueResult(data)
+        showMsg(`✅ 쿠폰 재발급 성공! (${data.coupons.length}개)`)
+        await loadCoupons()
+      } else {
+        setReissueResult({ error: data.error })
+        showMsg(`❌ ${data.error}`)
+      }
+    } catch (err: any) {
+      setReissueResult({ error: err.message || '재발급 중 오류 발생' })
+      showMsg(`❌ 재발급 실패: ${err.message}`)
+    } finally {
+      setReissueLoading(false)
     }
   }
 
@@ -2427,6 +2468,86 @@ export default function AdminClient({ currentUserType }: AdminClientProps) {
                 </div>
               )}
             </div>
+            )}
+
+            {/* 쿠폰 재발급 */}
+            {isSuperAdmin && (
+              <div className="coupon-gen-card" style={{ marginTop: 32 }}>
+                <div className="coupon-gen-title">🔄 쿠폰 재발급 (결제 성공했으나 쿠폰 미발급 시)</div>
+                <form className="coupon-gen-form" onSubmit={reissueCoupon}>
+                  <div className="coupon-gen-row">
+                    <div className="coupon-gen-field" style={{ flex: 2 }}>
+                      <label className="coupon-gen-label">주문 ID (orderId)</label>
+                      <input
+                        className="coupon-gen-input"
+                        type="text"
+                        placeholder="store_jd_analysis_1234567890_abcdef"
+                        value={reissueOrderId}
+                        onChange={e => setReissueOrderId(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <button className="btn-primary coupon-gen-btn" type="submit" disabled={reissueLoading}>
+                    {reissueLoading ? '재발급 중...' : '발급 여부 체크 및 재발급'}
+                  </button>
+                </form>
+
+                {reissueResult && (
+                  <div className="coupon-result-wrap">
+                    {reissueResult.error ? (
+                      <div style={{
+                        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                        border: '2px solid #fca5a5',
+                        borderRadius: 12,
+                        padding: 20,
+                        color: '#991b1b',
+                        fontWeight: 600,
+                      }}>
+                        ❌ {reissueResult.error}
+                        {reissueResult.existingCoupons && (
+                          <div style={{ marginTop: 12, fontSize: 13, fontWeight: 400 }}>
+                            <div>기존 발급 쿠폰 ({reissueResult.existingCoupons.length}개):</div>
+                            {reissueResult.existingCoupons.map((c: any, i: number) => (
+                              <div key={i} style={{ marginTop: 4 }}>
+                                • {FEATURE_LABELS[c.feature] || c.feature}: {c.credits}회 (사용: {c.used}회)
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                        border: '2px solid #86efac',
+                        borderRadius: 12,
+                        padding: 20,
+                        color: '#166534',
+                      }}>
+                        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 12 }}>
+                          ✅ 쿠폰 재발급 성공!
+                        </div>
+                        <div style={{ fontSize: 13, marginBottom: 8 }}>
+                          <strong>주문 ID:</strong> {reissueResult.orderId}
+                        </div>
+                        <div style={{ fontSize: 13, marginBottom: 8 }}>
+                          <strong>유저:</strong> {reissueResult.userEmail}
+                        </div>
+                        <div style={{ fontSize: 13, marginBottom: 8 }}>
+                          <strong>상품:</strong> {reissueResult.productName}
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, marginTop: 12 }}>
+                          발급된 쿠폰 ({reissueResult.coupons.length}개):
+                        </div>
+                        {reissueResult.coupons.map((c: any, i: number) => (
+                          <div key={i} style={{ marginTop: 4, fontSize: 13 }}>
+                            • {FEATURE_LABELS[c.feature] || c.feature}: {c.credits}회 (만료: {new Date(c.expires_at).toLocaleDateString('ko-KR')})
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* 목록 */}
