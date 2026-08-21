@@ -2158,6 +2158,20 @@ export default function AnalyzeClient({ initialIsPro, initialIsExpert, userEmail
                               <div key={saved.id} className="jd-saved-card" onClick={() => setInterviewViewingSaved(saved)}>
                                 <div className="jd-saved-card-left">
                                   <span className="jd-saved-company">
+                                    {saved.result.interview_format && (
+                                      <span style={{
+                                        display: 'inline-block',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        color: '#fff',
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        marginRight: '8px'
+                                      }}>
+                                        {saved.result.interview_format}
+                                      </span>
+                                    )}
                                     {saved.result.candidate_name || '후보자'}
                                     {saved.result.company && ` @ ${saved.result.company}`}
                                     {saved.result.position && ` - ${saved.result.position}`}
