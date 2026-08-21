@@ -522,6 +522,61 @@ export default function SettlementsClient() {
     }
   }
 
+  // 결제 내역 삭제
+  const deletePayment = async (paymentId: string) => {
+    if (!confirm('이 결제 내역을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+      return
+    }
+
+    const res = await fetch(`/api/admin/payments/${paymentId}`, {
+      method: 'DELETE',
+    })
+
+    if (res.ok) {
+      alert('결제 내역이 삭제되었습니다')
+      // 목록 새로고침
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '20',
+        plan: planFilter,
+        status: statusFilter,
+      })
+      const refreshRes = await fetch(`/api/admin/settlements/payments?${params}`)
+      if (refreshRes.ok) {
+        const data = await refreshRes.json()
+        setPayments(data)
+      }
+    } else {
+      const error = await res.json()
+      alert(`삭제 실패: ${error.error}`)
+    }
+  }
+
+  // 환불 내역 삭제
+  const deleteRefund = async (refundId: string) => {
+    if (!confirm('이 환불 내역을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+      return
+    }
+
+    const res = await fetch(`/api/admin/refunds/${refundId}`, {
+      method: 'DELETE',
+    })
+
+    if (res.ok) {
+      alert('환불 내역이 삭제되었습니다')
+      // 목록 새로고침
+      const { start, end } = getDateRange()
+      const refreshRes = await fetch(`/api/admin/settlements/refunds?page=${refundPage}&limit=20&start=${start}&end=${end}`)
+      if (refreshRes.ok) {
+        const data = await refreshRes.json()
+        setRefunds(data)
+      }
+    } else {
+      const error = await res.json()
+      alert(`삭제 실패: ${error.error}`)
+    }
+  }
+
   // 엑셀 다운로드
   const handleExcelDownload = () => {
     if (!payments || payments.payments.length === 0) {
@@ -903,28 +958,48 @@ export default function SettlementsClient() {
                           </td>
                           <td className="text-center">{getStatusBadge(payment.status)}</td>
                           <td className="text-center">
-                            {payment.status === 'success' && (
-                              canRefund ? (
-                                <button
-                                  onClick={() => {
-                                    setSelectedPayment(payment)
-                                    setShowRefundModal(true)
-                                  }}
-                                  className="refund-btn"
-                                >
-                                  환불
-                                </button>
-                              ) : couponUsed ? (
-                                <button
-                                  disabled
-                                  className="refund-btn"
-                                  style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                                  title="쿠폰을 사용하여 환불할 수 없습니다"
-                                >
-                                  환불 불가
-                                </button>
-                              ) : null
-                            )}
+                            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
+                              {payment.status === 'success' && (
+                                canRefund ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedPayment(payment)
+                                      setShowRefundModal(true)
+                                    }}
+                                    className="refund-btn"
+                                  >
+                                    환불
+                                  </button>
+                                ) : couponUsed ? (
+                                  <button
+                                    disabled
+                                    className="refund-btn"
+                                    style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                                    title="쿠폰을 사용하여 환불할 수 없습니다"
+                                  >
+                                    환불 불가
+                                  </button>
+                                ) : null
+                              )}
+                              <button
+                                onClick={() => deletePayment(payment.id)}
+                                style={{
+                                  background: '#ef4444',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 6,
+                                  padding: '6px 12px',
+                                  fontSize: 13,
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.background = '#dc2626'}
+                                onMouseOut={(e) => e.currentTarget.style.background = '#ef4444'}
+                              >
+                                ×
+                              </button>
+                            </div>
                           </td>
                         </tr>
                         )
@@ -1062,6 +1137,7 @@ export default function SettlementsClient() {
                         <th>사유</th>
                         <th className="text-center">상태</th>
                         <th>처리일</th>
+                        <th className="text-center">액션</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1078,6 +1154,26 @@ export default function SettlementsClient() {
                           <td className="reason">{refund.reason}</td>
                           <td className="text-center">{getStatusBadge(refund.status)}</td>
                           <td>{refund.processed_at ? new Date(refund.processed_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                          <td className="text-center">
+                            <button
+                              onClick={() => deleteRefund(refund.id)}
+                              style={{
+                                background: '#ef4444',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: 6,
+                                padding: '6px 12px',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.background = '#dc2626'}
+                              onMouseOut={(e) => e.currentTarget.style.background = '#ef4444'}
+                            >
+                              ×
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

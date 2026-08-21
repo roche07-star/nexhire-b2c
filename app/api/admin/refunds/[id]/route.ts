@@ -1,0 +1,48 @@
+import { auth } from '@/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+import { isAdmin } from '@/lib/auth-helpers'
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await auth()
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+    }
+
+    // 관리자 권한 체크
+    if (!isAdmin(session)) {
+      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 })
+    }
+
+    const refundId = params.id
+
+    // 환불 삭제
+    const { error } = await supabase
+      .from('refunds')
+      .delete()
+      .eq('id', refundId)
+
+    if (error) {
+      console.error('[Delete Refund] Error:', error)
+      return NextResponse.json({ error: '환불 내역 삭제 실패' }, { status: 500 })
+    }
+
+    console.log('[Delete Refund] Success:', { refundId, adminEmail: session.user.email })
+
+    return NextResponse.json({
+      success: true,
+      message: '환불 내역이 삭제되었습니다',
+    })
+
+  } catch (error: any) {
+    console.error('[Delete Refund] Error:', error)
+    return NextResponse.json(
+      { error: error.message || '환불 내역 삭제 중 오류가 발생했습니다' },
+      { status: 500 }
+    )
+  }
+}
