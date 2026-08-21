@@ -305,6 +305,9 @@ export default function StoreClient({ isManager, userEmail, userName, userType, 
   // user_type 확인
   const isHeadhunter = userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN'
 
+  // 헤드헌터 전용 기능 목록
+  const HEADHUNTER_ONLY_FEATURES = ['jd_analysis', 'proposal']
+
   return (
     <main className="store-page zero-nav-spacing">
       <div className="store-container">
@@ -333,9 +336,10 @@ export default function StoreClient({ isManager, userEmail, userName, userType, 
         <div className="products-grid">
           {PRODUCTS
             .filter(product => {
-              // 헤드헌터는 모든 상품, 구직자는 헤드헌터 전용 배지 없는 것만
+              // 헤드헌터는 모든 상품 표시
               if (isHeadhunter) return true
-              return !product.badge || product.badge !== '헤드헌터 전용'
+              // 구직자는 헤드헌터 전용 기능 제외
+              return !HEADHUNTER_ONLY_FEATURES.includes(product.feature)
             })
             .map(product => (
             <div key={product.id} className="product-card">
