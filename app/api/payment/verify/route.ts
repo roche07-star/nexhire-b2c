@@ -162,35 +162,6 @@ export async function POST(req: NextRequest) {
       isReserved = false
 
       console.log(`[Payment] 즉시 활성화: ${product.plan} (만료: ${expiresAt.toISOString().split('T')[0]})`)
-
-      // 기존 분석 결과 만료일 연장 (plan_expires_at과 동기화)
-      const expiresAtStr = expiresAt.toISOString()
-
-      // 1. JD 분석 만료일 연장
-      const { error: jdUpdateError } = await supabase
-        .from('jd_analyses')
-        .update({ expires_at: expiresAtStr })
-        .eq('user_email', session.user.email)
-        .lt('expires_at', expiresAtStr)
-
-      if (jdUpdateError) {
-        console.error('[Payment] JD 분석 expires_at 갱신 실패:', jdUpdateError)
-      } else {
-        console.log(`[Payment] JD 분석 만료일 연장 완료: ${expiresAtStr.split('T')[0]}`)
-      }
-
-      // 2. 이력서 분석 만료일 연장
-      const { error: analysisUpdateError } = await supabase
-        .from('analyses')
-        .update({ expires_at: expiresAtStr })
-        .eq('user_email', session.user.email)
-        .lt('expires_at', expiresAtStr)
-
-      if (analysisUpdateError) {
-        console.error('[Payment] 이력서 분석 expires_at 갱신 실패:', analysisUpdateError)
-      } else {
-        console.log(`[Payment] 이력서 분석 만료일 연장 완료: ${expiresAtStr.split('T')[0]}`)
-      }
     }
 
     if (updateError) {

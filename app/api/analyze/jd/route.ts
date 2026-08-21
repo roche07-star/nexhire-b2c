@@ -405,22 +405,8 @@ ${candidateProfile}`
       await incrementUsage(session.user.email, 'jd_match')
     }
 
-    // 유저의 plan_expires_at 기준으로 expires_at 설정
-    const { data: userData } = await supabase
-      .from('users')
-      .select('plan_expires_at, plan')
-      .eq('email', session.user.email)
-      .single()
-
-    let expiresAt: Date
-    if (userData?.plan_expires_at && userData.plan !== 'FREE') {
-      // PRO/EXPERT: 플랜 만료일과 동일
-      expiresAt = new Date(userData.plan_expires_at)
-    } else {
-      // FREE: 1년
-      expiresAt = new Date()
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1)
-    }
+    const expiresAt = new Date()
+    expiresAt.setFullYear(expiresAt.getFullYear() + 10)
 
     const { error: insertError } = await supabase.from('jd_analyses').insert({
       user_email: session.user.email,
