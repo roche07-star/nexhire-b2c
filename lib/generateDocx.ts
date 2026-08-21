@@ -99,7 +99,7 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
     if (/^[-•*▪▸]\s/.test(trimmed)) {
       return bulletLine(trimmed.replace(/^[-•*▪▸]\s*/, ''))
     }
-    // 【】로 시작하는 회사명 줄: 13pt, Bold
+    // 【】로 시작하는 회사명 줄: 15pt, Bold
     if (trimmed.includes('【') && trimmed.includes('】')) {
       // ** 제거
       const cleanText = line.trimEnd().replace(/\*\*/g, '')
@@ -108,8 +108,8 @@ function contentLines(content: string, alignment?: any): Paragraph[] {
           new TextRun({
             text: cleanText,
             bold: true,
-            size: 26, // 13pt = 26 half-points
-            color: '333344'
+            size: 30, // 15pt = 30 half-points (13pt → 15pt로 증가)
+            color: '1f2937' // 더 진한 색상
           }),
         ],
         spacing: { after: 120, before: 240, line: 240 },
@@ -194,6 +194,27 @@ function parseTable(content: string): Table | null {
   })
 }
 
+// 경력사항에서 소재지 제거 함수
+function cleanCareerLocation(content: string): string {
+  return content
+    .split('\n')
+    .map(line => {
+      // 경력 테이블 데이터 라인 (|로 구분된 5개 컬럼)
+      const parts = line.split('|').filter(p => p.trim())
+      if (parts.length === 5 && parts[0].includes('~')) {
+        // 재직기간|회사명|직무|재직여부|소재지 → 소재지 제거
+        return `| ${parts[0]} | ${parts[1]} | ${parts[2]} | ${parts[3]} |`
+      }
+      // 테이블 헤더 제거
+      if (line.includes('재직기간') && line.includes('소재지')) {
+        return ''
+      }
+      return line
+    })
+    .filter(line => line.trim()) // 빈 줄 제거
+    .join('\n')
+}
+
 export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
   const children: Paragraph[] = []
 
@@ -210,10 +231,51 @@ export async function generateResumeDocx(data: RewriteResult): Promise<Buffer> {
     )
   }
 
-  // 원본 섹션 순서 그대로
+  // 원본 섹션 순서 그대로 (소재지 제거 + 테이블 파싱 적용)
   for (const section of (data.sections ?? [])) {
     children.push(sectionHeading(section.title))
-    children.push(...contentLines(section.content))
+    const cleanedContent = cleanCareerLocation(section.content)
+
+    // 테이블 감지: | 로 시작하는 라인이 2개 이상 연속되면 테이블로 처리
+    const hasTable = cleanedContent.split('\n').filter(l => l.trim().startsWith('|')).length >= 2
+
+    if (hasTable) {
+      // 테이블과 나머지 컨텐츠 분리
+      const lines = cleanedContent.split('\n')
+      const tableLines: string[] = []
+      const otherLines: string[] = []
+      let inTable = false
+
+      for (const line of lines) {
+        if (line.trim().startsWith('|')) {
+          tableLines.push(line)
+          inTable = true
+        } else {
+          if (inTable && tableLines.length > 0) {
+            // 테이블 종료
+            const table = parseTable(tableLines.join('\n'))
+            if (table) children.push(table as any)
+            tableLines.length = 0
+            inTable = false
+          }
+          otherLines.push(line)
+        }
+      }
+
+      // 마지막 테이블 처리
+      if (tableLines.length > 0) {
+        const table = parseTable(tableLines.join('\n'))
+        if (table) children.push(table as any)
+      }
+
+      // 나머지 컨텐츠 처리
+      if (otherLines.length > 0) {
+        children.push(...contentLines(otherLines.join('\n')))
+      }
+    } else {
+      // 테이블 없으면 기존 방식
+      children.push(...contentLines(cleanedContent))
+    }
   }
 
   const doc = new Document({

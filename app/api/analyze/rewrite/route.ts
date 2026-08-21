@@ -452,13 +452,79 @@ ${paraList}`
 }
 
 function generatePreviewHTML(sections?: Array<{ title: string; content: string }>, rewrites?: string[]): string {
-  // 특정 표 헤더 텍스트 제거 함수
+  // 특정 표 헤더 텍스트 제거 및 경력사항 정리 함수
   const cleanTableHeaders = (text: string): string => {
     return text
       .replace(/\|기간\|학교명 및 전공\|/g, '')
       .replace(/\|재직기간\|회사명\|직무\|재직 여부\|소재지\|/g, '')
+      // 경력사항 테이블에서 소재지 컬럼 제거 (마지막 | 이후 내용)
+      .split('\n')
+      .map(line => {
+        // 경력 테이블 데이터 라인 (|로 구분된 5개 컬럼)
+        const parts = line.split('|').filter(p => p.trim())
+        if (parts.length === 5 && parts[0].includes('~')) {
+          // 재직기간|회사명|직무|재직여부|소재지 → 소재지 제거
+          return `| ${parts[0]} | ${parts[1]} | ${parts[2]} | ${parts[3]} |`
+        }
+        return line
+      })
+      .join('\n')
       .replace(/^\s*\n/gm, '') // 빈 줄 제거
       .trim()
+  }
+
+  // content를 HTML로 변환 (회사명 강조 + 테이블 파싱)
+  const formatContent = (content: string): string => {
+    const lines = content.split('\n')
+    const result: string[] = []
+    let tableLines: string[] = []
+    let inTable = false
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      // 테이블 라인 감지 (| 로 시작)
+      if (line.trim().startsWith('|')) {
+        tableLines.push(line)
+        inTable = true
+      } else {
+        // 테이블 종료
+        if (inTable && tableLines.length > 0) {
+          // 테이블을 HTML <table>로 변환
+          const tableHTML = tableLines.map((tLine, idx) => {
+            const cells = tLine.split('|').filter(c => c.trim()).map(c => c.trim())
+            const tag = idx === 0 ? 'th' : 'td'
+            const cellsHTML = cells.map(cell => `<${tag} style="padding: 8px 12px; border: 1px solid #e5e7eb; text-align: center;">${cell}</${tag}>`).join('')
+            return `<tr>${cellsHTML}</tr>`
+          }).join('')
+
+          result.push(`<table style="width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px;">${tableHTML}</table>`)
+          tableLines = []
+          inTable = false
+        }
+
+        // 회사명 강조
+        if (line.includes('【') && line.includes('】')) {
+          result.push(`<div style="font-size: 16px; font-weight: 700; color: #1f2937; margin-top: 20px; margin-bottom: 8px; padding-left: 4px; border-left: 3px solid #2563eb;">${line}</div>`)
+        } else {
+          result.push(line)
+        }
+      }
+    }
+
+    // 마지막 테이블 처리
+    if (tableLines.length > 0) {
+      const tableHTML = tableLines.map((tLine, idx) => {
+        const cells = tLine.split('|').filter(c => c.trim()).map(c => c.trim())
+        const tag = idx === 0 ? 'th' : 'td'
+        const cellsHTML = cells.map(cell => `<${tag} style="padding: 8px 12px; border: 1px solid #e5e7eb; text-align: center;">${cell}</${tag}>`).join('')
+        return `<tr>${cellsHTML}</tr>`
+      }).join('')
+
+      result.push(`<table style="width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px;">${tableHTML}</table>`)
+    }
+
+    return result.join('\n')
   }
 
   if (sections && sections.length > 0) {
@@ -466,6 +532,7 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
     const sectionsHTML = sections.map((sec, index) => {
       const isPersonalInfo = sec.title.includes('개인') || sec.title.includes('인적')
       const cleanedContent = cleanTableHeaders(sec.content)
+      const formattedContent = formatContent(cleanedContent)
 
       return `
       <div style="margin-bottom: ${isPersonalInfo ? '32px' : '28px'};">
@@ -497,7 +564,7 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
             line-height: 1.9;
             color: #1f2937;
             font-size: 14px;
-          ">${cleanedContent}</div>
+          ">${formattedContent}</div>
         </div>
         ` : `
         <!-- 일반 섹션 스타일 -->
@@ -522,7 +589,7 @@ function generatePreviewHTML(sections?: Array<{ title: string; content: string }
             line-height: 1.85;
             color: #374151;
             font-size: 14px;
-          ">${cleanedContent}</div>
+          ">${formattedContent}</div>
         </div>
         `}
       </div>
