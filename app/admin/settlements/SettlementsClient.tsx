@@ -875,7 +875,7 @@ export default function SettlementsClient() {
 
                         return (
                         <tr key={payment.id}>
-                          <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                          <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                           <td className="email">{payment.user_email}</td>
                           <td>
                             <span className={`plan-badge ${payment.plan === 'EXPERT' ? 'expert' : payment.plan === 'STORE' ? 'store' : 'pro'}`}>
@@ -955,7 +955,7 @@ export default function SettlementsClient() {
                         </div>
                         <div className="detail-row">
                           <span className="label">일자</span>
-                          <span className="value">{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
+                          <span className="value">{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span>
                         </div>
                         <div className="detail-row">
                           <span className="label">결제방법</span>
@@ -1067,7 +1067,7 @@ export default function SettlementsClient() {
                     <tbody>
                       {sortData(refunds.refunds).map((refund) => (
                         <tr key={refund.id}>
-                          <td>{new Date(refund.requested_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                          <td>{new Date(refund.requested_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
                           <td className="email">{refund.user_email}</td>
                           <td>
                             <span className={`plan-badge ${refund.plan === 'EXPERT' ? 'expert' : refund.plan === 'STORE' ? 'store' : 'pro'}`}>
@@ -1077,7 +1077,7 @@ export default function SettlementsClient() {
                           <td className="text-right amount">{formatCurrency(refund.amount)}</td>
                           <td className="reason">{refund.reason}</td>
                           <td className="text-center">{getStatusBadge(refund.status)}</td>
-                          <td>{refund.processed_at ? new Date(refund.processed_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                          <td>{refund.processed_at ? new Date(refund.processed_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1102,7 +1102,7 @@ export default function SettlementsClient() {
                         </div>
                         <div className="detail-row">
                           <span className="label">요청일</span>
-                          <span className="value">{new Date(refund.requested_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}</span>
+                          <span className="value">{new Date(refund.requested_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric' })}</span>
                         </div>
                         <div className="detail-row">
                           <span className="label">사유</span>
@@ -1110,7 +1110,7 @@ export default function SettlementsClient() {
                         </div>
                         <div className="detail-row">
                           <span className="label">처리일</span>
-                          <span className="value">{refund.processed_at ? new Date(refund.processed_at).toLocaleDateString('ko-KR') : '-'}</span>
+                          <span className="value">{refund.processed_at ? new Date(refund.processed_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }) : '-'}</span>
                         </div>
                       </div>
                     </div>
