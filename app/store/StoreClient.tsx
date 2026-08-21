@@ -302,40 +302,8 @@ export default function StoreClient({ isManager, userEmail, userName, userType, 
     }
   }
 
-  // 헤드헌터 전용 체크
-  if (userType !== 'HEADHUNTER' && userType !== 'MANAGER' && userType !== 'SUPER_ADMIN') {
-    return (
-      <main className="store-page zero-nav-spacing">
-        <div className="store-container">
-          <div className="store-header">
-            <div className="store-header-content">
-              <h1 className="store-title">STORE</h1>
-              <p className="store-subtitle" style={{ color: '#f59e0b', marginTop: '20px' }}>
-                ⚠️ 헤드헌터 전용 서비스입니다
-              </p>
-              <p className="store-description" style={{ marginTop: '20px' }}>
-                STORE는 헤드헌터를 위한 전용 상품 구매 페이지입니다.<br />
-                헤드헌터 계정으로 로그인 후 이용해 주세요.
-              </p>
-              <div style={{ marginTop: '40px' }}>
-                <a href="/analyze" style={{
-                  display: 'inline-block',
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
-                  color: 'white',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  fontWeight: '600'
-                }}>
-                  대시보드로 이동
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    )
-  }
+  // user_type 확인
+  const isHeadhunter = userType === 'HEADHUNTER' || userType === 'MANAGER' || userType === 'SUPER_ADMIN'
 
   return (
     <main className="store-page zero-nav-spacing">
@@ -344,18 +312,32 @@ export default function StoreClient({ isManager, userEmail, userName, userType, 
           <div className="store-header-content">
             <h1 className="store-title">STORE</h1>
             <p className="store-subtitle">
-              헤드헌터 전용 커리어 부스터 팩 <br className="mobile-only" />
-              (쿠폰 유효기간: 3개월)
+              {isHeadhunter ? (
+                <>헤드헌터 전용 커리어 부스터 팩 <br className="mobile-only" />
+                (쿠폰 유효기간: 3개월)</>
+              ) : (
+                <>JOBIZIC 프리미엄 분석 서비스</>
+              )}
             </p>
             <p className="store-description">
-              헤드헌터의 업무 효율을 극대화할 <br className="mobile-only" />
-              프리미엄 JOBIZIC 분석 서비스
+              {isHeadhunter ? (
+                <>헤드헌터의 업무 효율을 극대화할 <br className="mobile-only" />
+                프리미엄 JOBIZIC 분석 서비스</>
+              ) : (
+                <>나에게 필요한 분석 기능만 선택하여 구매하세요</>
+              )}
             </p>
           </div>
         </div>
 
         <div className="products-grid">
-          {PRODUCTS.map(product => (
+          {PRODUCTS
+            .filter(product => {
+              // 헤드헌터는 모든 상품, 구직자는 헤드헌터 전용 배지 없는 것만
+              if (isHeadhunter) return true
+              return !product.badge || product.badge !== '헤드헌터 전용'
+            })
+            .map(product => (
             <div key={product.id} className="product-card">
               <div
                 className="product-image"

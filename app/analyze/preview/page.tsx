@@ -188,39 +188,6 @@ ${element.innerHTML}
     }
   }
 
-  async function downloadPDF() {
-    try {
-      const element = document.getElementById('resume-content')
-      if (!element) {
-        alert('이력서 내용을 찾을 수 없습니다.')
-        return
-      }
-
-      // 동적 import로 브라우저에서만 로드
-      const html2pdf = (await import('html2pdf.js')).default
-
-      const opt = {
-        margin: 5 as number,
-        filename: `jobizic_resume_${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg' as const, quality: 1 },
-        html2canvas: {
-          scale: 3,
-          useCORS: true,
-          letterRendering: true,
-          logging: false,
-          scrollY: 0,
-          scrollX: 0,
-        },
-        jsPDF: { unit: 'mm' as const, format: 'b4' as const, orientation: 'portrait' as const }
-      } as any
-
-      await html2pdf().set(opt).from(element).save()
-    } catch (e) {
-      console.error('PDF 다운로드 실패:', e)
-      alert('PDF 다운로드에 실패했습니다.')
-    }
-  }
-
   function parseHTMLToSections(htmlString: string): Section[] {
     if (!htmlString) return []
 
@@ -381,32 +348,6 @@ ${element.innerHTML}
                 }}
               >
                 📄 HTML
-              </button>
-
-              {/* PRO/EXPERT: PDF 다운로드 버튼 */}
-              <button
-                onClick={downloadPDF}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.15)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-                }}
-              >
-                📑 PDF
               </button>
 
               {/* PRO/EXPERT: DOCX 다운로드 버튼 */}
