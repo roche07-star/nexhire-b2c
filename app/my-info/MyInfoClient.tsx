@@ -56,6 +56,7 @@ function formatPaymentMethod(paymentMethod: string | null): string {
 
 const FEATURE_NAMES: Record<string, string> = {
   resume: '이력서 분석',
+  jd_analysis: 'JD 분석',
   jd: 'JD 적합도 분석',
   rewrite: '이력서 생성',
   interview: '면접 가이드',
@@ -65,12 +66,16 @@ const FEATURE_NAMES: Record<string, string> = {
 
 const FEATURE_LINKS: Record<string, string> = {
   resume: '/analyze',
+  jd_analysis: '/analyze',
   jd: '/analyze',
   rewrite: '/analyze',
   interview: '/analyze',
   proposal: '/analyze',
   storage: '/analyze',
 }
+
+// 쿠폰 표시 순서
+const FEATURE_ORDER = ['resume', 'jd_analysis', 'jd', 'rewrite', 'interview', 'proposal', 'storage']
 
 interface RestorableData {
   restorable: boolean
@@ -319,7 +324,13 @@ export default function MyInfoClient({ coupons: initialCoupons, payments: initia
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {coupons.map((coupon) => {
+              {[...coupons]
+                .sort((a, b) => {
+                  const indexA = FEATURE_ORDER.indexOf(a.feature)
+                  const indexB = FEATURE_ORDER.indexOf(b.feature)
+                  return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB)
+                })
+                .map((coupon) => {
                 const expired = isExpired(coupon.expires_at)
                 const remaining = remainingCredits(coupon)
                 const status = expired ? 'expired' : remaining <= 0 ? 'used' : 'active'
